@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Gemunu+Libre:wght@300&display=swap');
+
+:root {
+  --background-color: #261c2c;
+  --module-background-color: #3e2c41;
+  --module-header-color: #5c527f;
+  --foreground-color: #6e85b2;
+  --font-color: #f7efda;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  font-size: 16px;
+  box-sizing: border-box;
+
+  color: var(--font-color);
+  font-family: 'Gemunu Libre', sans-serif;
+
+  text-transform: uppercase;
+}
+
+input {
+  padding: 2px 6px;
+}
+
+body {
+  background: var(--background-color);
+}
+
+body,
+html {
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+.launch-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  font-size: 48px;
+  text-align: center;
+  background-color: var(--module-header-color);
+}
+
+.module-selector {
+  position: absolute;
+  width: 100%;
+  height: 80px;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--module-header-color);
+  border-right: 2px solid var(--foreground-color);
+}
+
+.module-selector button {
+  margin: 20px 0 0 20px;
+  padding: 7px;
+  background: var(--module-background-color);
+  border-bottom: 2px solid var(--foreground-color);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.module {
+  height: 120px;
+  background: var(--module-background-color);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.8;
+}
+
+.module-name {
+  width: 100%;
+  padding: 7px;
+  background-color: var(--module-header-color);
+  border-bottom: 2px solid var(--foreground-color);
+  cursor: grab;
+}
+
+.module-body {
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.module-outputs,
+.module-inputs {
+  position: absolute;
+  top: 33px;
+  bottom: 0;
+  width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.module-outputs {
+  right: -7px;
+}
+
+.module-inputs {
+  left: -7px;
+}
+
+.socket-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.socket-output {
+  flex-direction: row-reverse;
+}
+
+.socket {
+  flex-shrink: 0;
+  border-radius: 20px;
+  height: 14px;
+  width: 14px;
+  cursor: pointer;
+  border: 2px solid var(--foreground-color);
+  background-color: var(--module-header-color);
+}
+
+.socket-name {
+  margin: 0 4px;
+}
+
+.cables {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100vw;
+  z-index: -1;
+}
+
+.knob {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--font-color);
+  background-color: var(--foreground-color);
+}
+
+.knob-position {
+  border-bottom: 2px solid var(--font-color);
+  width: 12px;
+  position: relative;
+  top: 11px;
+}
+
+.sequencer-note {
+  border: 2px solid var(--font-color);
+  margin-bottom: 4px;
+}
+
+.sequencer-note select {
+  appearance: none;
+
+  background: var(--background-color);
+  width: 20px;
+}
