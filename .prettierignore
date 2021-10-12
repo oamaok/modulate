@@ -1,0 +1,3 @@
+dist
+client/generated
+server/migrations/
