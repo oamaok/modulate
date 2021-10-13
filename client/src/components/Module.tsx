@@ -1,6 +1,6 @@
 import { h, useState, useEffect, FC } from 'kaiku'
 import state, { getModulePosition } from '../state'
-import { Id, Vec2 } from '../types'
+import { Id, Vec2 } from '../../../common/types'
 
 type Props = {
   id: Id

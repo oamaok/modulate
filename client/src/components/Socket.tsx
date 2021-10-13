@@ -1,7 +1,7 @@
 import { h, Fragment, useEffect, useRef } from 'kaiku'
-import { getModulePosition, plugActiveCable, setSocketPosition } from '../state'
+import { plugActiveCable, setSocketPosition } from '../state'
 import { RegisteredSocket, registerSocket, unregisterSocket } from '../sockets'
-import { Vec2 } from '../types'
+import { Vec2 } from '../../../common/types'
 
 type Props = RegisteredSocket
 
@@ -43,6 +43,7 @@ const Socket = ({ moduleId, type, name, node }: Props) => {
     if (ref.current) {
       const offset = getSocketOffset(ref.current)
       const { width, height } = ref.current.getBoundingClientRect()
+
       setSocketPosition(moduleId, name, {
         x: offset.x + width / 2,
         y: offset.y + height / 2,

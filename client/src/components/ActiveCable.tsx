@@ -21,11 +21,11 @@ const ActiveCable = () => {
 
   const candidateSocket = getCableConnectionCandidate()
 
-  const a = getSocketPosition(state.activeCable.from.socket)
+  const a = getSocketPosition(state.activeCable.from)
   const b = candidateSocket ? getSocketPosition(candidateSocket) : state.cursor
 
-  const from = state.activeCable.from.socket.type === 'output' ? a : b
-  const to = state.activeCable.from.socket.type === 'output' ? b : a
+  const from = state.activeCable.from.type === 'output' ? a : b
+  const to = state.activeCable.from.type === 'output' ? b : a
 
   return <CablePath from={from} to={to} />
 }

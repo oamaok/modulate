@@ -1,22 +1,25 @@
 import { createState } from 'kaiku'
 import { getSockets } from './sockets'
-import { Cable, ConnectedSocket, Id, State, Vec2 } from './types'
+import { State } from './types'
+import { Cable, ConnectedSocket, Id, Vec2 } from '../../common/types'
 
 const state = createState<State>({
-  currentId: 0,
   initialized: false,
   cursor: { x: 0, y: 0 },
   viewport: { width: window.innerWidth, height: window.innerHeight },
-  modules: {},
-  knobs: {},
-  sockets: {},
-  cables: [],
+  patch: {
+    currentId: 0,
+    modules: {},
+    knobs: {},
+    cables: [],
+  },
+  socketPositions: {},
   activeCable: null,
 })
 export default state
-export const { cursor, viewport, modules, knobs, sockets } = state
+export const { cursor, viewport, patch, socketPositions } = state
 
-export const nextId = () => `${state.currentId++}` as Id
+export const nextId = () => `${patch.currentId++}` as Id
 
 document.documentElement.addEventListener('mousemove', (evt) => {
   evt.preventDefault()
@@ -30,33 +33,34 @@ document.addEventListener('resize', () => {
 })
 
 export const addModule = (name: string) => {
-  state.modules[nextId()] = {
+  patch.modules[nextId()] = {
     name,
     position: { x: 200, y: 200 },
+    state: undefined,
   }
 }
 
 export const setModuleState = (id: Id, moduleState: any) => {
-  state.modules[id].state = moduleState
+  patch.modules[id].state = moduleState
 }
 
 export const getModuleState = <T>(id: Id): T => {
-  return state.modules[id].state as T
+  return patch.modules[id].state as T
 }
 
 export const getModulePosition = (id: Id) => {
-  return state.modules[id].position
+  return patch.modules[id].position
 }
 
 export const setModulePosition = (id: Id, position: Vec2) => {
-  state.modules[id].position = position
+  patch.modules[id].position = position
 }
 
 export const setSocketPosition = (moduleId: Id, name: string, pos: Vec2) => {
-  if (!state.sockets[moduleId]) {
-    state.sockets[moduleId] = {}
+  if (!socketPositions[moduleId]) {
+    socketPositions[moduleId] = {}
   }
-  state.sockets[moduleId][name] = pos
+  socketPositions[moduleId][name] = pos
 }
 
 export const getSocketPosition = ({
@@ -66,8 +70,9 @@ export const getSocketPosition = ({
   moduleId: Id
   name: string
 }): Vec2 => {
-  const socketOffset = state.sockets[moduleId][name]
-  const modulePosition = state.modules[moduleId].position
+  const socketOffset = socketPositions[moduleId][name]
+  const modulePosition = patch.modules[moduleId].position
+
   return {
     x: modulePosition.x + socketOffset.x,
     y: modulePosition.y + socketOffset.y,
@@ -77,29 +82,28 @@ export const getSocketPosition = ({
 export const getModuleKnobs = (
   moduleId: Id
 ): undefined | Record<string, number> => {
-  return state.knobs[moduleId]
+  return patch.knobs[moduleId]
 }
 
 export const getKnobValue = (
   moduleId: Id,
   name: string
 ): undefined | number => {
-  return state.knobs[moduleId]?.[name]
+  return patch.knobs[moduleId]?.[name]
 }
 
 export const setKnobValue = (moduleId: Id, name: string, value: number) => {
-  if (!state.knobs[moduleId]) {
-    state.knobs[moduleId] = {}
+  if (!patch.knobs[moduleId]) {
+    patch.knobs[moduleId] = {}
   }
-  state.knobs[moduleId][name] = value
+  patch.knobs[moduleId][name] = value
 }
 
 const cableConnectsToSocket = (
   cable: Cable,
   socket: ConnectedSocket
 ): boolean => {
-  const cableSocket =
-    socket.type === 'input' ? cable.to.socket : cable.from.socket
+  const cableSocket = socket.type === 'input' ? cable.to : cable.from
 
   return (
     cableSocket.moduleId === socket.moduleId && cableSocket.name === socket.name
@@ -107,18 +111,18 @@ const cableConnectsToSocket = (
 }
 
 export const plugActiveCable = (socket: ConnectedSocket) => {
-  const previousCable = state.cables.find((cable) =>
+  const previousCable = patch.cables.find((cable) =>
     cableConnectsToSocket(cable, socket)
   )
 
   if (previousCable) {
-    state.cables = state.cables.filter((cable) => cable.id !== previousCable.id)
+    patch.cables = patch.cables.filter((cable) => cable.id !== previousCable.id)
     state.activeCable = {
       from: socket.type === 'input' ? previousCable.from : previousCable.to,
     }
   } else {
     state.activeCable = {
-      from: { socket },
+      from: socket,
     }
   }
 }
@@ -128,7 +132,7 @@ export const getCableConnectionCandidate = () => {
   if (!activeCable) return null
 
   const targetSockets = getSockets().filter(
-    (socket) => socket.type !== activeCable.from.socket.type
+    (socket) => socket.type !== activeCable.from.type
   )
 
   const candidateSocket = targetSockets.find((socket) => {
@@ -140,10 +144,10 @@ export const getCableConnectionCandidate = () => {
 
   const inputSocketIsOccupied =
     candidateSocket.type === 'input' &&
-    state.cables.some(
+    patch.cables.some(
       (cable) =>
-        cable.to.socket.moduleId === candidateSocket.moduleId &&
-        cable.to.socket.name === candidateSocket.name
+        cable.to.moduleId === candidateSocket.moduleId &&
+        cable.to.name === candidateSocket.name
     )
 
   if (inputSocketIsOccupied) return null
@@ -152,21 +156,17 @@ export const getCableConnectionCandidate = () => {
 }
 
 export const addCable = (from: ConnectedSocket, to: ConnectedSocket) => {
-  state.cables.push({
+  patch.cables.push({
     id: nextId(),
     from: {
-      socket: {
-        moduleId: from.moduleId,
-        type: from.type,
-        name: from.name,
-      },
+      moduleId: from.moduleId,
+      type: from.type,
+      name: from.name,
     },
     to: {
-      socket: {
-        moduleId: to.moduleId,
-        type: to.type,
-        name: to.name,
-      },
+      moduleId: to.moduleId,
+      type: to.type,
+      name: to.name,
     },
   })
 }
@@ -183,14 +183,14 @@ export const releaseActiveCable = () => {
     return
   }
 
-  if (activeCable.from.socket.type === 'output') {
-    const from = activeCable.from.socket
+  if (activeCable.from.type === 'output') {
+    const from = activeCable.from
     const to = candidateSocket
 
     addCable(from, to)
   } else {
     const from = candidateSocket
-    const to = activeCable.from.socket
+    const to = activeCable.from
 
     addCable(from, to)
   }

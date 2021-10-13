@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start:client": "node build.js",
-    "start:server": "ts-node-dev --respawn --transpile-only ./server/src/index.ts",
+    "start:server": "yarn run-migrations && ts-node-dev --respawn --transpile-only ./server/src/index.ts",
     "add-migration": "node server/scripts/add-migration",
     "run-migrations": "node server/scripts/run-migrations"
   },
@@ -29,6 +29,8 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "fp-ts": "^2.11.4",
+    "io-ts": "^2.2.16",
     "ts-node": "^10.2.1",
     "ts-node-dev": "^1.1.8"
   }

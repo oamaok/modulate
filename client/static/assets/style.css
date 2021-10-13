@@ -171,3 +171,10 @@ html {
   background: var(--background-color);
   width: 20px;
 }
+
+.patch-controls {
+  position: absolute;
+
+  left: 10px;
+  bottom: 10px;
+}

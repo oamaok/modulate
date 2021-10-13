@@ -3,7 +3,7 @@ import { initializeAudio } from './audio'
 import Cables from './components/Cables'
 import Modules from './components/Modules'
 import ModuleSelector from './components/ModuleSelector'
-import state from './state'
+import state, { patch } from './state'
 import * as api from './api'
 
 const initialize = async () => {
@@ -14,14 +14,13 @@ const initialize = async () => {
   if (rawSaveState) {
     const { currentId, modules, knobs, sockets, cables } =
       JSON.parse(rawSaveState)
-    state.knobs = knobs
-    state.currentId = currentId
-    state.modules = modules
-    state.sockets = sockets
+    patch.knobs = knobs
+    patch.currentId = currentId
+    patch.modules = modules
 
     state.initialized = true
     await new Promise((resolve) => requestAnimationFrame(resolve))
-    state.cables = cables
+    patch.cables = cables
   } else {
     state.initialized = true
   }
@@ -36,18 +35,7 @@ const App = () => {
   useEffect(() => {
     if (!state.initialized) return
 
-    const { currentId, modules, knobs, sockets, cables } = state
-
-    localStorage.setItem(
-      'savestate',
-      JSON.stringify({
-        currentId,
-        modules,
-        knobs,
-        sockets,
-        cables,
-      })
-    )
+    localStorage.setItem('savestate', JSON.stringify(patch))
   })
 
   if (!state.initialized) {
@@ -63,6 +51,9 @@ const App = () => {
       <ModuleSelector />
       <Modules />
       <Cables />
+      <div className="patch-controls">
+        <button onClick={() => api.saveNewPatch(patch)}>Save</button>
+      </div>
     </>
   )
 }
