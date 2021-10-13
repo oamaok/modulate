@@ -1,6 +1,6 @@
 import { h, useState, useEffect } from 'kaiku'
 import state, { getKnobValue, setKnobValue } from '../state'
-import { Id, Vec2 } from '../types'
+import { Id, Vec2 } from '../../../common/types'
 
 type Props = {
   moduleId: Id

@@ -87,7 +87,6 @@ const router = (): RouterChain => {
     req: http.IncomingMessage,
     res: http.ServerResponse
   ) => {
-    const pBody = parseRequestBody(req)
     const url = new URL(
       req.url ?? '',
       `http://${req.headers.host ?? 'localhost'}`
@@ -104,6 +103,10 @@ const router = (): RouterChain => {
     for (let i = 0; i < routes.length; i++) {
       const route = routes[i]
 
+      if (route.method !== req.method) {
+        continue
+      }
+
       let match = true
       let wildcardMatch = ''
       const parameters: Record<string, string> = {}
@@ -118,6 +121,12 @@ const router = (): RouterChain => {
             .join('/')
           break
         }
+
+        if (segments.length === j) {
+          match = false
+          break
+        }
+
         if (routeSegment.type === 'parameter') {
           parameters[routeSegment.name] = segments[j]
           continue
@@ -140,6 +149,16 @@ const router = (): RouterChain => {
     if (matchingRoutes.length === 0) {
       res.statusCode = 404
       res.write('404')
+      res.end()
+      return
+    }
+
+    let body: any
+    try {
+      body = await parseRequestBody(req)
+    } catch (err) {
+      res.statusCode = 400
+      res.write('400')
       res.end()
       return
     }
@@ -168,7 +187,7 @@ const router = (): RouterChain => {
         url,
         parameters: match.parameters,
         headers: req.headers,
-        body: await pBody,
+        body,
         authorization,
       },
       {
@@ -205,7 +224,7 @@ const router = (): RouterChain => {
           data = await readFile(path)
         } catch (err) {
           res.status(404)
-          res.send(404)
+          res.send('404')
           res.end()
           return
         }

@@ -3,6 +3,7 @@ import sqlite from 'sqlite3'
 import sql, { SQLStatement } from 'sql-template-strings'
 import { v4 as uuid } from 'uuid'
 import argon2 from 'argon2'
+import { Patch } from '../../common/types'
 
 const db = new (sqlite.verbose().Database)(
   path.resolve(__dirname, '../../data/database.sqlite3')
@@ -72,14 +73,21 @@ export const getUserPatches = (userId: string) => {
   `)
 }
 
-export const getLatestPatchVersion = (patchId: string) => {
-  return query(sql`
+export const getLatestPatchVersion = async (patchId: string) => {
+  const [patch] = await query(sql`
     SELECT id, patch, name version, createdAt
     FROM patches
     WHERE id = ${patchId}
     ORDER BY version DESC
     LIMIT 1
   `)
+
+  if (!patch) return null
+
+  return {
+    ...patch,
+    patch: JSON.parse(patch.patch),
+  }
 }
 
 export const getPatchVersion = (patchId: string, version: number) => {
@@ -92,31 +100,36 @@ export const getPatchVersion = (patchId: string, version: number) => {
 export const saveNewPatch = async (
   userId: string,
   patchName: string,
-  patch: any
+  patch: Patch
 ) => {
   const patchId = uuid()
 
-  await query(sql`
+  const res = await query(sql`
     INSERT INTO patches (id, name, authorId, createdAt, patch)
     VALUES (${patchId}, ${patchName}, ${userId}, ${Date.now()}, ${JSON.stringify(
     patch
   )})
   `)
+
+  return { id: patchId, version: 0 }
 }
 
 export const savePatchVersion = async (
   userId: string,
   patchId: string,
-  patch: any
+  patch: Patch
 ) => {
   const [latestVersion] = await query(sql`
     SELECT version FROM patches WHERE id = ${patchId} ORDER BY version DESC LIMIT 1
   `)
 
+  const nextVersion = latestVersion.version + 1
+
   await query(sql`
     INSERT INTO patches (id, version, name, authorId, createdAt, patch)
-    VALUES (${patchId}, ${
-    latestVersion.version + 1
-  }, ${userId}, ${Date.now()}, ${JSON.stringify(patch)})
+    VALUES (${patchId}, ${nextVersion}, 'untitled', ${userId}, ${Date.now()}, ${JSON.stringify(
+    patch
+  )})
   `)
+  return { id: patchId, version: nextVersion }
 }

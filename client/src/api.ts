@@ -1,3 +1,5 @@
+import { Patch } from '../../common/types'
+
 type Method = 'GET' | 'POST'
 type Options = {
   body?: any
@@ -28,4 +30,8 @@ const post = (endpoint: string, options?: Options) => {
 
 export const getIdentity = () => {
   return get('/api/identity')
+}
+
+export const saveNewPatch = (patch: Patch) => {
+  return post('/api/patch', { body: patch })
 }
