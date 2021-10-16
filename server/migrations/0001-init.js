@@ -5,10 +5,12 @@ exports.default = {
     await db.exec(`
       CREATE TABLE users (
         id TEXT PRIMARY KEY,
-        username TEXT NULL DEFAULT NULL,
-        password TEXT NULL DEFAULT NULL,
+        username TEXT,
+        email TEXT,
+        password TEXT,
         createdAt INTEGER,
-        UNIQUE(username)
+        UNIQUE(username),
+        UNIQUE(email)
       );
 
       CREATE TABLE patches (

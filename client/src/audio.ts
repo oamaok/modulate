@@ -7,8 +7,10 @@ export const initializeAudio = async () => {
   for (const worklet of workletNames) {
     const path = `/worklets/${worklet}.js`
     try {
+      console.log(audioContext.audioWorklet)
       await audioContext.audioWorklet.addModule(path)
     } catch (err) {
+      console.error(err)
       throw new Error(`Failed to load audio worklet: ${path}`)
     }
   }

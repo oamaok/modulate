@@ -1,23 +1,74 @@
-import * as http from 'http'
-import router from './router'
+import * as http from 'https'
+import fs from 'fs'
+import router, { serverStatic, Response } from './router'
 import * as db from './database'
 import * as validators from '../../common/validators'
-import { Patch } from '../../common/types'
-import jwt from 'jsonwebtoken'
+import * as auth from './authorization'
 
-const JWT_KEY = 'foo'
+const unauthorized = (res: Response) => {
+  res.status(401)
+  res.json({ error: 'unauthorized' })
+  res.end()
+}
 
 const server = http.createServer(
+  {
+    key: fs.readFileSync('./cert/key.pem'),
+    cert: fs.readFileSync('./cert/cert.pem'),
+    passphrase: 'password',
+  },
   router()
-    .get('/*', './dist/client')
+    .get('/*', serverStatic('./dist/client/index.html'))
+    .get('/assets/*', serverStatic('./dist/client/assets'))
+    .get('/worklets/*', serverStatic('./dist/client/worklets'))
     .get('/api/identity', async (req, res) => {
       const { authorization } = req
-      if (authorization) {
-        res.json({ token: jwt.sign({ id: authorization.id }, 'TEMP_KEY') })
-      } else {
-        const userId = await db.createAnonymousUser()
-        res.json({ token: jwt.sign({ id: userId }, 'TEMP_KEY') })
+      if (!authorization) {
+        unauthorized(res)
+        return
       }
+
+      res.json({ user: authorization, token: auth.createToken(authorization) })
+      res.end()
+    })
+    .get('/api/user/availability', async (req, res) => {
+      res.json({
+        email: await db.isEmailAvailable(req.query.email),
+        username: await db.isUsernameAvailable(req.query.username),
+      })
+      res.end()
+    })
+    .post('/api/user', validators.UserRegistration, async (req, res) => {
+      const { authorization } = req
+      if (authorization) {
+        res.status(400)
+        res.json({ error: 'cannot create an user while logged in' })
+        res.end()
+        return
+      }
+
+      const user = await db.createUser(req.body)
+
+      res.json({ user, token: auth.createToken(user) })
+      res.end()
+    })
+    .post('/api/user/login', validators.UserLogin, async (req, res) => {
+      const { authorization } = req
+      if (authorization) {
+        res.status(400)
+        res.json({ error: 'cannot login again while logged in' })
+        res.end()
+        return
+      }
+
+      const user = await db.loginUser(req.body)
+
+      if (!user) {
+        unauthorized(res)
+        return
+      }
+
+      res.json({ user, token: auth.createToken(user) })
       res.end()
     })
     .get('/api/user/:userId/patches', async (req, res) => {
@@ -41,56 +92,27 @@ const server = http.createServer(
       res.json(patch)
       res.end()
     })
-    .post('/api/patch/:id', async (req, res) => {
-      console.log('bbb')
+    .post('/api/patch/:id', validators.Patch, async (req, res) => {
       const { authorization } = req
       if (!authorization) {
-        res.status(403)
-        res.end()
+        unauthorized(res)
         return
       }
 
-      const validationResult = validators.Patch.decode(req.body)
-
-      if (validationResult._tag === 'Left') {
-        res.status(400)
-        res.end()
-      } else {
-        res.json(
-          await db.savePatchVersion(
-            authorization.id,
-            req.parameters.id,
-            validationResult.right
-          )
-        )
-        res.end()
-      }
+      res.json(
+        await db.savePatchVersion(authorization.id, req.parameters.id, req.body)
+      )
+      res.end()
     })
-    .post('/api/patch', async (req, res) => {
-      console.log('aaa')
-
+    .post('/api/patch', validators.Patch, async (req, res) => {
       const { authorization } = req
       if (!authorization) {
-        res.status(403)
-        res.end()
+        unauthorized(res)
         return
       }
 
-      const validationResult = validators.Patch.decode(req.body)
-
-      if (validationResult._tag === 'Left') {
-        res.status(400)
-        res.end()
-      } else {
-        res.json(
-          await db.saveNewPatch(
-            authorization.id,
-            'untitled',
-            validationResult.right
-          )
-        )
-        res.end()
-      }
+      res.json(await db.saveNewPatch(authorization.id, 'untitled', req.body))
+      res.end()
     })
 )
 

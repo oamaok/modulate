@@ -1,34 +1,53 @@
 import { resolve } from 'path'
-import { readFile } from 'fs/promises'
+import { readFile, stat } from 'fs/promises'
 import * as http from 'http'
-import jwt from 'jsonwebtoken'
+import * as t from 'io-ts'
+import * as auth from './authorization'
 import mimeTypes from './mime-types'
+import { User } from '../../common/types'
 
 type RouterChain = ((
   req: http.IncomingMessage,
   res: http.ServerResponse
 ) => void) & {
-  get(path: string, callback: Callback | string): RouterChain
-  post(path: string, callback: Callback): RouterChain
+  get(path: string, callback: GetCallback): RouterChain
+  post<T extends t.Any>(
+    path: string,
+    validator: T,
+    callback: PostCallback<T>
+  ): RouterChain
 }
 
-type Request = {
-  method: Method
+type BaseRequest = {
   url: URL
-  authorization: { id: string } | null
+  authorization: User | null
   wildcardMatch: string
   parameters: Record<string, string>
+  query: Record<string, string>
   headers: http.IncomingHttpHeaders
-  body: any
 }
 
-type Response = {
+type GetRequest = BaseRequest
+
+type PostRequest<T extends t.Any> = BaseRequest & {
+  body: t.TypeOf<T>
+}
+
+type Request = GetRequest | PostRequest<any>
+
+export type Response = {
   status(code: number): void
   send(value: string | number | Buffer): void
   json(value: any): void
   header(name: string, value: string): void
   end(): void
 }
+
+type GetCallback = (request: GetRequest, response: Response) => void
+type PostCallback<T extends t.Any> = (
+  request: PostRequest<T>,
+  response: Response
+) => void
 
 type Callback = (request: Request, response: Response) => void
 
@@ -37,13 +56,47 @@ type Segment =
   | { type: 'parameter'; name: string }
   | { type: 'wildcard' }
 
-type Method = 'GET' | 'POST'
+type PostRoute<T extends t.Any = t.Any> = {
+  method: 'POST'
+  validator: T
+  segments: Segment[]
+  callback: PostCallback<T>
+}
 
-type Route = {
-  method: Method
+type GetRoute = {
+  method: 'GET'
   segments: Segment[]
   callback: Callback
 }
+
+export const serverStatic = (staticPath: string): GetCallback => {
+  return async (req, res) => {
+    const isDirectory = (await stat(staticPath)).isDirectory()
+
+    let data: Buffer
+    const file = req.wildcardMatch || 'index.html'
+    const path = isDirectory ? resolve(staticPath, file) : staticPath
+    const ext = path.split('.').pop()
+
+    const mimeType = ext
+      ? mimeTypes[ext] ?? 'application/octet-stream'
+      : 'application/octet-stream'
+
+    try {
+      data = await readFile(path)
+    } catch (err) {
+      res.status(404)
+      res.send('404')
+      res.end()
+      return
+    }
+    res.header('Content-Type', mimeType)
+    res.send(data)
+    res.end()
+  }
+}
+
+type Route = PostRoute | GetRoute
 
 const parseRequestBody = (req: http.IncomingMessage) =>
   new Promise((resolve, reject) => {
@@ -64,6 +117,19 @@ const parseRequestBody = (req: http.IncomingMessage) =>
       }
     })
   })
+
+const parseQuery = (queryString: string): Record<string, string> => {
+  const res: Record<string, string> = {}
+
+  for (const [key, value] of queryString.split('&').map((part) => {
+    const [key, value] = part.split('=')
+    return [key, decodeURIComponent(value)]
+  })) {
+    res[key] = value
+  }
+
+  return res
+}
 
 const getSegmentType = (segment: string): Segment['type'] => {
   if (segment === '*') return 'wildcard'
@@ -153,16 +219,6 @@ const router = (): RouterChain => {
       return
     }
 
-    let body: any
-    try {
-      body = await parseRequestBody(req)
-    } catch (err) {
-      res.statusCode = 400
-      res.write('400')
-      res.end()
-      return
-    }
-
     matchingRoutes.sort(
       (a, b) => b.route.segments.length - a.route.segments.length
     )
@@ -171,90 +227,87 @@ const router = (): RouterChain => {
 
     let authorization: Request['authorization'] = null
 
-    try {
-      if (req.headers.authorization) {
-        const [type, token] = req.headers.authorization.split(' ')
-        if (type === 'Bearer') {
-          authorization = jwt.verify(token, 'TEMP_KEY') as { id: string }
-        }
+    if (req.headers.authorization) {
+      const [type, token] = req.headers.authorization.split(' ')
+      if (type === 'Bearer') {
+        authorization = auth.verifyToken(token)
       }
-    } catch (err) {}
+    }
 
-    route.callback(
-      {
-        method: req.method as Method,
-        wildcardMatch: match.wildcardMatch,
-        url,
-        parameters: match.parameters,
-        headers: req.headers,
-        body,
-        authorization,
+    const baseRequest: BaseRequest = {
+      wildcardMatch: match.wildcardMatch,
+      url,
+      query: parseQuery(url.search),
+      parameters: match.parameters,
+      headers: req.headers,
+      authorization,
+    }
+
+    const response: Response = {
+      status(code) {
+        res.statusCode = code
       },
-      {
-        status(code) {
-          res.statusCode = code
-        },
-        json(data: any) {
-          res.setHeader('Content-Type', 'application/json')
-          res.write(JSON.stringify(data))
-        },
-        send: res.write.bind(res),
-        end() {
-          res.end()
-        },
-        header: res.setHeader.bind(res),
+      json(data: any) {
+        res.setHeader('Content-Type', 'application/json')
+        res.write(JSON.stringify(data))
+      },
+      send: res.write.bind(res),
+      end: res.end.bind(res),
+      header: res.setHeader.bind(res),
+    }
+
+    switch (route.method) {
+      case 'GET': {
+        route.callback(baseRequest, response)
+        break
       }
-    )
-  }
 
-  const addStaticRoute = (path: string, directory: string) => {
-    routes.push({
-      method: 'GET',
-      callback: async (req, res) => {
-        let data: Buffer
-        const file = req.wildcardMatch || 'index.html'
-        const path = resolve(directory, file)
-        const ext = path.split('.').pop()
-
-        const mimeType = ext
-          ? mimeTypes[ext] ?? 'application/octet-stream'
-          : 'application/octet-stream'
-
+      case 'POST': {
+        let body: any
         try {
-          data = await readFile(path)
-        } catch (err) {
-          res.status(404)
-          res.send('404')
-          res.end()
-          return
-        }
-        res.header('Content-Type', mimeType)
-        res.send(data)
-        res.end()
-      },
-      segments: pathToSegments(path),
-    })
-  }
+          const validationResult = route.validator.decode(
+            await parseRequestBody(req)
+          )
 
-  const addRoute = (method: Method, path: string, callback: Callback) => {
-    routes.push({
-      method,
-      callback,
-      segments: pathToSegments(path),
-    })
+          if (validationResult._tag === 'Left') {
+            throw validationResult.left
+          } else {
+            body = validationResult.right
+          }
+        } catch (err) {
+          res.statusCode = 400
+          res.setHeader('Content-Type', 'application/json')
+          res.write(JSON.stringify({ error: err }))
+          res.end()
+          break
+        }
+
+        route.callback({ ...baseRequest, body }, response)
+        break
+      }
+    }
   }
 
   chain.get = (path, callback) => {
-    if (typeof callback === 'string') {
-      addStaticRoute(path, callback)
-    } else {
-      addRoute('GET', path, callback)
-    }
+    routes.push({
+      method: 'GET',
+      callback,
+      segments: pathToSegments(path),
+    })
     return chain
   }
 
-  chain.post = (path, callback) => {
-    addRoute('POST', path, callback)
+  chain.post = <T extends t.Any>(
+    path: string,
+    validator: T,
+    callback: PostCallback<T>
+  ) => {
+    routes.push({
+      method: 'POST',
+      validator,
+      callback: callback as PostCallback<t.Any>,
+      segments: pathToSegments(path),
+    })
     return chain
   }
 

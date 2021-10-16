@@ -3,66 +3,74 @@ import sqlite from 'sqlite3'
 import sql, { SQLStatement } from 'sql-template-strings'
 import { v4 as uuid } from 'uuid'
 import argon2 from 'argon2'
-import { Patch } from '../../common/types'
+import { Patch, User, UserLogin, UserRegistration } from '../../common/types'
 
 const db = new (sqlite.verbose().Database)(
   path.resolve(__dirname, '../../data/database.sqlite3')
 )
 
-export const query = (
-  query: string | SQLStatement,
-  parameters: (number | string)[] = []
-) => {
-  if (typeof query === 'object') {
-    return new Promise<any[]>((resolve, reject) =>
-      db.all(query.sql, query.values, (err, res) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(res)
-        }
-      })
-    )
-  } else {
-    return new Promise<any[]>((resolve, reject) =>
-      db.all(query, parameters, (err, res) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(res)
-        }
-      })
-    )
-  }
+export const query = (query: SQLStatement) => {
+  return new Promise<any[]>((resolve, reject) =>
+    db.all(query.sql, query.values, (err, res) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(res)
+      }
+    })
+  )
 }
 
-export const createAnonymousUser = async (): Promise<string> => {
-  const id = uuid()
-  await query(sql`INSERT INTO users (id) VALUES (${id})`)
-  return id
-}
-
-export const isUsernameFree = async (username: string): Promise<boolean> => {
-  const rows = await query(
+export const isUsernameAvailable = async (
+  username: string
+): Promise<boolean> => {
+  const [{ count }] = await query(
     sql`SELECT COUNT(id) AS count FROM users WHERE username = ${username}`
   )
 
-  return rows.length === 0
+  return count === 0
 }
 
-export const registerUser = async (
-  userId: string,
-  username: string,
-  password: string
-) => {
+export const isEmailAvailable = async (email: string): Promise<boolean> => {
+  const [{ count }] = await query(
+    sql`SELECT COUNT(id) AS count FROM users WHERE email = ${email}`
+  )
+
+  return count === 0
+}
+
+export const createUser = async (user: UserRegistration): Promise<User> => {
+  const userId = uuid()
+
   await query(sql`
-    UPDATE users
-    SET
-      username = ${username},
-      password = ${argon2.hash(password)},
-      createdAt = ${Date.now()}
-    WHERE id = ${userId}  
+    INSERT INTO users (id, email, username, password, createdAt)
+    VALUES (
+      ${userId},
+      ${user.email},
+      ${user.username},
+      ${await argon2.hash(user.password)},
+      ${Date.now()}
+    )  
   `)
+
+  return { id: userId, username: user.username }
+}
+
+export const loginUser = async ({
+  email,
+  password,
+}: UserLogin): Promise<User | null> => {
+  const [user] = await query(sql`
+    SELECT id, username, password FROM users WHERE email = ${email}
+  `)
+
+  if (!user) return null
+  if (!(await argon2.verify(user.password, password))) return null
+
+  return {
+    id: user.id,
+    username: user.username,
+  }
 }
 
 export const getUserPatches = (userId: string) => {
@@ -127,9 +135,14 @@ export const savePatchVersion = async (
 
   await query(sql`
     INSERT INTO patches (id, version, name, authorId, createdAt, patch)
-    VALUES (${patchId}, ${nextVersion}, 'untitled', ${userId}, ${Date.now()}, ${JSON.stringify(
-    patch
-  )})
+    VALUES (
+      ${patchId},
+      ${nextVersion},
+      'untitled',
+      ${userId},
+      ${Date.now()},
+      ${JSON.stringify(patch)}
+    )
   `)
   return { id: patchId, version: nextVersion }
 }

@@ -31,3 +31,19 @@ export const Patch = t.type({
   knobs: t.record(t.string, t.record(t.string, t.number)),
   cables: t.array(Cable),
 })
+
+export const User = t.type({
+  id: t.string,
+  username: t.string,
+})
+
+export const UserRegistration = t.type({
+  username: t.string,
+  password: t.string,
+  email: t.string,
+})
+
+export const UserLogin = t.type({
+  email: t.string,
+  password: t.string,
+})

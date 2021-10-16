@@ -1,9 +1,10 @@
 import { h, Component } from 'kaiku'
 import { IModule, Id } from '../../types'
 import { getAudioContext } from '../../audio'
-import Socket from '../Socket'
-import Module from '../Module'
+import Socket from '../module-parts/Socket'
+import Module from '../module-parts/Module'
 
+import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 type Props = {
   id: Id
 }
@@ -27,14 +28,15 @@ class AudioOut extends Component<Props> implements IModule {
   render({ id }: Props) {
     return (
       <Module id={id} name="Audio Out">
-        <div className="module-body">
+        <div className="module-body"></div>
+        <ModuleInputs>
           <Socket
             moduleId={id}
             type="input"
             name="destination"
             node={this.gain}
           />
-        </div>
+        </ModuleInputs>
       </Module>
     )
   }

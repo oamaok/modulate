@@ -1,0 +1,33 @@
+.module {
+  width: 200px;
+  background-color: var(--secondary);
+  border-radius: 5px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.7;
+  box-shadow: var(--box-shadow);
+}
+
+.module.active {
+  opacity: 1;
+}
+
+.module-name {
+  width: 100%;
+  background-color: var(--primary);
+  color: var(--on-primary);
+  font-weight: bold;
+  padding: 5px 10px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.module-body {
+  padding: 10px 40px;
+  display: flex;
+  min-height: 60px;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}

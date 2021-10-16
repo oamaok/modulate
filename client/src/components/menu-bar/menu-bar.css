@@ -1,0 +1,15 @@
+.menu-bar {
+  background-color: var(--secondary);
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  box-shadow: var(--box-shadow);
+}
+
+.vertical-divider {
+  height: 16px;
+  border-right: 2px solid var(--secondary-variant);
+  margin: 0 10px;
+}

@@ -1,0 +1,44 @@
+.module-list {
+  left: 0;
+  bottom: 48px;
+  width: 300px;
+  background-color: var(--secondary);
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  position: absolute;
+  box-shadow: var(--box-shadow);
+}
+
+.module-list::after {
+  content: ' ';
+  width: 10px;
+  height: 10px;
+  background-color: var(--secondary);
+  bottom: -5px;
+  left: 50px;
+  position: absolute;
+  transform: rotate(45deg);
+}
+
+.filter {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.filter input {
+  width: 100%;
+  margin-left: 10px;
+}
+
+.item {
+  background-color: var(--secondary-variant);
+  border-radius: 2px;
+  padding: 2px 4px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  margin-right: 10px;
+}

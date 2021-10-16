@@ -1,5 +1,5 @@
 import { h } from 'kaiku'
-import { Vec2 } from '../types'
+import { Vec2 } from '../../../../common/types'
 
 type Props = {
   from: Vec2
@@ -19,7 +19,7 @@ const CablePath = ({ from, to }: Props) => {
       `}
       stroke-width="3"
       stroke-linecap="round"
-      stroke="rgba(255,255,255,0.5)"
+      stroke="rgba(0,0,0,0.5)"
       fill="transparent"
     />
   )

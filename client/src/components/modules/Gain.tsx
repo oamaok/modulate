@@ -3,9 +3,10 @@ import { IModule, Id } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
 import { getModuleKnobs } from '../../state'
-import Socket from '../Socket'
-import Module from '../Module'
-import Knob from '../Knob'
+import Socket from '../module-parts/Socket'
+import Module from '../module-parts/Module'
+import Knob from '../module-parts/Knob'
+import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 
 type Props = {
   id: Id
@@ -36,7 +37,7 @@ class Gain extends Component<Props> implements IModule {
         <div className="module-body">
           <Knob moduleId={id} name="gain" min={0} max={2} initial={0.4} />
         </div>
-        <div className="module-inputs">
+        <ModuleInputs>
           <Socket
             moduleId={id}
             type="input"
@@ -44,10 +45,10 @@ class Gain extends Component<Props> implements IModule {
             node={this.node.parameters.get('level')}
           />
           <Socket moduleId={id} type="input" name="in" node={this.node} />
-        </div>
-        <div className="module-outputs">
+        </ModuleInputs>
+        <ModuleOutputs>
           <Socket moduleId={id} type="output" name="out" node={this.node} />
-        </div>
+        </ModuleOutputs>
       </Module>
     )
   }

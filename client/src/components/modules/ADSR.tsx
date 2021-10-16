@@ -3,9 +3,10 @@ import { IModule, Id } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
 import { connectKnobToParam } from '../../modules'
-import Socket from '../Socket'
-import Module from '../Module'
-import Knob from '../Knob'
+import Socket from '../module-parts/Socket'
+import Module from '../module-parts/Module'
+import Knob from '../module-parts/Knob'
+import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 
 type Props = {
   id: Id
@@ -34,24 +35,16 @@ class ADSR extends Component<Props> implements IModule {
   render({ id }: Props) {
     return (
       <Module id={id} name="ADSR">
-        <div className="module-body">
-          <Knob moduleId={id} name="attack" min={0.001} max={1} initial={0.1} />
-          <Knob moduleId={id} name="decay" min={0.001} max={1} initial={0.1} />
-          <Knob moduleId={id} name="sustain" min={0} max={1} initial={0.5} />
-          <Knob
-            moduleId={id}
-            name="release"
-            min={0.001}
-            max={1}
-            initial={0.1}
-          />
-        </div>
-        <div className="module-inputs">
+        <Knob moduleId={id} name="attack" min={0.001} max={1} initial={0.1} />
+        <Knob moduleId={id} name="decay" min={0.001} max={1} initial={0.1} />
+        <Knob moduleId={id} name="sustain" min={0} max={1} initial={0.5} />
+        <Knob moduleId={id} name="release" min={0.001} max={1} initial={0.1} />
+        <ModuleInputs>
           <Socket moduleId={id} type="input" name="gate" node={this.node} />
-        </div>
-        <div className="module-outputs">
+        </ModuleInputs>
+        <ModuleOutputs>
           <Socket moduleId={id} type="output" name="out" node={this.node} />
-        </div>
+        </ModuleOutputs>
       </Module>
     )
   }
