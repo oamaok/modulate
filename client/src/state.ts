@@ -2,32 +2,43 @@ import { createState } from 'kaiku'
 import { getSockets } from './sockets'
 import { State } from './types'
 import { Cable, ConnectedSocket, Id, Vec2 } from '../../common/types'
+import { parseRoute } from './routes'
 
 const state = createState<State>({
   initialized: false,
   cursor: { x: 0, y: 0 },
   viewport: { width: window.innerWidth, height: window.innerHeight },
+  user: null,
+  hint: null,
+  activeModule: null,
   patch: {
     currentId: 0,
     modules: {},
     knobs: {},
     cables: [],
   },
+  route: parseRoute(window.location),
+  viewOffset: { x: 0, y: 0 },
   socketPositions: {},
   activeCable: null,
 })
+
 export default state
 export const { cursor, viewport, patch, socketPositions } = state
-
 export const nextId = () => `${patch.currentId++}` as Id
 
+window.addEventListener('popstate', () => {
+  state.route = parseRoute(location)
+})
+
 document.documentElement.addEventListener('mousemove', (evt) => {
+  // TODO: Make this not permanent, maybe flag in state
   evt.preventDefault()
   cursor.x = evt.clientX
   cursor.y = evt.clientY
 })
 
-document.addEventListener('resize', () => {
+window.addEventListener('resize', () => {
   viewport.width = window.innerWidth
   viewport.height = window.innerHeight
 })
@@ -49,7 +60,8 @@ export const getModuleState = <T>(id: Id): T => {
 }
 
 export const getModulePosition = (id: Id) => {
-  return patch.modules[id].position
+  const pos = patch.modules[id].position
+  return { x: pos.x + state.viewOffset.x, y: pos.y + state.viewOffset.y }
 }
 
 export const setModulePosition = (id: Id, position: Vec2) => {
@@ -71,7 +83,7 @@ export const getSocketPosition = ({
   name: string
 }): Vec2 => {
   const socketOffset = socketPositions[moduleId][name]
-  const modulePosition = patch.modules[moduleId].position
+  const modulePosition = getModulePosition(moduleId)
 
   return {
     x: modulePosition.x + socketOffset.x,

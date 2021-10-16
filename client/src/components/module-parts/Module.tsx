@@ -1,6 +1,11 @@
 import { h, useState, useEffect, FC } from 'kaiku'
-import state, { getModulePosition } from '../state'
-import { Id, Vec2 } from '../../../common/types'
+import state, { getModulePosition } from '../../state'
+import { Id, Vec2 } from '../../../../common/types'
+
+import classNames from 'classnames/bind'
+import styles from './Module.css'
+
+const css = classNames.bind(styles)
 
 type Props = {
   id: Id
@@ -35,7 +40,7 @@ const Module: FC<Props> = ({ id, name, children, width = 200 }) => {
 
   useEffect(() => {
     if (moduleState.dragPosition) {
-      const modulePosition = getModulePosition(id)
+      const modulePosition = state.patch.modules[id].position
       modulePosition.x += state.cursor.x - moduleState.dragPosition.x
       modulePosition.y += state.cursor.y - moduleState.dragPosition.y
       moduleState.dragPosition.x = state.cursor.x
@@ -47,17 +52,24 @@ const Module: FC<Props> = ({ id, name, children, width = 200 }) => {
 
   return (
     <div
-      className="module"
+      data-id="module"
+      onMouseDown={() => (state.activeModule = id)}
+      className={() =>
+        css('module', {
+          active: state.activeModule === id,
+        })
+      }
       style={{
+        zIndex: () => (state.activeModule === id ? 10 : 1),
         width: width + 'px',
         transform: () =>
           `translate(${modulePosition.x}px, ${modulePosition.y}px)`,
       }}
     >
-      <div className="module-name" onMouseDown={onDragStart}>
+      <div className={css('module-name')} onMouseDown={onDragStart}>
         {name}
       </div>
-      {children}
+      <div className={css('module-body')}>{children}</div>
     </div>
   )
 }

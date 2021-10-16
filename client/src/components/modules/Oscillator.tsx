@@ -2,11 +2,12 @@ import { h, Component } from 'kaiku'
 import { IModule, Id } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
-import Socket from '../Socket'
-import Module from '../Module'
-import Knob from '../Knob'
+import Socket from '../module-parts/Socket'
+import Module from '../module-parts/Module'
+import Knob from '../module-parts/Knob'
 import { connectKnobToParam } from '../../modules'
 
+import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 type Props = {
   id: Id
 }
@@ -38,18 +39,18 @@ class Oscillator extends Component<Props> implements IModule {
           <Knob moduleId={id} name="frequency" min={-1} max={10} initial={5} />
         </div>
 
-        <div className="module-inputs">
+        <ModuleInputs>
           <Socket
             moduleId={id}
             type="input"
             name="freq"
             node={this.frequencyNode}
           />
-        </div>
+        </ModuleInputs>
 
-        <div className="module-outputs">
+        <ModuleOutputs>
           <Socket moduleId={id} type="output" name="out" node={this.node} />
-        </div>
+        </ModuleOutputs>
       </Module>
     )
   }

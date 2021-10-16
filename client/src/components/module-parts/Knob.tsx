@@ -1,6 +1,11 @@
 import { h, useState, useEffect } from 'kaiku'
-import state, { getKnobValue, setKnobValue } from '../state'
-import { Id, Vec2 } from '../../../common/types'
+import state, { getKnobValue, setKnobValue } from '../../state'
+import { Id, Vec2 } from '../../../../common/types'
+
+import classNames from 'classnames/bind'
+import styles from './Knob.css'
+
+const css = classNames.bind(styles)
 
 type Props = {
   moduleId: Id
@@ -11,9 +16,8 @@ type Props = {
 }
 
 const Knob = ({ moduleId, name, min, max, initial }: Props) => {
-  const presetValue = getKnobValue(moduleId, name)
-  const initialValue =
-    typeof presetValue === 'undefined' ? initial : presetValue
+  const knobValue = getKnobValue(moduleId, name)
+  const initialValue = typeof knobValue === 'undefined' ? initial : knobValue
 
   const knobState = useState<{
     position: number
@@ -29,6 +33,7 @@ const Knob = ({ moduleId, name, min, max, initial }: Props) => {
 
   const onDragEnd = () => {
     knobState.dragPosition = null
+    state.hint = null
   }
 
   useEffect(() => {
@@ -50,20 +55,34 @@ const Knob = ({ moduleId, name, min, max, initial }: Props) => {
 
       knobState.dragPosition.x = state.cursor.x
       knobState.dragPosition.y = state.cursor.y
+      const value = knobState.position * (max - min) + min
+      setKnobValue(moduleId, name, value)
 
-      setKnobValue(moduleId, name, knobState.position * (max - min) + min)
+      displayHint(value)
     }
   })
 
+  const displayHint = (value: number) => {
+    state.hint = `${name}: ${value.toFixed(2)}`
+  }
+
+  const hideHint = () => {
+    if (!knobState.dragPosition) {
+      state.hint = null
+    }
+  }
+
   return (
     <div
-      className="knob"
+      className={css('knob')}
+      onMouseOver={() => displayHint(knobValue!)}
+      onMouseOut={hideHint}
       onMouseDown={onDragStart}
       style={{
         transform: `rotate(${knobState.position * 300 - 60}deg)`,
       }}
     >
-      <div className="knob-position" />
+      <div className={css('knob-position')} />
     </div>
   )
 }

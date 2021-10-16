@@ -1,0 +1,15 @@
+.knob {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--secondary-variant);
+  position: relative;
+}
+
+.knob-position {
+  position: absolute;
+  width: 50%;
+  border-bottom: 2px solid var(--secondary-variant);
+  top: 11px;
+  left: 0;
+}

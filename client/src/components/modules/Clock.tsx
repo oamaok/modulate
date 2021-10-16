@@ -3,11 +3,12 @@ import { IModule, Id } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
 import { getModuleKnobs } from '../../state'
-import Socket from '../Socket'
-import Module from '../Module'
-import Knob from '../Knob'
+import Socket from '../module-parts/Socket'
+import Module from '../module-parts/Module'
+import Knob from '../module-parts/Knob'
 import { connectKnobToParam } from '../../modules'
 
+import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 type Props = {
   id: Id
 }
@@ -29,11 +30,11 @@ class Clock extends Component<Props> implements IModule {
   render({ id }: Props) {
     return (
       <Module id={id} name="Clock">
-        <div className="module-body">
-          <Knob moduleId={id} name="tempo" min={1} max={500} initial={128} />
-          <Knob moduleId={id} name="pulseWidth" min={0} max={1} initial={0.5} />
+        <Knob moduleId={id} name="tempo" min={1} max={500} initial={128} />
+        <Knob moduleId={id} name="pulseWidth" min={0} max={1} initial={0.5} />
+        <ModuleOutputs>
           <Socket moduleId={id} type="output" name="out" node={this.node} />
-        </div>
+        </ModuleOutputs>
       </Module>
     )
   }

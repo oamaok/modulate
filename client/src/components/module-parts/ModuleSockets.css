@@ -1,0 +1,17 @@
+.module-outputs,
+.module-inputs {
+  position: absolute;
+  top: 24px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.module-outputs {
+  right: -5px;
+}
+
+.module-inputs {
+  left: -5px;
+}

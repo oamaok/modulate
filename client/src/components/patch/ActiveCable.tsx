@@ -3,7 +3,7 @@ import state, {
   getCableConnectionCandidate,
   getSocketPosition,
   releaseActiveCable,
-} from '../state'
+} from '../../state'
 import CablePath from './CablePath'
 
 const ActiveCable = () => {

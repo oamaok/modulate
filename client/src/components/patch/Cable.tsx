@@ -1,7 +1,7 @@
 import { h, useEffect } from 'kaiku'
-import { getRegisteredSocket, getSockets } from '../sockets'
-import { getSocketPosition } from '../state'
-import { ConnectedSocket } from '../../../common/types'
+import { getRegisteredSocket, getSockets } from '../../sockets'
+import { getSocketPosition } from '../../state'
+import { ConnectedSocket } from '../../../../common/types'
 import CablePath from './CablePath'
 
 type Props = {

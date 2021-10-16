@@ -4,10 +4,11 @@ import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
 import { getModuleKnobs, getModuleState, setModuleState } from '../../state'
 import { connectKnobToParam } from '../../modules'
-import Socket from '../Socket'
-import Module from '../Module'
-import Knob from '../Knob'
+import Socket from '../module-parts/Socket'
+import Module from '../module-parts/Module'
+import Knob from '../module-parts/Knob'
 
+import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 type Props = {
   id: Id
 }
@@ -81,37 +82,33 @@ class Sequencer extends Component<Props> implements IModule {
 
     return (
       <Module id={id} name="Sequencer" width={460}>
-        <div className="module-body">
-          {notes.map((note) => (
-            <div className="sequencer-note">
-              <select
-                onChange={(evt: any) => (note.name = evt.target.value)}
-                value={note.name}
-              >
-                {NOTE_NAMES.map((name) => (
-                  <option selected={note.name === name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-              <select
-                onChange={(evt: any) => (note.octave = +evt.target.value)}
-              >
-                {OCTAVES.map((oct) => (
-                  <option selected={note.octave === +oct} value={oct}>
-                    {oct}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
-        </div>
-        <div className="module-inputs">
+        {notes.map((note) => (
+          <div className="sequencer-note">
+            <select
+              onChange={(evt: any) => (note.name = evt.target.value)}
+              value={note.name}
+            >
+              {NOTE_NAMES.map((name) => (
+                <option selected={note.name === name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+            <select onChange={(evt: any) => (note.octave = +evt.target.value)}>
+              {OCTAVES.map((oct) => (
+                <option selected={note.octave === +oct} value={oct}>
+                  {oct}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+        <ModuleInputs>
           <Socket moduleId={id} type="input" name="gate" node={this.node} />
-        </div>
-        <div className="module-outputs">
+        </ModuleInputs>
+        <ModuleOutputs>
           <Socket moduleId={id} type="output" name="out" node={this.node} />
-        </div>
+        </ModuleOutputs>
       </Module>
     )
   }

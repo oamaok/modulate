@@ -18,10 +18,13 @@
     "@types/uuid": "^8.3.1",
     "argon2": "^0.28.2",
     "chokidar": "^3.5.2",
+    "cssnano": "^5.0.8",
     "esbuild": "^0.13.2",
     "esbuild-css-modules-plugin": "^2.0.9",
     "jsonwebtoken": "^8.5.1",
     "kaiku": "^1.19.1",
+    "postcss": "^8.3.9",
+    "postcss-modules": "^4.2.2",
     "prettier": "^2.4.1",
     "sql-template-strings": "^2.2.2",
     "sqlite3": "^5.0.2",
@@ -29,6 +32,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "classnames": "^2.3.1",
     "fp-ts": "^2.11.4",
     "io-ts": "^2.2.16",
     "ts-node": "^10.2.1",

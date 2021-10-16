@@ -2,6 +2,7 @@ const fs = require('fs/promises')
 const path = require('path')
 const esbuild = require('esbuild')
 const chokidar = require('chokidar')
+const CssModulesPlugin = require('./build/css-modules-plugin')
 
 const recursiveCopy = async (srcDir, destDir) => {
   const absoluteSrc = path.resolve(__dirname, srcDir)
@@ -42,14 +43,17 @@ const buildClient = async () => {
     esbuild.build({
       entryPoints: ['./client/src/index.tsx'],
       bundle: true,
-      outfile: './dist/client/assets/main.js',
+      //outfile: './dist/client/assets/main.js',
+      outdir: './dist/client/assets',
       incremental: true,
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
-      minify: false,
+      minify: true,
       define: {
-        // 'process.env.NODE_ENV': '"production"',
+        'process.env.NODE_ENV': '"production"',
       },
+
+      plugins: [CssModulesPlugin()],
     }),
     recursiveCopy('./client/static', './dist/client'),
   ])
@@ -78,8 +82,7 @@ const buildWorklets = async () => {
 
   await fs.writeFile(
     './client/src/generated/worklets.ts',
-    `
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    `// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //
 // THIS IS A GENERATED FILE, DO NOT EDIT MANUALLY
 //

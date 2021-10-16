@@ -1,0 +1,11 @@
+.hint {
+  position: absolute;
+  top: -28px;
+  left: 4px;
+  z-index: 1000;
+  padding: 2px 4px;
+  pointer-events: none;
+
+  background: var(--on-background);
+  color: var(--background);
+}

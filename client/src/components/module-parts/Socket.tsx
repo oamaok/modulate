@@ -1,7 +1,16 @@
 import { h, Fragment, useEffect, useRef } from 'kaiku'
-import { plugActiveCable, setSocketPosition } from '../state'
-import { RegisteredSocket, registerSocket, unregisterSocket } from '../sockets'
-import { Vec2 } from '../../../common/types'
+import { plugActiveCable, setSocketPosition } from '../../state'
+import {
+  RegisteredSocket,
+  registerSocket,
+  unregisterSocket,
+} from '../../sockets'
+import { Vec2 } from '../../../../common/types'
+
+import classNames from 'classnames/bind'
+import styles from './Socket.css'
+
+const css = classNames.bind(styles)
 
 type Props = RegisteredSocket
 
@@ -16,7 +25,7 @@ const getSocketOffset = (
     throw new Error('Socket is not positioned within a Module component')
   }
 
-  if (element.offsetParent.classList.contains('module')) {
+  if (element.offsetParent.getAttribute('data-id')) {
     return { x: pos.x + x, y: pos.y + y }
   }
 
@@ -52,9 +61,9 @@ const Socket = ({ moduleId, type, name, node }: Props) => {
   })
 
   return (
-    <div className={['socket-wrapper', `socket-${type}`]}>
-      <div ref={ref} className="socket" onMouseDown={onMouseDown} />
-      <div className="socket-name">{name}</div>
+    <div className={css(['socket-wrapper', `socket-${type}`])}>
+      <div ref={ref} className={css('socket')} onMouseDown={onMouseDown} />
+      <div className={css('socket-name')}>{name}</div>
     </div>
   )
 }

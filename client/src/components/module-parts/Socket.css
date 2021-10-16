@@ -1,0 +1,32 @@
+.socket {
+  cursor: pointer;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.socket-input .socket {
+  border: 2px solid var(--primary-variant);
+}
+
+.socket-output .socket {
+  border: 2px solid var(--primary);
+}
+
+.socket-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.socket-wrapper.socket-input {
+  flex-direction: row;
+}
+.socket-wrapper.socket-output {
+  flex-direction: row-reverse;
+}
+.socket-output .socket-name {
+  margin-right: 2px;
+}
+.socket-input .socket-name {
+  margin-left: 2px;
+}
