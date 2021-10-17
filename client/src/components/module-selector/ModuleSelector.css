@@ -46,3 +46,10 @@
   margin-bottom: 10px;
   flex-grow: 0;
 }
+
+.selector-hint {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+}
