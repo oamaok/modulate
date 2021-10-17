@@ -4,6 +4,8 @@ const esbuild = require('esbuild')
 const chokidar = require('chokidar')
 const CssModulesPlugin = require('./build/css-modules-plugin')
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 const recursiveCopy = async (srcDir, destDir) => {
   const absoluteSrc = path.resolve(__dirname, srcDir)
   const absoluteDest = path.resolve(__dirname, destDir)
@@ -99,12 +101,19 @@ ${worklets.map((worklet) => `  ${worklet}: typeof ${worklet}`).join('\n')}
   console.timeEnd('Build worklets')
 }
 
-const buildServer = () => {}
-
 ;(async () => {
-  await buildWorklets()
-  await buildClient()
-  await buildServer()
+  try {
+    await Promise.all([buildWorklets(),
+    buildClient()])
+  } catch (err) {
+    console.error(err)
+    if (isProduction) {
+      process.exit(1)
+    }
+  }
+  if(isProduction) {
+    process.exit(0)
+  }
 
   chokidar
     .watch('./worklets/*', {

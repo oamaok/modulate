@@ -1,0 +1,20 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: []
+
+  workflow_dispatch:
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy
+        run: |
+          TEMP=$(mktemp)
+          echo "${{ secrets.SSH_KEY }}" > $TEMP
+          ssh -o 'StrictHostKeyChecking no' -i $TEMP ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p${{ secrets.SSH_PORT }} 'bash -s' < scripts/deploy.sh
