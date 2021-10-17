@@ -8,25 +8,30 @@ import * as api from '../../api'
 const css = classNames.bind(styles)
 
 const Menu = () => {
-  return (
-    <div className={css('menu')}>
-      <div className={css('item')}>Save patch</div>
-      <div className={css('item')}>New patch</div>
-      <div className={css('item')}>My patches</div>
-      <div className={css('item')}>Browse all patches</div>
-    </div>
-  )
-}
-
-const Header = () => {
-  const headerState = useState({ isMenuOpen: false })
-
   const savePatch = async () => {
     const res = await api.saveNewPatch(patch)
 
     history.pushState({}, '', `/patch/${res.id}`)
   }
 
+  return (
+    <div className={css('menu')}>
+      {state.user && (
+        <button className={css('item')} onClick={savePatch}>
+          Save patch
+        </button>
+      )}
+      {/*
+      <div className={css('item')}>New patch</div>
+      <div className={css('item')}>My patches</div>
+      <div className={css('item')}>Browse all patches</div>
+      */}
+    </div>
+  )
+}
+
+const Header = () => {
+  const headerState = useState({ isMenuOpen: false })
   const openMenu = () => {}
 
   const patchAuthor =
