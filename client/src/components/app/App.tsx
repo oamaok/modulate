@@ -56,6 +56,18 @@ const loadPatch = async (savedPatch: types.Patch) => {
   patch.cables = cables
 }
 
+const InitModal = () => {
+  return (
+    <div className={css('overlay')}>
+      <div className={css('init-modal')}>
+        Please adjust your audio levels before continuing. This application is
+        capable of producing ear-busting sonic experiences.
+        <button onClick={initialize}>I'm ready!</button>
+      </div>
+    </div>
+  )
+}
+
 const App = () => {
   useEffect(() => {
     if (!state.initialized) return
@@ -63,21 +75,14 @@ const App = () => {
     localStorage.setItem('savestate', JSON.stringify(patch))
   })
 
-  if (!state.initialized) {
-    return (
-      <button className="launch-button" onClick={initialize}>
-        Start
-      </button>
-    )
-  }
-
   return (
     <>
-      <Patch />
+      {state.initialized && <Patch />}
       <Header />
       <UserBar />
       <ModuleSelector />
       <Hint />
+      {!state.initialized && <InitModal />}
     </>
   )
 }
