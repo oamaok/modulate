@@ -1,4 +1,4 @@
-import * as http from 'https'
+import * as http from 'http'
 import fs from 'fs'
 import router, { serverStatic, Response } from './router'
 import * as db from './database'
@@ -12,11 +12,6 @@ const unauthorized = (res: Response) => {
 }
 
 const server = http.createServer(
-  {
-    key: fs.readFileSync('./cert/key.pem'),
-    cert: fs.readFileSync('./cert/cert.pem'),
-    passphrase: 'password',
-  },
   router()
     .get('/*', serverStatic('./dist/client/index.html'))
     .get('/assets/*', serverStatic('./dist/client/assets'))

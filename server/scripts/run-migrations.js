@@ -54,6 +54,11 @@ const getMigrationVersion = (filename) => parseInt(filename.split('-')[0])
     .filter((filename) => getMigrationVersion(filename) > version)
     .sort()
 
+  if (applicableMigrations.length === 0) {
+    console.log('No migrations to run.')
+    return
+  }
+
   for (const migration of applicableMigrations) {
     console.log('Running migration ', migration)
     await db.run('BEGIN')

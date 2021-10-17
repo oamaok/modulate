@@ -3,6 +3,7 @@ import { readFile, stat } from 'fs/promises'
 import * as http from 'http'
 import * as t from 'io-ts'
 import * as auth from './authorization'
+import * as logger from './logger'
 import mimeTypes from './mime-types'
 import { User } from '../../common/types'
 
@@ -153,6 +154,7 @@ const router = (): RouterChain => {
     req: http.IncomingMessage,
     res: http.ServerResponse
   ) => {
+
     const url = new URL(
       req.url ?? '',
       `http://${req.headers.host ?? 'localhost'}`
@@ -160,12 +162,30 @@ const router = (): RouterChain => {
 
     const segments = url.pathname.split('/')
 
+
+    const response: Response = {
+      status(code) {
+        res.statusCode = code
+      },
+      json(data: any) {
+        res.setHeader('Content-Type', 'application/json')
+        res.write(JSON.stringify(data))
+      },
+      send: res.write.bind(res),
+      end: () => {
+        logger.info(`${req.socket.remoteAddress} ${req.method} ${url.pathname} [${res.statusCode}]`)
+        res.end()
+      },
+      header: res.setHeader.bind(res),
+    }
+
     let matchingRoutes: {
       route: Route
       parameters: Record<string, string>
       wildcardMatch: string
     }[] = []
 
+    
     for (let i = 0; i < routes.length; i++) {
       const route = routes[i]
 
@@ -213,9 +233,9 @@ const router = (): RouterChain => {
     }
 
     if (matchingRoutes.length === 0) {
-      res.statusCode = 404
-      res.write('404')
-      res.end()
+      response.status(404)
+      response.send('404')
+      response.end()
       return
     }
 
@@ -243,18 +263,6 @@ const router = (): RouterChain => {
       authorization,
     }
 
-    const response: Response = {
-      status(code) {
-        res.statusCode = code
-      },
-      json(data: any) {
-        res.setHeader('Content-Type', 'application/json')
-        res.write(JSON.stringify(data))
-      },
-      send: res.write.bind(res),
-      end: res.end.bind(res),
-      header: res.setHeader.bind(res),
-    }
 
     switch (route.method) {
       case 'GET': {
@@ -275,10 +283,9 @@ const router = (): RouterChain => {
             body = validationResult.right
           }
         } catch (err) {
-          res.statusCode = 400
-          res.setHeader('Content-Type', 'application/json')
-          res.write(JSON.stringify({ error: err }))
-          res.end()
+          response.status(400)
+          response.json({ error: err })
+          response.end()
           break
         }
 

@@ -22,6 +22,6 @@
 - Only accesible via hotkey?
 
 # General UI/UX
-
+- Load unsaved patch Y/N at startup to mask the audio init
 - Hotkey configuration?
 - Global volume control
