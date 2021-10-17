@@ -34,7 +34,6 @@ const CssModulesPlugin = () => ({
             return scopedName
           },
         }),
-        cssnano({ preset: 'default' }),
       ]).process(await fs.readFile(filePath))
 
       cssContent[filePath] = css
@@ -46,12 +45,14 @@ const CssModulesPlugin = () => ({
 
     build.onEnd(async () => {
       const bundlePath = resolve(build.initialOptions.outdir, 'index.css')
-      await fs.writeFile(
-        bundlePath,
+
+      const { css } = await postcss([cssnano({ preset: 'default' })]).process(
         Object.keys(cssContent)
           .map((key) => cssContent[key])
           .join('\n')
       )
+
+      await fs.writeFile(bundlePath, css)
     })
   },
 })
