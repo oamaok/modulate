@@ -1,13 +1,14 @@
-const sqlite = require('sqlite3').verbose()
-const fs = require('fs/promises')
-const path = require('path')
+import fs from 'fs/promises'
+import path from 'path'
+
+import { database } from './database'
 
 const promisify =
-  (fn) =>
-  (...args) =>
+  (fn: (...args: any) => any): ((...args: any) => any) =>
+  (...args: any[]) =>
     new Promise((resolve, reject) => {
       try {
-        fn(...args, (err, res) => {
+        fn(...args, (err: Error, res: any) => {
           if (err) {
             reject(err)
           } else {
@@ -20,21 +21,18 @@ const promisify =
     })
 
 const getDatabase = () => {
-  const db = new sqlite.Database(
-    path.resolve(__dirname, '../../data/database.sqlite3')
-  )
-
   return {
-    run: promisify(db.run.bind(db)),
-    get: promisify(db.get.bind(db)),
-    all: promisify(db.all.bind(db)),
-    exec: promisify(db.exec.bind(db)),
+    run: promisify(database.run.bind(database)),
+    get: promisify(database.get.bind(database)) as (...args: any) => any,
+    all: promisify(database.all.bind(database)),
+    exec: promisify(database.exec.bind(database)),
   }
 }
 
-const getMigrationVersion = (filename) => parseInt(filename.split('-')[0])
+const getMigrationVersion = (filename: string) =>
+  parseInt(filename.split('-')[0])
 
-;(async () => {
+const migrate = async () => {
   const db = getDatabase()
 
   await db.run(
@@ -67,21 +65,21 @@ const getMigrationVersion = (filename) => parseInt(filename.split('-')[0])
         default: { up },
       } = require(`../migrations/${migration}`)
       await up({
-        query(query, parameters) {
+        query(query: any, parameters: any[]) {
           if (typeof query === 'object') {
             return db.all(query.sql, query.values)
           } else {
             return db.all(query, parameters)
           }
         },
-        run(query, parameters) {
+        run(query: any, parameters: any[]) {
           if (typeof query === 'object') {
             return db.run(query.sql, query.values)
           } else {
             return db.run(query, parameters)
           }
         },
-        exec(query) {
+        exec(query: any) {
           console.log(query)
           return db.exec(query)
         },
@@ -97,4 +95,5 @@ const getMigrationVersion = (filename) => parseInt(filename.split('-')[0])
       return
     }
   }
-})()
+}
+export default migrate
