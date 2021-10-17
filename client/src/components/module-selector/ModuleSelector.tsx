@@ -1,4 +1,4 @@
-import { h, unwrap, useEffect, useRef, useState } from 'kaiku'
+import { h, unwrap, useEffect, useRef, useState, Fragment } from 'kaiku'
 import classNames from 'classnames/bind'
 import styles from './ModuleSelector.css'
 import { moduleMap } from '../../moduleMap'
@@ -57,32 +57,37 @@ const ModuleSelector = () => {
   })
 
   return (
-    <div className={css('module-selector', { open: selectorState.open })}>
-      <div className={css('filter')}>
-        Filter
-        <input
-          type="text"
-          ref={filterRef}
-          value={selectorState.filter}
-          onInput={(evt) => {
-            selectorState.filter = evt.target.value
-          }}
-        />
+    <>
+      <div className={css('selector-hint')}>
+        Hit the <b>Enter</b> key to add modules.
       </div>
-      <div className={css('module-list')}>
-        {moduleNames.map((name) => (
-          <button
-            className={css('item')}
-            onClick={() => {
-              selectorState.open = false
-              addModule(name)
+      <div className={css('module-selector', { open: selectorState.open })}>
+        <div className={css('filter')}>
+          Filter
+          <input
+            type="text"
+            ref={filterRef}
+            value={selectorState.filter}
+            onInput={(evt) => {
+              selectorState.filter = evt.target.value
             }}
-          >
-            {name}
-          </button>
-        ))}
+          />
+        </div>
+        <div className={css('module-list')}>
+          {moduleNames.map((name) => (
+            <button
+              className={css('item')}
+              onClick={() => {
+                selectorState.open = false
+                addModule(name)
+              }}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
