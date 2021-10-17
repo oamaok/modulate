@@ -103,15 +103,14 @@ ${worklets.map((worklet) => `  ${worklet}: typeof ${worklet}`).join('\n')}
 
 ;(async () => {
   try {
-    await Promise.all([buildWorklets(),
-    buildClient()])
+    await Promise.all([buildWorklets(), buildClient()])
   } catch (err) {
     console.error(err)
     if (isProduction) {
       process.exit(1)
     }
   }
-  if(isProduction) {
+  if (isProduction) {
     process.exit(0)
   }
 

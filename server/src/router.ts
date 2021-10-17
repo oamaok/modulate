@@ -154,14 +154,12 @@ const router = (): RouterChain => {
     req: http.IncomingMessage,
     res: http.ServerResponse
   ) => {
-
     const url = new URL(
       req.url ?? '',
       `http://${req.headers.host ?? 'localhost'}`
     )
 
     const segments = url.pathname.split('/')
-
 
     const response: Response = {
       status(code) {
@@ -173,7 +171,9 @@ const router = (): RouterChain => {
       },
       send: res.write.bind(res),
       end: () => {
-        logger.info(`${req.socket.remoteAddress} ${req.method} ${url.pathname} [${res.statusCode}]`)
+        logger.info(
+          `${req.socket.remoteAddress} ${req.method} ${url.pathname} [${res.statusCode}]`
+        )
         res.end()
       },
       header: res.setHeader.bind(res),
@@ -185,7 +185,6 @@ const router = (): RouterChain => {
       wildcardMatch: string
     }[] = []
 
-    
     for (let i = 0; i < routes.length; i++) {
       const route = routes[i]
 
@@ -262,7 +261,6 @@ const router = (): RouterChain => {
       headers: req.headers,
       authorization,
     }
-
 
     switch (route.method) {
       case 'GET': {

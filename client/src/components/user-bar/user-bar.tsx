@@ -56,7 +56,7 @@ const SignUp = ({ open }: { open: boolean }) => {
       onSubmit={register}
     >
       <div className={css('field')}>
-        email
+        Email
         <input
           required
           type="email"
@@ -70,7 +70,7 @@ const SignUp = ({ open }: { open: boolean }) => {
         <div className={css('error')}>Email is already in use.</div>
       )}
       <div className={css('field')}>
-        username
+        Username
         <input
           required
           type="text"
@@ -84,7 +84,7 @@ const SignUp = ({ open }: { open: boolean }) => {
         <div className={css('error')}>Username is already in use.</div>
       )}
       <div className={css('field')}>
-        password
+        Password
         <input
           required
           type="password"
@@ -94,7 +94,7 @@ const SignUp = ({ open }: { open: boolean }) => {
           }}
         />
       </div>
-      <button type="submit">sign up</button>
+      <button type="submit">Sign up</button>
     </form>
   )
 }
@@ -135,7 +135,7 @@ const Login = ({ open }: { open: boolean }) => {
       onSubmit={login}
     >
       <div className={css('field')}>
-        email
+        Email
         <input
           required
           type="email"
@@ -146,7 +146,7 @@ const Login = ({ open }: { open: boolean }) => {
         />
       </div>
       <div className={css('field')}>
-        password
+        Password
         <input
           required
           type="password"
@@ -159,7 +159,7 @@ const Login = ({ open }: { open: boolean }) => {
       {loginState.failed && (
         <div className={css('error')}>Invalid credentials.</div>
       )}
-      <button type="submit">login</button>
+      <button type="submit">Login</button>
     </form>
   )
 }
@@ -174,19 +174,19 @@ const UserBar = () => {
     return (
       <MenuBar top right>
         <span>
-          logged in as <b>{state.user.username}</b>
+          Logged in as <b>{state.user.username}</b>
         </span>
         <VerticalDivider />
-        <button onClick={() => {}}>settings</button>
+        <button onClick={() => {}}>Settings</button>
         <VerticalDivider />
-        <button onClick={auth.reset}>logout</button>
+        <button onClick={auth.reset}>Logout</button>
       </MenuBar>
     )
   }
 
   return (
     <MenuBar top right>
-      <span>currently not logged in</span>
+      <span>Currently not logged in</span>
       <VerticalDivider />
       <button
         onClick={() => {
@@ -194,7 +194,7 @@ const UserBar = () => {
           userBarState.signUpOpen = !userBarState.signUpOpen
         }}
       >
-        sign up
+        Sign up
       </button>
       <VerticalDivider />
       <button
@@ -203,7 +203,7 @@ const UserBar = () => {
           userBarState.loginOpen = !userBarState.loginOpen
         }}
       >
-        log in
+        Log in
       </button>
 
       <Login open={userBarState.loginOpen} />

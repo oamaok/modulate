@@ -60,8 +60,6 @@ const App = () => {
   useEffect(() => {
     if (!state.initialized) return
     if (state.route.name !== 'index') return
-
-    console.log('savestate')
     localStorage.setItem('savestate', JSON.stringify(patch))
   })
 
