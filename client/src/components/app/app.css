@@ -1,0 +1,26 @@
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(220, 220, 220, 0.8);
+  z-index: 9001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.init-modal {
+  background-color: var(--secondary);
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--box-shadow);
+  width: 300px;
+}
+
+.init-modal button {
+  margin-top: 10px;
+}

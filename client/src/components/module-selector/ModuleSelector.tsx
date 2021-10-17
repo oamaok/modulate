@@ -25,6 +25,11 @@ const ModuleSelector = () => {
 
   useEffect(() => {
     const toggle = (evt: KeyboardEvent) => {
+      if (evt.code === 'Escape') {
+        selectorState.open = false
+        filterRef.current!.blur()
+      }
+
       if (evt.code === 'Enter') {
         if (evt.target === document.body) {
           selectorState.open = true

@@ -6,6 +6,7 @@
   flex-direction: row;
   position: absolute;
   box-shadow: var(--box-shadow);
+  z-index: 20;
 }
 
 .vertical-divider {
