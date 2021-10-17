@@ -9,6 +9,11 @@ const isProduction = process.env.NODE_ENV === 'production'
 const recursiveCopy = async (srcDir, destDir) => {
   const absoluteSrc = path.resolve(__dirname, srcDir)
   const absoluteDest = path.resolve(__dirname, destDir)
+
+  try {
+    await fs.mkdir(absoluteDest)
+  } catch (err) {}
+
   let entryStack = await fs.readdir(srcDir)
   let entry
 
@@ -102,6 +107,10 @@ ${worklets.map((worklet) => `  ${worklet}: typeof ${worklet}`).join('\n')}
 }
 
 ;(async () => {
+  try {
+    await fs.mkdir('./dist')
+  } catch (err) {}
+
   try {
     await Promise.all([buildWorklets(), buildClient()])
   } catch (err) {

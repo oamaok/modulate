@@ -6,7 +6,8 @@ import argon2 from 'argon2'
 import { Patch, User, UserLogin, UserRegistration } from '../../common/types'
 
 const db = new (sqlite.verbose().Database)(
-  path.resolve(__dirname, '../../data/database.sqlite3')
+  process.env.DATABASE_FILE ??
+    path.resolve(__dirname, '../../data/database.sqlite3')
 )
 
 export const query = (query: SQLStatement) => {

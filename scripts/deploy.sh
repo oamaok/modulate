@@ -15,4 +15,4 @@ mv modulate modulate.previous
 mv build modulate
 
 cd modulate
-pm2 restart ecosystem.config.js
+pm2 restart ecosystem.config.js --env production
