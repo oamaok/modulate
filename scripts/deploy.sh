@@ -7,7 +7,6 @@ git clone https://github.com/oamaok/modulate.git build
 cd build
 yarn
 yarn build
-yarn run-migrations
 
 cd ~
 rm -rf modulate.previous

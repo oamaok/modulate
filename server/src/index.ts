@@ -4,6 +4,7 @@ import router, { serverStatic, Response } from './router'
 import * as db from './database'
 import * as validators from '../../common/validators'
 import * as auth from './authorization'
+import migrate from './migrate'
 
 const unauthorized = (res: Response) => {
   res.status(401)
@@ -111,4 +112,7 @@ const server = http.createServer(
     })
 )
 
-server.listen(8888)
+;(async () => {
+  await migrate()
+  server.listen(8888)
+})()
