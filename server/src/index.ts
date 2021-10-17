@@ -12,6 +12,12 @@ const unauthorized = (res: Response) => {
   res.end()
 }
 
+const badRequest = (res: Response) => {
+  res.status(400)
+  res.json({ error: 'bad request' })
+  res.end()
+}
+
 const server = http.createServer(
   router()
     .get('/*', serverStatic('./dist/client/index.html'))
@@ -88,18 +94,6 @@ const server = http.createServer(
       res.json(patch)
       res.end()
     })
-    .post('/api/patch/:id', validators.Patch, async (req, res) => {
-      const { authorization } = req
-      if (!authorization) {
-        unauthorized(res)
-        return
-      }
-
-      res.json(
-        await db.savePatchVersion(authorization.id, req.parameters.id, req.body)
-      )
-      res.end()
-    })
     .post('/api/patch', validators.Patch, async (req, res) => {
       const { authorization } = req
       if (!authorization) {
@@ -107,7 +101,27 @@ const server = http.createServer(
         return
       }
 
-      res.json(await db.saveNewPatch(authorization.id, 'untitled', req.body))
+      const patch = req.body
+
+      if (!patch.metadata.id) {
+        res.json(await db.saveNewPatch(authorization.id, patch))
+        res.end()
+        return
+      }
+
+      const latestVersion = await db.getLatestPatchVersion(patch.metadata.id)
+
+      if (!latestVersion) {
+        badRequest(res)
+        return
+      }
+
+      if (latestVersion.metadata.author?.id !== authorization.id) {
+        unauthorized(res)
+        return
+      }
+
+      res.json(await db.savePatchVersion(authorization.id, patch))
       res.end()
     })
 )

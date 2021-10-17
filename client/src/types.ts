@@ -23,12 +23,6 @@ export type State = {
   cursor: Vec2
   socketPositions: Record<Id, Record<string, Vec2>>
   viewOffset: Vec2
-  patchDetails: {
-    id: null | string
-    name: string
-    author: null | User
-    version: number
-  }
   patch: Patch
   route: Route
   activeCable: {

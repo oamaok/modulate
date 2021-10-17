@@ -38,7 +38,7 @@ const initialize = async () => {
         history.replaceState({}, '', '/')
         loadSaveState()
       } else {
-        loadPatch(patch.patch)
+        loadPatch(patch)
       }
 
       break
@@ -47,7 +47,8 @@ const initialize = async () => {
 }
 
 const loadPatch = async (savedPatch: types.Patch) => {
-  const { currentId, modules, knobs, cables } = savedPatch
+  const { currentId, modules, knobs, cables, metadata } = savedPatch
+  patch.metadata = metadata
   patch.knobs = knobs
   patch.currentId = currentId
   patch.modules = modules
