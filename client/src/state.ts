@@ -11,13 +11,12 @@ const state = createState<State>({
   user: null,
   hint: null,
   activeModule: null,
-  patchDetails: {
-    id: null,
-    name: 'untitled',
-    version: 0,
-    author: null,
-  },
   patch: {
+    metadata: {
+      id: null,
+      author: null,
+      name: 'untitled',
+    },
     currentId: 0,
     modules: {},
     knobs: {},
@@ -30,7 +29,7 @@ const state = createState<State>({
 })
 
 export default state
-export const { cursor, patchDetails, viewport, patch, socketPositions } = state
+export const { cursor, viewport, patch, socketPositions } = state
 export const nextId = () => `${patch.currentId++}` as Id
 
 window.addEventListener('popstate', () => {

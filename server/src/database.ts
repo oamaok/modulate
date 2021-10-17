@@ -82,11 +82,14 @@ export const getUserPatches = (userId: string) => {
   `)
 }
 
-export const getLatestPatchVersion = async (patchId: string) => {
+export const getLatestPatchVersion = async (
+  patchId: string
+): Promise<Patch | null> => {
   const [patch] = await query(sql`
-    SELECT id, patch, name version, createdAt
+    SELECT patches.id AS id, patch, name, users.id AS authorId, users.username AS authorName, version
     FROM patches
-    WHERE id = ${patchId}
+    JOIN users ON users.id = patches.authorId
+    WHERE patches.id = ${patchId}
     ORDER BY version DESC
     LIMIT 1
   `)
@@ -94,8 +97,15 @@ export const getLatestPatchVersion = async (patchId: string) => {
   if (!patch) return null
 
   return {
-    ...patch,
-    patch: JSON.parse(patch.patch),
+    metadata: {
+      id: patch.id,
+      name: patch.name,
+      author: {
+        id: patch.authorId,
+        username: patch.authorName,
+      },
+    },
+    ...JSON.parse(patch.patch),
   }
 }
 
@@ -106,30 +116,22 @@ export const getPatchVersion = (patchId: string, version: number) => {
     WHERE id = ${patchId} AND version = ${version}
   `)
 }
-export const saveNewPatch = async (
-  userId: string,
-  patchName: string,
-  patch: Patch
-) => {
+export const saveNewPatch = async (userId: string, patch: Patch) => {
   const patchId = uuid()
 
   const res = await query(sql`
     INSERT INTO patches (id, name, authorId, createdAt, patch)
-    VALUES (${patchId}, ${patchName}, ${userId}, ${Date.now()}, ${JSON.stringify(
-    patch
-  )})
+    VALUES (${patchId}, ${
+    patch.metadata.name
+  }, ${userId}, ${Date.now()}, ${JSON.stringify(patch)})
   `)
 
   return { id: patchId, version: 0 }
 }
 
-export const savePatchVersion = async (
-  userId: string,
-  patchId: string,
-  patch: Patch
-) => {
+export const savePatchVersion = async (userId: string, patch: Patch) => {
   const [latestVersion] = await query(sql`
-    SELECT version FROM patches WHERE id = ${patchId} ORDER BY version DESC LIMIT 1
+    SELECT version FROM patches WHERE id = ${patch.metadata.id} ORDER BY version DESC LIMIT 1
   `)
 
   const nextVersion = latestVersion.version + 1
@@ -137,13 +139,13 @@ export const savePatchVersion = async (
   await query(sql`
     INSERT INTO patches (id, version, name, authorId, createdAt, patch)
     VALUES (
-      ${patchId},
+      ${patch.metadata.id},
       ${nextVersion},
-      'untitled',
+      ${patch.metadata.name},
       ${userId},
       ${Date.now()},
       ${JSON.stringify(patch)}
     )
   `)
-  return { id: patchId, version: nextVersion }
+  return { id: patch.metadata.id, version: nextVersion }
 }

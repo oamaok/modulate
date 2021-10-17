@@ -16,16 +16,7 @@
   min-width: 200px;
 }
 
-.patch-name i {
-  margin: 0 8px;
-}
-
-.patch-details input {
-  margin-left: 10px;
-}
-
 .menu-button {
-  text-decoration: none;
   margin-left: 72px;
 }
 
@@ -39,7 +30,7 @@
   flex-direction: column;
   position: absolute;
   box-shadow: var(--box-shadow);
-  width: 200px;
+  width: 400px;
 }
 
 .menu::after {
@@ -51,6 +42,13 @@
   top: -5px;
   position: absolute;
   transform: rotate(45deg);
+}
+
+.patch-settings {
+}
+
+.patch-settings .name input {
+  margin-left: 10px;
 }
 
 .menu .item {

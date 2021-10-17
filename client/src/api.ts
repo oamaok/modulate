@@ -44,7 +44,7 @@ export const getIdentity = () => {
   return get('/api/identity')
 }
 
-export const saveNewPatch = (patch: Patch) => {
+export const savePatch = (patch: Patch) => {
   return post('/api/patch', { body: patch })
 }
 
