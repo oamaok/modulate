@@ -28,6 +28,7 @@
   display: flex;
   min-height: 60px;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
 }

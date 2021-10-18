@@ -12,8 +12,6 @@ import styles from './Socket.css'
 
 const css = classNames.bind(styles)
 
-type Props = RegisteredSocket
-
 const getSocketOffset = (
   element: HTMLElement,
   pos: Vec2 = { x: 0, y: 0 }
@@ -35,11 +33,12 @@ const getSocketOffset = (
   })
 }
 
-const Socket = ({ moduleId, type, name, node }: Props) => {
+const Socket = (socket: RegisteredSocket) => {
+  const { moduleId, type, name, node } = socket
   const ref = useRef<HTMLDivElement>()
 
   useEffect(() => {
-    registerSocket({ moduleId, name, node, type } as RegisteredSocket)
+    registerSocket(socket)
     return () => unregisterSocket(moduleId, name)
   })
 

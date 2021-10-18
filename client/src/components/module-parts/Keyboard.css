@@ -1,0 +1,6 @@
+.keyboard svg {
+  border-radius: 3px;
+  width: 152px;
+  height: 60px;
+  overflow: hidden;
+}

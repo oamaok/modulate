@@ -19,7 +19,9 @@ class Clock extends Component<Props> implements IModule {
   constructor(props: Props) {
     super(props)
     const audioContext = getAudioContext()
-    this.node = new WorkletNode(audioContext, 'Clock')
+    this.node = new WorkletNode(audioContext, 'Clock', {
+      numberOfOutputs: 4,
+    })
     const tempo = this.node.parameters.get('tempo')
     const pulseWidth = this.node.parameters.get('pulseWidth')
 
@@ -33,7 +35,34 @@ class Clock extends Component<Props> implements IModule {
         <Knob moduleId={id} name="tempo" min={1} max={500} initial={128} />
         <Knob moduleId={id} name="pulseWidth" min={0} max={1} initial={0.5} />
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="out" node={this.node} />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="1/4"
+            node={this.node}
+            output={0}
+          />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="1/8"
+            node={this.node}
+            output={1}
+          />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="1/16"
+            node={this.node}
+            output={2}
+          />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="1/32"
+            node={this.node}
+            output={3}
+          />
         </ModuleOutputs>
       </Module>
     )

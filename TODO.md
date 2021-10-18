@@ -7,9 +7,18 @@
 
 ## Modules
 
-- Keyboard UI component (svg?)
 - MIDI input
 - Better oscillator, maybe multiple
+- Mixer
+- Octave
+- Delay
+- Reverb
+- Distortion
+- Compressor
+- Limiter
+- LFO
+
+- Controllable ADSR
 
 ## Knobs
 
@@ -19,7 +28,7 @@
 # Module selector
 
 - Starred items
-- Only accesible via hotkey?
+- Ability to drag the modules from the selector
 
 # General UI/UX
 

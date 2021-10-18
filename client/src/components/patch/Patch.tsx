@@ -51,7 +51,7 @@ const Patch = () => {
       {Object.keys(patch.modules).map((id: string) => {
         const Component: any =
           moduleMap[patch.modules[id].name as keyof typeof moduleMap]
-        return <Component id={id} />
+        return <Component key={id} id={id} />
       })}
     </div>
   )

@@ -55,7 +55,7 @@ const buildClient = async () => {
       incremental: true,
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
-      minify: true,
+      minify: isProduction,
       define: {
         'process.env.NODE_ENV': '"production"',
       },
@@ -82,7 +82,7 @@ const buildWorklets = async () => {
         bundle: true,
         outfile: `./dist/client/worklets/${worklet}.js`,
         incremental: true,
-        minify: false,
+        minify: isProduction,
       })
     )
   )
@@ -124,14 +124,14 @@ ${worklets.map((worklet) => `  ${worklet}: typeof ${worklet}`).join('\n')}
   }
 
   chokidar
-    .watch('./worklets/*', {
+    .watch('./client/worklets/*', {
       persistent: true,
       ignoreInitial: true,
     })
     .on('all', buildWorklets)
 
   chokidar
-    .watch('./client/**/*', {
+    .watch('./client/src/**/*', {
       persistent: true,
       ignoreInitial: true,
     })

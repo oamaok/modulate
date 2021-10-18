@@ -1,17 +1,16 @@
-import { Id } from './types'
-
 export type RegisteredSocket =
   | {
       type: 'input'
-      moduleId: Id
+      moduleId: string
       name: string
       node: AudioNode | AudioParam
     }
   | {
       type: 'output'
-      moduleId: Id
+      moduleId: string
       name: string
       node: AudioNode
+      output?: number
     }
 
 let sockets: RegisteredSocket[] = []
@@ -21,7 +20,7 @@ export const registerSocket = (socket: RegisteredSocket) => {
 }
 
 export const getRegisteredSocket = (
-  moduleId: Id,
+  moduleId: string,
   socketName: string
 ): RegisteredSocket => {
   return sockets.find(
@@ -29,7 +28,7 @@ export const getRegisteredSocket = (
   )!
 }
 
-export const unregisterSocket = (moduleId: Id, socketName: string) => {
+export const unregisterSocket = (moduleId: string, socketName: string) => {
   sockets = sockets.filter(
     (socket) => socket.name !== socketName && socket.moduleId !== moduleId
   )
