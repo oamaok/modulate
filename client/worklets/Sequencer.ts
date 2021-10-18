@@ -51,6 +51,14 @@ class Sequencer extends AudioWorkletProcessor {
         frequencyOutputChannels[0][sampleIx] =
           this.notes[this.currentStep].voltage
       }
+
+      if (gateOutputChannels[0]) {
+        if (this.notes[this.currentStep].gate) {
+          gateOutputChannels[0][sampleIx] = this.previousSample
+        } else {
+          gateOutputChannels[0][sampleIx] = 0
+        }
+      }
     }
 
     return true

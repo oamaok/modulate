@@ -36,14 +36,15 @@ class Clock extends AudioWorkletProcessor {
 
       const samplesPerCycle = sampleRate * (60 / tempo)
 
-      const value = this.t < samplesPerCycle * pulseWidth ? 1 : 0
-      this.t = (this.t + 1) % ~~samplesPerCycle
+      for (let i = 0; i < 4; i++) {
+        const value =
+          (this.t * (i + 1)) % samplesPerCycle > samplesPerCycle / 2 ? 1 : 0
 
-      for (let i = 0; i < outputs.length; i++) {
         for (let j = 0; j < outputs[i].length; j++) {
           outputs[i][j][sample] = value
         }
       }
+      this.t = (this.t + 1) % ~~samplesPerCycle
     }
 
     return true

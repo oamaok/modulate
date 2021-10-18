@@ -86,9 +86,14 @@ export const getSocketPosition = ({
 }: {
   moduleId: Id
   name: string
-}): Vec2 => {
-  const socketOffset = socketPositions[moduleId][name]
+}): Vec2 | null => {
+  const moduleSockets = socketPositions[moduleId]
+  if (!moduleSockets) {
+    return null
+  }
+
   const modulePosition = getModulePosition(moduleId)
+  const socketOffset = moduleSockets[name]
 
   return {
     x: modulePosition.x + socketOffset.x,
@@ -213,4 +218,13 @@ export const releaseActiveCable = () => {
   }
 
   state.activeCable = null
+}
+
+export const deleteModule = (id: string) => {
+  state.patch.cables = state.patch.cables.filter((cable) => {
+    return cable.from.moduleId !== id && cable.to.moduleId !== id
+  })
+  delete state.patch.knobs[id]
+  delete state.socketPositions[id]
+  delete state.patch.modules[id]
 }

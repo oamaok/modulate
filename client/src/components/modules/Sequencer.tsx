@@ -7,8 +7,13 @@ import { connectKnobToParam } from '../../modules'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
+import classNames from 'classnames/bind'
+import styles from './Sequencer.css'
+
+const css = classNames.bind(styles)
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import Keyboard from '../module-parts/Keyboard'
 type Props = {
   id: Id
 }
@@ -34,20 +39,22 @@ const OCTAVES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 type Note = {
   name: NoteName
   octave: number
-  enabled: boolean
+  gate: boolean
 }
 
 type SequencerState = {
+  editing: number
   notes: Note[]
 }
 
 const initialState: SequencerState = {
+  editing: 0,
   notes: Array(16)
     .fill(null)
     .map(() => ({
       name: 'A',
       octave: 4,
-      enabled: true,
+      gate: true,
     })),
 }
 
@@ -71,43 +78,65 @@ class Sequencer extends Component<Props> implements IModule {
       this.node.port.postMessage(
         notes.map((note) => ({
           voltage: note.octave + (NOTE_NAMES.indexOf(note.name) * 1) / 12,
-          gate: note.enabled,
+          gate: note.gate,
         }))
       )
     })
   }
 
   render({ id }: Props) {
-    const { notes } = getModuleState<SequencerState>(id)
+    const moduleState = getModuleState<SequencerState>(id)
+    const { editing, notes } = moduleState
 
     return (
-      <Module id={id} name="Sequencer" width={460}>
-        {notes.map((note) => (
-          <div className="sequencer-note">
-            <select
-              onChange={(evt: any) => (note.name = evt.target.value)}
-              value={note.name}
-            >
-              {NOTE_NAMES.map((name) => (
-                <option selected={note.name === name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-            <select onChange={(evt: any) => (note.octave = +evt.target.value)}>
-              {OCTAVES.map((oct) => (
-                <option selected={note.octave === +oct} value={oct}>
-                  {oct}
-                </option>
-              ))}
-            </select>
+      <Module id={id} name="Sequencer" width={300}>
+        <div className={css('sequencer')}>
+          <div className={css('steps')}>
+            {notes.map((_, i) => (
+              <div
+                className={css('indicator', {
+                  on: i === editing,
+                })}
+                onClick={() => {
+                  moduleState.editing = i
+                }}
+              ></div>
+            ))}
           </div>
-        ))}
+          <Keyboard
+            note={notes[editing].name}
+            onChange={(note) => {
+              notes[editing].name = note as NoteName
+            }}
+          />
+          Gate
+          <div
+            className={css('indicator', {
+              on: notes[editing].gate,
+            })}
+            onClick={() => {
+              notes[editing].gate = !notes[editing].gate
+            }}
+          ></div>
+        </div>
         <ModuleInputs>
-          <Socket moduleId={id} type="input" name="gate" node={this.node} />
+          <Socket moduleId={id} type="input" name="Gate" node={this.node} />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="out" node={this.node} />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="CV"
+            node={this.node}
+            output={0}
+          />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="Out Gate"
+            node={this.node}
+            output={1}
+          />
         </ModuleOutputs>
       </Module>
     )

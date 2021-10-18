@@ -8,7 +8,14 @@ const classNames = {}
 
 let currentId = 0
 const nextName = () => {
-  return '_' + (currentId++).toString(36)
+  let i = ++currentId
+  let a = ''
+  while (i > 0) {
+    const mod = i % 26
+    a += String.fromCharCode(mod + 65)
+    i = Math.floor((i - mod) / 26)
+  }
+  return a
 }
 
 const CssModulesPlugin = () => ({

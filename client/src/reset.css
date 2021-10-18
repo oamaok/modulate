@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Gemunu+Libre:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gemunu+Libre:wght@400&display=swap');
 
 :root {
   --primary: #e85d00;
@@ -35,7 +35,8 @@ h1,
 h2 {
   color: var(--primary);
 }
-body,
+b
+ody,
 html {
   overflow: hidden;
   width: 100vw;
