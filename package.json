@@ -32,7 +32,7 @@
     "classnames": "^2.3.1",
     "cssnano": "^5.0.8",
     "esbuild": "^0.13.2",
-    "kaiku": "^1.19.1",
+    "kaiku": "^1.19.2",
     "postcss": "^8.3.9",
     "postcss-modules": "^4.2.2",
     "prettier": "^2.4.1",

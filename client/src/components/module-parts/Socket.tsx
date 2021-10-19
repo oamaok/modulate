@@ -39,7 +39,9 @@ const Socket = (socket: RegisteredSocket) => {
 
   useEffect(() => {
     registerSocket(socket)
-    return () => unregisterSocket(moduleId, name)
+    return () => {
+      unregisterSocket(moduleId, name)
+    }
   })
 
   const onMouseDown = (evt: MouseEvent) => {
