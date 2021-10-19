@@ -4,6 +4,7 @@ export type RegisteredSocket =
       moduleId: string
       name: string
       node: AudioNode | AudioParam
+      input?: number
     }
   | {
       type: 'output'

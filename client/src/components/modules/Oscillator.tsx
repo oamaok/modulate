@@ -35,9 +35,7 @@ class Oscillator extends Component<Props> implements IModule {
   render({ id }: Props) {
     return (
       <Module id={id} name="Oscillator">
-        <div className="module-body">
-          <Knob moduleId={id} name="frequency" min={-1} max={10} initial={5} />
-        </div>
+        <Knob moduleId={id} name="frequency" min={-1} max={10} initial={5} />
 
         <ModuleInputs>
           <Socket
