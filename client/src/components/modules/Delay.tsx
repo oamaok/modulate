@@ -42,6 +42,18 @@ class Delay extends Component<Props> implements IModule {
         <Knob moduleId={id} name="wet" min={0} max={1} initial={0.5} />
         <Knob moduleId={id} name="dry" min={0} max={1} initial={1} />
         <ModuleInputs>
+          <Socket
+            moduleId={id}
+            type="input"
+            name="Feedback"
+            node={this.node.parameters.get('feedBack')}
+          />
+          <Socket
+            moduleId={id}
+            type="input"
+            name="Delay"
+            node={this.node.parameters.get('delayTime')}
+          />
           <Socket moduleId={id} type="input" name="In" node={this.node} />
         </ModuleInputs>
         <ModuleOutputs>

@@ -2,8 +2,6 @@ const getParameterValueAtSample = (parameter: Float32Array, sample: number) => {
   return parameter.length === 1 ? parameter[0] : parameter[sample]
 }
 
-const lerp = (a: number, b: number, t: number) => a + t * (b - a)
-
 const resample = (
   src: Float32Array,
   dst: Float32Array,
@@ -16,8 +14,8 @@ const resample = (
     const srcI = ~~srcPos
     const t = srcPos - srcI
     const a = src[srcI]
-    const b = src[srcI + 1]
-    dst[i] = lerp(a, b, t)
+    const b = src[(srcI + 1) % srcLen]
+    dst[i] = a + t * (b - a)
   }
 }
 
@@ -28,7 +26,7 @@ class Delay extends AudioWorkletProcessor {
       minValue: 0.01,
       maxValue: 10,
       defaultValue: 0.1,
-      automationRate: 'k-rate',
+      automationRate: 'a-rate',
     },
     {
       name: 'feedBack',
