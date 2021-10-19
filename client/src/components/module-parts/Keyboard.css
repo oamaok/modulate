@@ -1,6 +1,51 @@
-.keyboard svg {
+.keyboard {
   border-radius: 3px;
   width: 152px;
   height: 60px;
   overflow: hidden;
+  position: relative;
+}
+
+.white-key,
+.black-key {
+  width: 20px;
+  height: 100%;
+  position: absolute;
+}
+
+.white-key {
+  background: var(--background);
+}
+
+.black-key {
+  background: var(--on-background);
+  top: -50%;
+}
+
+.black-key::before {
+  background: var(--on-background);
+  content: ' ';
+  width: 20px;
+  height: 20px;
+  transform: scale(0.7, 0.2) rotate(45deg);
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+}
+
+.white-key::after,
+.black-key::after {
+  content: ' ';
+  position: absolute;
+  bottom: 5px;
+  left: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--secondary);
+}
+
+.white-key.on::after,
+.black-key.on::after {
+  background-color: var(--primary);
 }

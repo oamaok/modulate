@@ -15,44 +15,23 @@ type Props = {
 const Keyboard = ({ note, onChange }: Props) => {
   return (
     <div className={css('keyboard')}>
-      <svg viewbox="0 0 152 60">
-        <defs>
-          <g id="white-key">
-            <rect fill="white" x="0" y="0" width="20" height="60" />
-            <circle cx="10" cy="50" r="4" fill="#c7c7c7" />
-          </g>
-          <g id="white-key-active">
-            <rect fill="white" x="0" y="0" width="20" height="60" />
-            <circle cx="10" cy="50" r="4" fill="#e85d00" />
-          </g>
-          <g id="black-key">
-            <path fill="#333333" d="M 0 0 H 20 V 35 l -10 3 l -10 -3 Z" />
-            <circle cx="10" cy="25" r="4" fill="#c7c7c7" />
-          </g>
-          <g id="black-key-active">
-            <path fill="#333333" d="M 0 0 H 20 V 35 l -10 3 l -10 -3 Z" />
-            <circle cx="10" cy="25" r="4" fill="#e85d00" />
-          </g>
-        </defs>
-
-        {WHITE_KEYS.map((key, index) => (
-          <use
-            href={key === note ? '#white-key-active' : '#white-key'}
-            x={index * 22}
-            onClick={() => onChange(key)}
-          />
-        ))}
-        {BLACK_KEYS.map(
-          (key, index) =>
-            key && (
-              <use
-                href={key === note ? '#black-key-active' : '#black-key'}
-                x={10 + index * 22}
-                onClick={() => onChange(key)}
-              />
-            )
-        )}
-      </svg>
+      {WHITE_KEYS.map((key, i) => (
+        <button
+          onClick={() => onChange(key)}
+          className={css('white-key', { on: key === note })}
+          style={{ left: i * 22 + 'px' }}
+        ></button>
+      ))}
+      {BLACK_KEYS.map(
+        (key, i) =>
+          key && (
+            <button
+              onClick={() => onChange(key)}
+              className={css('black-key', { on: key === note })}
+              style={{ left: i * 22 + 10 + 'px' }}
+            ></button>
+          )
+      )}
     </div>
   )
 }

@@ -10,10 +10,17 @@ const css = classNames.bind(styles)
 type Props = {
   id: Id
   name: string
+  height?: number
   width?: number
 }
 
-const Module: FC<Props> = ({ id, name, children, width = 200 }) => {
+const Module: FC<Props> = ({
+  id,
+  name,
+  children,
+  height = 100,
+  width = 200,
+}) => {
   const moduleState = useState<{
     dragPosition: null | Vec2
   }>({
@@ -62,6 +69,7 @@ const Module: FC<Props> = ({ id, name, children, width = 200 }) => {
       style={{
         zIndex: () => (state.activeModule === id ? 10 : 1),
         width: width + 'px',
+        height: height + 'px',
         transform: () =>
           `translate(${modulePosition.x}px, ${modulePosition.y}px)`,
       }}

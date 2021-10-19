@@ -22,9 +22,12 @@ const Cable = ({ from, to }: Props) => {
       throw new Error('invalid inputSocket type')
     }
 
-    console.log(outputSocket.output)
     if (inputSocket.node instanceof AudioNode) {
-      outputSocket.node.connect(inputSocket.node, outputSocket.output)
+      outputSocket.node.connect(
+        inputSocket.node,
+        outputSocket.output,
+        inputSocket.input
+      )
     } else {
       outputSocket.node.connect(inputSocket.node, outputSocket.output)
     }
@@ -42,7 +45,11 @@ const Cable = ({ from, to }: Props) => {
       }
 
       if (inputSocket.node instanceof AudioNode) {
-        outputSocket.node.disconnect(inputSocket.node, outputSocket.output)
+        outputSocket.node.disconnect(
+          inputSocket.node,
+          outputSocket.output,
+          inputSocket.input
+        )
       } else {
         outputSocket.node.disconnect(inputSocket.node, outputSocket.output)
       }

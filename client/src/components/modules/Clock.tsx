@@ -1,16 +1,15 @@
-import { h, Component, useEffect } from 'kaiku'
-import { IModule, Id } from '../../types'
+import { h, Component } from 'kaiku'
+import { IModule } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
-import { getModuleKnobs } from '../../state'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { connectKnobToParam } from '../../modules'
 
-import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import { ModuleOutputs } from '../module-parts/ModuleSockets'
 type Props = {
-  id: Id
+  id: string
 }
 
 class Clock extends Component<Props> implements IModule {

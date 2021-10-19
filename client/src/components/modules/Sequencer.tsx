@@ -89,7 +89,7 @@ class Sequencer extends Component<Props> implements IModule {
     const { editing, notes } = moduleState
 
     return (
-      <Module id={id} name="Sequencer" width={300}>
+      <Module id={id} name="Sequencer" width={300} height={200}>
         <div className={css('sequencer')}>
           <div className={css('steps')}>
             {notes.map((_, i) => (
