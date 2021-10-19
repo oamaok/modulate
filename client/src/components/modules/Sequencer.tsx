@@ -47,17 +47,6 @@ type SequencerState = {
   notes: Note[]
 }
 
-const initialState: SequencerState = {
-  editing: 0,
-  notes: Array(16)
-    .fill(null)
-    .map(() => ({
-      name: 'A',
-      octave: 4,
-      gate: true,
-    })),
-}
-
 class Sequencer extends Component<Props> implements IModule {
   node: WorkletNode<'Sequencer'>
 
@@ -70,7 +59,16 @@ class Sequencer extends Component<Props> implements IModule {
     })
 
     if (!getModuleState<SequencerState>(props.id)) {
-      setModuleState(props.id, initialState)
+      setModuleState(props.id, {
+        editing: 0,
+        notes: Array(16)
+          .fill(null)
+          .map(() => ({
+            name: 'A',
+            octave: 4,
+            gate: true,
+          })),
+      })
     }
 
     useEffect(() => {
