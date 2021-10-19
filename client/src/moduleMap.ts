@@ -7,6 +7,7 @@ import BiquadFilter from './components/modules/Filter'
 import Sequencer from './components/modules/Sequencer'
 import Mixer from './components/modules/Mixer'
 import Delay from './components/modules/Delay'
+import LFO from './components/modules/LFO'
 
 export const moduleMap = {
   AudioOut,
@@ -18,4 +19,5 @@ export const moduleMap = {
   Sequencer,
   Mixer,
   Delay,
+  LFO,
 } as const
