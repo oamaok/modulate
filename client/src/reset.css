@@ -53,4 +53,5 @@ input {
   margin-bottom: -2px;
 
   box-shadow: inset var(--box-shadow);
+  transform-origin: bottom left;
 }

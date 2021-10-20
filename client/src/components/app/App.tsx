@@ -7,6 +7,7 @@ import ModuleSelector from '../module-selector/ModuleSelector'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
 import { initializeAudio } from '../../audio'
+import { workletNames } from '../../worklets'
 import state, { patch } from '../../state'
 import * as types from '../../../../common/types'
 import * as api from '../../api'
@@ -64,6 +65,16 @@ const InitModal = () => {
         Please adjust your audio levels before continuing. This application is
         capable of producing ear-busting sonic experiences.
         <button onClick={initialize}>I'm ready!</button>
+        <div className={css('loading-bar')}>
+          <div
+            className={css('progress')}
+            style={{
+              transform: `scaleX(${
+                state.loadedWorklets / workletNames.length
+              })`,
+            }}
+          />
+        </div>
       </div>
     </div>
   )
