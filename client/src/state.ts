@@ -6,6 +6,7 @@ import { parseRoute } from './routes'
 
 const state = createState<State>({
   initialized: false,
+  loadedWorklets: 0,
   cursor: { x: 0, y: 0 },
   viewport: { width: window.innerWidth, height: window.innerHeight },
   user: null,
@@ -158,7 +159,7 @@ export const getCableConnectionCandidate = () => {
   )
 
   const candidateSocket = targetSockets.find((socket) => {
-    const { x, y } = getSocketPosition(socket)
+    const { x, y } = getSocketPosition(socket)!
     return (x - state.cursor.x) ** 2 + (y - state.cursor.y) ** 2 < 200
   })
 
