@@ -25,7 +25,7 @@
 }
 
 .module-body {
-  padding: 10px 40px;
+  padding: 0px 40px;
   display: flex;
   min-height: 60px;
   flex-direction: row;

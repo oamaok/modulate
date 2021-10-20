@@ -2,15 +2,32 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 7px solid var(--on-background);
-  background: var(--background);
+  padding: 7px;
+  /* background: var(--background); */
+  background: url(/assets/knob.svg);
+  background-size: contain;
   position: relative;
 }
 
-.knob-position {
+.knob::before {
+  content: ' ';
+  display: block;
   position: absolute;
   width: 14px;
-  border-bottom: 4px solid var(--background);
-  top: 5px;
-  left: -7px;
+  height: 4px;
+  background: var(--secondary);
+  top: 12px;
+  left: 2px;
+  border-radius: 2px;
+}
+
+.knob::after {
+  content: ' ';
+  display: block;
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 7px #000;
+  background: var(--background);
 }

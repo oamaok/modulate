@@ -13,6 +13,7 @@ import styles from './Mixer.css'
 const css = classNames.bind(styles)
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import Slider from '../module-parts/Slider'
 type Props = {
   id: string
 }
@@ -48,16 +49,64 @@ class Mixer extends Component<Props> implements IModule {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Mixer" width={120} height={400}>
+      <Module id={id} name="Mixer" width={200} height={200}>
         <div className={css('mixer')}>
-          <Knob moduleId={id} name="busLevel0" min={0} max={1} initial={0.8} />
-          <Knob moduleId={id} name="busLevel1" min={0} max={1} initial={0.8} />
-          <Knob moduleId={id} name="busLevel2" min={0} max={1} initial={0.8} />
-          <Knob moduleId={id} name="busLevel3" min={0} max={1} initial={0.8} />
-          <Knob moduleId={id} name="busLevel4" min={0} max={1} initial={0.8} />
-          <Knob moduleId={id} name="busLevel5" min={0} max={1} initial={0.8} />
-          <Knob moduleId={id} name="busLevel6" min={0} max={1} initial={0.8} />
-          <Knob moduleId={id} name="busLevel7" min={0} max={1} initial={0.8} />
+          <Slider
+            moduleId={id}
+            name="busLevel0"
+            min={0}
+            max={1}
+            initial={0.8}
+          />
+          <Slider
+            moduleId={id}
+            name="busLevel1"
+            min={0}
+            max={1}
+            initial={0.8}
+          />
+          <Slider
+            moduleId={id}
+            name="busLevel2"
+            min={0}
+            max={1}
+            initial={0.8}
+          />
+          <Slider
+            moduleId={id}
+            name="busLevel3"
+            min={0}
+            max={1}
+            initial={0.8}
+          />
+          <Slider
+            moduleId={id}
+            name="busLevel4"
+            min={0}
+            max={1}
+            initial={0.8}
+          />
+          <Slider
+            moduleId={id}
+            name="busLevel5"
+            min={0}
+            max={1}
+            initial={0.8}
+          />
+          <Slider
+            moduleId={id}
+            name="busLevel6"
+            min={0}
+            max={1}
+            initial={0.8}
+          />
+          <Slider
+            moduleId={id}
+            name="busLevel7"
+            min={0}
+            max={1}
+            initial={0.8}
+          />
         </div>
         <ModuleInputs>
           <Socket
