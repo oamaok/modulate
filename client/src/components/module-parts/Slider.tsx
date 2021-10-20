@@ -3,7 +3,7 @@ import state, { getKnobValue, setKnobValue } from '../../state'
 import { Id, Vec2 } from '../../../../common/types'
 
 import classNames from 'classnames/bind'
-import styles from './Knob.css'
+import styles from './Slider.css'
 
 const css = classNames.bind(styles)
 
@@ -15,7 +15,7 @@ type Props = {
   initial: number
 }
 
-const Knob = ({ moduleId, name, min, max, initial }: Props) => {
+const Slider = ({ moduleId, name, min, max, initial }: Props) => {
   const knobValue = getKnobValue(moduleId, name)
   const initialValue = typeof knobValue === 'undefined' ? initial : knobValue
 
@@ -50,7 +50,7 @@ const Knob = ({ moduleId, name, min, max, initial }: Props) => {
 
   useEffect(() => {
     if (knobState.dragPosition) {
-      knobState.position -= (state.cursor.y - knobState.dragPosition.y) / 300
+      knobState.position -= (knobState.dragPosition.x - state.cursor.x) / 100
       knobState.position = Math.max(0, Math.min(1, knobState.position))
 
       knobState.dragPosition.x = state.cursor.x
@@ -74,15 +74,17 @@ const Knob = ({ moduleId, name, min, max, initial }: Props) => {
 
   return (
     <div
-      className={css('knob')}
+      className={css('slider-track')}
       onMouseOver={() => displayHint(knobValue!)}
       onMouseOut={hideHint}
-      onMouseDown={onDragStart}
-      style={{
-        transform: `rotate(${knobState.position * 300 - 60}deg)`,
-      }}
-    ></div>
+    >
+      <div
+        className={css('slider')}
+        onMouseDown={onDragStart}
+        style={{ transform: `translateX(${knobState.position * 100}px)` }}
+      ></div>
+    </div>
   )
 }
 
-export default Knob
+export default Slider

@@ -1,0 +1,30 @@
+.slider-track {
+  width: 100px;
+  height: 6px;
+  background: var(--background);
+  box-shadow: var(--box-shadow) inset;
+  position: relative;
+  border-radius: 1px;
+}
+
+.slider {
+  position: absolute;
+  height: 10px;
+  width: 16px;
+  top: -2px;
+  left: -8px;
+  background: var(--on-background);
+  box-shadow: 0 0 2px #000;
+  border-radius: 2px;
+}
+
+.slider::after {
+  display: block;
+  content: ' ';
+  height: 10px;
+  width: 2px;
+  background: var(--primary);
+  position: absolute;
+  top: 0px;
+  left: 7px;
+}
