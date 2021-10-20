@@ -19,9 +19,6 @@ type Props = {
 }
 
 const NOTE_NAMES = [
-  'A',
-  'A#',
-  'B',
   'C',
   'C#',
   'D',
@@ -31,6 +28,9 @@ const NOTE_NAMES = [
   'F#',
   'G',
   'G#',
+  'A',
+  'A#',
+  'B',
 ] as const
 type NoteName = typeof NOTE_NAMES[number]
 
@@ -64,7 +64,7 @@ class Sequencer extends Component<Props> implements IModule {
         notes: Array(16)
           .fill(null)
           .map(() => ({
-            name: 'A',
+            name: 'C',
             octave: 4,
             gate: true,
           })),
@@ -75,7 +75,8 @@ class Sequencer extends Component<Props> implements IModule {
       const { notes } = getModuleState<SequencerState>(props.id)
       this.node.port.postMessage(
         notes.map((note) => ({
-          voltage: note.octave + (NOTE_NAMES.indexOf(note.name) * 1) / 12,
+          voltage:
+            note.octave - 4 + (NOTE_NAMES.indexOf(note.name) * 1 - 9) / 12,
           gate: note.gate,
         }))
       )

@@ -1,5 +1,5 @@
 import { h, Component } from 'kaiku'
-import { IModule, Id } from '../../types'
+import { IModule } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
 import Socket from '../module-parts/Socket'
@@ -9,45 +9,88 @@ import { connectKnobToParam } from '../../modules'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 type Props = {
-  id: Id
+  id: string
 }
 
 class Oscillator extends Component<Props> implements IModule {
-  node: OscillatorNode
-  frequencyNode: WorkletNode<'ModulationHelper'>
+  node: WorkletNode<'Oscillator'>
 
   constructor(props: Props) {
     super(props)
     const audioContext = getAudioContext()
-    this.node = audioContext.createOscillator()
-    this.node.frequency.value = 0
-    this.node.start()
-    this.node.type = 'sawtooth'
 
-    this.frequencyNode = new WorkletNode(audioContext, 'ModulationHelper')
-    this.frequencyNode.connect(this.node.frequency)
+    this.node = new WorkletNode(audioContext, 'Oscillator', {
+      numberOfInputs: 3,
+      numberOfOutputs: 4,
+    })
 
-    const freq = this.frequencyNode.parameters.get('level')
-
-    connectKnobToParam(props.id, 'frequency', freq)
+    connectKnobToParam(props.id, 'CV', this.node.parameters.get('cv'))
+    connectKnobToParam(props.id, 'FM', this.node.parameters.get('fm'))
+    connectKnobToParam(props.id, 'Fine', this.node.parameters.get('fine'))
+    connectKnobToParam(props.id, 'PW', this.node.parameters.get('pw'))
   }
 
   render({ id }: Props) {
     return (
       <Module id={id} name="Oscillator">
-        <Knob moduleId={id} name="frequency" min={-1} max={10} initial={5} />
+        <Knob moduleId={id} name="CV" min={-5} max={5} initial={0} />
+        <Knob moduleId={id} name="FM" min={-1} max={1} initial={0} />
+        <Knob moduleId={id} name="Fine" min={-1} max={1} initial={0} />
+        <Knob moduleId={id} name="PW" min={0} max={1} initial={0.5} />
 
         <ModuleInputs>
           <Socket
             moduleId={id}
             type="input"
-            name="freq"
-            node={this.frequencyNode}
+            name="CV"
+            input={0}
+            node={this.node}
+          />
+          <Socket
+            moduleId={id}
+            type="input"
+            name="FM"
+            input={1}
+            node={this.node}
+          />
+          <Socket
+            moduleId={id}
+            type="input"
+            name="PW"
+            input={2}
+            node={this.node}
           />
         </ModuleInputs>
 
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="out" node={this.node} />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="SIN"
+            output={0}
+            node={this.node}
+          />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="TRI"
+            output={1}
+            node={this.node}
+          />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="SAW"
+            output={2}
+            node={this.node}
+          />
+          <Socket
+            moduleId={id}
+            type="output"
+            name="SQR"
+            output={3}
+            node={this.node}
+          />
         </ModuleOutputs>
       </Module>
     )
