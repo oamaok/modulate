@@ -19,6 +19,7 @@ class LFO extends Component<Props> implements IModule {
     super(props)
     const audioContext = getAudioContext()
     this.node = audioContext.createOscillator()
+    this.node.type = 'sine'
     this.node.start()
 
     connectKnobToParam(props.id, 'frequency', this.node.frequency)
