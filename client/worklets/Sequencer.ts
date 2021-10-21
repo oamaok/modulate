@@ -1,12 +1,9 @@
-type Note = {
-  gate: boolean
-  voltage: number
-}
+import { SequencerMessage, Note } from '../../common/types'
 
 const MAX_SEQUENCE_LENGTH = 32
 
 class Sequencer extends AudioWorkletProcessor {
-  sequenceLength = 16
+  sequenceLength = 32
   currentStep = 0
   tempo = 120
   sample = 0
@@ -16,8 +13,20 @@ class Sequencer extends AudioWorkletProcessor {
   constructor(...args: any[]) {
     super()
 
-    this.port.onmessage = (message) => {
-      this.notes = message.data
+    this.port.onmessage = (msg) => {
+      const message = msg.data as SequencerMessage
+
+      switch (message.type) {
+        case 'NOTES': {
+          this.notes = message.notes
+          break
+        }
+
+        case 'SEQUENCE_LENGTH': {
+          this.sequenceLength = message.length
+          break
+        }
+      }
     }
   }
 

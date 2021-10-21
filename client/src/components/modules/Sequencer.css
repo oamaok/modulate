@@ -1,21 +1,58 @@
+.sequencer {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  padding: 10px 20px 0 0;
+}
+
 .steps {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.row {
   width: 100%;
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.row:first-child {
+  border-bottom: 2px solid var(--secondary-variant);
+}
+
+.group {
+  display: flex;
+  flex-direction: row;
+  padding: 0 2px;
+  border-right: 2px solid var(--secondary-variant);
+}
+
+.group:last-child {
+  border: none;
 }
 
 .indicator {
   width: 10px;
   height: 10px;
   margin: 0 1px;
-
   border: 2px solid #111;
   border-radius: 50%;
 }
 
+.disabled {
+  opacity: 0.2;
+}
+
 .indicator.on {
   background-color: var(--primary);
+}
+
+.middle {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 }

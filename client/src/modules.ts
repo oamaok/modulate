@@ -1,10 +1,9 @@
 import { useEffect } from 'kaiku'
-import { Id } from './types'
 import { getModuleKnobs } from './state'
 import { getAudioContext } from './audio'
 
 export const connectKnobToParam = (
-  moduleId: Id,
+  moduleId: string,
   knob: string,
   param: AudioParam
 ) => {

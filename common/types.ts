@@ -20,3 +20,18 @@ export type ConnectedSocket = t.TypeOf<typeof ConnectedSocket>
 export type Cable = t.TypeOf<typeof Cable>
 export type Patch = t.TypeOf<typeof Patch>
 export type PatchMetadata = t.TypeOf<typeof PatchMetadata>
+
+export type Note = {
+  gate: boolean
+  voltage: number
+}
+
+export type SequencerMessage =
+  | {
+      type: 'NOTES'
+      notes: Note[]
+    }
+  | {
+      type: 'SEQUENCE_LENGTH'
+      length: number
+    }

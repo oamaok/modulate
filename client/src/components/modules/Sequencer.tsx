@@ -1,5 +1,5 @@
 import { h, Component, useEffect } from 'kaiku'
-import { IModule, Id } from '../../types'
+import { IModule } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
 import { getModuleKnobs, getModuleState, setModuleState } from '../../state'
@@ -14,8 +14,24 @@ const css = classNames.bind(styles)
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Keyboard from '../module-parts/Keyboard'
+import { SequencerMessage } from '../../../../common/types'
+
+function splitEvery<T>(arr: T[], num: number): T[][] {
+  const res: T[][] = []
+
+  for (let i = 0; i < arr.length; i++) {
+    const mod = i % num
+    if (mod === 0) {
+      res.push([])
+    }
+    res[res.length - 1].push(arr[i])
+  }
+
+  return res
+}
+
 type Props = {
-  id: Id
+  id: string
 }
 
 const NOTE_NAMES = [
@@ -37,12 +53,14 @@ type NoteName = typeof NOTE_NAMES[number]
 const OCTAVES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 type Note = {
+  index: number
   name: NoteName
   octave: number
   gate: boolean
 }
 
 type SequencerState = {
+  sequenceLength: number
   editing: number
   notes: Note[]
 }
@@ -58,12 +76,18 @@ class Sequencer extends Component<Props> implements IModule {
       numberOfOutputs: 2,
     })
 
+    const sendToSequencer = (message: SequencerMessage) => {
+      this.node.port.postMessage(message)
+    }
+
     if (!getModuleState<SequencerState>(props.id)) {
       setModuleState(props.id, {
         editing: 0,
-        notes: Array(16)
+        sequenceLength: 32,
+        notes: Array(32)
           .fill(null)
-          .map(() => ({
+          .map((_, index) => ({
+            index,
             name: 'C',
             octave: 4,
             gate: true,
@@ -73,41 +97,80 @@ class Sequencer extends Component<Props> implements IModule {
 
     useEffect(() => {
       const { notes } = getModuleState<SequencerState>(props.id)
-      this.node.port.postMessage(
-        notes.map((note) => ({
+      sendToSequencer({
+        type: 'NOTES',
+        notes: notes.map((note) => ({
           voltage:
             note.octave - 4 + (NOTE_NAMES.indexOf(note.name) * 1 - 9) / 12,
           gate: note.gate,
-        }))
-      )
+        })),
+      })
+    })
+
+    useEffect(() => {
+      const knobs = getModuleKnobs(props.id)
+
+      if (knobs) {
+        const { sequenceLength } = knobs
+        getModuleState<SequencerState>(props.id).sequenceLength = sequenceLength
+      }
+    })
+
+    useEffect(() => {
+      const { sequenceLength } = getModuleState<SequencerState>(props.id)
+
+      sendToSequencer({
+        type: 'SEQUENCE_LENGTH',
+        length: Math.ceil(sequenceLength),
+      })
     })
   }
 
   render({ id }: Props) {
     const moduleState = getModuleState<SequencerState>(id)
-    const { editing, notes } = moduleState
+    const { editing, notes, sequenceLength } = moduleState
+
+    const groupedNotes = splitEvery(splitEvery(notes, 4), 4)
 
     return (
-      <Module id={id} name="Sequencer" width={300} height={200}>
+      <Module id={id} name="Sequencer" width={340} height={200}>
         <div className={css('sequencer')}>
           <div className={css('steps')}>
-            {notes.map((_, i) => (
-              <div
-                className={css('indicator', {
-                  on: i === editing,
-                })}
-                onClick={() => {
-                  moduleState.editing = i
-                }}
-              ></div>
+            {groupedNotes.map((groups) => (
+              <div className={css('row')}>
+                {groups.map((group) => (
+                  <div className={css('group')}>
+                    {group.map((note) => (
+                      <div
+                        className={css('indicator', {
+                          on: note.index === editing,
+                          disabled: note.index >= sequenceLength,
+                        })}
+                        onClick={() => {
+                          moduleState.editing = note.index
+                        }}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
             ))}
           </div>
-          <Keyboard
-            note={notes[editing].name}
-            onChange={(note) => {
-              notes[editing].name = note as NoteName
-            }}
-          />
+          <div className={css('middle')}>
+            <Keyboard
+              note={notes[editing].name}
+              onChange={(note) => {
+                notes[editing].name = note as NoteName
+              }}
+            />
+            <Knob
+              moduleId={id}
+              name="sequenceLength"
+              min={1}
+              max={32}
+              initial={32}
+            />
+          </div>
           Gate
           <div
             className={css('indicator', {
