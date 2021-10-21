@@ -37,7 +37,7 @@ const ModuleSelector = () => {
           filterRef.current!.focus()
         } else if (
           selectorState.open &&
-          evt.target === unwrap(filterRef.current!)
+          evt.target === unwrap(filterRef.current as any)
         ) {
           const moduleNames = Object.keys(moduleMap).filter((name) =>
             name.toLowerCase().includes(selectorState.filter.toLowerCase())
@@ -68,7 +68,7 @@ const ModuleSelector = () => {
             type="text"
             ref={filterRef}
             value={selectorState.filter}
-            onInput={(evt) => {
+            onInput={(evt: any) => {
               selectorState.filter = evt.target.value
             }}
           />

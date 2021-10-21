@@ -12,12 +12,13 @@ const state = createState<State>({
   user: null,
   hint: null,
   activeModule: null,
+
+  patchMetadata: {
+    id: null,
+    author: null,
+    name: 'untitled',
+  },
   patch: {
-    metadata: {
-      id: null,
-      author: null,
-      name: 'untitled',
-    },
     currentId: 0,
     modules: {},
     knobs: {},

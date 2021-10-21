@@ -51,8 +51,10 @@ class Delay extends AudioWorkletProcessor {
     },
   ] as const
 
-  buffer0: Float32Array = new Float32Array(sampleRate * 11)
-  buffer1: Float32Array = new Float32Array(sampleRate * 11)
+  ringBuffers: [Float32Array, Float32Array] = [
+    new Float32Array(sampleRate * 11),
+    new Float32Array(sampleRate * 11),
+  ]
   currentBuffer = 0
   currentBufferLength = ~~(sampleRate * 0.1)
 
@@ -66,15 +68,19 @@ class Delay extends AudioWorkletProcessor {
     const input = inputs[0][0]
     const output = outputs[0][0]
 
-    let currentBuffer = this.currentBuffer ? this.buffer1 : this.buffer0
+    for (let i = 1; i < outputs[0].length; i++) {
+      outputs[0][i] = output
+    }
+
+    let currentBuffer = this.ringBuffers[this.currentBuffer]
 
     const nextBufLen = ~~(
       getParameterValueAtSample(parameters.delayTime, 0) * sampleRate
     )
 
     if (nextBufLen !== this.currentBufferLength) {
-      const otherBuffer = this.currentBuffer ? this.buffer0 : this.buffer1
       this.currentBuffer = this.currentBuffer ^ 1
+      const otherBuffer = this.ringBuffers[this.currentBuffer]
 
       this.t = ~~((this.t / this.currentBufferLength) * nextBufLen)
       resample(currentBuffer, otherBuffer, this.currentBufferLength, nextBufLen)
@@ -82,19 +88,43 @@ class Delay extends AudioWorkletProcessor {
       this.currentBufferLength = nextBufLen
     }
 
-    for (let sample = 0; sample < 128; sample++) {
-      const inputValue = input ? input[sample] : 0
+    let t = this.t
 
-      output[sample] =
-        inputValue * getParameterValueAtSample(parameters.dry, sample) +
-        currentBuffer[this.t] *
-          getParameterValueAtSample(parameters.wet, sample)
+    if (parameters.wet.length === 1 && parameters.dry.length === 1) {
+      const dry = parameters.dry[0]
+      const wet = parameters.wet[0]
 
-      currentBuffer[this.t] =
-        (currentBuffer[this.t] + inputValue) *
-        getParameterValueAtSample(parameters.feedBack, sample)
-      this.t = (this.t + 1) % this.currentBufferLength
+      for (let sample = 0; sample < 128; sample++) {
+        const fb = getParameterValueAtSample(parameters.feedBack, sample)
+        const inputValue = input ? input[sample] : 0
+
+        const value = inputValue * dry + currentBuffer[t] * wet
+        currentBuffer[t] = currentBuffer[t] * fb + inputValue
+        output[sample] = value
+
+        t++
+        if (t >= nextBufLen) {
+          t = 0
+        }
+      }
+    } else {
+      for (let sample = 0; sample < 128; sample++) {
+        const dry = getParameterValueAtSample(parameters.dry, sample)
+        const wet = getParameterValueAtSample(parameters.wet, sample)
+        const fb = getParameterValueAtSample(parameters.feedBack, sample)
+        const inputValue = input ? input[sample] : 0
+
+        const value = inputValue * dry + currentBuffer[t] * wet
+        currentBuffer[t] = currentBuffer[t] * fb + inputValue
+        output[sample] = value
+
+        t++
+        if (t >= nextBufLen) {
+          t = 0
+        }
+      }
     }
+    this.t = t
 
     return true
   }

@@ -2,6 +2,7 @@ import { h, Fragment, useState, useEffect, useRef, unwrap } from 'kaiku'
 import state, { patch } from '../../state'
 import { moduleMap } from '../../moduleMap'
 import Cables from './Cables'
+import { Vec2 } from '../../../../common/types'
 
 import classNames from 'classnames/bind'
 import styles from './Patch.css'
@@ -17,8 +18,8 @@ const Patch = () => {
 
   const ref = useRef<HTMLDivElement>()
 
-  const onDragStart = (evt) => {
-    if (ref.current && evt.target === unwrap(ref.current)) {
+  const onDragStart = (evt: any) => {
+    if (ref.current && evt.target === unwrap(ref.current as any)) {
       patchState.dragPosition = { x: state.cursor.x, y: state.cursor.y }
     }
   }

@@ -7,6 +7,7 @@ import {
   UserLogin,
   Cable,
   Patch,
+  PatchMetadata,
 } from './validators'
 
 export type Id = string
@@ -18,3 +19,4 @@ export type SocketType = t.TypeOf<typeof SocketType>
 export type ConnectedSocket = t.TypeOf<typeof ConnectedSocket>
 export type Cable = t.TypeOf<typeof Cable>
 export type Patch = t.TypeOf<typeof Patch>
+export type PatchMetadata = t.TypeOf<typeof PatchMetadata>

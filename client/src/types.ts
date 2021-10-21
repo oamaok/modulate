@@ -1,4 +1,11 @@
-import { Id, Vec2, Patch, ConnectedSocket, User } from '../../common/types'
+import {
+  Id,
+  Vec2,
+  Patch,
+  PatchMetadata,
+  ConnectedSocket,
+  User,
+} from '../../common/types'
 
 export interface IModule {}
 
@@ -24,6 +31,7 @@ export type State = {
   cursor: Vec2
   socketPositions: Record<Id, Record<string, Vec2>>
   viewOffset: Vec2
+  patchMetadata: PatchMetadata
   patch: Patch
   route: Route
   activeCable: {

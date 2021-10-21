@@ -1,5 +1,5 @@
 import { h, Component, useEffect } from 'kaiku'
-import { IModule, Id } from '../../types'
+import { IModule } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
 import { getModuleKnobs } from '../../state'
@@ -9,7 +9,7 @@ import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 
 type Props = {
-  id: Id
+  id: string
 }
 
 class Gain extends Component<Props> implements IModule {
@@ -34,9 +34,7 @@ class Gain extends Component<Props> implements IModule {
   render({ id }: Props) {
     return (
       <Module id={id} name="Gain">
-        <div className="module-body">
-          <Knob moduleId={id} name="gain" min={0} max={2} initial={0.4} />
-        </div>
+        <Knob moduleId={id} name="gain" min={0} max={2} initial={0.4} />
         <ModuleInputs>
           <Socket
             moduleId={id}
