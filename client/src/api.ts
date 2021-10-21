@@ -1,5 +1,10 @@
 import * as auth from './auth'
-import { Patch, UserLogin, UserRegistration } from '../../common/types'
+import {
+  Patch,
+  PatchMetadata,
+  UserLogin,
+  UserRegistration,
+} from '../../common/types'
 
 type Method = 'GET' | 'POST'
 type Options = {
@@ -44,8 +49,8 @@ export const getIdentity = () => {
   return get('/api/identity')
 }
 
-export const savePatch = (patch: Patch) => {
-  return post('/api/patch', { body: patch })
+export const savePatch = (metadata: PatchMetadata, patch: Patch) => {
+  return post('/api/patch', { body: { metadata, patch } })
 }
 
 export const getCredentialsAvailability = ({

@@ -2,21 +2,21 @@ import { h, useState, Fragment } from 'kaiku'
 import state, { patch } from '../../state'
 import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
 import classNames from 'classnames/bind'
-import styles from './header.css'
+import styles from './Header.css'
 import * as api from '../../api'
 
 const css = classNames.bind(styles)
 
 const Menu = () => {
   const savePatch = async () => {
-    const res = await api.savePatch(patch)
+    const res = await api.savePatch(state.patchMetadata, patch)
 
     history.pushState({}, '', `/patch/${res.id}`)
   }
 
   const isOwnPatch =
     state.route.name === 'index' ||
-    (state.user && state.user.id === patch.metadata.author?.id)
+    (state.user && state.user.id === state.patchMetadata.author?.id)
 
   return (
     <div className={css('menu')}>
@@ -26,9 +26,9 @@ const Menu = () => {
             Patch name
             <input
               type="text"
-              value={patch.metadata.name}
-              onInput={(evt) => {
-                patch.metadata.name = evt.target.value
+              value={state.patchMetadata.name}
+              onInput={(evt: any) => {
+                state.patchMetadata.name = evt.target.value
               }}
             />
           </div>
@@ -51,7 +51,7 @@ const Header = () => {
   const openMenu = () => {}
 
   const patchAuthor =
-    patch.metadata.author?.username ?? state.user?.username ?? 'anonymous'
+    state.patchMetadata.author?.username ?? state.user?.username ?? 'anonymous'
 
   return (
     <MenuBar top left>
@@ -67,7 +67,7 @@ const Header = () => {
       <VerticalDivider />
       <div className={css('patch-name')}>
         <i>
-          <b>{patch.metadata.name}</b> by <b>{patchAuthor}</b>
+          <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
         </i>
       </div>
 

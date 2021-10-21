@@ -1,6 +1,7 @@
 import * as http from 'http'
 import fs from 'fs'
 import router, { serverStatic, Response } from './router'
+import * as t from 'io-ts'
 import * as db from './database'
 import * as validators from '../../common/validators'
 import * as auth from './authorization'
@@ -94,36 +95,40 @@ const server = http.createServer(
       res.json(patch)
       res.end()
     })
-    .post('/api/patch', validators.Patch, async (req, res) => {
-      const { authorization } = req
-      if (!authorization) {
-        unauthorized(res)
-        return
-      }
+    .post(
+      '/api/patch',
+      t.type({ metadata: validators.PatchMetadata, patch: validators.Patch }),
+      async (req, res) => {
+        const { authorization } = req
+        if (!authorization) {
+          unauthorized(res)
+          return
+        }
 
-      const patch = req.body
+        const { patch, metadata } = req.body
 
-      if (!patch.metadata.id) {
-        res.json(await db.saveNewPatch(authorization.id, patch))
+        if (!metadata.id) {
+          res.json(await db.saveNewPatch(authorization.id, metadata, patch))
+          res.end()
+          return
+        }
+
+        const latestVersion = await db.getLatestPatchVersion(metadata.id)
+
+        if (!latestVersion) {
+          badRequest(res)
+          return
+        }
+
+        if (latestVersion.metadata.author?.id !== authorization.id) {
+          unauthorized(res)
+          return
+        }
+
+        res.json(await db.savePatchVersion(authorization.id, metadata, patch))
         res.end()
-        return
       }
-
-      const latestVersion = await db.getLatestPatchVersion(patch.metadata.id)
-
-      if (!latestVersion) {
-        badRequest(res)
-        return
-      }
-
-      if (latestVersion.metadata.author?.id !== authorization.id) {
-        unauthorized(res)
-        return
-      }
-
-      res.json(await db.savePatchVersion(authorization.id, patch))
-      res.end()
-    })
+    )
 )
 
 ;(async () => {

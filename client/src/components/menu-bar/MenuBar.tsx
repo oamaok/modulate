@@ -1,6 +1,6 @@
 import { FC, h } from 'kaiku'
 import classNames from 'classnames/bind'
-import styles from './menu-bar.css'
+import styles from './MenuBar.css'
 
 const css = classNames.bind(styles)
 

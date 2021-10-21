@@ -45,19 +45,19 @@ class Delay extends Component<Props> implements IModule {
           <Socket
             moduleId={id}
             type="input"
-            name="Feedback"
+            name="FDBK"
             node={this.node.parameters.get('feedBack')}
           />
           <Socket
             moduleId={id}
             type="input"
-            name="Delay"
+            name="TIME"
             node={this.node.parameters.get('delayTime')}
           />
-          <Socket moduleId={id} type="input" name="In" node={this.node} />
+          <Socket moduleId={id} type="input" name="IN" node={this.node} />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="Out" node={this.node} />
+          <Socket moduleId={id} type="output" name="OUT" node={this.node} />
         </ModuleOutputs>
       </Module>
     )

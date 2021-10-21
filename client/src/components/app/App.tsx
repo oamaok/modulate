@@ -1,8 +1,8 @@
 import { h, Fragment, useEffect } from 'kaiku'
 import Header from '../header/Header'
 import classNames from 'classnames/bind'
-import styles from './app.css'
-import UserBar from '../user-bar/user-bar'
+import styles from './App.css'
+import UserBar from '../user-bar/UserBar'
 import ModuleSelector from '../module-selector/ModuleSelector'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
@@ -17,7 +17,8 @@ const css = classNames.bind(styles)
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
   if (rawSaveState) {
-    loadPatch(JSON.parse(rawSaveState))
+    const savedPatch = JSON.parse(rawSaveState)
+    loadPatch(savedPatch.metadata, savedPatch.patch)
   } else {
     state.initialized = true
   }
@@ -33,13 +34,13 @@ const initialize = async () => {
     }
 
     case 'patch': {
-      const patch = await api.getLatestPatchVersion(state.route.patchId)
+      const patchVersion = await api.getLatestPatchVersion(state.route.patchId)
 
-      if (!patch) {
+      if (!patchVersion) {
         history.replaceState({}, '', '/')
         loadSaveState()
       } else {
-        loadPatch(patch)
+        loadPatch(patchVersion.metadata, patchVersion.patch)
       }
 
       break
@@ -47,9 +48,12 @@ const initialize = async () => {
   }
 }
 
-const loadPatch = async (savedPatch: types.Patch) => {
-  const { currentId, modules, knobs, cables, metadata } = savedPatch
-  patch.metadata = metadata
+const loadPatch = async (
+  metadata: types.PatchMetadata,
+  savedPatch: types.Patch
+) => {
+  const { currentId, modules, knobs, cables } = savedPatch
+  state.patchMetadata = metadata
   patch.knobs = knobs
   patch.currentId = currentId
   patch.modules = modules
@@ -84,7 +88,13 @@ const App = () => {
   useEffect(() => {
     if (!state.initialized) return
     if (state.route.name !== 'index') return
-    localStorage.setItem('savestate', JSON.stringify(patch))
+    localStorage.setItem(
+      'savestate',
+      JSON.stringify({
+        metadata: state.patchMetadata,
+        patch,
+      })
+    )
   })
 
   return (

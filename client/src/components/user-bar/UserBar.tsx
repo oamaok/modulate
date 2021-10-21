@@ -4,7 +4,7 @@ import * as api from '../../api'
 import * as auth from '../../auth'
 import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
 import classNames from 'classnames/bind'
-import styles from './user-bar.css'
+import styles from './UserBar.css'
 
 const css = classNames.bind(styles)
 
@@ -61,7 +61,7 @@ const SignUp = ({ open }: { open: boolean }) => {
           required
           type="email"
           value={signUpState.email}
-          onInput={(evt) => {
+          onInput={(evt: any) => {
             signUpState.email = evt.target.value
           }}
         />
@@ -75,7 +75,7 @@ const SignUp = ({ open }: { open: boolean }) => {
           required
           type="text"
           value={signUpState.username}
-          onInput={(evt) => {
+          onInput={(evt: any) => {
             signUpState.username = evt.target.value
           }}
         />
@@ -89,7 +89,7 @@ const SignUp = ({ open }: { open: boolean }) => {
           required
           type="password"
           value={signUpState.password}
-          onInput={(evt) => {
+          onInput={(evt: any) => {
             signUpState.password = evt.target.value
           }}
         />
@@ -107,7 +107,7 @@ const Login = ({ open }: { open: boolean }) => {
     password: '',
   })
 
-  const login = async (evt) => {
+  const login = async (evt: any) => {
     evt.preventDefault()
     const { email, password } = loginState
     loginState.failed = false
@@ -140,7 +140,7 @@ const Login = ({ open }: { open: boolean }) => {
           required
           type="email"
           value={loginState.email}
-          onInput={(evt) => {
+          onInput={(evt: any) => {
             loginState.email = evt.target.value
           }}
         />
@@ -151,7 +151,7 @@ const Login = ({ open }: { open: boolean }) => {
           required
           type="password"
           value={loginState.password}
-          onInput={(evt) => {
+          onInput={(evt: any) => {
             loginState.password = evt.target.value
           }}
         />
