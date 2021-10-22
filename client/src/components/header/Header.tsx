@@ -22,15 +22,25 @@ const Menu = () => {
     <div className={css('menu')}>
       {isOwnPatch && (
         <div className={css('patch-settings')}>
+          <h3>Patch details</h3>
           <div className={css('name')}>
-            Patch name
+            <label for="patch-name">Name</label>
             <input
+              id="patch-name"
               type="text"
               value={state.patchMetadata.name}
               onInput={(evt: any) => {
                 state.patchMetadata.name = evt.target.value
               }}
             />
+          </div>
+          <div className={css('description')}>
+            <label for="patch-description">Description</label>
+            <textarea id="patch-description" />
+          </div>
+          <div className={css('is-public')}>
+            <label for="patch-is-public">Public</label>
+            <input id="patch-is-public" type="checkbox" />
           </div>
           <button className={css('item')} onClick={savePatch}>
             Save patch

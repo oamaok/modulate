@@ -45,6 +45,7 @@ html {
   background: var(--background);
 }
 
+textarea,
 input {
   background: var(--background);
   border-radius: 2px;

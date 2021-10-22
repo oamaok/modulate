@@ -1,8 +1,8 @@
+import { lerp, getAliasedOutput } from './utils'
+
 const getParameterValueAtSample = (parameter: Float32Array, sample: number) => {
   return parameter.length === 1 ? parameter[0] : parameter[sample]
 }
-
-const lerp = (a: number, b: number, t: number) => a + t * (b - a)
 
 class ADSR extends AudioWorkletProcessor {
   static parameterDescriptors = [
@@ -47,7 +47,7 @@ class ADSR extends AudioWorkletProcessor {
     parameters: Record<string, Float32Array>
   ) {
     const inputChannels = inputs[0]
-    const outputChannels = outputs[0]
+    const output = getAliasedOutput(outputs)
     const inputChannel = inputChannels[0]
 
     if (!inputChannel) return true
@@ -84,9 +84,7 @@ class ADSR extends AudioWorkletProcessor {
         }
       }
 
-      if (outputChannels[0]) {
-        outputChannels[0][sample] = this.level
-      }
+      output[sample] = this.level
 
       this.t++
     }

@@ -1,8 +1,19 @@
 import { SequencerMessage, Note } from '../../common/types'
+import { lerp } from './utils'
 
 const MAX_SEQUENCE_LENGTH = 32
 
 class Sequencer extends AudioWorkletProcessor {
+  static parameterDescriptors = [
+    {
+      name: 'glide',
+      minValue: 0,
+      maxValue: 4,
+      defaultValue: 0,
+      automationRate: 'a-rate',
+    },
+  ] as const
+
   sequenceLength = 32
   currentStep = 0
   tempo = 120
@@ -31,6 +42,9 @@ class Sequencer extends AudioWorkletProcessor {
   }
 
   previousSample = 0
+  previousVoltage = 0
+  currentVoltage = 0
+  t = 0
 
   process(
     inputs: Float32Array[][],
@@ -48,6 +62,8 @@ class Sequencer extends AudioWorkletProcessor {
         const sample = inputChannel[sampleIx]
         if (sample > 0.5 && this.previousSample < 0.5) {
           this.currentStep = (this.currentStep + 1) % this.sequenceLength
+          this.previousVoltage = this.currentVoltage
+          this.t = 0
         }
         this.previousSample = sample
       }
@@ -55,10 +71,18 @@ class Sequencer extends AudioWorkletProcessor {
       if (!this.notes.length) {
         break
       }
+      const targetVoltage = this.notes[this.currentStep].voltage
+
+      const time = Math.max(1, sampleRate * parameters.glide[0])
+      this.currentVoltage = lerp(
+        this.previousVoltage,
+        targetVoltage,
+        Math.min(1, this.t / time)
+      )
+      this.t++
 
       if (frequencyOutputChannels[0]) {
-        frequencyOutputChannels[0][sampleIx] =
-          this.notes[this.currentStep].voltage
+        frequencyOutputChannels[0][sampleIx] = this.currentVoltage
       }
 
       if (gateOutputChannels[0]) {
