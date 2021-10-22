@@ -72,8 +72,10 @@ const buildWorklets = async () => {
   console.time('Build worklets')
 
   const worklets = (await fs.readdir('./client/worklets'))
-    .filter((worklet) => worklet.endsWith('.ts'))
+    .filter((worklet) => worklet.match(/^[A-Z].+\.ts$/))
     .map((worklet) => worklet.split('.')[0])
+
+  console.log(worklets)
 
   await Promise.all(
     worklets.map((worklet) =>

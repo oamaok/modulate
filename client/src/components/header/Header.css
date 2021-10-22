@@ -45,10 +45,14 @@
 }
 
 .patch-settings {
+  width: 50%;
 }
 
 .patch-settings .name input {
   margin-left: 10px;
+}
+
+.patch-settings .description {
 }
 
 .menu .item {

@@ -124,6 +124,12 @@ class Sequencer extends Component<Props> implements IModule {
         length: Math.ceil(sequenceLength),
       })
     })
+
+    connectKnobToParam(
+      this.props.id,
+      'glide',
+      this.node.parameters.get('glide')
+    )
   }
 
   render({ id }: Props) {
@@ -170,6 +176,7 @@ class Sequencer extends Component<Props> implements IModule {
               max={32}
               initial={32}
             />
+            <Knob moduleId={id} name="glide" min={0} max={4} initial={0} />
           </div>
           Gate
           <div

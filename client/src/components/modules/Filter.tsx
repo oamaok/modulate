@@ -1,5 +1,5 @@
 import { h, Component, useEffect } from 'kaiku'
-import { IModule, Id } from '../../types'
+import { IModule } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
 import { getModuleKnobs } from '../../state'
@@ -10,33 +10,25 @@ import { connectKnobToParam } from '../../modules'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 type Props = {
-  id: Id
+  id: string
 }
 
 class BiquadFilter extends Component<Props> implements IModule {
   node: BiquadFilterNode
-  modulationHelper: WorkletNode<'ModulationHelper'>
 
   constructor(props: Props) {
     super(props)
     const audioContext = getAudioContext()
     this.node = audioContext.createBiquadFilter()
 
-    this.modulationHelper = new WorkletNode(audioContext, 'ModulationHelper')
-    this.modulationHelper.connect(this.node.frequency)
-
-    connectKnobToParam(
-      props.id,
-      'freq',
-      this.modulationHelper.parameters.get('level')
-    )
+    connectKnobToParam(props.id, 'freq', this.node.frequency)
     connectKnobToParam(props.id, 'res', this.node.Q)
   }
 
   render({ id }: Props) {
     return (
       <Module id={id} name="Filter" width={200}>
-        <Knob moduleId={id} name="freq" min={0} max={10} initial={10} />
+        <Knob moduleId={id} name="freq" min={0} max={20000} initial={10} />
         <Knob moduleId={id} name="res" min={0} max={10} initial={0} />
         <ModuleInputs>
           <Socket moduleId={id} type="input" name="in" node={this.node} />
@@ -44,7 +36,7 @@ class BiquadFilter extends Component<Props> implements IModule {
             moduleId={id}
             type="input"
             name="freq"
-            node={this.modulationHelper}
+            node={this.node.frequency}
           />
           <Socket moduleId={id} type="input" name="res" node={this.node.Q} />
         </ModuleInputs>

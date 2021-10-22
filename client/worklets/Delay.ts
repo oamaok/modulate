@@ -1,22 +1,7 @@
+import { resample, getAliasedOutput } from './utils'
+
 const getParameterValueAtSample = (parameter: Float32Array, sample: number) => {
   return parameter.length === 1 ? parameter[0] : parameter[sample]
-}
-
-const resample = (
-  src: Float32Array,
-  dst: Float32Array,
-  srcLen: number,
-  dstLen: number
-) => {
-  const ratio = srcLen / dstLen
-  for (let i = 0; i < dstLen; i++) {
-    const srcPos = ratio * i
-    const srcI = ~~srcPos
-    const t = srcPos - srcI
-    const a = src[srcI]
-    const b = src[(srcI + 1) % srcLen]
-    dst[i] = a + t * (b - a)
-  }
 }
 
 class Delay extends AudioWorkletProcessor {
@@ -66,11 +51,7 @@ class Delay extends AudioWorkletProcessor {
     parameters: Record<string, Float32Array>
   ) {
     const input = inputs[0][0]
-    const output = outputs[0][0]
-
-    for (let i = 1; i < outputs[0].length; i++) {
-      outputs[0][i] = output
-    }
+    const output = getAliasedOutput(outputs)
 
     let currentBuffer = this.ringBuffers[this.currentBuffer]
 
