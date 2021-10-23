@@ -13,9 +13,10 @@ type Props = {
   min: number
   max: number
   initial: number
+  label?: string
 }
 
-const Knob = ({ moduleId, name, min, max, initial }: Props) => {
+const Knob = ({ moduleId, label, name, min, max, initial }: Props) => {
   const knobValue = getKnobValue(moduleId, name)
   const initialValue = typeof knobValue === 'undefined' ? initial : knobValue
 
@@ -73,15 +74,18 @@ const Knob = ({ moduleId, name, min, max, initial }: Props) => {
   }
 
   return (
-    <div
-      className={css('knob')}
-      onMouseOver={() => displayHint(knobValue!)}
-      onMouseOut={hideHint}
-      onMouseDown={onDragStart}
-      style={{
-        transform: `rotate(${knobState.position * 300 - 60}deg)`,
-      }}
-    ></div>
+    <div className={css('wrapper')}>
+      <div
+        className={css('knob')}
+        onMouseOver={() => displayHint(knobValue!)}
+        onMouseOut={hideHint}
+        onMouseDown={onDragStart}
+        style={{
+          transform: `rotate(${knobState.position * 300 - 60}deg)`,
+        }}
+      ></div>
+      <div className={css('name')}>{label || name}</div>
+    </div>
   )
 }
 

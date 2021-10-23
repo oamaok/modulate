@@ -36,11 +36,16 @@
 }
 
 .indicator {
-  width: 10px;
-  height: 10px;
-  margin: 0 1px;
-  border: 2px solid #111;
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
   border-radius: 50%;
+  background: var(--background);
+  box-shadow: var(--box-shadow);
+}
+
+.indicator.current {
+  background: var(--primary-variant2);
 }
 
 .disabled {
@@ -48,11 +53,25 @@
 }
 
 .indicator.on {
-  background-color: var(--primary);
+  background: var(--primary);
+}
+
+.indicator.on.current {
+  background: yellow;
 }
 
 .middle {
   display: flex;
   width: 100%;
   justify-content: space-between;
+}
+
+.octaves {
+  width: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.octaves .indicator {
+  margin: 2px 2px;
 }
