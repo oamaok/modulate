@@ -1,9 +1,10 @@
 .keyboard {
   border-radius: 3px;
   width: 152px;
-  height: 60px;
+  height: 84px;
   overflow: hidden;
   position: relative;
+  box-shadow: var(--box-shadow);
 }
 
 .white-key,
@@ -31,6 +32,7 @@
   position: absolute;
   bottom: -10px;
   left: 0;
+  border-radius: 3px;
 }
 
 .white-key::after,
@@ -38,9 +40,9 @@
   content: ' ';
   position: absolute;
   bottom: 5px;
-  left: 7px;
-  width: 6px;
-  height: 6px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background-color: var(--secondary);
 }

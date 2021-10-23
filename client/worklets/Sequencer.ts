@@ -41,6 +41,13 @@ class Sequencer extends AudioWorkletProcessor {
     }
   }
 
+  sendCurrentStep = () => {
+    this.port.postMessage({
+      type: 'CURRENT_STEP',
+      step: this.currentStep,
+    })
+  }
+
   previousSample = 0
   previousVoltage = 0
   currentVoltage = 0
@@ -64,6 +71,8 @@ class Sequencer extends AudioWorkletProcessor {
           this.currentStep = (this.currentStep + 1) % this.sequenceLength
           this.previousVoltage = this.currentVoltage
           this.t = 0
+
+          this.sendCurrentStep()
         }
         this.previousSample = sample
       }

@@ -50,7 +50,7 @@ const NOTE_NAMES = [
 ] as const
 type NoteName = typeof NOTE_NAMES[number]
 
-const OCTAVES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+const OCTAVES = [8, 7, 6, 5, 4, 3, 2]
 
 type Note = {
   index: number
@@ -65,8 +65,20 @@ type SequencerState = {
   notes: Note[]
 }
 
-class Sequencer extends Component<Props> implements IModule {
+class Sequencer
+  extends Component<
+    Props,
+    {
+      currentStep: number
+    }
+  >
+  implements IModule
+{
   node: WorkletNode<'Sequencer'>
+
+  state = {
+    currentStep: 0,
+  }
 
   constructor(props: Props) {
     super(props)
@@ -78,6 +90,15 @@ class Sequencer extends Component<Props> implements IModule {
 
     const sendToSequencer = (message: SequencerMessage) => {
       this.node.port.postMessage(message)
+    }
+
+    this.node.port.onmessage = (message) => {
+      switch (message.data.type) {
+        case 'CURRENT_STEP': {
+          this.state.currentStep = message.data.step
+          break
+        }
+      }
     }
 
     if (!getModuleState<SequencerState>(props.id)) {
@@ -147,9 +168,10 @@ class Sequencer extends Component<Props> implements IModule {
                 {groups.map((group) => (
                   <div className={css('group')}>
                     {group.map((note) => (
-                      <div
+                      <button
                         className={css('indicator', {
                           on: note.index === editing,
+                          current: note.index === this.state.currentStep,
                           disabled: note.index >= sequenceLength,
                         })}
                         onClick={() => {
@@ -163,6 +185,18 @@ class Sequencer extends Component<Props> implements IModule {
             ))}
           </div>
           <div className={css('middle')}>
+            <div className={css('octaves')}>
+              {OCTAVES.map((oct) => (
+                <button
+                  onClick={() => {
+                    notes[editing].octave = oct
+                  }}
+                  className={css('indicator', {
+                    on: notes[editing].octave === oct,
+                  })}
+                />
+              ))}
+            </div>
             <Keyboard
               note={notes[editing].name}
               onChange={(note) => {
@@ -175,18 +209,26 @@ class Sequencer extends Component<Props> implements IModule {
               min={1}
               max={32}
               initial={32}
+              label="LEN"
             />
-            <Knob moduleId={id} name="glide" min={0} max={4} initial={0} />
+            <Knob
+              moduleId={id}
+              name="glide"
+              min={0}
+              max={4}
+              initial={0}
+              label="GLIDE"
+            />
           </div>
           Gate
-          <div
+          <button
             className={css('indicator', {
               on: notes[editing].gate,
             })}
             onClick={() => {
               notes[editing].gate = !notes[editing].gate
             }}
-          ></div>
+          />
         </div>
         <ModuleInputs>
           <Socket moduleId={id} type="input" name="Gate" node={this.node} />
