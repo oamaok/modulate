@@ -9,6 +9,7 @@ import Mixer from './components/modules/Mixer'
 import Delay from './components/modules/Delay'
 import LFO from './components/modules/LFO'
 import Reverb from './components/modules/Reverb'
+import MIDI from './components/modules/MIDI'
 
 export const moduleMap = {
   AudioOut,
@@ -22,4 +23,5 @@ export const moduleMap = {
   Delay,
   LFO,
   Reverb,
+  MIDI,
 } as const

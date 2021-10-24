@@ -1,7 +1,7 @@
-export const getAliasedOutput = (outputs: Float32Array[][]): Float32Array => {
-  const output = outputs[0][0]
-  for (let i = 1; i < outputs[0].length; i++) {
-    outputs[0][i] = output
+export const getAliasedOutput = (outputs: Float32Array[]): Float32Array => {
+  const output = outputs[0]
+  for (let i = 1; i < outputs.length; i++) {
+    outputs[i] = output
   }
   return output
 }

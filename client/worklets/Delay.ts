@@ -51,7 +51,7 @@ class Delay extends AudioWorkletProcessor {
     parameters: Record<string, Float32Array>
   ) {
     const input = inputs[0][0]
-    const output = getAliasedOutput(outputs)
+    const output = getAliasedOutput(outputs[0])
 
     let currentBuffer = this.ringBuffers[this.currentBuffer]
 
