@@ -65,7 +65,7 @@ class Reverb extends AudioWorkletProcessor {
     const diffuse = parameters.diffuse[0]
     const wet = parameters.wet[0]
     const dry = parameters.dry[0]
-    const output = getAliasedOutput(outputs)
+    const output = getAliasedOutput(outputs[0])
 
     const input = inputs[0][0]
 

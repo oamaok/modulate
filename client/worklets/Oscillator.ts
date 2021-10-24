@@ -1,3 +1,5 @@
+import { getAliasedOutput } from './utils'
+
 const SMOOTHING = 0.8
 
 class Oscillator extends AudioWorkletProcessor {
@@ -48,23 +50,10 @@ class Oscillator extends AudioWorkletProcessor {
     const fmInput = inputs[1][0]
     const pwInput = inputs[2][0]
 
-    const sineOutputs = outputs[0]
-    const triangleOutputs = outputs[1]
-    const sawOutputs = outputs[2]
-    const squareOutputs = outputs[3]
-
-    for (let i = 1; i < sineOutputs.length; i++) {
-      sineOutputs[i] = sineOutputs[0]
-    }
-    for (let i = 1; i < triangleOutputs.length; i++) {
-      triangleOutputs[i] = triangleOutputs[0]
-    }
-    for (let i = 1; i < sawOutputs.length; i++) {
-      sawOutputs[i] = sawOutputs[0]
-    }
-    for (let i = 1; i < squareOutputs.length; i++) {
-      squareOutputs[i] = squareOutputs[0]
-    }
+    const sineOutput = getAliasedOutput(outputs[0])
+    const triangleOutput = getAliasedOutput(outputs[1])
+    const sawOutput = getAliasedOutput(outputs[2])
+    const squareOutput = getAliasedOutput(outputs[3])
 
     for (let sample = 0; sample < 128; sample++) {
       const cvParam =
@@ -85,29 +74,29 @@ class Oscillator extends AudioWorkletProcessor {
         13.75 * 2 ** (5 + cv + cvParam + fm * fmParam + fineParam / 12)
       const t = this.t
 
-      if (sineOutputs[0]) {
+      {
         const value = Math.sin(t * Math.PI * 2)
         this.sinAcc = this.sinAcc + SMOOTHING * (value - this.sinAcc)
-        sineOutputs[0][sample] = this.sinAcc
+        sineOutput[sample] = this.sinAcc
       }
 
-      if (triangleOutputs[0]) {
+      {
         const value = t < 0.5 ? t * 4 - 1 : -t * 4 + 3
         this.triAcc = this.triAcc + SMOOTHING * (value - this.triAcc)
-        triangleOutputs[0][sample] = value
+        triangleOutput[sample] = value
       }
 
-      if (sawOutputs[0]) {
+      {
         const value = t * 2 - 1
         this.sawAcc = this.sawAcc + SMOOTHING * (value - this.sawAcc)
-        sawOutputs[0][sample] = this.sawAcc
+        sawOutput[sample] = this.sawAcc
       }
 
-      if (squareOutputs) {
+      {
         const pw = pwInput ? pwInput[sample] : 0
         const value = t < pw + pwParam ? 1 : -1
         this.sqrAcc = this.sqrAcc + SMOOTHING * (value - this.sqrAcc)
-        squareOutputs[0][sample] = this.sqrAcc
+        squareOutput[sample] = this.sqrAcc
       }
 
       this.t = (t + freq / sampleRate) % 1

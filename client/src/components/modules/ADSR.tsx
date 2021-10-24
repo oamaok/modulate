@@ -34,7 +34,7 @@ class ADSR extends Component<Props> implements IModule {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="ADSR">
+      <Module id={id} name="ADSR" width={250}>
         <Knob moduleId={id} name="attack" min={0.001} max={1} initial={0.1} />
         <Knob moduleId={id} name="decay" min={0.001} max={1} initial={0.1} />
         <Knob moduleId={id} name="sustain" min={0} max={1} initial={0.5} />

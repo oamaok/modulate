@@ -47,7 +47,7 @@ class ADSR extends AudioWorkletProcessor {
     parameters: Record<string, Float32Array>
   ) {
     const inputChannels = inputs[0]
-    const output = getAliasedOutput(outputs)
+    const output = getAliasedOutput(outputs[0])
     const inputChannel = inputChannels[0]
 
     if (!inputChannel) return true
