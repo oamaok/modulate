@@ -2,9 +2,20 @@ const fs = require('fs/promises')
 const path = require('path')
 const esbuild = require('esbuild')
 const chokidar = require('chokidar')
+const terser = require('terser')
+const cp = require('child_process')
 const CssModulesPlugin = require('./build/css-modules-plugin')
 
 const isProduction = process.env.NODE_ENV === 'production'
+
+const debounce = (fn) => {
+  let timeout = null
+
+  return (...args) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => fn(...args), 200)
+  }
+}
 
 const recursiveCopy = async (srcDir, destDir) => {
   const absoluteSrc = path.resolve(__dirname, srcDir)
@@ -50,12 +61,10 @@ const buildClient = async () => {
     esbuild.build({
       entryPoints: ['./client/src/index.tsx'],
       bundle: true,
-      //outfile: './dist/client/assets/main.js',
       outdir: './dist/client/assets',
       incremental: true,
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
-      minify: isProduction,
       define: {
         'process.env.NODE_ENV': '"production"',
       },
@@ -68,43 +77,75 @@ const buildClient = async () => {
   console.timeEnd('Build client')
 }
 
+const buildRust = async () => {
+  return new Promise((resolve, reject) => {
+    const proc = cp.spawn('wasm-pack', [
+      'build',
+      './worklets/',
+      '--target',
+      'web',
+      '--release',
+    ])
+
+    proc.stderr.pipe(process.stderr)
+
+    proc.addListener('exit', (code) => {
+      if (code === 0) {
+        resolve()
+      } else {
+        reject(code)
+      }
+    })
+  })
+}
+
 const buildWorklets = async () => {
   console.time('Build worklets')
 
-  const worklets = (await fs.readdir('./client/worklets'))
-    .filter((worklet) => worklet.match(/^[A-Z].+\.ts$/))
-    .map((worklet) => worklet.split('.')[0])
+  const polyfill = await fs.readFile('./worklets/src/polyfill.js')
 
-  console.log(worklets)
+  await esbuild
+    .build({
+      entryPoints: [`./worklets/src/index.ts`],
+      bundle: true,
+      write: false,
+      incremental: true,
+      minify: isProduction,
+      define: {
+        Response: 'undefined',
+        Request: 'undefined',
+        URL: 'undefined',
+      },
+    })
+    .then((res) => {
+      return fs.writeFile(
+        `./dist/client/assets/worklets.js`,
+        polyfill + new TextDecoder().decode(res.outputFiles[0].contents)
+      )
+    })
 
-  await Promise.all(
-    worklets.map((worklet) =>
-      esbuild.build({
-        entryPoints: [`./client/worklets/${worklet}.ts`],
-        bundle: true,
-        outfile: `./dist/client/worklets/${worklet}.js`,
-        incremental: true,
-        minify: isProduction,
-      })
+  await terser
+    .minify(
+      (await fs.readFile('./dist/client/assets/worklets.js')).toString(),
+      {
+        sourceMap: true,
+        compress: {
+          passes: 3,
+        },
+        mangle: {
+          module: true,
+        },
+      }
     )
+    .then(async (minified) => {
+      await fs.writeFile('dist/client/assets/worklets.js', minified.code)
+    })
+
+  await fs.copyFile(
+    './worklets/pkg/worklets_bg.wasm',
+    './dist/client/assets/worklets.wasm'
   )
 
-  await fs.writeFile(
-    './client/src/generated/worklets.ts',
-    `// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//
-// THIS IS A GENERATED FILE, DO NOT EDIT MANUALLY
-//
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-${worklets
-  .map((worklet) => `import ${worklet} from '../../worklets/${worklet}'`)
-  .join('\n')}
-export const workletNames = ${JSON.stringify(worklets)} as const
-export type Worklets = {
-${worklets.map((worklet) => `  ${worklet}: typeof ${worklet}`).join('\n')}
-}
-`
-  )
   console.timeEnd('Build worklets')
 }
 
@@ -114,6 +155,8 @@ ${worklets.map((worklet) => `  ${worklet}: typeof ${worklet}`).join('\n')}
   } catch (err) {}
 
   try {
+    await buildRust()
+    await new Promise((resolve) => setTimeout(resolve, 500))
     await Promise.all([buildWorklets(), buildClient()])
   } catch (err) {
     console.error(err)
@@ -126,16 +169,23 @@ ${worklets.map((worklet) => `  ${worklet}: typeof ${worklet}`).join('\n')}
   }
 
   chokidar
-    .watch('./client/worklets/*', {
+    .watch(['./worklets/src/**/*.ts', './worklets/pkg/**/*'], {
       persistent: true,
       ignoreInitial: true,
     })
-    .on('all', buildWorklets)
+    .on('all', debounce(buildWorklets))
+
+  chokidar
+    .watch(['./worklets/src/**/*.rs'], {
+      persistent: true,
+      ignoreInitial: true,
+    })
+    .on('all', debounce(buildRust))
 
   chokidar
     .watch('./client/src/**/*', {
       persistent: true,
       ignoreInitial: true,
     })
-    .on('all', buildClient)
+    .on('all', debounce(buildClient))
 })()

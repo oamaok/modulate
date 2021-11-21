@@ -1,20 +1,23 @@
-import { workletNames, WorkletNode } from './worklets'
-import state from './state'
-
 let audioContext: AudioContext | null = null
 
 export const initializeAudio = async () => {
   audioContext = new AudioContext()
 
-  for (const worklet of workletNames) {
-    const path = `/worklets/${worklet}.js`
-    try {
-      await audioContext!.audioWorklet.addModule(path)
-      state.loadedWorklets++
-    } catch (err) {
-      throw new Error(`Failed to load audio worklet: ${path}`)
-    }
-  }
+  const [wasm] = await Promise.all([
+    fetch('./assets/worklets.wasm').then((res) => res.arrayBuffer()),
+    audioContext!.audioWorklet.addModule('./assets/worklets.js'),
+  ])
+
+  await new Promise((resolve) => {
+    const wasmInitializer = new AudioWorkletNode(
+      audioContext!,
+      'WASMInitializer'
+    )
+    wasmInitializer.port.onmessage = resolve
+    wasmInitializer.port.postMessage(wasm)
+  })
+
+  console.log('Loaded')
 }
 
 export const getAudioContext = () => {

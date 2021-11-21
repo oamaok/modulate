@@ -1,0 +1,4 @@
+.canvas {
+  box-shadow: var(--box-shadow);
+  border-radius: 3px;
+}

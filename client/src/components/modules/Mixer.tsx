@@ -35,7 +35,6 @@ class Mixer extends Component<Props> implements IModule {
     const busLevel5 = this.node.parameters.get('busLevel5')
     const busLevel6 = this.node.parameters.get('busLevel6')
     const busLevel7 = this.node.parameters.get('busLevel7')
-    const mainLevel = this.node.parameters.get('mainLevel')
 
     connectKnobToParam(props.id, 'busLevel0', busLevel0)
     connectKnobToParam(props.id, 'busLevel1', busLevel1)

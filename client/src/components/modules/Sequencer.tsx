@@ -57,6 +57,7 @@ type Note = {
   name: NoteName
   octave: number
   gate: boolean
+  glide: boolean
 }
 
 type SequencerState = {
@@ -112,6 +113,7 @@ class Sequencer
             name: 'C',
             octave: 4,
             gate: true,
+            glide: false,
           })),
       })
     }
@@ -119,11 +121,12 @@ class Sequencer
     useEffect(() => {
       const { notes } = getModuleState<SequencerState>(props.id)
       sendToSequencer({
-        type: 'NOTES',
+        type: 'SET_NOTES',
         notes: notes.map((note) => ({
           voltage:
             note.octave - 4 + (NOTE_NAMES.indexOf(note.name) * 1 - 9) / 12,
           gate: note.gate,
+          glide: note.glide,
         })),
       })
     })
@@ -137,19 +140,16 @@ class Sequencer
       }
     })
 
-    useEffect(() => {
-      const { sequenceLength } = getModuleState<SequencerState>(props.id)
-
-      sendToSequencer({
-        type: 'SEQUENCE_LENGTH',
-        length: Math.ceil(sequenceLength),
-      })
-    })
-
     connectKnobToParam(
       this.props.id,
       'glide',
       this.node.parameters.get('glide')
+    )
+
+    connectKnobToParam(
+      this.props.id,
+      'sequenceLength',
+      this.node.parameters.get('sequenceLength')
     )
   }
 
@@ -205,7 +205,8 @@ class Sequencer
             />
             <Knob
               moduleId={id}
-              name="sequenceLength"
+              id="sequenceLength"
+              type="linear"
               min={1}
               max={32}
               initial={32}
@@ -213,22 +214,35 @@ class Sequencer
             />
             <Knob
               moduleId={id}
-              name="glide"
+              id="glide"
+              type="exponential"
+              exponent={2}
               min={0}
-              max={4}
+              max={1}
               initial={0}
               label="GLIDE"
             />
           </div>
-          Gate
-          <button
-            className={css('indicator', {
-              on: notes[editing].gate,
-            })}
-            onClick={() => {
-              notes[editing].gate = !notes[editing].gate
-            }}
-          />
+          <div className={css('note-controls')}>
+            Gate
+            <button
+              className={css('indicator', {
+                on: notes[editing].gate,
+              })}
+              onClick={() => {
+                notes[editing].gate = !notes[editing].gate
+              }}
+            />
+            Glide
+            <button
+              className={css('indicator', {
+                on: notes[editing].glide,
+              })}
+              onClick={() => {
+                notes[editing].glide = !notes[editing].glide
+              }}
+            />
+          </div>
         </div>
         <ModuleInputs>
           <Socket moduleId={id} type="input" name="Gate" node={this.node} />

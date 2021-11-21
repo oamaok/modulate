@@ -7,7 +7,6 @@ import ModuleSelector from '../module-selector/ModuleSelector'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
 import { initializeAudio } from '../../audio'
-import { workletNames } from '../../worklets'
 import state, { patch } from '../../state'
 import * as types from '../../../../common/types'
 import * as api from '../../api'
@@ -73,9 +72,7 @@ const InitModal = () => {
           <div
             className={css('progress')}
             style={{
-              transform: `scaleX(${
-                state.loadedWorklets / workletNames.length
-              })`,
+              transform: `scaleX(${state.loadedWorklets / 1})`,
             }}
           />
         </div>

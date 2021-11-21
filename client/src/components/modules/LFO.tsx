@@ -28,7 +28,15 @@ class LFO extends Component<Props> implements IModule {
   render({ id }: Props) {
     return (
       <Module id={id} name="LFO" width={120}>
-        <Knob moduleId={id} name="frequency" min={0.01} max={10} initial={1} />
+        <Knob
+          moduleId={id}
+          id="frequency"
+          type="exponential"
+          exponent={2}
+          min={0.01}
+          max={10}
+          initial={1}
+        />
 
         <ModuleInputs></ModuleInputs>
 

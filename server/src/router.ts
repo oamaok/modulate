@@ -83,6 +83,9 @@ export const serverStatic = (staticPath: string): GetCallback => {
       ? mimeTypes[ext] ?? 'application/octet-stream'
       : 'application/octet-stream'
 
+    res.header('Cross-Origin-Opener-Policy', 'same-origin')
+    res.header('Cross-Origin-Embedder-Policy', 'require-corp')
+
     try {
       data = await readFile(path)
     } catch (err) {

@@ -37,10 +37,38 @@ class Delay extends Component<Props> implements IModule {
   render({ id }: Props) {
     return (
       <Module id={id} name="Delay">
-        <Knob moduleId={id} name="delayTime" min={0.01} max={2} initial={0.5} />
-        <Knob moduleId={id} name="feedBack" min={0} max={1} initial={0.2} />
-        <Knob moduleId={id} name="wet" min={0} max={1} initial={0.5} />
-        <Knob moduleId={id} name="dry" min={0} max={1} initial={1} />
+        <Knob
+          moduleId={id}
+          id="delayTime"
+          label="Delay"
+          type="exponential"
+          exponent={0.5}
+          unit="s"
+          min={0.01}
+          max={2}
+          initial={0.5}
+        />
+        <Knob
+          moduleId={id}
+          id="feedBack"
+          label="Feeback"
+          type="percentage"
+          initial={0.2}
+        />
+        <Knob
+          moduleId={id}
+          id="wet"
+          label="Wet"
+          type="percentage"
+          initial={0.5}
+        />
+        <Knob
+          moduleId={id}
+          id="dry"
+          label="Dry"
+          type="percentage"
+          initial={1}
+        />
         <ModuleInputs>
           <Socket
             moduleId={id}
