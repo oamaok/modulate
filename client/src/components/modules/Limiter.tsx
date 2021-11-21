@@ -7,48 +7,35 @@ import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import { connectKnobToParam } from '../../modules'
 
 type Props = {
   id: string
 }
 
-class Gain extends Component<Props> implements IModule {
-  node: WorkletNode<'Gain'>
+class Limiter extends Component<Props> implements IModule {
+  node: WorkletNode<'Limiter'>
 
   constructor(props: Props) {
     super(props)
     const audioContext = getAudioContext()
-    this.node = new WorkletNode(audioContext, 'Gain')
+    this.node = new WorkletNode(audioContext, 'Limiter')
 
-    const level = this.node.parameters.get('gain')
+    const threshold = this.node.parameters.get('threshold')
 
-    useEffect(() => {
-      const knobs = getModuleKnobs(props.id)
-
-      if (knobs) {
-        level.setTargetAtTime(knobs.gain, audioContext.currentTime, 0.01)
-      }
-    })
+    connectKnobToParam(props.id, 'threshold', threshold)
   }
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Gain">
-        <Knob
-          moduleId={id}
-          id="gain"
-          label="Gain"
-          type="linear"
-          min={0}
-          max={2}
-          initial={0.4}
-        />
+      <Module id={id} name="Limiter">
+        <Knob moduleId={id} id="threshold" type="percentage" initial={0.4} />
         <ModuleInputs>
           <Socket
             moduleId={id}
             type="input"
-            name="gain"
-            node={this.node.parameters.get('gain')}
+            name="threshold"
+            node={this.node.parameters.get('threshold')}
           />
           <Socket moduleId={id} type="input" name="in" node={this.node} />
         </ModuleInputs>
@@ -60,4 +47,4 @@ class Gain extends Component<Props> implements IModule {
   }
 }
 
-export default Gain
+export default Limiter

@@ -10,6 +10,9 @@ import Delay from './components/modules/Delay'
 import LFO from './components/modules/LFO'
 import Reverb from './components/modules/Reverb'
 import MIDI from './components/modules/MIDI'
+import Limiter from './components/modules/Limiter'
+import PowShaper from './components/modules/PowShaper'
+import Oscilloscope from './components/modules/Oscilloscope'
 
 export const moduleMap = {
   AudioOut,
@@ -24,4 +27,7 @@ export const moduleMap = {
   LFO,
   Reverb,
   MIDI,
+  Limiter,
+  PowShaper,
+  Oscilloscope,
 } as const

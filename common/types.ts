@@ -24,14 +24,19 @@ export type PatchMetadata = t.TypeOf<typeof PatchMetadata>
 export type Note = {
   gate: boolean
   voltage: number
+  glide: boolean
 }
 
-export type SequencerMessage =
+export type SequencerMessage = {
+  type: 'SET_NOTES'
+  notes: Note[]
+}
+
+export type ClockMessage =
   | {
-      type: 'NOTES'
-      notes: Note[]
+      type: 'RESET'
     }
   | {
-      type: 'SEQUENCE_LENGTH'
-      length: number
+      type: 'SET_RUNNING'
+      isRunning: boolean
     }

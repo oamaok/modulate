@@ -24,19 +24,40 @@ class Oscillator extends Component<Props> implements IModule {
       numberOfOutputs: 4,
     })
 
-    connectKnobToParam(props.id, 'CV', this.node.parameters.get('cv'))
-    connectKnobToParam(props.id, 'FM', this.node.parameters.get('fm'))
-    connectKnobToParam(props.id, 'Fine', this.node.parameters.get('fine'))
-    connectKnobToParam(props.id, 'PW', this.node.parameters.get('pw'))
+    connectKnobToParam(props.id, 'cv', this.node.parameters.get('cv'))
+    connectKnobToParam(props.id, 'fm', this.node.parameters.get('fm'))
+    connectKnobToParam(props.id, 'fine', this.node.parameters.get('fine'))
+    connectKnobToParam(props.id, 'pw', this.node.parameters.get('pw'))
   }
 
   render({ id }: Props) {
     return (
       <Module id={id} name="Oscillator">
-        <Knob moduleId={id} name="CV" min={-5} max={5} initial={0} />
-        <Knob moduleId={id} name="FM" min={-1} max={1} initial={0} />
-        <Knob moduleId={id} name="Fine" min={-1} max={1} initial={0} />
-        <Knob moduleId={id} name="PW" min={0} max={1} initial={0.5} />
+        <Knob
+          moduleId={id}
+          id="cv"
+          type="linear"
+          min={-5}
+          max={5}
+          initial={0}
+        />
+        <Knob
+          moduleId={id}
+          id="fm"
+          type="linear"
+          min={-1}
+          max={1}
+          initial={0}
+        />
+        <Knob
+          moduleId={id}
+          id="fine"
+          type="linear"
+          min={-1}
+          max={1}
+          initial={0}
+        />
+        <Knob moduleId={id} id="pw" type="percentage" initial={0.5} />
 
         <ModuleInputs>
           <Socket

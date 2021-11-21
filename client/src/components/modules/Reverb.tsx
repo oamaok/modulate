@@ -37,11 +37,46 @@ class Reverb extends Component<Props> implements IModule {
   render({ id }: Props) {
     return (
       <Module id={id} name="Reverb" width={250} height={120}>
-        <Knob moduleId={id} name="delay" min={0} max={0.2} initial={0.1} />
-        <Knob moduleId={id} name="decay" min={0} max={0.99} initial={0.6} />
-        <Knob moduleId={id} name="diffuse" min={0} max={1} initial={0.7} />
-        <Knob moduleId={id} name="wet" min={0} max={1} initial={0.5} />
-        <Knob moduleId={id} name="dry" min={0} max={1} initial={1} />
+        <Knob
+          moduleId={id}
+          id="delay"
+          type="linear"
+          min={0}
+          max={0.2}
+          initial={0.1}
+        />
+        <Knob
+          moduleId={id}
+          id="decay"
+          type="linear"
+          min={0}
+          max={0.99}
+          initial={0.6}
+        />
+        <Knob
+          moduleId={id}
+          id="diffuse"
+          type="linear"
+          min={0}
+          max={1}
+          initial={0.7}
+        />
+        <Knob
+          moduleId={id}
+          id="wet"
+          type="linear"
+          min={0}
+          max={1}
+          initial={0.5}
+        />
+        <Knob
+          moduleId={id}
+          id="dry"
+          type="linear"
+          min={0}
+          max={1}
+          initial={1}
+        />
         <ModuleInputs>
           <Socket
             moduleId={id}

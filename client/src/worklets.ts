@@ -1,17 +1,14 @@
-import { Worklets, workletNames } from './generated/worklets'
-export { Worklets, workletNames }
+import { Modules } from '../../worklets/src/modules'
 
-export type WorkletName = typeof workletNames[number]
-
-export type WorkletParameters<T extends WorkletName> = Worklets[T] extends {
-  parameterDescriptors?: infer ParamDefs
-}
-  ? ParamDefs extends { [key: number]: infer ParamDef }
-    ? ParamDef extends { name: infer ParamName }
-      ? ParamName
-      : never
+type WorkletName = Modules['name']
+type WorkletParameterDescriptors<T extends WorkletName> = Extract<
+  Modules,
+  { name: T }
+>['parameterDescriptors']
+type WorkletParameters<T extends WorkletName> =
+  WorkletParameterDescriptors<T> extends readonly { name: infer Name }[]
+    ? Name
     : never
-  : never
 
 export type WorkletNode<T extends WorkletName> = AudioWorkletNode & {
   parameters: {

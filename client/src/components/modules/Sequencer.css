@@ -15,7 +15,6 @@
   width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   padding-bottom: 4px;
   margin-bottom: 4px;
 }
@@ -74,4 +73,10 @@
 
 .octaves .indicator {
   margin: 2px 2px;
+}
+
+.note-controls {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
 }

@@ -1,5 +1,5 @@
 import { h, Component } from 'kaiku'
-import { IModule, Id } from '../../types'
+import { IModule } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
 import { connectKnobToParam } from '../../modules'
@@ -9,7 +9,7 @@ import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 
 type Props = {
-  id: Id
+  id: string
 }
 
 class ADSR extends Component<Props> implements IModule {
@@ -35,10 +35,48 @@ class ADSR extends Component<Props> implements IModule {
   render({ id }: Props) {
     return (
       <Module id={id} name="ADSR" width={250}>
-        <Knob moduleId={id} name="attack" min={0.001} max={1} initial={0.1} />
-        <Knob moduleId={id} name="decay" min={0.001} max={1} initial={0.1} />
-        <Knob moduleId={id} name="sustain" min={0} max={1} initial={0.5} />
-        <Knob moduleId={id} name="release" min={0.001} max={1} initial={0.1} />
+        <Knob
+          moduleId={id}
+          type="exponential"
+          id="attack"
+          label="A"
+          unit="s"
+          exponent={2}
+          min={0.001}
+          max={1}
+          initial={0.1}
+        />
+        <Knob
+          moduleId={id}
+          type="exponential"
+          id="decay"
+          label="D"
+          unit="s"
+          exponent={2}
+          min={0.001}
+          max={1}
+          initial={0.1}
+        />
+        <Knob
+          moduleId={id}
+          type="linear"
+          id="sustain"
+          label="S"
+          min={0}
+          max={1}
+          initial={0.5}
+        />
+        <Knob
+          moduleId={id}
+          type="exponential"
+          id="release"
+          label="R"
+          unit="s"
+          exponent={2}
+          min={0.001}
+          max={1}
+          initial={0.1}
+        />
         <ModuleInputs>
           <Socket moduleId={id} type="input" name="gate" node={this.node} />
         </ModuleInputs>

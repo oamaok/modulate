@@ -25,9 +25,14 @@ class MIDI extends Component<Props> implements IModule {
     navigator.requestMIDIAccess().then((midiAccess) => {
       console.log(midiAccess.inputs)
       midiAccess.inputs.forEach((entry) => {
-        console.log(entry)
         entry.onmidimessage = (msg) => {
-          this.node.port.postMessage(msg.data)
+          let data = 0
+          for (let i = 0; i < msg.data.length; i++) {
+            data |= msg.data[i] << (i * 8)
+          }
+          console.log(data)
+
+          this.node.port.postMessage(data)
         }
       })
     }, console.error)
@@ -48,14 +53,14 @@ class MIDI extends Component<Props> implements IModule {
           <Socket
             moduleId={id}
             type="output"
-            name="GATE"
+            name="VEL"
             node={this.node}
             output={1}
           />
           <Socket
             moduleId={id}
             type="output"
-            name="VEL"
+            name="GATE"
             node={this.node}
             output={2}
           />
