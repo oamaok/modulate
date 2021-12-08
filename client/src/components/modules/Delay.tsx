@@ -42,7 +42,7 @@ class Delay extends Component<Props> implements IModule {
           id="delayTime"
           label="Delay"
           type="exponential"
-          exponent={0.5}
+          exponent={2}
           unit="s"
           min={0.01}
           max={2}

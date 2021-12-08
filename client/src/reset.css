@@ -4,15 +4,15 @@
   --primary: #e85d00;
   --primary-variant: #ff45ca;
   --primary-variant2: #00d115;
-  --secondary: #c7c7c7;
-  --secondary-variant: #999999;
-  --background: #e7e7e7;
+  --secondary: #444444;
+  --secondary-variant: #ffffff;
+  --background: #111111;
 
-  --on-primary: #e7e7e7;
-  --on-secondary: #111111;
-  --on-background: #111111;
+  --on-primary: #111111;
+  --on-secondary: #ffffff;
+  --on-background: #ffffff;
 
-  --box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  --box-shadow: 0 2px 0 #666, 0 2px 8px rgba(0,0,0,0.4);
 }
 
 * {
@@ -25,6 +25,7 @@
   box-sizing: border-box;
   color: var(--on-background);
   font-family: 'Gemunu Libre', sans-serif;
+  text-shadow: 0 1px 0px #000;
 }
 
 button {
@@ -32,17 +33,12 @@ button {
   text-decoration: underline;
 }
 
-h1,
-h2 {
-  color: var(--primary);
-}
 body,
 html {
   overflow: hidden;
   width: 100vw;
   height: 100vh;
   position: relative;
-  background: var(--background);
 }
 
 textarea,

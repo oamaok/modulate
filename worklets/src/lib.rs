@@ -146,6 +146,10 @@ impl Oscillator {
     exp_curve(x - f32::trunc(x))
   }
 
+  fn sqr(&self, pw: f32) -> f32 {
+    if self.phase > pw { -1.0 } else { 1.0 }
+  }
+
   pub fn process(&mut self) {
     for sample in 0..QUANTUM_SIZE {
       let cv = self.cv_input[sample];
@@ -161,11 +165,16 @@ impl Oscillator {
       self.sin_output[sample] = 0.;
       self.tri_output[sample] = 0.;
       self.saw_output[sample] = 0.;
+      self.sqr_output[sample] = 0.;
+
+      let pw = self.pw_param.at(sample) + self.pw_input[sample];
 
       for _ in 0..OVERSAMPLE {
         self.sin_output[sample] += self.sin() / OVERSAMPLE as f32;
         self.tri_output[sample] += self.tri() / OVERSAMPLE as f32;
         self.saw_output[sample] += self.saw() / OVERSAMPLE as f32;
+        self.sqr_output[sample] += self.sqr(pw) / OVERSAMPLE as f32;
+
         self.phase += freq / SAMPLE_RATE as f32 / OVERSAMPLE as f32;
         if self.phase > 1.0 {
           self.phase -= 1.0;
@@ -219,7 +228,7 @@ impl BiquadFilter {
 
       let omega = std::f32::consts::PI * 2.0 * freq * INV_SAMPLE_RATE;
       let (sin_omega, cos_omega) = f32::sin_cos(omega);
-      let alpha = sin_omega / 2.0 / (self.q.at(sample) + 0.001);
+      let alpha = sin_omega / 2.0 / f32::max(f32::EPSILON, self.q.at(sample));
       let input = self.input[sample];
 
       {
@@ -233,11 +242,11 @@ impl BiquadFilter {
 
         let rcp_a0 = 1.0 / a0;
 
-        let output = (b0 * rcp_a0) * input
+        let output = ((b0 * rcp_a0) * input
           + (b1 * rcp_a0) * self.input_buffer[0]
           + (b2 * rcp_a0) * self.input_buffer[1]
           - (a1 * rcp_a0) * self.lowpass_buffer[0]
-          - (a2 * rcp_a0) * self.lowpass_buffer[1];
+          - (a2 * rcp_a0) * self.lowpass_buffer[1]).clamp(-1000., 1000.);
 
         self.lowpass_buffer[1] = self.lowpass_buffer[0];
         self.lowpass_buffer[0] = output;
@@ -253,7 +262,7 @@ impl BiquadFilter {
         let a1 = -2.0 * cos_omega;
         let a2 = 1.0 - alpha;
 
-        let rcp_a0 = 1.0 / a0;
+        let rcp_a0 = 1.0 / f32::max(f32::EPSILON, a0);
 
         let output = (b0 * rcp_a0) * input
           + (b1 * rcp_a0) * self.input_buffer[0]

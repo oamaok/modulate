@@ -23,14 +23,12 @@ class MIDI extends Component<Props> implements IModule {
     })
 
     navigator.requestMIDIAccess().then((midiAccess) => {
-      console.log(midiAccess.inputs)
       midiAccess.inputs.forEach((entry) => {
         entry.onmidimessage = (msg) => {
           let data = 0
           for (let i = 0; i < msg.data.length; i++) {
             data |= msg.data[i] << (i * 8)
           }
-          console.log(data)
 
           this.node.port.postMessage(data)
         }

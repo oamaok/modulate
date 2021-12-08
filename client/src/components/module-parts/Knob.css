@@ -15,7 +15,7 @@
   position: absolute;
   width: 14px;
   height: 4px;
-  background: var(--secondary);
+  background: var(--on-secondary);
   top: 12px;
   left: 2px;
   border-radius: 2px;
@@ -29,5 +29,5 @@
   height: 14px;
   border-radius: 50%;
   box-shadow: 0 0 7px #000;
-  background: var(--background);
+  background: var(--on-background);
 }

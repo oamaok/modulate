@@ -4,7 +4,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  opacity: 0.7;
+  opacity: 0.8;
   box-shadow: var(--box-shadow);
   display: flex;
   flex-direction: column;
@@ -17,7 +17,6 @@
 .module-name {
   width: 100%;
   background-color: var(--primary);
-  color: var(--on-primary);
   font-weight: bold;
   padding: 5px 10px;
   border-top-left-radius: 5px;

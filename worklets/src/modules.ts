@@ -407,7 +407,7 @@ const FilterDef = {
     {
       name: 'Q',
       minValue: 0,
-      maxValue: 10,
+      maxValue: 20,
       defaultValue: 0,
       automationRate: 'a-rate',
     },

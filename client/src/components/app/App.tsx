@@ -3,6 +3,7 @@ import Header from '../header/Header'
 import classNames from 'classnames/bind'
 import styles from './App.css'
 import UserBar from '../user-bar/UserBar'
+import UtilityBox from '../utility-box/UtilityBox'
 import ModuleSelector from '../module-selector/ModuleSelector'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
@@ -95,14 +96,17 @@ const App = () => {
   })
 
   return (
-    <>
+    <div className={css('app')} style={{
+      backgroundPosition: `${state.viewOffset.x / 1.5}px ${state.viewOffset.y / 1.5}px`
+    }}>
       {state.initialized && <Patch />}
       <Header />
       <UserBar />
       <ModuleSelector />
       <Hint />
+      {state.initialized && <UtilityBox />}
       {!state.initialized && <InitModal />}
-    </>
+    </div>
   )
 }
 

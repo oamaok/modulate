@@ -3,6 +3,11 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
+  background: var(--background);
+}
+
+.socket:hover {
+  transform: scale(1.5);
 }
 
 .socket-input .socket {

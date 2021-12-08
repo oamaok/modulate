@@ -3,6 +3,7 @@ import { getRegisteredSocket, getSockets } from '../../sockets'
 import { getSocketPosition } from '../../state'
 import { ConnectedSocket } from '../../../../common/types'
 import CablePath from './CablePath'
+import UtilityBox from '../utility-box/UtilityBox'
 
 type Props = {
   from: ConnectedSocket
@@ -61,7 +62,20 @@ const Cable = ({ from, to }: Props) => {
 
   if (!fromPos || !toPos) return null
 
-  return <CablePath from={fromPos} to={toPos} />
+  return (
+    <CablePath
+      from={fromPos}
+      to={toPos}
+      onHover={() => {
+        const outputSocket = getRegisteredSocket(from.moduleId, from.name)
+        outputSocket.node.connect(UtilityBox.node, outputSocket.output)
+      }}
+      onBlur={() => {
+        const outputSocket = getRegisteredSocket(from.moduleId, from.name)
+        outputSocket.node.disconnect(UtilityBox.node, outputSocket.output)
+      }}
+    />
+  )
 }
 
 export default Cable

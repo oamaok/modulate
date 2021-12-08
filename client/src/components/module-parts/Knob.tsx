@@ -223,7 +223,7 @@ const Knob = (props: Props) => {
     }
   })
 
-  const displayHint = (value: number) => {
+  const displayHint = () => {
     knobState.displayHint = true
   }
 
@@ -234,7 +234,7 @@ const Knob = (props: Props) => {
   }
 
   return (
-    <div className={css('wrapper')}>
+    <div>
       <div
         className={css('knob')}
         onMouseOver={displayHint}

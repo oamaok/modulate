@@ -50,7 +50,7 @@ class Oscilloscope extends AudioWorkletProcessor {
 
       this.buffer.set(inputs[0][0] ?? ZERO_BUF, offset)
       this.offset++
-      if (this.offset > 63) {
+      if (this.offset > 127) {
         this.offset = 0
       }
     }
