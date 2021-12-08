@@ -1,6 +1,8 @@
 #!/bin/bash
 set -xe
 
+source $HOME/.cargo/env
+
 rm -rf build
 git clone https://github.com/oamaok/modulate.git build
 
