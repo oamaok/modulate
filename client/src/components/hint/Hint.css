@@ -5,7 +5,9 @@
   z-index: 1000;
   padding: 2px 4px;
   pointer-events: none;
-
+  border-radius: 2px;
+  text-shadow: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
   background: var(--on-background);
   color: var(--background);
 }

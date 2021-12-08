@@ -67,8 +67,7 @@ export const getModuleState = <T>(id: Id): T => {
 }
 
 export const getModulePosition = (id: Id) => {
-  const pos = patch.modules[id].position
-  return { x: pos.x + state.viewOffset.x, y: pos.y + state.viewOffset.y }
+  return patch.modules[id].position
 }
 
 export const setModulePosition = (id: Id, position: Vec2) => {
@@ -161,7 +160,11 @@ export const getCableConnectionCandidate = () => {
 
   const candidateSocket = targetSockets.find((socket) => {
     const { x, y } = getSocketPosition(socket)!
-    return (x - state.cursor.x) ** 2 + (y - state.cursor.y) ** 2 < 200
+    return (
+      (x - state.cursor.x + state.viewOffset.x) ** 2 +
+        (y - state.cursor.y + state.viewOffset.y) ** 2 <
+      200
+    )
   })
 
   if (!candidateSocket) return null

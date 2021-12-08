@@ -39,6 +39,8 @@
 
 .item {
   background-color: var(--secondary-variant);
+  color: var(--background);
+  text-shadow: none;
   border-radius: 2px;
   padding: 2px 4px;
   text-decoration: none;

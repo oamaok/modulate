@@ -65,6 +65,7 @@ const buildClient = async () => {
       incremental: true,
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
+      minify: isProduction,
       define: {
         'process.env.NODE_ENV': '"production"',
       },

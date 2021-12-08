@@ -9,6 +9,7 @@ import { Vec2 } from '../../../../common/types'
 
 import classNames from 'classnames/bind'
 import styles from './Socket.css'
+import UtilityBox from '../utility-box/UtilityBox'
 
 const css = classNames.bind(styles)
 
@@ -63,7 +64,19 @@ const Socket = (socket: RegisteredSocket) => {
 
   return (
     <div className={css(['socket-wrapper', `socket-${type}`])}>
-      <div ref={ref} className={css('socket')} onMouseDown={onMouseDown} />
+      <div
+        ref={ref}
+        className={css('socket')}
+        onMouseDown={onMouseDown}
+        onMouseOver={() => {
+          if (socket.type === 'output')
+            socket.node.connect(UtilityBox.node, socket.output)
+        }}
+        onMouseOut={() => {
+          if (socket.type === 'output')
+            socket.node.disconnect(UtilityBox.node, socket.output)
+        }}
+      />
       <div className={css('socket-name')}>{name}</div>
     </div>
   )

@@ -15,16 +15,16 @@
 }
 
 .white-key {
-  background: var(--background);
+  background: var(--on-background);
 }
 
 .black-key {
-  background: var(--on-background);
+  background: var(--background);
   top: -50%;
 }
 
 .black-key::before {
-  background: var(--on-background);
+  background: var(--background);
   content: ' ';
   width: 20px;
   height: 20px;

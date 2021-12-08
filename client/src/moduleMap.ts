@@ -12,7 +12,6 @@ import Reverb from './components/modules/Reverb'
 import MIDI from './components/modules/MIDI'
 import Limiter from './components/modules/Limiter'
 import PowShaper from './components/modules/PowShaper'
-import Oscilloscope from './components/modules/Oscilloscope'
 
 export const moduleMap = {
   AudioOut,
@@ -29,5 +28,4 @@ export const moduleMap = {
   MIDI,
   Limiter,
   PowShaper,
-  Oscilloscope,
 } as const

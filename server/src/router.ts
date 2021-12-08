@@ -94,7 +94,7 @@ export const serverStatic = (staticPath: string): GetCallback => {
       res.end()
       return
     }
-    res.header('Content-Type', mimeType)
+    res.header('Content-Type', mimeType + '; charset=utf-8')
     res.send(data)
     res.end()
   }
