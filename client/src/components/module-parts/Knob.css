@@ -1,3 +1,10 @@
+.wrapper {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  width: 28px;
+}
+
 .knob {
   width: 28px;
   height: 28px;
@@ -30,4 +37,8 @@
   border-radius: 50%;
   box-shadow: 0 0 7px #000;
   background: var(--on-background);
+}
+
+.name {
+  white-space: nowrap;
 }

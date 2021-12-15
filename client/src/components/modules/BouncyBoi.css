@@ -1,0 +1,16 @@
+.bouncy-boi {
+  display: flex;
+  flex-direction: column;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.bouncy-boi canvas {
+
+  border-radius: 4px;
+  box-shadow: var(--box-shadow);
+}

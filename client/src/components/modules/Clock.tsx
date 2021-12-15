@@ -13,6 +13,7 @@ import { ClockMessage } from '../../../../common/types'
 
 import classNames from 'classnames/bind'
 import styles from './Clock.css'
+import Toggle from '../module-parts/Toggle'
 
 const css = classNames.bind(styles)
 
@@ -105,41 +106,43 @@ class Clock extends Component<Props> implements IModule {
 
   render({ id }: Props) {
     const moduleState = getModuleState<ClockState>(id)
-    const { isRunning } = moduleState
-
     return (
-      <Module id={id} name="Clock" height={300}>
-        <button
-          onClick={() => {
-            moduleState.isRunning = !moduleState.isRunning
-          }}
-        >
-          {isRunning.toString()}
-        </button>
-        <button
-          onClick={() => {
-            this.sendToClock({ type: 'RESET' })
-          }}
-        >
-          Reset
-        </button>
+      <Module id={id} name="Clock" height={260}>
+        <div className={css('controls')}>
+          <Toggle
+            active={moduleState.isRunning}
+            onChange={() => {
+              moduleState.isRunning = !moduleState.isRunning
+            }}
+            label="Running"
+          />
+          <button
+            onClick={() => {
+              this.sendToClock({ type: 'RESET' })
+            }}
+          >
+            Reset
+          </button>
+        </div>
         <Knob
           moduleId={id}
           id="tempo"
+          label="Tempo"
           type="linear"
           min={1}
           max={500}
           initial={128}
         />
         <div className={css('row')}>
-          1:
           <Knob
             moduleId={id}
             id="ratio1"
             label="Ratio"
             type="option"
             options={RATIO_OPTIONS}
+            initial={1}
           />
+          <div className={css('connector')} />
           <Knob
             moduleId={id}
             id="swing1"
@@ -147,6 +150,7 @@ class Clock extends Component<Props> implements IModule {
             type="percentage"
             initial={0.5}
           />
+          <div className={css('connector')} />
           <Knob
             moduleId={id}
             id="pulseWidth1"
@@ -156,14 +160,15 @@ class Clock extends Component<Props> implements IModule {
           />
         </div>
         <div className={css('row')}>
-          2:
           <Knob
             moduleId={id}
             id="ratio2"
             label="Ratio"
             type="option"
             options={RATIO_OPTIONS}
+            initial={1}
           />
+          <div className={css('connector')} />
           <Knob
             moduleId={id}
             id="swing2"
@@ -171,6 +176,7 @@ class Clock extends Component<Props> implements IModule {
             type="percentage"
             initial={0.5}
           />
+          <div className={css('connector')} />
           <Knob
             moduleId={id}
             id="pulseWidth2"
@@ -180,14 +186,15 @@ class Clock extends Component<Props> implements IModule {
           />
         </div>
         <div className={css('row')}>
-          3:
           <Knob
             moduleId={id}
             id="ratio3"
             label="Ratio"
             type="option"
             options={RATIO_OPTIONS}
+            initial={1}
           />
+          <div className={css('connector')} />
           <Knob
             moduleId={id}
             id="swing3"
@@ -195,6 +202,7 @@ class Clock extends Component<Props> implements IModule {
             type="percentage"
             initial={0.5}
           />
+          <div className={css('connector')} />
           <Knob
             moduleId={id}
             id="pulseWidth3"

@@ -53,7 +53,10 @@ window.addEventListener('resize', () => {
 export const addModule = (name: string) => {
   patch.modules[nextId()] = {
     name,
-    position: { x: 200, y: 200 },
+    position: {
+      x: -state.viewOffset.x + window.innerWidth / 2,
+      y: -state.viewOffset.y + window.innerHeight / 2,
+    },
     state: undefined,
   }
 }

@@ -12,6 +12,7 @@ import {
   BiquadFilter,
   PowShaper,
   MIDI,
+  BouncyBoi,
 } from '../pkg/worklets'
 
 export type Module<
@@ -26,7 +27,7 @@ export type Module<
   constructor: { new (): T }
   parameterDescriptors?: AudioParamDescriptor[]
   init: (instance: T, port: MessagePort) => void
-  onMessage?: (instance: T, message: any) => void
+  onMessage?: (instance: T, message: any, port: MessagePort) => void
 }
 
 const OscillatorDef = {
@@ -451,6 +452,30 @@ const MIDIDef = {
   parameterDescriptors: [],
 } as const
 
+const BouncyBoiDef = {
+  name: 'BouncyBoi',
+  constructor: BouncyBoi,
+  onMessage(instance: BouncyBoi, _msg: any, port: MessagePort) {
+    port.postMessage(instance.get_state())
+  },
+  parameterDescriptors: [
+    {
+      name: 'speed',
+      minValue: 0,
+      maxValue: 1,
+      defaultValue: 0.1,
+      automationRate: 'k-rate',
+    },
+    {
+      name: 'gravity',
+      minValue: 0,
+      maxValue: 1,
+      defaultValue: 0.1,
+      automationRate: 'k-rate',
+    },
+  ],
+} as const
+
 export const modules = [
   OscillatorDef,
   MixerDef,
@@ -464,6 +489,7 @@ export const modules = [
   FilterDef,
   PowShaperDef,
   MIDIDef,
+  BouncyBoiDef,
 ] as const
 
 export type Modules = typeof modules extends { [k: number]: infer Mod }

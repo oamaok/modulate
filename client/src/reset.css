@@ -12,7 +12,7 @@
   --on-secondary: #ffffff;
   --on-background: #ffffff;
 
-  --box-shadow: 0 2px 0 #666, 0 2px 8px rgba(0,0,0,0.4);
+  --box-shadow: 0 2px 0 #666, 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 * {

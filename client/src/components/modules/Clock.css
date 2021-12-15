@@ -3,3 +3,17 @@
   display: flex;
   flex-direction: row;
 }
+
+.connector {
+  width: 20px;
+  margin: 0 1px;
+  height: 0;
+  border-bottom: 2px solid var(--background);
+  position: relative;
+  top: 14px;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+}

@@ -5,6 +5,8 @@ import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 
 import { ModuleInputs } from '../module-parts/ModuleSockets'
+import { connectKnobToParam } from '../../modules'
+import Knob from '../module-parts/Knob'
 type Props = {
   id: string
 }
@@ -19,20 +21,27 @@ class AudioOut extends Component<Props> implements IModule {
     this.node = context.destination
     this.gain = context.createGain()
 
-    this.gain.gain.setValueAtTime(0, 0)
-    this.gain.gain.setTargetAtTime(0, context.currentTime, 0.1)
-    this.gain.gain.setTargetAtTime(1, context.currentTime + 0.1, 0.01)
     this.gain.connect(this.node)
+
+    connectKnobToParam(props.id, 'level', this.gain.gain)
   }
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Audio Out">
+      <Module id={id} name="Audio Out" width={100}>
+        <Knob
+          moduleId={id}
+          type="percentage"
+          id="level"
+          label="Level"
+          initial={0.75}
+        />
         <ModuleInputs>
           <Socket
             moduleId={id}
             type="input"
             name="destination"
+            label=""
             node={this.gain}
           />
         </ModuleInputs>

@@ -34,7 +34,7 @@ class ADSR extends Component<Props> implements IModule {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="ADSR" width={250}>
+      <Module id={id} name="ADSR" width={200}>
         <Knob
           moduleId={id}
           type="exponential"
