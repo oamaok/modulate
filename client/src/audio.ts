@@ -4,8 +4,8 @@ export const initializeAudio = async () => {
   audioContext = new AudioContext()
 
   const [wasm] = await Promise.all([
-    fetch('./assets/worklets.wasm').then((res) => res.arrayBuffer()),
-    audioContext!.audioWorklet.addModule('./assets/worklets.js'),
+    fetch('/assets/worklets.wasm').then((res) => res.arrayBuffer()),
+    audioContext!.audioWorklet.addModule('/assets/worklets.js'),
   ])
 
   await new Promise((resolve) => {
