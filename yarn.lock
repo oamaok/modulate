@@ -1078,10 +1078,10 @@ jws@^3.2.2:
     jwa "^1.4.1"
     safe-buffer "^5.0.1"
 
-kaiku@^1.19.2:
-  version "1.19.2"
-  resolved "https://registry.yarnpkg.com/kaiku/-/kaiku-1.19.2.tgz#3c9a5512f02c9e22c4466bcb72901cc79c85ce77"
-  integrity sha512-E4c3rGo6mV0hcRJzu6LsRgoDFkZhSehDL4ghZ/nu6kdxVOeNXN3kftXZ3mQ4gvOiGRLgPOXXCsyWfK98mg4Cfg==
+kaiku@^1.19.4:
+  version "1.19.4"
+  resolved "https://registry.yarnpkg.com/kaiku/-/kaiku-1.19.4.tgz#9ca0eda5e78a72e2f3604ce61d4e3bddf2bd8123"
+  integrity sha512-p7PvaVThW7MiJvb/oZytbA/5Jab3p83yudB9ixSTA8FIjSeouShsZ7I2dHO9SHyCK+lnoyUorM9al+JdxiZjSw==
 
 lilconfig@^2.0.3:
   version "2.0.3"
