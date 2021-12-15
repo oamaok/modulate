@@ -1,0 +1,17 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.toggle {
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
+  border-radius: 50%;
+  background: var(--background);
+  box-shadow: var(--box-shadow);
+}
+
+.toggle.active {
+  background: var(--primary);
+}

@@ -1,19 +1,18 @@
 .slider-track {
   width: 100px;
-  height: 6px;
+  height: 4px;
   background: var(--background);
-  box-shadow: var(--box-shadow) inset;
   position: relative;
-  border-radius: 1px;
+  border-radius: 2px;
 }
 
 .slider {
   position: absolute;
   height: 10px;
   width: 16px;
-  top: -2px;
+  top: -3px;
   left: -8px;
-  background: var(--on-background);
+  background: var(--background);
   box-shadow: 0 0 2px #000;
   border-radius: 2px;
 }

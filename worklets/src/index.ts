@@ -86,7 +86,8 @@ const createProcessor = <
         init(this.instance, this.port)
       }
       if (onMessage) {
-        this.port.onmessage = (msg) => onMessage(this.instance, msg.data)
+        this.port.onmessage = (msg) =>
+          onMessage(this.instance, msg.data, this.port)
       }
     }
 

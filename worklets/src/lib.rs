@@ -147,7 +147,11 @@ impl Oscillator {
   }
 
   fn sqr(&self, pw: f32) -> f32 {
-    if self.phase > pw { -1.0 } else { 1.0 }
+    if self.phase > pw {
+      -1.0
+    } else {
+      1.0
+    }
   }
 
   pub fn process(&mut self) {
@@ -246,7 +250,8 @@ impl BiquadFilter {
           + (b1 * rcp_a0) * self.input_buffer[0]
           + (b2 * rcp_a0) * self.input_buffer[1]
           - (a1 * rcp_a0) * self.lowpass_buffer[0]
-          - (a2 * rcp_a0) * self.lowpass_buffer[1]).clamp(-1000., 1000.);
+          - (a2 * rcp_a0) * self.lowpass_buffer[1])
+          .clamp(-1000., 1000.);
 
         self.lowpass_buffer[1] = self.lowpass_buffer[0];
         self.lowpass_buffer[0] = output;
@@ -1050,7 +1055,7 @@ impl Clock {
         }
 
         let samples_per_beat =
-          240.0 / self.tempo.at(sample) * SAMPLE_RATE as f32 / self.ratios[output].at(sample);
+          60.0 / self.tempo.at(sample) * SAMPLE_RATE as f32 / self.ratios[output].at(sample);
 
         let odd_end = samples_per_beat * self.pulse_widths[output].at(sample);
         let even_start =
@@ -1159,6 +1164,232 @@ impl MIDI {
       self.cv_output[sample] = self.current_cv;
       self.velocity_output[sample] = velocity;
       self.gate_output[sample] = if velocity == 0.0 { 0.0 } else { 1.0 };
+    }
+  }
+}
+
+#[derive(Copy, Clone, Default)]
+struct Vec2 {
+  x: f32,
+  y: f32,
+}
+
+impl std::ops::Add<Vec2> for Vec2 {
+  type Output = Vec2;
+
+  fn add(self, rhs: Vec2) -> Vec2 {
+    Vec2 {
+      x: self.x + rhs.x,
+      y: self.y + rhs.y,
+    }
+  }
+}
+
+impl std::ops::Mul<f32> for Vec2 {
+  type Output = Vec2;
+
+  fn mul(self, rhs: f32) -> Vec2 {
+    Vec2 {
+      x: self.x * rhs,
+      y: self.y * rhs,
+    }
+  }
+}
+
+impl std::ops::Mul<Vec2> for f32 {
+  type Output = Vec2;
+
+  fn mul(self, rhs: Vec2) -> Vec2 {
+    Vec2 {
+      x: rhs.x * self,
+      y: rhs.y * self,
+    }
+  }
+}
+
+impl std::ops::Sub<Vec2> for Vec2 {
+  type Output = Vec2;
+
+  fn sub(self, rhs: Vec2) -> Vec2 {
+    Vec2 {
+      x: self.x - rhs.x,
+      y: self.y - rhs.y,
+    }
+  }
+}
+
+impl Vec2 {
+  fn dot(&self, vec: Vec2) -> f32 {
+    self.x * vec.x + self.y * vec.y
+  }
+
+  fn length(&self) -> f32 {
+    f32::sqrt(self.x * self.x + self.y * self.y)
+  }
+
+  fn normalize(&self) -> Vec2 {
+    let rcp_len = 1. / self.length();
+    Vec2 {
+      x: self.x * rcp_len,
+      y: self.y * rcp_len,
+    }
+  }
+}
+
+#[derive(Default)]
+struct Rng {
+  state: u64,
+}
+
+impl Rng {
+  fn get_u32(&mut self) -> u32 {
+    let oldstate = self.state;
+    // Advance internal state
+    self.state = oldstate * 6364136223846793005u64 + 1;
+    // Calculate output function (XSH RR), uses old state for max ILP
+    let xorshifted: u32 = (((oldstate >> 18u64) ^ oldstate) >> 27u64) as u32;
+    let rot: u32 = (oldstate >> 59u64) as u32;
+    return (xorshifted >> rot) | (xorshifted << ((0 - rot) & 31));
+  }
+
+  fn get_f32(&mut self) -> f32 {
+    self.get_u32() as f32 * 2.3283064e-10
+  }
+}
+
+#[derive(Default)]
+struct Ball {
+  pos: Vec2,
+  vel: Vec2,
+}
+
+#[wasm_bindgen]
+#[derive(Default)]
+pub struct BouncyBoi {
+  balls: [Ball; 3],
+  trigger_outputs: [AudioBuffer; 3],
+  trigger_timers: [u32; 3],
+  velocity_outputs: [AudioBuffer; 3],
+
+  speed: AudioParam,
+  gravity: AudioParam,
+
+  phase: f32,
+}
+
+#[derive(Copy, Clone, Default)]
+struct Wall {
+  from: Vec2,
+  to: Vec2,
+}
+
+#[wasm_bindgen]
+impl BouncyBoi {
+  #[wasm_bindgen(constructor)]
+  pub fn new() -> BouncyBoi {
+    let mut boi = BouncyBoi::default();
+    let mut rng = Rng::default();
+
+    for ball in boi.balls.iter_mut() {
+      ball.pos.x = 0.0;
+      ball.pos.y = 0.0;
+      ball.vel.x = rng.get_f32() * 2.0 - 1.0;
+      ball.vel.y = rng.get_f32() * 2.0 - 1.0;
+    }
+
+    boi
+  }
+
+  pub fn inputs(&self) -> Vec<i32> {
+    vec![]
+  }
+
+  pub fn outputs(&self) -> Vec<i32> {
+    vec![
+      self.trigger_outputs[0].as_ptr() as i32,
+      self.trigger_outputs[1].as_ptr() as i32,
+      self.trigger_outputs[2].as_ptr() as i32,
+      self.velocity_outputs[0].as_ptr() as i32,
+      self.velocity_outputs[1].as_ptr() as i32,
+      self.velocity_outputs[2].as_ptr() as i32,
+    ]
+  }
+
+  pub fn get_state(&self) -> Vec<f32> {
+    vec![
+      self.balls[0].pos.x,
+      self.balls[0].pos.y,
+      self.balls[1].pos.x,
+      self.balls[1].pos.y,
+      self.balls[2].pos.x,
+      self.balls[2].pos.y,
+      self.phase,
+    ]
+  }
+
+  pub fn parameters(&self) -> Vec<i32> {
+    vec![self.speed.as_ptr() as i32, self.gravity.as_ptr() as i32]
+  }
+
+  pub fn process(&mut self) {
+    let mut walls: [Wall; 5] = [Wall::default(); 5];
+
+    for (i, wall) in walls.iter_mut().enumerate() {
+      {
+        let (sin, cos) = f32::sin_cos(i as f32 * std::f32::consts::PI * 2.0 / 5.0 + self.phase);
+
+        wall.from.x = sin * 100.0;
+        wall.from.y = cos * 100.0;
+      }
+
+      {
+        let (sin, cos) =
+          f32::sin_cos((i + 1) as f32 * std::f32::consts::PI * 2.0 / 5.0 + self.phase);
+
+        wall.to.x = sin * 100.0;
+        wall.to.y = cos * 100.0;
+      }
+    }
+
+    self.phase += self.speed.at(0) * 0.01;
+
+    for (i, ball) in self.balls.iter_mut().enumerate() {
+      ball.vel.y += self.gravity.at(0) * 0.05;
+
+      let speed = ball.vel.length();
+      ball.vel = ball.vel.normalize() * f32::max(speed, 0.001);
+
+      ball.pos = ball.pos + (ball.vel * 0.05);
+
+      for wall in walls.iter() {
+        let e = wall.to - wall.from;
+        let n = Vec2 { x: e.y, y: -e.x }.normalize();
+        let d = ball.pos - wall.from;
+        let distance = n.dot(d);
+
+        if distance < 10.0 {
+          let depth = 10.0 - distance;
+
+          self.trigger_timers[i] = 10000;
+          self.velocity_outputs[i][0] = depth;
+
+          ball.pos = ball.pos + n * depth;
+          ball.vel = ball.vel - n * f32::min(0.0, 2.01 * ball.vel.dot(n));
+        }
+      }
+    }
+
+    for sample in 0..QUANTUM_SIZE {
+      for i in 0..3 {
+        self.velocity_outputs[i][sample] = self.velocity_outputs[i][0];
+
+        if self.trigger_timers[i] != 0 {
+          self.trigger_outputs[i][sample] = 1.0;
+          self.trigger_timers[i] -= 1;
+        } else {
+          self.trigger_outputs[i][sample] = 0.0;
+        }
+      }
     }
   }
 }

@@ -34,12 +34,16 @@ const getSocketOffset = (
   })
 }
 
-const Socket = (socket: RegisteredSocket) => {
-  const { moduleId, type, name, node } = socket
+type Props = RegisteredSocket & {
+  label?: string
+}
+
+const Socket = (props: Props) => {
+  const { label, moduleId, type, name, node } = props
   const ref = useRef<HTMLDivElement>()
 
   useEffect(() => {
-    registerSocket(socket)
+    registerSocket(props)
     return () => {
       unregisterSocket(moduleId, name)
     }
@@ -69,15 +73,13 @@ const Socket = (socket: RegisteredSocket) => {
         className={css('socket')}
         onMouseDown={onMouseDown}
         onMouseOver={() => {
-          if (socket.type === 'output')
-            socket.node.connect(UtilityBox.node, socket.output)
+          if (type === 'output') node.connect(UtilityBox.node, props.output)
         }}
         onMouseOut={() => {
-          if (socket.type === 'output')
-            socket.node.disconnect(UtilityBox.node, socket.output)
+          if (type === 'output') node.disconnect(UtilityBox.node, props.output)
         }}
       />
-      <div className={css('socket-name')}>{name}</div>
+      <div className={css('socket-name')}>{label ?? name}</div>
     </div>
   )
 }

@@ -42,7 +42,9 @@ class UtilityBox extends Component {
 
   updateCanvas = () => {
     window.requestAnimationFrame(this.updateCanvas)
-    const canvas = document.querySelector('canvas')
+    const canvas = document.getElementById(
+      'utility-box-canvas'
+    ) as HTMLCanvasElement
     if (!canvas) return
 
     const context = canvas.getContext('2d')!
@@ -119,7 +121,7 @@ class UtilityBox extends Component {
         </div>
         <canvas
           className={css('canvas')}
-          id="canvas"
+          id="utility-box-canvas"
           width={WIDTH}
           height="200"
         />

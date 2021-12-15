@@ -96,9 +96,14 @@ const App = () => {
   })
 
   return (
-    <div className={css('app')} style={{
-      backgroundPosition: `${state.viewOffset.x / 1.5}px ${state.viewOffset.y / 1.5}px`
-    }}>
+    <div
+      className={css('app')}
+      style={{
+        backgroundPosition: `${Math.round(
+          state.viewOffset.x / 1.5
+        )}px ${Math.round(state.viewOffset.y / 1.5)}px`,
+      }}
+    >
       {state.initialized && <Patch />}
       <Header />
       <UserBar />
