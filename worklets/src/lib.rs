@@ -1357,7 +1357,7 @@ impl BouncyBoi {
       ball.vel.y += self.gravity.at(0) * 0.05;
 
       let speed = ball.vel.length();
-      ball.vel = ball.vel.normalize() * f32::max(speed, 0.001);
+      ball.vel = ball.vel.normalize() * f32::min(speed, 10.0);
 
       ball.pos = ball.pos + (ball.vel * 0.05);
 
@@ -1370,8 +1370,8 @@ impl BouncyBoi {
         if distance < 10.0 {
           let depth = 10.0 - distance;
 
-          self.trigger_timers[i] = 10000;
-          self.velocity_outputs[i][0] = depth;
+          self.trigger_timers[i] = 4000;
+          self.velocity_outputs[i][0] = depth * 2.0;
 
           ball.pos = ball.pos + n * depth;
           ball.vel = ball.vel - n * f32::min(0.0, 2.01 * ball.vel.dot(n));
