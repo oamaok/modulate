@@ -135,7 +135,7 @@ const SequencerDef = {
       name: 'sequenceLength',
       minValue: 1,
       maxValue: 32,
-      defaultValue: 0,
+      defaultValue: 32,
       automationRate: 'a-rate',
     },
     {
