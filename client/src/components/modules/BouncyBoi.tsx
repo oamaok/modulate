@@ -91,27 +91,27 @@ class BouncyBoi extends Component<Props> implements IModule {
       <Module id={id} name="Bouncy Boi" height={260} width={240}>
         <div className={css('bouncy-boi')}>
           <div className={css('controls')}>
-        <Knob
-          moduleId={id}
-          id="speed"
-          label="Speed"
-          type="linear"
-          min={0}
-          max={1}
-          initial={0.1}
-        />
-        <Knob
-          moduleId={id}
-          id="gravity"
-          label="Gravity"
-          type="linear"
-          min={0}
-          max={1}
-          initial={0.1}
-        />
+            <Knob
+              moduleId={id}
+              id="speed"
+              label="Speed"
+              type="linear"
+              min={0}
+              max={1}
+              initial={0.1}
+            />
+            <Knob
+              moduleId={id}
+              id="gravity"
+              label="Gravity"
+              type="linear"
+              min={0}
+              max={1}
+              initial={0.1}
+            />
+          </div>
+          <canvas id={'bouncy-boi-' + id} width="150" height="150" />
         </div>
-        <canvas id={'bouncy-boi-' + id} width="150" height="150" />
-</div>
         <ModuleOutputs>
           <Socket
             moduleId={id}

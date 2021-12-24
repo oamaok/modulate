@@ -228,11 +228,17 @@ export const releaseActiveCable = () => {
   state.activeCable = null
 }
 
-export const deleteModule = (id: string) => {
+export const deleteModule = async (id: string) => {
   state.patch.cables = state.patch.cables.filter((cable) => {
     return cable.from.moduleId !== id && cable.to.moduleId !== id
   })
+
+  await new Promise(requestAnimationFrame)
   delete state.patch.knobs[id]
+
+  await new Promise(requestAnimationFrame)
   delete state.socketPositions[id]
+
+  await new Promise(requestAnimationFrame)
   delete state.patch.modules[id]
 }
