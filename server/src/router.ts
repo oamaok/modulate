@@ -157,10 +157,15 @@ const router = (): RouterChain => {
     req: http.IncomingMessage,
     res: http.ServerResponse
   ) => {
-    const url = new URL(
-      req.url ?? '',
-      `http://${req.headers.host ?? 'localhost'}`
-    )
+    let url: URL
+    try {
+      url = new URL(req.url ?? '', `http://${req.headers.host ?? 'localhost'}`)
+    } catch (err) {
+      res.statusCode = 400
+      res.write('400')
+      res.end()
+      return
+    }
 
     const segments = url.pathname.split('/')
 
