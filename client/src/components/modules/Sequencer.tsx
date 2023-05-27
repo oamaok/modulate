@@ -206,7 +206,8 @@ class Sequencer
             <Knob
               moduleId={id}
               id="sequenceLength"
-              type="linear"
+              type="stepped"
+              step={1}
               min={1}
               max={32}
               initial={32}

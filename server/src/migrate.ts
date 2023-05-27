@@ -1,5 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
+import * as logger from './logger'
 
 import { database } from './database'
 
@@ -53,12 +54,12 @@ const migrate = async () => {
     .sort()
 
   if (applicableMigrations.length === 0) {
-    console.log('No migrations to run.')
+    logger.info('No migrations to run.')
     return
   }
 
   for (const migration of applicableMigrations) {
-    console.log('Running migration ', migration)
+    logger.info('Running migration ', migration)
     await db.run('BEGIN')
     try {
       const {
@@ -80,7 +81,7 @@ const migrate = async () => {
           }
         },
         exec(query: any) {
-          console.log(query)
+          logger.info(query)
           return db.exec(query)
         },
       })
@@ -90,8 +91,8 @@ const migrate = async () => {
       await db.run('COMMIT')
     } catch (err) {
       await db.run('ROLLBACK')
-      console.error('Failed to run migration ', migration)
-      console.error(err)
+      logger.error('Failed to run migration ', migration)
+      logger.error(err)
       return
     }
   }

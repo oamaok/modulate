@@ -22,6 +22,10 @@ const SignUp = ({ open }: { open: boolean }) => {
   })
 
   useEffect(() => {
+    if (signUpState.username === '' && signUpState.email === '') {
+      return
+    }
+
     api
       .getCredentialsAvailability({
         username: signUpState.username,

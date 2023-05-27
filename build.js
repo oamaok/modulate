@@ -34,15 +34,20 @@ const recursiveCopy = async (srcDir, destDir) => {
 
     const destPath = path.join(absoluteDest, entry)
     if (stats.isDirectory()) {
+      let existsAsNonDirectory = false
       try {
         const destStats = await fs.stat(destPath)
         if (!destStats.isDirectory()) {
-          throw new Error(
-            `Destination path exists and is not a directory: ${destPath}`
-          )
+          existsAsNonDirectory = true
         }
       } catch (err) {
         await fs.mkdir(destPath)
+      }
+
+      if (existsAsNonDirectory) {
+        throw new Error(
+          `Destination path exists and is not a directory: ${destPath}`
+        )
       }
 
       entryStack.push(

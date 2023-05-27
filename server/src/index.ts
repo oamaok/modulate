@@ -5,6 +5,7 @@ import * as t from 'io-ts'
 import * as db from './database'
 import * as validators from '../../common/validators'
 import * as auth from './authorization'
+import * as logger from './logger'
 import migrate from './migrate'
 
 const unauthorized = (res: Response) => {
@@ -134,4 +135,5 @@ const server = http.createServer(
 ;(async () => {
   await migrate()
   server.listen(8888)
+  logger.info('Listening to :8888')
 })()

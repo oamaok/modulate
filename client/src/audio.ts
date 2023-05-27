@@ -16,8 +16,6 @@ export const initializeAudio = async () => {
     wasmInitializer.port.onmessage = resolve
     wasmInitializer.port.postMessage(wasm)
   })
-
-  console.log('Loaded')
 }
 
 export const getAudioContext = () => {

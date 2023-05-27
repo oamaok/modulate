@@ -14,8 +14,17 @@ type PercentageKnob = {
 
 type OptionKnob = {
   type: 'option'
-  options: string[] | { label: string; value: number }[]
+  options: { label: string; value: number }[]
   initial?: number
+}
+
+type SteppedKnob = {
+  type: 'stepped'
+  initial: number
+  min: number
+  max: number
+  step: number
+  unit?: string
 }
 
 type ExponentialKnob = {
@@ -42,7 +51,7 @@ type CommonProps = {
 }
 
 type Props = CommonProps &
-  (PercentageKnob | OptionKnob | ExponentialKnob | LinearKnob)
+  (PercentageKnob | OptionKnob | SteppedKnob | ExponentialKnob | LinearKnob)
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
@@ -55,6 +64,7 @@ const getInitialValue = (props: Props): number => {
       return clamp(knobValue ?? props.initial, 0, 1)
     }
 
+    case 'stepped':
     case 'exponential':
     case 'linear': {
       return clamp(knobValue ?? props.initial, props.min, props.max)
@@ -77,6 +87,16 @@ const setNormalizedKnobValue = (value: number, props: Props) => {
       break
     }
 
+    case 'stepped': {
+      const steps = (props.max - props.min) / props.step
+      setKnobValue(
+        props.moduleId,
+        props.id,
+        Math.floor(value * steps) / props.step + props.min
+      )
+      break
+    }
+
     case 'exponential': {
       setKnobValue(
         props.moduleId,
@@ -85,6 +105,7 @@ const setNormalizedKnobValue = (value: number, props: Props) => {
       )
       break
     }
+
     case 'linear': {
       setKnobValue(
         props.moduleId,
@@ -119,6 +140,10 @@ const normalizeValue = (value: number, props: Props): number => {
       return value
     }
 
+    case 'stepped': {
+      return (value - props.min) / props.step
+    }
+
     case 'exponential': {
       return Math.pow(
         (value - props.min) / (props.max - props.min),
@@ -151,6 +176,11 @@ const getHintText = (props: Props): string => {
       return `${props.label ?? props.id}: ${(knobValue * 100).toFixed(1)}%`
     }
 
+    case 'stepped': {
+      const steps = (props.max - props.min) / props.step
+      return `${props.label ?? props.id}: ${knobValue}${props.unit ?? ''}`
+    }
+
     case 'exponential':
     case 'linear': {
       return `${props.label ?? props.id}: ${knobValue.toFixed(3)}${
@@ -159,13 +189,9 @@ const getHintText = (props: Props): string => {
     }
 
     case 'option': {
-      if (typeof props.options[0] === 'string') {
-        return `${props.label ?? props.id}: ${props.options[knobValue]}`
-      } else {
-        return `${props.label ?? props.id}: ${
-          props.options.find(({ value }) => knobValue == value).label
-        }`
-      }
+      return `${props.label ?? props.id}: ${
+        props.options.find(({ value }) => knobValue == value)?.label
+      }`
     }
   }
 }
