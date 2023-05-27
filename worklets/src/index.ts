@@ -48,7 +48,7 @@ class Oscilloscope extends AudioWorkletProcessor {
       const offset = this.offset * 128
       this.buffer[this.buffer.length - 1] = offset
 
-      this.buffer.set(inputs[0][0] ?? ZERO_BUF, offset)
+      this.buffer.set(inputs[0]![0] ?? ZERO_BUF, offset)
       this.offset++
       if (this.offset > 127) {
         this.offset = 0
@@ -149,8 +149,8 @@ const createProcess = (
     }
 
     for (let i = 0; i < inputBindings.length; i++) {
-      if (inputs[i] && inputs[i][0]) {
-        memory.set(inputs[i][0], inputBindings[i])
+      if (inputs[i] && inputs[i]![0]) {
+        memory.set(inputs[i]![0]!, inputBindings[i])
       } else {
         memory.set(ZERO_BUF, inputBindings[i])
       }
@@ -160,19 +160,19 @@ const createProcess = (
       const descriptor = parameterDescriptors[i]
       if (!descriptor) break
 
-      const parameter = parameters[descriptor.name]
+      const parameter = parameters[descriptor.name]!
 
       memory.set(parameter, parameterBindings[i])
 
       if (parameter.length === 1) {
-        memory.set(AUDIO_PARAM_SCALAR_SIGNAL, parameterBindings[i] + 1)
+        memory.set(AUDIO_PARAM_SCALAR_SIGNAL, parameterBindings[i]! + 1)
       }
     }
 
     instance.process()
 
     for (let i = 0; i < outputBindings.length; i++) {
-      outputs[i][0].set(outputBindings[i])
+      outputs[i]![0]!.set(outputBindings[i]!)
     }
 
     return true

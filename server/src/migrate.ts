@@ -31,7 +31,7 @@ const getDatabase = () => {
 }
 
 const getMigrationVersion = (filename: string) =>
-  parseInt(filename.split('-')[0])
+  parseInt(filename.split('-')[0]!)
 
 const migrate = async () => {
   const db = getDatabase()
