@@ -1,7 +1,6 @@
 import { h, Fragment, useEffect } from 'kaiku'
 import Header from '../header/Header'
-import classNames from 'classnames/bind'
-import styles from './App.css'
+import css from './App.css'
 import UserBar from '../user-bar/UserBar'
 import UtilityBox from '../utility-box/UtilityBox'
 import ModuleSelector from '../module-selector/ModuleSelector'
@@ -11,8 +10,6 @@ import { initializeAudio } from '../../audio'
 import state, { loadPatch, patch } from '../../state'
 import * as types from '@modulate/common/types'
 import * as api from '../../api'
-
-const css = classNames.bind(styles)
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')

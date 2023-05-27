@@ -1,11 +1,9 @@
 import { h, useState, Fragment } from 'kaiku'
 import state, { patch } from '../../state'
 import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
-import classNames from 'classnames/bind'
-import styles from './Header.css'
+import css from './Header.css'
 import * as api from '../../api'
 
-const css = classNames.bind(styles)
 
 const Menu = () => {
   const savePatch = async () => {

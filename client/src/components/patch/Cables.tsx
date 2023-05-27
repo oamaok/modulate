@@ -4,10 +4,7 @@ import { Vec2 } from '@modulate/common/types'
 
 import ActiveCable from './ActiveCable'
 import Cable from './Cable'
-import classNames from 'classnames/bind'
-import styles from './Cables.css'
-
-const css = classNames.bind(styles)
+import css from './Cables.css'
 
 const Cables = () => {
   const patchState = useState<{

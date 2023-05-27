@@ -1,9 +1,6 @@
 import { h } from 'kaiku'
-import classNames from 'classnames/bind'
 import state, { cursor } from '../../state'
-import styles from './Hint.css'
-
-const css = classNames.bind(styles)
+import css from './Hint.css'
 
 const Hint = () => {
   if (!state.hint) return null

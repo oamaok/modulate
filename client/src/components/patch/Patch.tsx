@@ -3,10 +3,7 @@ import state, { patch } from '../../state'
 import { moduleMap } from '../../moduleMap'
 import Cables from './Cables'
 
-import classNames from 'classnames/bind'
-import styles from './Patch.css'
-
-const css = classNames.bind(styles)
+import css from './Patch.css'
 
 const Patch = () => {
   return (

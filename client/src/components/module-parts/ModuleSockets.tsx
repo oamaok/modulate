@@ -1,8 +1,5 @@
 import { FC, h } from 'kaiku'
-import classNames from 'classnames/bind'
-import styles from './ModuleSockets.css'
-
-const css = classNames.bind(styles)
+import css from './ModuleSockets.css'
 
 export const ModuleOutputs: FC<{}> = ({ children }) => {
   return <div className={css('module-outputs')}>{children}</div>

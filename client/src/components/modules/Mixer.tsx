@@ -5,10 +5,7 @@ import { WorkletNode } from '../../worklets'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import { connectKnobToParam } from '../../modules'
-import classNames from 'classnames/bind'
-import styles from './Mixer.css'
-
-const css = classNames.bind(styles)
+import css from './Mixer.css'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Slider from '../module-parts/Slider'

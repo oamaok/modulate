@@ -1,10 +1,7 @@
 import { h, unwrap, useEffect, useRef, useState, Fragment } from 'kaiku'
-import classNames from 'classnames/bind'
-import styles from './ModuleSelector.css'
+import css from './ModuleSelector.css'
 import { moduleMap } from '../../moduleMap'
 import { addModule } from '../../state'
-
-const css = classNames.bind(styles)
 
 type SelectorState = {
   open: boolean

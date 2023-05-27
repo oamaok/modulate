@@ -3,10 +3,7 @@ import state from '../../state'
 import * as api from '../../api'
 import * as auth from '../../auth'
 import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
-import classNames from 'classnames/bind'
-import styles from './UserBar.css'
-
-const css = classNames.bind(styles)
+import css from './UserBar.css'
 
 const SignUp = ({ open }: { open: boolean }) => {
   const signUpState = useState({

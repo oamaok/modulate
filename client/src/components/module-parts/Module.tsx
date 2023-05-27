@@ -1,11 +1,7 @@
 import { h, useState, useEffect, FC } from 'kaiku'
 import state, { getModulePosition } from '../../state'
 import { Id, Vec2 } from '@modulate/common/types'
-
-import classNames from 'classnames/bind'
-import styles from './Module.css'
-
-const css = classNames.bind(styles)
+import css from './Module.css'
 
 type Props = {
   id: Id

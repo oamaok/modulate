@@ -1,11 +1,7 @@
 import { h, useState, useEffect } from 'kaiku'
 import state, { getKnobValue, setKnobValue } from '../../state'
 import { Id, Vec2 } from '@modulate/common/types'
-
-import classNames from 'classnames/bind'
-import styles from './Slider.css'
-
-const css = classNames.bind(styles)
+import css from './Slider.css'
 
 type Props = {
   moduleId: Id

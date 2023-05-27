@@ -1,8 +1,5 @@
 import { FC, h } from 'kaiku'
-import classNames from 'classnames/bind'
-import styles from './MenuBar.css'
-
-const css = classNames.bind(styles)
+import css from './MenuBar.css'
 
 type Props = {
   left?: true

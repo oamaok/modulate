@@ -2,10 +2,7 @@ import { h, Component, useEffect } from 'kaiku'
 import { getAudioContext } from '../../audio'
 import { getKnobValue } from '../../state'
 import Knob from '../module-parts/Knob'
-import classNames from 'classnames/bind'
-import styles from './UtilityBox.css'
-
-const css = classNames.bind(styles)
+import css from './UtilityBox.css'
 
 const QUANTUM_SIZE = 128
 const LENGTH = 128

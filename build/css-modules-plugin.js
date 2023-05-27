@@ -145,7 +145,10 @@ const CssModulesPlugin = () => ({
       cssContent[filePath] = css
 
       return {
-        contents: `export default ${JSON.stringify(classNameMap)}`,
+        contents: `
+          import classNames from '@modulate/client/src/classNames'
+          export default classNames.bind(${JSON.stringify(classNameMap)})
+        `,
       }
     })
 

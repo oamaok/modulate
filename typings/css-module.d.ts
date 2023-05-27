@@ -1,5 +1,6 @@
+type ClassNames = string | { [key: string]: any } | ClassNames[]
+
 declare module '*.css' {
-  type ClassNames = Record<string, string>
-  const classNames: ClassNames
+  const classNames: (...args: ClassNames[]) => string
   export = classNames
 }

@@ -11,11 +11,8 @@ import { ModuleOutputs } from '../module-parts/ModuleSockets'
 import { getModuleState, setModuleState } from '../../state'
 import { ClockMessage } from '@modulate/common/types'
 
-import classNames from 'classnames/bind'
-import styles from './Clock.css'
+import css from './Clock.css'
 import Toggle from '../module-parts/Toggle'
-
-const css = classNames.bind(styles)
 
 type Props = {
   id: string

@@ -1,8 +1,5 @@
 import { h, Fragment } from 'kaiku'
-import classNames from 'classnames/bind'
-import styles from './Keyboard.css'
-
-const css = classNames.bind(styles)
+import css from './Keyboard.css'
 
 const WHITE_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 const BLACK_KEYS = ['C#', 'D#', null, 'F#', 'G#', 'A#']

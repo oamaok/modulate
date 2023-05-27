@@ -8,10 +8,7 @@ import { connectKnobToParam } from '../../modules'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
-import classNames from 'classnames/bind'
-import styles from './Sequencer.css'
-
-const css = classNames.bind(styles)
+import css from './Sequencer.css'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Keyboard from '../module-parts/Keyboard'

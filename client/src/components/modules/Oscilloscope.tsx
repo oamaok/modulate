@@ -7,10 +7,7 @@ import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
-import classNames from 'classnames/bind'
-import styles from './Oscilloscope.css'
-
-const css = classNames.bind(styles)
+import css from './Oscilloscope.css'
 
 type Props = {
   id: string

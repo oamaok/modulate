@@ -1,11 +1,7 @@
 import { h, useState, useEffect } from 'kaiku'
 import state, { getKnobValue, setKnobValue } from '../../state'
 import { Vec2 } from '@modulate/common/types'
-
-import classNames from 'classnames/bind'
-import styles from './Knob.css'
-
-const css = classNames.bind(styles)
+import css from './Knob.css'
 
 type PercentageKnob = {
   type: 'percentage'

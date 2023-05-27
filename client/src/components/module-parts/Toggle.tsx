@@ -1,8 +1,5 @@
 import { h } from 'kaiku'
-import classNames from 'classnames/bind'
-import styles from './Toggle.css'
-
-const css = classNames.bind(styles)
+import css from './Toggle.css'
 
 type Props = {
   label?: string

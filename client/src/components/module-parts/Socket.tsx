@@ -6,12 +6,8 @@ import {
   unregisterSocket,
 } from '../../sockets'
 import { Vec2 } from '@modulate/common/types'
-
-import classNames from 'classnames/bind'
-import styles from './Socket.css'
+import css from './Socket.css'
 import UtilityBox from '../utility-box/UtilityBox'
-
-const css = classNames.bind(styles)
 
 const getSocketOffset = (
   element: HTMLElement,
