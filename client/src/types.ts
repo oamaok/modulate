@@ -20,7 +20,6 @@ export type Route =
 
 export type State = {
   initialized: boolean
-  loadedWorklets: number
   viewport: {
     width: number
     height: number

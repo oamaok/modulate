@@ -13,7 +13,6 @@ import { parseRoute } from './routes'
 
 const state = createState<State>({
   initialized: false,
-  loadedWorklets: 0,
   cursor: { x: 0, y: 0 },
   viewport: { width: window.innerWidth, height: window.innerHeight },
   user: null,

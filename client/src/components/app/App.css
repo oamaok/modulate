@@ -33,21 +33,3 @@
 .init-modal button {
   margin-top: 10px;
 }
-
-.loading-bar {
-  margin-top: 10px;
-  height: 10px;
-  width: 100%;
-  box-shadow: var(--box-shadow) inset;
-  border-radius: 3px;
-  background: var(--background);
-  overflow: hidden;
-}
-
-.progress {
-  height: 100%;
-  width: 100%;
-  background-color: var(--primary);
-  transform-origin: left;
-  transition: transform 0.1s linear;
-}
