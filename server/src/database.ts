@@ -9,7 +9,7 @@ import {
   User,
   UserLogin,
   UserRegistration,
-} from '../../common/types'
+} from '@modulate/common/types'
 
 export const database = new (sqlite.verbose().Database)(
   process.env.DATABASE_FILE ??

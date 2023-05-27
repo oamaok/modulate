@@ -1,4 +1,4 @@
-import { ClockMessage, SequencerMessage } from '../../common/types'
+import { ClockMessage, SequencerMessage } from '@modulate/common/types'
 import {
   Oscillator,
   Mixer,

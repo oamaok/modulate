@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "build": "NODE_ENV=production node build.js",
     "start:client": "node build.js",
@@ -11,6 +12,12 @@
     "run-migrations": "node server/scripts/run-migrations",
     "prettier": "prettier --write ."
   },
+  "workspaces": [
+    "client",
+    "server",
+    "common",
+    "worklets"
+  ],
   "author": "Teemu Pääkkönen",
   "license": "UNLICENSED",
   "dependencies": {

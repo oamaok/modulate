@@ -93,13 +93,27 @@ const buildClient = async () => {
     recursiveCopy('./client/static', './dist/client'),
   ])
 
-  const scriptsFile = (await fs.readFile(path.join(buildDir, './index.js'))).toString('utf-8')
-  const indexFile = (await fs.readFile('./client/static/index.html')).toString('utf-8')
-  const stylesFile = (await fs.readFile(path.join(buildDir, './index.css'))).toString('utf-8')
+  const scriptsFile = (
+    await fs.readFile(path.join(buildDir, './index.js'))
+  ).toString('utf-8')
+  const indexFile = (await fs.readFile('./client/static/index.html')).toString(
+    'utf-8'
+  )
+  const stylesFile = (
+    await fs.readFile(path.join(buildDir, './index.css'))
+  ).toString('utf-8')
 
   let generatedIndex = indexFile
-  generatedIndex = replaceWithoutSpecialReplacements(generatedIndex, '{%STYLES%}', `<style>${stylesFile}</style>`)
-  generatedIndex = replaceWithoutSpecialReplacements(generatedIndex, '{%SCRIPT%}', `<script>${scriptsFile}</script>`)
+  generatedIndex = replaceWithoutSpecialReplacements(
+    generatedIndex,
+    '{%STYLES%}',
+    `<style>${stylesFile}</style>`
+  )
+  generatedIndex = replaceWithoutSpecialReplacements(
+    generatedIndex,
+    '{%SCRIPT%}',
+    `<script>${scriptsFile}</script>`
+  )
 
   await fs.writeFile('./dist/client/index.html', generatedIndex)
 

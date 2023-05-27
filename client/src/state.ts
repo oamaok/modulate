@@ -1,7 +1,7 @@
 import { createState } from 'kaiku'
 import { getSockets } from './sockets'
 import { State } from './types'
-import { Cable, ConnectedSocket, Id, Vec2 } from '../../common/types'
+import { Cable, ConnectedSocket, Id, Vec2 } from '@modulate/common/types'
 import { parseRoute } from './routes'
 
 const state = createState<State>({

@@ -1,0 +1,9 @@
+{
+  "name": "@modulate/common",
+  "version": "0.0.0",
+  "description": "",
+  "main": "src/",
+  "scripts": {},
+  "author": "Teemu Pääkkönen",
+  "license": "UNLICENSED"
+}

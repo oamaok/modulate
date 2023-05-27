@@ -9,7 +9,7 @@ import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
 import { initializeAudio } from '../../audio'
 import state, { patch } from '../../state'
-import * as types from '../../../../common/types'
+import * as types from '@modulate/common/types'
 import * as api from '../../api'
 
 const css = classNames.bind(styles)

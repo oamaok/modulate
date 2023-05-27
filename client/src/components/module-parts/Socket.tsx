@@ -5,7 +5,7 @@ import {
   registerSocket,
   unregisterSocket,
 } from '../../sockets'
-import { Vec2 } from '../../../../common/types'
+import { Vec2 } from '@modulate/common/types'
 
 import classNames from 'classnames/bind'
 import styles from './Socket.css'
@@ -76,7 +76,11 @@ const Socket = (props: Props) => {
           if (type === 'output') node.connect(UtilityBox.node, props.output)
         }}
         onMouseOut={() => {
-          if (type === 'output') node.disconnect(UtilityBox.node, props.output)
+          if (type === 'output')
+            node.disconnect(
+              UtilityBox.node as AudioNode,
+              props.output as number
+            )
         }}
       />
       <div className={css('socket-name')}>{label ?? name}</div>

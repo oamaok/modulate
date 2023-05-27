@@ -1,4 +1,4 @@
-import { User } from '../../common/types'
+import { User } from '@modulate/common/types'
 import state from './state'
 
 export const get = () => {

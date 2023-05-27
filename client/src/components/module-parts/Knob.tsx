@@ -1,6 +1,6 @@
 import { h, useState, useEffect } from 'kaiku'
 import state, { getKnobValue, setKnobValue } from '../../state'
-import { Vec2 } from '../../../../common/types'
+import { Vec2 } from '@modulate/common/types'
 
 import classNames from 'classnames/bind'
 import styles from './Knob.css'

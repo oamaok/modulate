@@ -1,4 +1,4 @@
-import { Modules } from '../../worklets/src/modules'
+import { Modules } from '@modulate/worklets/src/modules'
 
 type WorkletName = Modules['name']
 type WorkletParameterDescriptors<T extends WorkletName> = Extract<

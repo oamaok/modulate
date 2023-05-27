@@ -1,6 +1,6 @@
 import { h, useState, useEffect } from 'kaiku'
 import state, { getKnobValue, setKnobValue } from '../../state'
-import { Id, Vec2 } from '../../../../common/types'
+import { Id, Vec2 } from '@modulate/common/types'
 
 import classNames from 'classnames/bind'
 import styles from './Slider.css'

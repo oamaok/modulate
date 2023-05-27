@@ -4,7 +4,7 @@ import {
   PatchMetadata,
   UserLogin,
   UserRegistration,
-} from '../../common/types'
+} from '@modulate/common/types'
 
 type Method = 'GET' | 'POST'
 type Options = {

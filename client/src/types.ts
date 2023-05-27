@@ -5,7 +5,7 @@ import {
   PatchMetadata,
   ConnectedSocket,
   User,
-} from '../../common/types'
+} from '@modulate/common/types'
 
 export interface IModule {}
 

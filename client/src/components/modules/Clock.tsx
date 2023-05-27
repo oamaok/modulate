@@ -9,7 +9,7 @@ import { connectKnobToParam } from '../../modules'
 
 import { ModuleOutputs } from '../module-parts/ModuleSockets'
 import { getModuleState, setModuleState } from '../../state'
-import { ClockMessage } from '../../../../common/types'
+import { ClockMessage } from '@modulate/common/types'
 
 import classNames from 'classnames/bind'
 import styles from './Clock.css'

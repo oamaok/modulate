@@ -1,12 +1,7 @@
 import { h, Component, useEffect } from 'kaiku'
-import { IModule } from '../../types'
 import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
-import { getKnobValue, getModuleKnobs } from '../../state'
-import Socket from '../module-parts/Socket'
-import Module from '../module-parts/Module'
+import { getKnobValue } from '../../state'
 import Knob from '../module-parts/Knob'
-import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import classNames from 'classnames/bind'
 import styles from './UtilityBox.css'
 

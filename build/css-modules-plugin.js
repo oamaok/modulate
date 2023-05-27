@@ -128,7 +128,12 @@ const CssModulesPlugin = () => ({
           },
           generateScopedName(name) {
             if (!classNames[filePath][name]) {
-              classNames[filePath][name] = nextName()
+              if (process.env.NODE_ENV === 'production') {
+                classNames[filePath][name] = nextName()
+              } else {
+                const moduleName = filePath.split('/').pop().split('.')[0]
+                classNames[filePath][name] = `${moduleName}__${name}`
+              }
             }
 
             const scopedName = classNames[filePath][name]

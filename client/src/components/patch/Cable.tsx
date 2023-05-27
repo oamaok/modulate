@@ -1,7 +1,7 @@
 import { h, useEffect } from 'kaiku'
 import { getRegisteredSocket, getSockets } from '../../sockets'
 import { getSocketPosition } from '../../state'
-import { ConnectedSocket } from '../../../../common/types'
+import { ConnectedSocket } from '@modulate/common/types'
 import CablePath from './CablePath'
 import UtilityBox from '../utility-box/UtilityBox'
 
@@ -48,11 +48,14 @@ const Cable = ({ from, to }: Props) => {
       if (inputSocket.node instanceof AudioNode) {
         outputSocket.node.disconnect(
           inputSocket.node,
-          outputSocket.output,
-          inputSocket.input
+          outputSocket.output as number,
+          inputSocket.input as number
         )
       } else {
-        outputSocket.node.disconnect(inputSocket.node, outputSocket.output)
+        outputSocket.node.disconnect(
+          inputSocket.node,
+          outputSocket.output as number
+        )
       }
     }
   })
@@ -68,11 +71,16 @@ const Cable = ({ from, to }: Props) => {
       to={toPos}
       onHover={() => {
         const outputSocket = getRegisteredSocket(from.moduleId, from.name)
-        outputSocket.node.connect(UtilityBox.node, outputSocket.output)
+        if (outputSocket.type === 'output')
+          outputSocket.node.connect(UtilityBox.node, outputSocket.output)
       }}
       onBlur={() => {
         const outputSocket = getRegisteredSocket(from.moduleId, from.name)
-        outputSocket.node.disconnect(UtilityBox.node, outputSocket.output)
+        if (outputSocket.type === 'output')
+          outputSocket.node.disconnect(
+            UtilityBox.node as AudioNode,
+            outputSocket.output as number
+          )
       }}
     />
   )

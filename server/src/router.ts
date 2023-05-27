@@ -5,7 +5,7 @@ import * as t from 'io-ts'
 import * as auth from './authorization'
 import * as logger from './logger'
 import mimeTypes from './mime-types'
-import { User } from '../../common/types'
+import { User } from '@modulate/common/types'
 
 type RouterChain = ((
   req: http.IncomingMessage,

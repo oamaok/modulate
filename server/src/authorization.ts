@@ -2,8 +2,8 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import fs from 'fs'
 import path from 'path'
-import * as validators from '../../common/validators'
-import { User } from '../../common/types'
+import * as validators from '@modulate/common/validators'
+import { User } from '@modulate/common/types'
 
 const keyFile =
   process.env.JWT_KEY_FILE ?? path.resolve(__dirname, '../../data/jwt.key')

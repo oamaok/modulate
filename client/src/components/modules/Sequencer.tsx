@@ -1,4 +1,5 @@
 import { h, Component, useEffect } from 'kaiku'
+import * as util from '@modulate/common/util'
 import { IModule } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
@@ -14,21 +15,7 @@ const css = classNames.bind(styles)
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Keyboard from '../module-parts/Keyboard'
-import { SequencerMessage } from '../../../../common/types'
-
-function splitEvery<T>(arr: T[], num: number): T[][] {
-  const res: T[][] = []
-
-  for (let i = 0; i < arr.length; i++) {
-    const mod = i % num
-    if (mod === 0) {
-      res.push([])
-    }
-    res[res.length - 1].push(arr[i])
-  }
-
-  return res
-}
+import { SequencerMessage } from '@modulate/common/types'
 
 type Props = {
   id: string
@@ -157,7 +144,7 @@ class Sequencer
     const moduleState = getModuleState<SequencerState>(id)
     const { editing, notes, sequenceLength } = moduleState
 
-    const groupedNotes = splitEvery(splitEvery(notes, 4), 4)
+    const groupedNotes = util.splitEvery(util.splitEvery(notes, 4), 4)
 
     return (
       <Module id={id} name="Sequencer" width={340} height={200}>

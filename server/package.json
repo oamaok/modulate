@@ -1,0 +1,12 @@
+{
+  "name": "@modulate/server",
+  "version": "0.0.0",
+  "description": "",
+  "main": "src/",
+  "scripts": {},
+  "author": "Teemu Pääkkönen",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@modulate/common": "0.0.0"
+  }
+}
