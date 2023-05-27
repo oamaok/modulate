@@ -1,5 +1,6 @@
 const fs = require('fs/promises')
 const path = require('path')
+const os = require('os')
 const esbuild = require('esbuild')
 const chokidar = require('chokidar')
 const terser = require('terser')
@@ -59,6 +60,7 @@ const recursiveCopy = async (srcDir, destDir) => {
   }
 }
 
+const buildDir = fs.mkdtemp(path.join(os.tmpdir(), 'modulate-'))
 const buildClient = async () => {
   console.time('Build client')
 
@@ -66,7 +68,7 @@ const buildClient = async () => {
     esbuild.build({
       entryPoints: ['./client/src/index.tsx'],
       bundle: true,
-      outdir: './dist/client/assets',
+      outdir: await buildDir,
       incremental: true,
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
@@ -79,6 +81,16 @@ const buildClient = async () => {
     }),
     recursiveCopy('./client/static', './dist/client'),
   ])
+
+  const indexFile = await fs.readFile('./client/static/index.html')
+  const scriptsFile = await fs.readFile(path.join(await buildDir, './index.js'))
+  const stylesFile = await fs.readFile(path.join(await buildDir, './index.css'))
+
+  const generatedIndex = indexFile.toString('utf-8')
+    .replace('{%STYLES%}', `<style>${stylesFile.toString('utf-8')}</style>`)
+    .replace('{%SCRIPT%}', `<script>${scriptsFile.toString('utf-8')}</script>`)
+  
+  await fs.writeFile('./dist/client/index.html', generatedIndex)
 
   console.timeEnd('Build client')
 }
