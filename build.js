@@ -93,9 +93,26 @@ const buildClient = async () => {
     recursiveCopy('./client/static', './dist/client'),
   ])
 
-  const scriptsFile = (
-    await fs.readFile(path.join(buildDir, './index.js'))
-  ).toString('utf-8')
+  const scriptsPath = path.join(buildDir, './index.js')
+
+  if (isProduction) {
+    await terser
+      .minify((await fs.readFile(scriptsPath)).toString(), {
+        sourceMap: false,
+        compress: {
+          passes: 3,
+          inline: false,
+          unsafe: true,
+          booleans_as_integers: true,
+        },
+        mangle: {
+          toplevel: true,
+        },
+      })
+      .then((minified) => fs.writeFile(scriptsPath, minified.code))
+  }
+
+  const scriptsFile = (await fs.readFile(scriptsPath)).toString('utf-8')
   const indexFile = (await fs.readFile('./client/static/index.html')).toString(
     'utf-8'
   )
@@ -117,7 +134,7 @@ const buildClient = async () => {
 
   await fs.writeFile('./dist/client/index.html', generatedIndex)
 
-  await fs.rmdir(buildDir, { recursive: true, force: true })
+  await fs.rm(buildDir, { recursive: true, force: true })
 
   console.timeEnd('Build client')
 }
