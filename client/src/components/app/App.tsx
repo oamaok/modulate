@@ -8,7 +8,6 @@ import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
 import { initializeAudio } from '../../audio'
 import state, { loadPatch, patch } from '../../state'
-import * as types from '@modulate/common/types'
 import * as api from '../../api'
 
 const loadSaveState = async () => {

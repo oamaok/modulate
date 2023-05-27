@@ -180,7 +180,7 @@ const router = (): RouterChain => {
       send: res.write.bind(res),
       end: () => {
         logger.info(
-          `${req.socket.remoteAddress} ${req.method} ${url.pathname} [${res.statusCode}]`
+          `${req.headers['X-Real-IP'] ?? req.socket.remoteAddress} ${req.method} ${url.pathname} [${res.statusCode}]`
         )
         res.end()
       },
