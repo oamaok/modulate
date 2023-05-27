@@ -7,108 +7,16 @@ const cssnano = require('cssnano')
 const classNames = {}
 
 let currentId = 0
-
-const emoji = [
-  '😀',
-  '😃',
-  '😄',
-  '😁',
-  '😆',
-  '😅',
-  '🤣',
-  '😂',
-  '🙂',
-  '🙃',
-  '😉',
-  '😊',
-  '😇',
-  '🥰',
-  '😍',
-  '🤩',
-  '😘',
-  '😗',
-  '😚',
-  '😙',
-  '🥲',
-  '😋',
-  '😛',
-  '😜',
-  '🤪',
-  '😝',
-  '🤑',
-  '🤗',
-  '🤭',
-  '🤫',
-  '🤔',
-  '🤐',
-  '🤨',
-  '😐',
-  '😑',
-  '😶',
-  '😏',
-  '😒',
-  '🙄',
-  '😬',
-  '🤥',
-  '😌',
-  '😔',
-  '😪',
-  '🤤',
-  '😴',
-  '😷',
-  '🤒',
-  '🤕',
-  '🤢',
-  '🤮',
-  '🤧',
-  '🥵',
-  '🥶',
-  '🥴',
-  '😵',
-  '🤯',
-  '🤠',
-  '🥳',
-  '🥸',
-  '😎',
-  '🤓',
-  '🧐',
-  '😕',
-  '😟',
-  '🙁',
-  '😮',
-  '😯',
-  '😲',
-  '😳',
-  '🥺',
-  '😦',
-  '😧',
-  '😨',
-  '😰',
-  '😥',
-  '😢',
-  '😭',
-  '😱',
-  '😖',
-  '😣',
-  '😞',
-  '😓',
-  '😩',
-  '😫',
-  '🥱',
-  '😤',
-  '😡',
-  '😠',
-  '🤬',
-]
+const charset = 'modulateMODULATE'
 
 const nextName = () => {
   let id = currentId++
   let name = ''
   for (;;) {
-    const mod = id % emoji.length
-    name += emoji[mod]
-    if (id < emoji.length) return name
-    id = (id - mod) / emoji.length - 1
+    const mod = id % charset.length
+    name += charset[mod]
+    if (id < charset.length) return name
+    id = (id - mod) / charset.length - 1
   }
 }
 
@@ -147,7 +55,7 @@ const CssModulesPlugin = () => ({
       return {
         contents: `
           import classNames from '@modulate/client/src/classNames'
-          export default classNames.bind(${JSON.stringify(classNameMap)})
+          export default classNames(${JSON.stringify(classNameMap)})
         `,
       }
     })

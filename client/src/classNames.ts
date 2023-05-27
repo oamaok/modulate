@@ -1,2 +1,28 @@
-import classNames from 'classnames/bind'
+type ClassNames = string | { [key: string]: any } | ClassNames[]
+
+const classNames = (nameMap: Record<string, string>) => {
+  const stringifyClassNames = (...args: ClassNames[]): string => {
+    let className = ''
+    for (let names of args) {
+      if (typeof names === 'string') {
+        className += (nameMap[names] ?? names) + ' '
+        continue
+      }
+
+      if (Array.isArray(names)) {
+        for (const name of names) {
+          className += stringifyClassNames(name) + ' '
+        }
+        continue
+      }
+
+      for (const key in names) {
+        if (names[key]) className += key + ' '
+      }
+    }
+    return className.trim()
+  }
+  return stringifyClassNames
+}
+
 export default classNames

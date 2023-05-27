@@ -4,7 +4,6 @@ import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
 import css from './Header.css'
 import * as api from '../../api'
 
-
 const Menu = () => {
   const savePatch = async () => {
     const res = await api.savePatch(state.patchMetadata, patch)
