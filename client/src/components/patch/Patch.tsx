@@ -11,7 +11,8 @@ const Patch = () => {
       <Cables />
       <div
         style={{
-          transform: `translate(${state.viewOffset.x}px, ${state.viewOffset.y}px)`,
+          transform: () =>
+            `translate(${state.viewOffset.x}px, ${state.viewOffset.y}px)`,
         }}
       >
         {Object.keys(patch.modules).map((id: string) => {
