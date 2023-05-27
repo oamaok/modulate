@@ -17,7 +17,7 @@ const classNames = (nameMap: Record<string, string>) => {
       }
 
       for (const key in names) {
-        if (names[key]) className += key + ' '
+        if (names[key]) className += nameMap[key] + ' '
       }
     }
     return className.trim()
