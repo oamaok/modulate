@@ -60,15 +60,26 @@ const recursiveCopy = async (srcDir, destDir) => {
   }
 }
 
-const buildDir = fs.mkdtemp(path.join(os.tmpdir(), 'modulate-'))
+// The JS source might include dollar signs, and in one special case a combination of '$&'.
+// This causes the embedded source file to include the string intended to be replaced,
+// which broke the whole thing.
+const replaceWithoutSpecialReplacements = (string, pattern, replacement) => {
+  const index = string.indexOf(pattern)
+  const beforeSlice = string.substring(0, index)
+  const afterSlice = string.substring(index + pattern.length)
+  return `${beforeSlice}${replacement}${afterSlice}`
+}
+
 const buildClient = async () => {
   console.time('Build client')
+
+  const buildDir = await fs.mkdtemp(path.join(os.tmpdir(), 'modulate-'))
 
   await Promise.all([
     esbuild.build({
       entryPoints: ['./client/src/index.tsx'],
       bundle: true,
-      outdir: await buildDir,
+      outdir: buildDir,
       incremental: true,
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
@@ -82,15 +93,17 @@ const buildClient = async () => {
     recursiveCopy('./client/static', './dist/client'),
   ])
 
-  const indexFile = await fs.readFile('./client/static/index.html')
-  const scriptsFile = await fs.readFile(path.join(await buildDir, './index.js'))
-  const stylesFile = await fs.readFile(path.join(await buildDir, './index.css'))
+  const scriptsFile = (await fs.readFile(path.join(buildDir, './index.js'))).toString('utf-8')
+  const indexFile = (await fs.readFile('./client/static/index.html')).toString('utf-8')
+  const stylesFile = (await fs.readFile(path.join(buildDir, './index.css'))).toString('utf-8')
 
-  const generatedIndex = indexFile.toString('utf-8')
-    .replace('{%STYLES%}', `<style>${stylesFile.toString('utf-8')}</style>`)
-    .replace('{%SCRIPT%}', `<script>${scriptsFile.toString('utf-8')}</script>`)
-  
+  let generatedIndex = indexFile
+  generatedIndex = replaceWithoutSpecialReplacements(generatedIndex, '{%STYLES%}', `<style>${stylesFile}</style>`)
+  generatedIndex = replaceWithoutSpecialReplacements(generatedIndex, '{%SCRIPT%}', `<script>${scriptsFile}</script>`)
+
   await fs.writeFile('./dist/client/index.html', generatedIndex)
+
+  await fs.rmdir(buildDir, { recursive: true, force: true })
 
   console.timeEnd('Build client')
 }
