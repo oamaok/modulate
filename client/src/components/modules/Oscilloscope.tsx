@@ -43,19 +43,19 @@ class Oscilloscope extends Component<Props> implements IModule {
     const context = canvas.getContext('2d')!
 
     const len = QUANTUM_SIZE * LENGTH
-    const offset = (this.buffer[this.buffer.length - 1] + 128) % len
+    const offset = (this.buffer[this.buffer.length - 1]! + 128) % len
 
     context.fillStyle = `rgba(10, 10, 10, 0.5)`
     context.strokeStyle = '#00d115'
     context.fillRect(0, 0, 200, 200)
     context.beginPath()
-    context.moveTo(0, this.buffer[offset] * 100 + 100)
+    context.moveTo(0, this.buffer[offset]! * 100 + 100)
     context.lineWidth = 1
 
     for (let i = 1; i < len; i += 20) {
       context.lineTo(
         (200 / len) * i,
-        -this.buffer[(offset + i) % len] *
+        -this.buffer[(offset + i) % len]! *
           100 *
           getKnobValue(this.props.id, 'scale')! +
           100

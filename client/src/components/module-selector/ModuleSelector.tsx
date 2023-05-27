@@ -43,7 +43,7 @@ const ModuleSelector = () => {
             filterRef.current!.blur()
             selectorState.open = false
 
-            addModule(moduleNames[0])
+            addModule(moduleNames[0]!)
           }
         }
       }

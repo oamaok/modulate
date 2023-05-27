@@ -7,6 +7,7 @@ import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import assert from '../../assert'
 
 type Props = {
   id: string
@@ -26,6 +27,7 @@ class Gain extends Component<Props> implements IModule {
       const knobs = getModuleKnobs(props.id)
 
       if (knobs) {
+        assert?.(typeof knobs.gain !== 'undefined')
         level.setTargetAtTime(knobs.gain, audioContext.currentTime, 0.01)
       }
     })

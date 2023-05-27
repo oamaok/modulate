@@ -54,8 +54,8 @@ class BouncyBoi extends Component<Props> implements IModule {
     for (let i = 0; i < 6; i += 2) {
       context.beginPath()
       context.arc(
-        state[i] * 0.5 + 75,
-        state[i + 1] * 0.5 + 75,
+        state[i]! * 0.5 + 75,
+        state[i + 1]! * 0.5 + 75,
         5,
         0,
         Math.PI * 2
@@ -67,13 +67,13 @@ class BouncyBoi extends Component<Props> implements IModule {
 
     for (let i = 0; i < 5; i++) {
       const from = {
-        x: Math.sin((i * Math.PI * 2) / 5 + phase) * 50 + 75,
-        y: Math.cos((i * Math.PI * 2) / 5 + phase) * 50 + 75,
+        x: Math.sin((i * Math.PI * 2) / 5 + phase!) * 50 + 75,
+        y: Math.cos((i * Math.PI * 2) / 5 + phase!) * 50 + 75,
       }
 
       const to = {
-        x: Math.sin(((i + 1) * Math.PI * 2) / 5 + phase) * 50 + 75,
-        y: Math.cos(((i + 1) * Math.PI * 2) / 5 + phase) * 50 + 75,
+        x: Math.sin(((i + 1) * Math.PI * 2) / 5 + phase!) * 50 + 75,
+        y: Math.cos(((i + 1) * Math.PI * 2) / 5 + phase!) * 50 + 75,
       }
       context.beginPath()
       context.moveTo(from.x, from.y)

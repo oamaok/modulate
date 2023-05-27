@@ -4,6 +4,7 @@ import { moduleMap } from '../../moduleMap'
 import Cables from './Cables'
 
 import css from './Patch.css'
+import assert from '../../assert'
 
 const Patch = () => {
   return (
@@ -16,8 +17,10 @@ const Patch = () => {
         }}
       >
         {Object.keys(patch.modules).map((id: string) => {
+          const module = patch.modules[id]
+          assert?.(module)
           const Component: any =
-            moduleMap[patch.modules[id].name as keyof typeof moduleMap]
+            moduleMap[module.name as keyof typeof moduleMap]
           return <Component key={id} id={id} />
         })}
       </div>

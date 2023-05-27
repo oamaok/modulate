@@ -36,9 +36,16 @@ const server = http.createServer(
       res.end()
     })
     .get('/api/user/availability', async (req, res) => {
+      const { email, username } = req.query
+
+      if (!email || !username) {
+        badRequest(res)
+        return
+      }
+
       res.json({
-        email: await db.isEmailAvailable(req.query.email),
-        username: await db.isUsernameAvailable(req.query.username),
+        email: await db.isEmailAvailable(email),
+        username: await db.isUsernameAvailable(username),
       })
       res.end()
     })
@@ -77,6 +84,12 @@ const server = http.createServer(
     })
     .get('/api/user/:userId/patches', async (req, res) => {
       const { userId } = req.parameters
+
+      if (!userId) {
+        badRequest(res)
+        return
+      }
+
       const patches = await db.getUserPatches(userId)
 
       res.json(patches)
@@ -84,6 +97,12 @@ const server = http.createServer(
     })
     .get('/api/patch/:patchId/latest', async (req, res) => {
       const { patchId } = req.parameters
+
+      if (!patchId) {
+        badRequest(res)
+        return
+      }
+
       const patch = await db.getLatestPatchVersion(patchId)
 
       res.json(patch)
@@ -91,6 +110,12 @@ const server = http.createServer(
     })
     .get('/api/patch/:id/:version', async (req, res) => {
       const { patchId, version } = req.parameters
+
+      if (!patchId || !version) {
+        badRequest(res)
+        return
+      }
+
       const patch = await db.getPatchVersion(patchId, parseInt(version))
 
       res.json(patch)

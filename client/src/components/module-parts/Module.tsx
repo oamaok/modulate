@@ -2,6 +2,7 @@ import { h, useState, useEffect, FC } from 'kaiku'
 import state, { getModulePosition } from '../../state'
 import { Id, Vec2 } from '@modulate/common/types'
 import css from './Module.css'
+import assert from '../../assert'
 
 type Props = {
   id: Id
@@ -43,7 +44,10 @@ const Module: FC<Props> = ({
 
   useEffect(() => {
     if (moduleState.dragPosition) {
-      const modulePosition = state.patch.modules[id].position
+      const module = state.patch.modules[id]
+      assert?.(module)
+
+      const modulePosition = module.position
       modulePosition.x += state.cursor.x - moduleState.dragPosition.x
       modulePosition.y += state.cursor.y - moduleState.dragPosition.y
       moduleState.dragPosition.x = state.cursor.x

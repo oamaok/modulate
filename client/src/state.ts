@@ -10,6 +10,7 @@ import {
   Vec2,
 } from '@modulate/common/types'
 import { parseRoute } from './routes'
+import assert from './assert'
 
 const state = createState<State>({
   initialized: false,
@@ -84,26 +85,34 @@ export const addModule = (name: string) => {
 }
 
 export const setModuleState = (id: Id, moduleState: any) => {
-  patch.modules[id].state = moduleState
+  const module = patch.modules[id]
+  assert?.(module)
+  module.state = moduleState
 }
 
 export const getModuleState = <T>(id: Id): T => {
-  return patch.modules[id].state as T
+  const module = patch.modules[id]
+  assert?.(module)
+  return module.state as T
 }
 
 export const getModulePosition = (id: Id) => {
-  return patch.modules[id].position
+  const module = patch.modules[id]
+  assert?.(module)
+  return module.position
 }
 
 export const setModulePosition = (id: Id, position: Vec2) => {
-  patch.modules[id].position = position
+  const module = patch.modules[id]
+  assert?.(module)
+  module.position = position
 }
 
 export const setSocketPosition = (moduleId: Id, name: string, pos: Vec2) => {
   if (!socketPositions[moduleId]) {
     socketPositions[moduleId] = {}
   }
-  socketPositions[moduleId][name] = pos
+  socketPositions[moduleId]![name] = pos
 }
 
 export const getSocketPosition = ({
@@ -120,6 +129,8 @@ export const getSocketPosition = ({
 
   const modulePosition = getModulePosition(moduleId)
   const socketOffset = moduleSockets[name]
+
+  assert?.(socketOffset)
 
   return {
     x: modulePosition.x + socketOffset.x,
@@ -144,7 +155,7 @@ export const setKnobValue = (moduleId: Id, name: string, value: number) => {
   if (!patch.knobs[moduleId]) {
     patch.knobs[moduleId] = {}
   }
-  patch.knobs[moduleId][name] = value
+  patch.knobs[moduleId]![name] = value
 }
 
 const cableConnectsToSocket = (

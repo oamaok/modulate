@@ -70,6 +70,12 @@ type GetRoute = {
   callback: Callback
 }
 
+type RouteMatch = {
+  route: Route
+  parameters: Record<string, string>
+  wildcardMatch: string
+}
+
 export const serverStatic = (staticPath: string): GetCallback => {
   return async (req, res) => {
     const isDirectory = (await stat(staticPath)).isDirectory()
@@ -126,8 +132,8 @@ const parseQuery = (queryString: string): Record<string, string> => {
   const res: Record<string, string> = {}
 
   for (const [key, value] of queryString.split('&').map((part) => {
-    const [key, value] = part.split('=')
-    return [key, decodeURIComponent(value)]
+    const [key, value] = part.split('=') as [string, string]
+    return [key, decodeURIComponent(value)] as [string, string]
   })) {
     res[key] = value
   }
@@ -180,21 +186,19 @@ const router = (): RouterChain => {
       send: res.write.bind(res),
       end: () => {
         logger.info(
-          `${req.headers['X-Real-IP'] ?? req.socket.remoteAddress} ${req.method} ${url.pathname} [${res.statusCode}]`
+          `${req.headers['X-Real-IP'] ?? req.socket.remoteAddress} ${
+            req.method
+          } ${url.pathname} [${res.statusCode}]`
         )
         res.end()
       },
       header: res.setHeader.bind(res),
     }
 
-    let matchingRoutes: {
-      route: Route
-      parameters: Record<string, string>
-      wildcardMatch: string
-    }[] = []
+    let matchingRoutes: RouteMatch[] = []
 
     for (let i = 0; i < routes.length; i++) {
-      const route = routes[i]
+      const route = routes[i] as Route
 
       if (route.method !== req.method) {
         continue
@@ -205,7 +209,7 @@ const router = (): RouterChain => {
       const parameters: Record<string, string> = {}
 
       for (let j = 0; j < route.segments.length; j++) {
-        const routeSegment = route.segments[j]
+        const routeSegment = route.segments[j] as Segment
 
         if (routeSegment.type === 'wildcard') {
           wildcardMatch = segments
@@ -221,7 +225,7 @@ const router = (): RouterChain => {
         }
 
         if (routeSegment.type === 'parameter') {
-          parameters[routeSegment.name] = segments[j]
+          parameters[routeSegment.name] = segments[j] as string
           continue
         }
         if (routeSegment.name !== segments[j]) {
@@ -249,14 +253,14 @@ const router = (): RouterChain => {
     matchingRoutes.sort(
       (a, b) => b.route.segments.length - a.route.segments.length
     )
-    const match = matchingRoutes[0]
+    const match = matchingRoutes[0] as RouteMatch
     const route = match.route
 
     let authorization: Request['authorization'] = null
 
     if (req.headers.authorization) {
       const [type, token] = req.headers.authorization.split(' ')
-      if (type === 'Bearer') {
+      if (type === 'Bearer' && token) {
         authorization = auth.verifyToken(token)
       }
     }

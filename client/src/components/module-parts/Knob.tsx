@@ -2,6 +2,7 @@ import { h, useState, useEffect } from 'kaiku'
 import state, { getKnobValue, setKnobValue } from '../../state'
 import { Vec2 } from '@modulate/common/types'
 import css from './Knob.css'
+import assert from '../../assert'
 
 type PercentageKnob = {
   type: 'percentage'
@@ -70,7 +71,7 @@ const getInitialValue = (props: Props): number => {
       if (typeof props.options[0] === 'string') {
         return clamp(knobValue ?? props.initial ?? 0, 0, props.options.length)
       } else {
-        return knobValue ?? props.initial ?? props.options[0].value
+        return knobValue ?? props.initial ?? props.options[0]!.value
       }
     }
   }
@@ -119,11 +120,11 @@ const setNormalizedKnobValue = (value: number, props: Props) => {
           Math.round(value * props.options.length)
         )
       } else {
-        setKnobValue(
-          props.moduleId,
-          props.id,
-          props.options[Math.round(value * props.options.length)].value
-        )
+        const option = props.options[Math.round(value * props.options.length)]
+
+        assert?.(option)
+
+        setKnobValue(props.moduleId, props.id, option.value)
       }
       break
     }

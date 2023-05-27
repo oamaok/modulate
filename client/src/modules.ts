@@ -1,6 +1,7 @@
 import { useEffect } from 'kaiku'
 import { getModuleKnobs } from './state'
 import { getAudioContext } from './audio'
+import assert from './assert'
 
 export const connectKnobToParam = (
   moduleId: string,
@@ -11,7 +12,9 @@ export const connectKnobToParam = (
     const knobs = getModuleKnobs(moduleId)
 
     if (knobs) {
-      param.setTargetAtTime(knobs[knob], getAudioContext().currentTime, 0.001)
+      const knobValue = knobs[knob]
+      assert?.(typeof knobValue !== 'undefined')
+      param.setTargetAtTime(knobValue, getAudioContext().currentTime, 0.001)
     }
   })
 }

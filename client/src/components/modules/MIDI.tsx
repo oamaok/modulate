@@ -25,9 +25,10 @@ class MIDI extends Component<Props> implements IModule {
     navigator.requestMIDIAccess().then((midiAccess) => {
       midiAccess.inputs.forEach((entry) => {
         entry.onmidimessage = (msg) => {
+          const midiEvent = msg as MIDIMessageEvent
           let data = 0
-          for (let i = 0; i < msg.data.length; i++) {
-            data |= msg.data[i] << (i * 8)
+          for (let i = 0; i < midiEvent.data.length; i++) {
+            data |= midiEvent.data[i]! << (i * 8)
           }
 
           this.node.port.postMessage(data)

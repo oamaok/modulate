@@ -13,6 +13,7 @@ import css from './Sequencer.css'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Keyboard from '../module-parts/Keyboard'
 import { SequencerMessage } from '@modulate/common/types'
+import assert from '../../assert'
 
 type Props = {
   id: string
@@ -120,6 +121,8 @@ class Sequencer
 
       if (knobs) {
         const { sequenceLength } = knobs
+        assert?.(typeof sequenceLength !== 'undefined')
+
         getModuleState<SequencerState>(props.id).sequenceLength = sequenceLength
       }
     })
@@ -173,18 +176,18 @@ class Sequencer
               {OCTAVES.map((oct) => (
                 <button
                   onClick={() => {
-                    notes[editing].octave = oct
+                    notes[editing]!.octave = oct
                   }}
                   className={css('indicator', {
-                    on: notes[editing].octave === oct,
+                    on: notes[editing]!.octave === oct,
                   })}
                 />
               ))}
             </div>
             <Keyboard
-              note={notes[editing].name}
+              note={notes[editing]!.name}
               onChange={(note) => {
-                notes[editing].name = note as NoteName
+                notes[editing]!.name = note as NoteName
               }}
             />
             <Knob
@@ -212,19 +215,19 @@ class Sequencer
             Gate
             <button
               className={css('indicator', {
-                on: notes[editing].gate,
+                on: notes[editing]!.gate,
               })}
               onClick={() => {
-                notes[editing].gate = !notes[editing].gate
+                notes[editing]!.gate = !notes[editing]!.gate
               }}
             />
             Glide
             <button
               className={css('indicator', {
-                on: notes[editing].glide,
+                on: notes[editing]!.glide,
               })}
               onClick={() => {
-                notes[editing].glide = !notes[editing].glide
+                notes[editing]!.glide = !notes[editing]!.glide
               }}
             />
           </div>

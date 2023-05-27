@@ -42,7 +42,8 @@ class UtilityBox extends Component<{}> {
     const context = canvas.getContext('2d')!
 
     const len = QUANTUM_SIZE * LENGTH
-    const offset = (UtilityBox.buffer[UtilityBox.buffer.length - 1] + 128) % len
+    const offset =
+      (UtilityBox.buffer[UtilityBox.buffer.length - 1]! + 128) % len
 
     const scale = getKnobValue('utility-box', 'scale')!
     const length = getKnobValue('utility-box', 'length')!
@@ -63,12 +64,12 @@ class UtilityBox extends Component<{}> {
     context.beginPath()
     context.moveTo(
       0,
-      -UtilityBox.buffer[offset + startOffset] * 100 * scale + yOffset
+      -UtilityBox.buffer[offset + startOffset]! * 100 * scale + yOffset
     )
     context.lineWidth = 2
 
     for (let i = 1 + startOffset; i < len; i++) {
-      const sample = UtilityBox.buffer[(offset + i) % len]
+      const sample = UtilityBox.buffer[(offset + i) % len]!
 
       context.lineTo(
         (WIDTH / (len * length)) * (i - startOffset),
