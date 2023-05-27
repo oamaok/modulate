@@ -1,7 +1,14 @@
 import { createState } from 'kaiku'
 import { getSockets, disconnectSockets, connectSockets } from './sockets'
 import { State } from './types'
-import { Cable, ConnectedSocket, Id, Patch, PatchMetadata, Vec2 } from '@modulate/common/types'
+import {
+  Cable,
+  ConnectedSocket,
+  Id,
+  Patch,
+  PatchMetadata,
+  Vec2,
+} from '@modulate/common/types'
 import { parseRoute } from './routes'
 
 const state = createState<State>({
@@ -50,10 +57,7 @@ window.addEventListener('resize', () => {
   viewport.height = window.innerHeight
 })
 
-export const loadPatch = async (
-  metadata: PatchMetadata,
-  savedPatch: Patch
-) => {
+export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   const { currentId, modules, knobs, cables } = savedPatch
   state.patchMetadata = metadata
   patch.knobs = knobs
@@ -254,8 +258,6 @@ export const releaseActiveCable = () => {
 }
 
 export const deleteModule = async (id: string) => {
-  console.log('delete module', id)
-
   const cablesToDisconnect = state.patch.cables.filter(
     (cable) => cable.from.moduleId === id || cable.to.moduleId === id
   )

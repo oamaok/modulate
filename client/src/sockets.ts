@@ -31,7 +31,9 @@ export const getRegisteredSocket = (
   )
 
   if (!socket) {
-    throw new Error(`could not find socket for module ${moduleId}:${socketName}`)
+    throw new Error(
+      `could not find socket for module ${moduleId}:${socketName}`
+    )
   }
 
   return socket

@@ -21,7 +21,6 @@ const Cable = ({ from, to }: Props) => {
       from={fromPos}
       to={toPos}
       onHover={() => {
-        console.log(from, to)
         const outputSocket = getRegisteredSocket(from.moduleId, from.name)
         if (outputSocket.type === 'output')
           outputSocket.node.connect(UtilityBox.node, outputSocket.output)
