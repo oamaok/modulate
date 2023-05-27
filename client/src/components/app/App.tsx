@@ -8,7 +8,7 @@ import ModuleSelector from '../module-selector/ModuleSelector'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
 import { initializeAudio } from '../../audio'
-import state, { patch } from '../../state'
+import state, { loadPatch, patch } from '../../state'
 import * as types from '@modulate/common/types'
 import * as api from '../../api'
 
@@ -46,20 +46,6 @@ const initialize = async () => {
       break
     }
   }
-}
-
-const loadPatch = async (
-  metadata: types.PatchMetadata,
-  savedPatch: types.Patch
-) => {
-  const { currentId, modules, knobs, cables } = savedPatch
-  state.patchMetadata = metadata
-  patch.knobs = knobs
-  patch.currentId = currentId
-  patch.modules = modules
-  state.initialized = true
-  await new Promise((resolve) => requestAnimationFrame(resolve))
-  patch.cables = cables
 }
 
 const InitModal = () => {

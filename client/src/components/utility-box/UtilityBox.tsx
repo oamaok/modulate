@@ -11,7 +11,7 @@ const QUANTUM_SIZE = 128
 const LENGTH = 128
 const WIDTH = 300
 
-class UtilityBox extends Component {
+class UtilityBox extends Component<{}> {
   static node: AudioWorkletNode
   static buffer: Float32Array
 

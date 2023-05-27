@@ -11,55 +11,6 @@ type Props = {
 }
 
 const Cable = ({ from, to }: Props) => {
-  useEffect(() => {
-    const outputSocket = getRegisteredSocket(from.moduleId, from.name)
-    const inputSocket = getRegisteredSocket(to.moduleId, to.name)
-
-    if (outputSocket.type === 'input') {
-      throw new Error('invalid outputSocket type')
-    }
-
-    if (inputSocket.type === 'output') {
-      throw new Error('invalid inputSocket type')
-    }
-
-    if (inputSocket.node instanceof AudioNode) {
-      outputSocket.node.connect(
-        inputSocket.node,
-        outputSocket.output,
-        inputSocket.input
-      )
-    } else {
-      outputSocket.node.connect(inputSocket.node, outputSocket.output)
-    }
-
-    return () => {
-      const outputSocket = getRegisteredSocket(from.moduleId, from.name)
-      const inputSocket = getRegisteredSocket(to.moduleId, to.name)
-
-      if (outputSocket.type === 'input') {
-        throw new Error('invalid outputSocket type')
-      }
-
-      if (inputSocket.type === 'output') {
-        throw new Error('invalid inputSocket type')
-      }
-
-      if (inputSocket.node instanceof AudioNode) {
-        outputSocket.node.disconnect(
-          inputSocket.node,
-          outputSocket.output as number,
-          inputSocket.input as number
-        )
-      } else {
-        outputSocket.node.disconnect(
-          inputSocket.node,
-          outputSocket.output as number
-        )
-      }
-    }
-  })
-
   const fromPos = getSocketPosition(from)
   const toPos = getSocketPosition(to)
 
@@ -70,6 +21,7 @@ const Cable = ({ from, to }: Props) => {
       from={fromPos}
       to={toPos}
       onHover={() => {
+        console.log(from, to)
         const outputSocket = getRegisteredSocket(from.moduleId, from.name)
         if (outputSocket.type === 'output')
           outputSocket.node.connect(UtilityBox.node, outputSocket.output)

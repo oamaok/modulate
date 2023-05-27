@@ -1,7 +1,7 @@
 import { createState } from 'kaiku'
-import { getSockets } from './sockets'
+import { getSockets, disconnectSockets, connectSockets } from './sockets'
 import { State } from './types'
-import { Cable, ConnectedSocket, Id, Vec2 } from '@modulate/common/types'
+import { Cable, ConnectedSocket, Id, Patch, PatchMetadata, Vec2 } from '@modulate/common/types'
 import { parseRoute } from './routes'
 
 const state = createState<State>({
@@ -49,6 +49,25 @@ window.addEventListener('resize', () => {
   viewport.width = window.innerWidth
   viewport.height = window.innerHeight
 })
+
+export const loadPatch = async (
+  metadata: PatchMetadata,
+  savedPatch: Patch
+) => {
+  const { currentId, modules, knobs, cables } = savedPatch
+  state.patchMetadata = metadata
+  patch.knobs = knobs
+  patch.currentId = currentId
+  patch.modules = modules
+  state.initialized = true
+  await new Promise((resolve) => requestAnimationFrame(resolve))
+
+  for (const cable of cables) {
+    connectSockets(cable.from, cable.to)
+  }
+
+  patch.cables = cables
+}
 
 export const addModule = (name: string) => {
   patch.modules[nextId()] = {
@@ -142,6 +161,7 @@ export const plugActiveCable = (socket: ConnectedSocket) => {
   )
 
   if (previousCable) {
+    disconnectSockets(previousCable.from, previousCable.to)
     patch.cables = patch.cables.filter((cable) => cable.id !== previousCable.id)
     state.activeCable = {
       from: socket.type === 'input' ? previousCable.from : previousCable.to,
@@ -185,7 +205,12 @@ export const getCableConnectionCandidate = () => {
   return candidateSocket
 }
 
-export const addCable = (from: ConnectedSocket, to: ConnectedSocket) => {
+export const addConnectionBetweenSockets = (
+  from: ConnectedSocket,
+  to: ConnectedSocket
+) => {
+  connectSockets(from, to)
+
   patch.cables.push({
     id: nextId(),
     from: {
@@ -217,28 +242,33 @@ export const releaseActiveCable = () => {
     const from = activeCable.from
     const to = candidateSocket
 
-    addCable(from, to)
+    addConnectionBetweenSockets(from, to)
   } else {
     const from = candidateSocket
     const to = activeCable.from
 
-    addCable(from, to)
+    addConnectionBetweenSockets(from, to)
   }
 
   state.activeCable = null
 }
 
 export const deleteModule = async (id: string) => {
-  state.patch.cables = state.patch.cables.filter((cable) => {
-    return cable.from.moduleId !== id && cable.to.moduleId !== id
-  })
+  console.log('delete module', id)
 
-  await new Promise(requestAnimationFrame)
+  const cablesToDisconnect = state.patch.cables.filter(
+    (cable) => cable.from.moduleId === id || cable.to.moduleId === id
+  )
+
+  for (const cable of cablesToDisconnect) {
+    disconnectSockets(cable.from, cable.to)
+  }
+
+  state.patch.cables = state.patch.cables.filter(
+    (cable) => cable.from.moduleId !== id && cable.to.moduleId !== id
+  )
+
   delete state.patch.knobs[id]
-
-  await new Promise(requestAnimationFrame)
   delete state.socketPositions[id]
-
-  await new Promise(requestAnimationFrame)
   delete state.patch.modules[id]
 }
