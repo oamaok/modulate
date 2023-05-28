@@ -1,7 +1,7 @@
 import path from 'path'
 import sqlite from 'sqlite3'
 import sql, { SQLStatement } from 'sql-template-strings'
-import { v4 as uuid } from 'uuid'
+import crypto from 'crypto'
 import argon2 from 'argon2'
 import {
   PatchMetadata,
@@ -47,7 +47,7 @@ export const isEmailAvailable = async (email: string): Promise<boolean> => {
 }
 
 export const createUser = async (user: UserRegistration): Promise<User> => {
-  const userId = uuid()
+  const userId = crypto.randomUUID()
 
   await query(sql`
     INSERT INTO users (id, email, username, password, createdAt)
@@ -127,7 +127,7 @@ export const saveNewPatch = async (
   metadata: PatchMetadata,
   patch: Patch
 ) => {
-  const patchId = uuid()
+  const patchId = crypto.randomUUID()
 
   const res = await query(sql`
     INSERT INTO patches (id, name, authorId, createdAt, patch)

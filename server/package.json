@@ -7,6 +7,14 @@
   "author": "Teemu Pääkkönen",
   "license": "UNLICENSED",
   "dependencies": {
-    "@modulate/common": "0.0.0"
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/sqlite3": "^3.1.8",
+    "argon2": "^0.30.3",
+    "fp-ts": "^2.16.0",
+    "io-ts": "^2.2.20",
+    "jsonwebtoken": "^9.0.0",
+    "sql-template-strings": "^2.2.2",
+    "sqlite3": "^5.1.6",
+    "ws": "^8.13.0"
   }
 }
