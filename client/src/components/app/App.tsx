@@ -79,13 +79,12 @@ const App = () => {
           )}px`,
       }}
     >
-      {state.initialized && <Patch />}
+      {state.initialized ? <Patch /> : null}
       <Header />
       <UserBar />
       <ModuleSelector />
       <Hint />
-      {state.initialized && <UtilityBox />}
-      {!state.initialized && <InitModal />}
+      {state.initialized ? <UtilityBox /> : <InitModal />}
     </div>
   )
 }

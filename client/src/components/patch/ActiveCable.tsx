@@ -5,6 +5,7 @@ import state, {
   releaseActiveCable,
 } from '../../state'
 import CablePath from './CablePath'
+import assert from '../../assert'
 
 const ActiveCable = () => {
   useEffect(() => {
@@ -29,10 +30,12 @@ const ActiveCable = () => {
         y: state.cursor.y - state.viewOffset.y,
       }
 
-  const from = state.activeCable.from.type === 'output' ? a : b
-  const to = state.activeCable.from.type === 'output' ? b : a
+  assert(a, 'state.activeCable.from is not a valid socket')
+  assert(b, 'candidateSocket is not a valid socket')
 
-  return <CablePath from={from!} to={to!} />
+  const [from, to] = state.activeCable.from.type === 'output' ? [a, b] : [b, a]
+
+  return <CablePath from={from} to={to} />
 }
 
 export default ActiveCable

@@ -45,7 +45,7 @@ const Module: FC<Props> = ({
   useEffect(() => {
     if (moduleState.dragPosition) {
       const module = state.patch.modules[id]
-      assert?.(module)
+      assert(module)
 
       const modulePosition = module.position
       modulePosition.x += state.cursor.x - moduleState.dragPosition.x

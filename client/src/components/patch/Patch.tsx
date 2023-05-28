@@ -18,7 +18,7 @@ const Patch = () => {
       >
         {Object.keys(patch.modules).map((id: string) => {
           const module = patch.modules[id]
-          assert?.(module)
+          assert(module, `Patch: invalid module id (${id})`)
           const Component: any =
             moduleMap[module.name as keyof typeof moduleMap]
           return <Component key={id} id={id} />

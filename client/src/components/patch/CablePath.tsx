@@ -10,7 +10,6 @@ type Props = {
 
 const CablePath = ({ from, to, onHover, onBlur }: Props) => {
   const state = useState({ hover: false })
-
   const controlPointOffset = Math.floor(Math.sqrt(Math.abs(from.y - to.y)) * 10)
 
   return (

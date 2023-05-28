@@ -8,6 +8,7 @@ import {
 import { Vec2 } from '@modulate/common/types'
 import css from './Socket.css'
 import UtilityBox from '../utility-box/UtilityBox'
+import assert from '../../assert'
 
 const getSocketOffset = (
   element: HTMLElement,
@@ -16,9 +17,10 @@ const getSocketOffset = (
   const x = element.offsetLeft
   const y = element.offsetTop
 
-  if (!element.offsetParent) {
-    throw new Error('Socket is not positioned within a Module component')
-  }
+  assert(
+    element.offsetParent,
+    'getSocketOffset: socket is not positioned within a Module component'
+  )
 
   if (element.offsetParent.getAttribute('data-id')) {
     return { x: pos.x + x, y: pos.y + y }

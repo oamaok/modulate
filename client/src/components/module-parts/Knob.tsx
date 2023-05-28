@@ -122,7 +122,7 @@ const setNormalizedKnobValue = (value: number, props: Props) => {
       } else {
         const option = props.options[Math.round(value * props.options.length)]
 
-        assert?.(option)
+        assert(option)
 
         setKnobValue(props.moduleId, props.id, option.value)
       }

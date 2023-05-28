@@ -51,7 +51,11 @@ const Cables = () => {
         onMouseDown={onDragStart}
         ref={ref}
       >
-        <g transform={() => `translate(${state.viewOffset.x} ${state.viewOffset.y})`}>
+        <g
+          transform={() =>
+            `translate(${state.viewOffset.x} ${state.viewOffset.y})`
+          }
+        >
           {patch.cables.map(({ id, from, to }) => (
             <Cable key={id} from={from} to={to} />
           ))}

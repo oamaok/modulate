@@ -1,4 +1,5 @@
 import { ConnectedSocket } from '@modulate/common/types'
+import assert from './assert'
 
 export type RegisteredSocket =
   | {
@@ -30,11 +31,10 @@ export const getRegisteredSocket = (
     (socket) => socket.name === socketName && socket.moduleId === moduleId
   )
 
-  if (!socket) {
-    throw new Error(
-      `could not find socket for module ${moduleId}:${socketName}`
-    )
-  }
+  assert(
+    socket,
+    `getRegisteredSocket: could not find socket for module (${moduleId}:${socketName})`
+  )
 
   return socket
 }
@@ -49,13 +49,14 @@ export const connectSockets = (from: ConnectedSocket, to: ConnectedSocket) => {
   const outputSocket = getRegisteredSocket(from.moduleId, from.name)
   const inputSocket = getRegisteredSocket(to.moduleId, to.name)
 
-  if (outputSocket.type === 'input') {
-    throw new Error('invalid outputSocket type')
-  }
-
-  if (inputSocket.type === 'output') {
-    throw new Error('invalid inputSocket type')
-  }
+  assert(
+    outputSocket.type !== 'input',
+    `connectSockets: invalid outputSocket type`
+  )
+  assert(
+    inputSocket.type !== 'output',
+    `connectSockets: invalid inputSocket type`
+  )
 
   if (inputSocket.node instanceof AudioNode) {
     outputSocket.node.connect(
@@ -75,13 +76,14 @@ export const disconnectSockets = (
   const outputSocket = getRegisteredSocket(from.moduleId, from.name)
   const inputSocket = getRegisteredSocket(to.moduleId, to.name)
 
-  if (outputSocket.type === 'input') {
-    throw new Error('invalid outputSocket type')
-  }
-
-  if (inputSocket.type === 'output') {
-    throw new Error('invalid inputSocket type')
-  }
+  assert(
+    outputSocket.type !== 'input',
+    `connectSockets: invalid outputSocket type`
+  )
+  assert(
+    inputSocket.type !== 'output',
+    `connectSockets: invalid inputSocket type`
+  )
 
   if (inputSocket.node instanceof AudioNode) {
     outputSocket.node.disconnect(

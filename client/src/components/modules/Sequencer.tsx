@@ -121,7 +121,7 @@ class Sequencer
 
       if (knobs) {
         const { sequenceLength } = knobs
-        assert?.(typeof sequenceLength !== 'undefined')
+        assert(typeof sequenceLength !== 'undefined')
 
         getModuleState<SequencerState>(props.id).sequenceLength = sequenceLength
       }

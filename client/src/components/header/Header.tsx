@@ -17,7 +17,7 @@ const Menu = () => {
 
   return (
     <div className={css('menu')}>
-      {isOwnPatch && (
+      {isOwnPatch ? (
         <div className={css('patch-settings')}>
           <h3>Patch details</h3>
           <div className={css('name')}>
@@ -43,7 +43,7 @@ const Menu = () => {
             Save patch
           </button>
         </div>
-      )}
+      ) : null}
       {/*
       <div className={css('item')}>New patch</div>
       <div className={css('item')}>My patches</div>
@@ -78,7 +78,7 @@ const Header = () => {
         </i>
       </div>
 
-      {headerState.isMenuOpen && <Menu />}
+      {headerState.isMenuOpen ? <Menu /> : null}
     </MenuBar>
   )
 }

@@ -27,7 +27,7 @@ class Gain extends Component<Props> implements IModule {
       const knobs = getModuleKnobs(props.id)
 
       if (knobs) {
-        assert?.(typeof knobs.gain !== 'undefined')
+        assert(typeof knobs.gain !== 'undefined')
         level.setTargetAtTime(knobs.gain, audioContext.currentTime, 0.01)
       }
     })

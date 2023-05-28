@@ -86,25 +86,25 @@ export const addModule = (name: string) => {
 
 export const setModuleState = (id: Id, moduleState: any) => {
   const module = patch.modules[id]
-  assert?.(module)
+  assert(module, `setModuleState: invalid module id (${id})`)
   module.state = moduleState
 }
 
 export const getModuleState = <T>(id: Id): T => {
   const module = patch.modules[id]
-  assert?.(module)
+  assert(module, `getModuleState: invalid module id (${id})`)
   return module.state as T
 }
 
 export const getModulePosition = (id: Id) => {
   const module = patch.modules[id]
-  assert?.(module)
+  assert(module, `getModulePosition: invalid module (${id})`)
   return module.position
 }
 
 export const setModulePosition = (id: Id, position: Vec2) => {
   const module = patch.modules[id]
-  assert?.(module)
+  assert(module, `setModulePosition: invalid module id (${id})`)
   module.position = position
 }
 
@@ -130,7 +130,10 @@ export const getSocketPosition = ({
   const modulePosition = getModulePosition(moduleId)
   const socketOffset = moduleSockets[name]
 
-  assert?.(socketOffset)
+  assert(
+    socketOffset,
+    `getSocketPosition: invalid socket name (${moduleId}, ${name})`
+  )
 
   return {
     x: modulePosition.x + socketOffset.x,

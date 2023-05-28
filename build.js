@@ -100,7 +100,7 @@ const buildClient = async () => {
       .minify((await fs.readFile(scriptsPath)).toString(), {
         sourceMap: false,
         compress: {
-          passes: 3,
+          passes: 4,
           inline: false,
           unsafe: true,
           booleans_as_integers: true,
@@ -172,7 +172,7 @@ const buildWorklets = async () => {
       bundle: true,
       write: false,
       incremental: true,
-      minify: isProduction,
+      minify: false,
       define: {
         Response: 'undefined',
         Request: 'undefined',
