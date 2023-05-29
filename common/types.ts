@@ -8,6 +8,10 @@ import {
   Cable,
   Patch,
   PatchMetadata,
+  CursorMoveMessage,
+  ClientMessage,
+  PatchUpdateMessage,
+  PatchEvent,
 } from './validators'
 
 export type Id = string
@@ -20,6 +24,48 @@ export type ConnectedSocket = t.TypeOf<typeof ConnectedSocket>
 export type Cable = t.TypeOf<typeof Cable>
 export type Patch = t.TypeOf<typeof Patch>
 export type PatchMetadata = t.TypeOf<typeof PatchMetadata>
+export type ClientMessage = t.TypeOf<typeof ClientMessage>
+export type PatchEvent = t.TypeOf<typeof PatchEvent>
+
+export type Room = {
+  id: string
+  creator: User
+  users: Record<
+    string,
+    {
+      id: string
+      username: string
+      cursor: Vec2
+    }
+  >
+  patch: Patch
+}
+
+export type InitRoomMessage = {
+  type: 'init-room'
+  room: Room
+}
+
+export type UserJoinMessage = {
+  type: 'user-join'
+  user: {
+    id: string
+    username: string
+    cursor: Vec2
+  }
+}
+
+export type UserLeaveMessage = {
+  type: 'user-leave'
+  userId: string
+}
+
+export type ServerMessage =
+  | InitRoomMessage
+  | UserJoinMessage
+  | UserLeaveMessage
+  | (t.TypeOf<typeof CursorMoveMessage> & { userId: string })
+  | t.TypeOf<typeof PatchUpdateMessage>
 
 export type Note = {
   gate: boolean

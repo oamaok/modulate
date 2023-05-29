@@ -21,10 +21,11 @@ export const Cable = t.type({
   to: ConnectedSocket,
 })
 
-export const ModuleState = t.type({
+export const Module = t.type({
   name: t.string,
   position: Vec2,
-  state: t.union([t.undefined, t.unknown]),
+
+  state: t.union([t.undefined, t.UnknownRecord]),
 })
 
 export const User = t.type({
@@ -40,7 +41,7 @@ export const PatchMetadata = t.type({
 
 export const Patch = t.type({
   currentId: t.number,
-  modules: t.record(t.string, ModuleState),
+  modules: t.record(t.string, Module),
   knobs: t.record(t.string, t.record(t.string, t.number)),
   cables: t.array(Cable),
 })
@@ -55,3 +56,74 @@ export const UserLogin = t.type({
   email: t.string,
   password: t.string,
 })
+
+export const JoinRoomMessage = t.type({
+  type: t.literal('join-room'),
+})
+
+export const CursorMoveMessage = t.type({
+  type: t.literal('cursor-move'),
+  position: Vec2,
+})
+
+export const CreateModuleEvent = t.type({
+  type: t.literal('create-module'),
+  moduleId: t.string,
+  name: t.string,
+  position: Vec2,
+})
+
+export const DeleteModuleEvent = t.type({
+  type: t.literal('delete-module'),
+  moduleId: t.string,
+})
+
+export const ChangeModuleStateEvent = t.type({
+  type: t.literal('change-module-state'),
+  moduleId: t.string,
+  state: t.UnknownRecord,
+})
+
+export const ChangeModulePositionEvent = t.type({
+  type: t.literal('change-module-position'),
+  moduleId: t.string,
+  position: Vec2,
+})
+
+export const TweakKnobEvent = t.type({
+  type: t.literal('tweak-knob'),
+  moduleId: t.string,
+  knob: t.string,
+  value: t.number,
+})
+
+export const ConnectCableEvent = t.type({
+  type: t.literal('connect-cable'),
+  cable: Cable,
+})
+
+export const DisconnectCableEvent = t.type({
+  type: t.literal('disconnect-cable'),
+  cableId: t.string,
+})
+
+export const PatchEvent = t.union([
+  CreateModuleEvent,
+  DeleteModuleEvent,
+  ChangeModuleStateEvent,
+  ChangeModulePositionEvent,
+  TweakKnobEvent,
+  ConnectCableEvent,
+  DisconnectCableEvent,
+])
+
+export const PatchUpdateMessage = t.type({
+  type: t.literal('patch-update'),
+  events: t.array(PatchEvent),
+})
+
+export const ClientMessage = t.union([
+  JoinRoomMessage,
+  CursorMoveMessage,
+  PatchUpdateMessage,
+])

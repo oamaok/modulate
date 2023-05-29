@@ -1,12 +1,14 @@
 import * as http from 'http'
-import fs from 'fs'
-import router, { serverStatic, Response } from './router'
 import * as t from 'io-ts'
 import * as db from './database'
 import * as validators from '@modulate/common/validators'
 import * as auth from './authorization'
 import * as logger from './logger'
+import { WebSocketServer } from 'ws'
+import router, { serverStatic, Response } from './router'
 import migrate from './migrate'
+import { ClientMessage } from '@modulate/common/types'
+import rooms, { createRoomUsingPatch } from './rooms'
 
 const unauthorized = (res: Response) => {
   res.status(401)
@@ -155,8 +157,28 @@ const server = http.createServer(
         res.end()
       }
     )
+    .get('/api/room/:patchId', async (req, res) => {
+      const { authorization } = req
+      if (!authorization) {
+        unauthorized(res)
+        return
+      }
+
+      const { patchId } = req.parameters
+
+      if (!patchId) {
+        badRequest(res)
+        return
+      }
+
+      const roomId = await createRoomUsingPatch(authorization, patchId)
+
+      res.json({ roomId })
+      res.end()
+    })
 )
 
+rooms(server)
 ;(async () => {
   await migrate()
   server.listen(8888)

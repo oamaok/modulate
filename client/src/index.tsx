@@ -7,6 +7,7 @@ import * as auth from './auth'
 import './reset.css'
 
 import App from './components/app/App'
+import { joinRoom, leaveRoom } from './rooms'
 
 api.getIdentity().then((res) => {
   if (!res.error) {

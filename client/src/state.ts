@@ -35,11 +35,13 @@ const state = createState<State>({
   viewOffset: { x: 0, y: 0 },
   socketPositions: {},
   activeCable: null,
+
+  room: null,
 })
 
 export default state
 export const { cursor, viewport, patch, socketPositions } = state
-export const nextId = () => `${patch.currentId++}` as Id
+export const nextId = () => crypto.randomUUID() as Id
 
 window.addEventListener('popstate', () => {
   state.route = parseRoute(location)
@@ -64,7 +66,8 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   patch.currentId = currentId
   patch.modules = modules
   state.initialized = true
-  await new Promise((resolve) => requestAnimationFrame(resolve))
+
+  await new Promise(requestAnimationFrame)
 
   for (const cable of cables) {
     connectSockets(cable.from, cable.to)

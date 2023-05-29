@@ -53,7 +53,7 @@ type Props = CommonProps &
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
 
-const getInitialValue = (props: Props): number => {
+const getValue = (props: Props): number => {
   const knobValue = getKnobValue(props.moduleId, props.id)
 
   switch (props.type) {
@@ -194,14 +194,13 @@ const getHintText = (props: Props): string => {
 }
 
 const Knob = (props: Props) => {
-  const initialValue = getInitialValue(props)
+  const value = getValue(props)
+  const position = normalizeValue(value, props)
 
   const knobState = useState<{
-    position: number
     dragPosition: null | Vec2
     displayHint: boolean
   }>({
-    position: normalizeValue(initialValue, props),
     dragPosition: null,
     displayHint: false,
   })
@@ -216,7 +215,7 @@ const Knob = (props: Props) => {
   }
 
   useEffect(() => {
-    setKnobValue(props.moduleId, props.id, initialValue)
+    // setKnobValue(props.moduleId, props.id, value)
 
     document.addEventListener('mouseup', onDragEnd)
     document.addEventListener('blur', onDragEnd)
@@ -229,12 +228,13 @@ const Knob = (props: Props) => {
 
   useEffect(() => {
     if (knobState.dragPosition) {
-      knobState.position -= (state.cursor.y - knobState.dragPosition.y) / 300
-      knobState.position = Math.max(0, Math.min(1, knobState.position))
+      let newPosition = normalizeValue(getValue(props), props)
+      newPosition -= (state.cursor.y - knobState.dragPosition.y) / 300
+      newPosition = Math.max(0, Math.min(1, newPosition))
 
       knobState.dragPosition.x = state.cursor.x
       knobState.dragPosition.y = state.cursor.y
-      setNormalizedKnobValue(knobState.position, props)
+      setNormalizedKnobValue(newPosition, props)
     }
   })
 
@@ -264,7 +264,7 @@ const Knob = (props: Props) => {
         onMouseOut={hideHint}
         onMouseDown={onDragStart}
         style={{
-          transform: `rotate(${knobState.position * 300 - 60}deg)`,
+          transform: `rotate(${position * 300 - 60}deg)`,
         }}
       ></div>
       <div className={css('name')}>{props.label || props.id}</div>

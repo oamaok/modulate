@@ -3,6 +3,7 @@ import state, { patch } from '../../state'
 import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
 import css from './Header.css'
 import * as api from '../../api'
+import { createRoom } from '../../rooms'
 
 const Menu = () => {
   const savePatch = async () => {
@@ -77,6 +78,15 @@ const Header = () => {
           <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
         </i>
       </div>
+
+      {state.patchMetadata.id !== null ? (
+        <>
+          <VerticalDivider />
+          <button onClick={() => createRoom(state.patchMetadata.id!)}>
+            Create room
+          </button>
+        </>
+      ) : null}
 
       {headerState.isMenuOpen ? <Menu /> : null}
     </MenuBar>

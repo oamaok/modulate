@@ -1,5 +1,5 @@
 import { h, Fragment, useState, useEffect, useRef, unwrap } from 'kaiku'
-import state, { patch } from '../../state'
+import state from '../../state'
 import { moduleMap } from '../../moduleMap'
 import Cables from './Cables'
 
@@ -16,8 +16,8 @@ const Patch = () => {
             `translate(${state.viewOffset.x}px, ${state.viewOffset.y}px)`,
         }}
       >
-        {Object.keys(patch.modules).map((id: string) => {
-          const module = patch.modules[id]
+        {Object.keys(state.patch.modules).map((id: string) => {
+          const module = state.patch.modules[id]
           assert(module, `Patch: invalid module id (${id})`)
           const Component: any =
             moduleMap[module.name as keyof typeof moduleMap]

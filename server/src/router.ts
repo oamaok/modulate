@@ -152,7 +152,7 @@ const pathToSegments = (path: string): Segment[] =>
     const type = getSegmentType(segment)
     return {
       type,
-      name: type === 'parameter' ? segment.substr(1) : segment,
+      name: type === 'parameter' ? segment.substring(1) : segment,
     }
   })
 

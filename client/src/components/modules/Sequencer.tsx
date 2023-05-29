@@ -33,7 +33,7 @@ const NOTE_NAMES = [
   'A#',
   'B',
 ] as const
-type NoteName = typeof NOTE_NAMES[number]
+type NoteName = (typeof NOTE_NAMES)[number]
 
 const OCTAVES = [8, 7, 6, 5, 4, 3, 2]
 
