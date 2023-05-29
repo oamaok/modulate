@@ -13,7 +13,7 @@ type Props = {
 
 const Slider = ({ moduleId, name, min, max, initial }: Props) => {
   const knobValue = getKnobValue(moduleId, name)
-  const initialValue = typeof knobValue === 'undefined' ? initial : knobValue
+  const initialValue = knobValue ?? initial
 
   const knobState = useState<{
     position: number
@@ -31,6 +31,14 @@ const Slider = ({ moduleId, name, min, max, initial }: Props) => {
     knobState.dragPosition = null
     state.hint = null
   }
+
+  useEffect(() => {
+    if (!knobState.dragPosition) {
+      const knobValue = getKnobValue(moduleId, name) ?? initial
+      const externallyUpdatedPosition = (knobValue - min) / (max - min)
+      knobState.position = externallyUpdatedPosition
+    }
+  })
 
   useEffect(() => {
     setKnobValue(moduleId, name, initialValue)

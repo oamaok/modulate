@@ -7,7 +7,6 @@ import { WebSocketServer, WebSocket } from 'ws'
 import {
   ClientMessage,
   Patch,
-  Room,
   ServerMessage,
   User,
   Vec2,
@@ -120,6 +119,13 @@ export default (server: http.Server) => {
       ws.send(JSON.stringify(message))
     }
 
+    const broadcastToOthers = (message: ServerMessage) => {
+      for (const [userId, socket] of Object.entries(roomConnections)) {
+        if (userId === user.id) continue
+        send(socket, message)
+      }
+    }
+
     ws.on('message', (rawMessage) => {
       let message: ClientMessage
       try {
@@ -148,39 +154,24 @@ export default (server: http.Server) => {
             },
           })
 
-          for (const userId in room.users) {
-            if (userId === user.id) continue
-            const roomUser = room.users[userId]!
-            const socket = roomConnections[userId]!
+          broadcastToOthers({
+            type: 'user-join',
+            user: {
+              id: user.id,
+              username: user.username,
+              cursor: user.cursor,
+            },
+          })
 
-            send(socket, {
-              type: 'user-join',
-              user: {
-                id: user.id,
-                username: user.username,
-                cursor: user.cursor,
-              },
-            })
-          }
           break
         }
         case 'cursor-move': {
           room.users[user.id]!.cursor = message.position
-          for (const userId in room.users) {
-            if (userId === user.id) continue
-            const roomUser = room.users[userId]!
-            const socket = roomConnections[userId]!
-            send(socket, { ...message, userId: user.id })
-          }
+
+          broadcastToOthers({ ...message, userId: user.id })
           break
         }
         case 'patch-update': {
-          for (const userId in room.users) {
-            if (userId === user.id) continue
-            const socket = roomConnections[userId]!
-            send(socket, message)
-          }
-
           for (const event of message.events) {
             switch (event.type) {
               case 'create-module': {
@@ -223,18 +214,16 @@ export default (server: http.Server) => {
             }
           }
 
+          broadcastToOthers(message)
+
           break
         }
       }
     })
 
     ws.on('close', () => {
-      for (const userId in room.users) {
-        if (userId === user.id) continue
-        const roomUser = room.users[userId]!
-        const socket = roomConnections[userId]!
-        send(socket, { type: 'user-leave', userId: user.id })
-      }
+      broadcastToOthers({ type: 'user-leave', userId: user.id })
+
       delete roomConnections[user.id]
       delete room.users[user.id]
     })

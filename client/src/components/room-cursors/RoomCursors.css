@@ -12,6 +12,9 @@
   height: 20px;
   background-size: contain;
   transition: linear 0.1s transform;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .cursor svg {

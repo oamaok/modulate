@@ -13,8 +13,8 @@ const RoomCursors = () => {
           className={css('cursor')}
           style={{
             transform: () =>
-              `translate(${state.viewOffset.x + cursor.x}px, ${
-                state.viewOffset.y + cursor.y
+              `translate(${state.viewOffset.x + cursor.x - 20}px, ${
+                state.viewOffset.y + cursor.y - 20
               }px)`,
           }}
         >
