@@ -17,9 +17,22 @@ export type Route =
   | {
       name: 'index'
     }
+  | { name: 'room'; roomId: string }
+
+type Room = {
+  users: Record<
+    string,
+    {
+      id: string
+      username: string
+      cursor: Vec2
+    }
+  >
+}
 
 export type State = {
   initialized: boolean
+  room: Room | null
   viewport: {
     width: number
     height: number

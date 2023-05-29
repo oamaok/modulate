@@ -78,3 +78,7 @@ export const login = (userLogin: UserLogin) => {
 export const getLatestPatchVersion = (patchId: string) => {
   return get(`/api/patch/${patchId}/latest`)
 }
+
+export const getRoomUsingPatch = (patchId: string) => {
+  return get(`/api/room/${patchId}`)
+}

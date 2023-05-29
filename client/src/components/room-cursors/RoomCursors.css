@@ -1,0 +1,24 @@
+.room-cursors {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.cursor {
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  transition: linear 0.1s transform;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.cursor svg {
+  transform: scale(0.3125);
+
+  filter: drop-shadow(0px 0px 16px rgb(0 0 0 / 0.4));
+}

@@ -13,11 +13,8 @@ export const connectKnobToParam = (
 
     if (knobs) {
       const knobValue = knobs[knob]
-      assert(
-        typeof knobValue !== 'undefined',
-        'Tried to set value of an undefined knob'
-      )
-      param.setTargetAtTime(knobValue, getAudioContext().currentTime, 0.001)
+      if (typeof knobValue !== 'undefined')
+        param.setTargetAtTime(knobValue, getAudioContext().currentTime, 0.001)
     }
   })
 }

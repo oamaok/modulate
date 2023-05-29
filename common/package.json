@@ -5,5 +5,9 @@
   "main": "src/",
   "scripts": {},
   "author": "Teemu Pääkkönen",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "fp-ts": "^2.16.0",
+    "io-ts": "^2.2.20"
+  }
 }

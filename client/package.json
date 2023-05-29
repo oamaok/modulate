@@ -7,7 +7,6 @@
   "author": "Teemu Pääkkönen",
   "license": "UNLICENSED",
   "dependencies": {
-    "@modulate/common": "0.0.0",
-    "@modulate/worklets": "0.0.0"
+    "kaiku": "^1.20.3"
   }
 }

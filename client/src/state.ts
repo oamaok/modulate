@@ -35,11 +35,13 @@ const state = createState<State>({
   viewOffset: { x: 0, y: 0 },
   socketPositions: {},
   activeCable: null,
+
+  room: null,
 })
 
 export default state
 export const { cursor, viewport, patch, socketPositions } = state
-export const nextId = () => `${patch.currentId++}` as Id
+export const nextId = () => crypto.randomUUID() as Id
 
 window.addEventListener('popstate', () => {
   state.route = parseRoute(location)
@@ -48,8 +50,8 @@ window.addEventListener('popstate', () => {
 document.documentElement.addEventListener('mousemove', (evt) => {
   // TODO: Make this not permanent, maybe flag in state
   evt.preventDefault()
-  cursor.x = evt.clientX
-  cursor.y = evt.clientY
+  cursor.x = evt.pageX
+  cursor.y = evt.pageY
 })
 
 window.addEventListener('resize', () => {
@@ -64,7 +66,8 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   patch.currentId = currentId
   patch.modules = modules
   state.initialized = true
-  await new Promise((resolve) => requestAnimationFrame(resolve))
+
+  await new Promise(requestAnimationFrame)
 
   for (const cable of cables) {
     connectSockets(cable.from, cable.to)
@@ -80,11 +83,14 @@ export const addModule = (name: string) => {
       x: -state.viewOffset.x + window.innerWidth / 2,
       y: -state.viewOffset.y + window.innerHeight / 2,
     },
-    state: undefined,
+    state: null,
   }
 }
 
-export const setModuleState = (id: Id, moduleState: any) => {
+export const setModuleState = (
+  id: Id,
+  moduleState: Record<string, unknown>
+) => {
   const module = patch.modules[id]
   assert(module, `setModuleState: invalid module id (${id})`)
   module.state = moduleState

@@ -85,7 +85,7 @@ const buildClient = async () => {
       jsxFragment: 'Fragment',
       minify: isProduction,
       define: {
-        'process.env.NODE_ENV': '"production"',
+        'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
       },
 
       plugins: [CssModulesPlugin()],
@@ -133,7 +133,6 @@ const buildClient = async () => {
   )
 
   await fs.writeFile('./dist/client/index.html', generatedIndex)
-
   await fs.rm(buildDir, { recursive: true, force: true })
 
   console.timeEnd('Build client')
@@ -172,7 +171,7 @@ const buildWorklets = async () => {
       bundle: true,
       write: false,
       incremental: true,
-      minify: false,
+      minify: isProduction,
       define: {
         Response: 'undefined',
         Request: 'undefined',

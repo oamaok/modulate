@@ -6,9 +6,11 @@ import UtilityBox from '../utility-box/UtilityBox'
 import ModuleSelector from '../module-selector/ModuleSelector'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
+import RoomCursors from '../room-cursors/RoomCursors'
 import { initializeAudio } from '../../audio'
 import state, { loadPatch, patch } from '../../state'
 import * as api from '../../api'
+import { joinRoom } from '../../rooms'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -40,6 +42,10 @@ const initialize = async () => {
       }
 
       break
+    }
+
+    case 'room': {
+      joinRoom(state.route.roomId)
     }
   }
 }
@@ -80,6 +86,7 @@ const App = () => {
       }}
     >
       {state.initialized ? <Patch /> : null}
+      {state.room ? <RoomCursors /> : null}
       <Header />
       <UserBar />
       <ModuleSelector />

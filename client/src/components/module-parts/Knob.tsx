@@ -53,7 +53,7 @@ type Props = CommonProps &
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
 
-const getInitialValue = (props: Props): number => {
+const getValue = (props: Props): number => {
   const knobValue = getKnobValue(props.moduleId, props.id)
 
   switch (props.type) {
@@ -138,7 +138,8 @@ const normalizeValue = (value: number, props: Props): number => {
     }
 
     case 'stepped': {
-      return (value - props.min) / props.step
+      const steps = (props.max - props.min) / props.step
+      return (value - props.min) / steps
     }
 
     case 'exponential': {
@@ -194,14 +195,14 @@ const getHintText = (props: Props): string => {
 }
 
 const Knob = (props: Props) => {
-  const initialValue = getInitialValue(props)
+  const value = getValue(props)
 
   const knobState = useState<{
     position: number
     dragPosition: null | Vec2
     displayHint: boolean
   }>({
-    position: normalizeValue(initialValue, props),
+    position: normalizeValue(value, props),
     dragPosition: null,
     displayHint: false,
   })
@@ -216,7 +217,7 @@ const Knob = (props: Props) => {
   }
 
   useEffect(() => {
-    setKnobValue(props.moduleId, props.id, initialValue)
+    setKnobValue(props.moduleId, props.id, value)
 
     document.addEventListener('mouseup', onDragEnd)
     document.addEventListener('blur', onDragEnd)
@@ -224,6 +225,13 @@ const Knob = (props: Props) => {
     return () => {
       document.removeEventListener('mouseup', onDragEnd)
       document.removeEventListener('blur', onDragEnd)
+    }
+  })
+
+  useEffect(() => {
+    if (!knobState.dragPosition) {
+      const externallyUpdatedPosition = normalizeValue(getValue(props), props)
+      knobState.position = externallyUpdatedPosition
     }
   })
 

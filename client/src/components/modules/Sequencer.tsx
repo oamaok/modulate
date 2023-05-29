@@ -3,7 +3,7 @@ import * as util from '@modulate/common/util'
 import { IModule } from '../../types'
 import { getAudioContext } from '../../audio'
 import { WorkletNode } from '../../worklets'
-import { getModuleKnobs, getModuleState, setModuleState } from '../../state'
+import { getKnobValue, getModuleState, setModuleState } from '../../state'
 import { connectKnobToParam } from '../../modules'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -13,7 +13,6 @@ import css from './Sequencer.css'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Keyboard from '../module-parts/Keyboard'
 import { SequencerMessage } from '@modulate/common/types'
-import assert from '../../assert'
 
 type Props = {
   id: string
@@ -33,7 +32,7 @@ const NOTE_NAMES = [
   'A#',
   'B',
 ] as const
-type NoteName = typeof NOTE_NAMES[number]
+type NoteName = (typeof NOTE_NAMES)[number]
 
 const OCTAVES = [8, 7, 6, 5, 4, 3, 2]
 
@@ -46,8 +45,6 @@ type Note = {
 }
 
 type SequencerState = {
-  sequenceLength: number
-  editing: number
   notes: Note[]
 }
 
@@ -64,6 +61,7 @@ class Sequencer
 
   state = {
     currentStep: 0,
+    editing: 0,
   }
 
   constructor(props: Props) {
@@ -116,17 +114,6 @@ class Sequencer
       })
     })
 
-    useEffect(() => {
-      const knobs = getModuleKnobs(props.id)
-
-      if (knobs) {
-        const { sequenceLength } = knobs
-        assert(typeof sequenceLength !== 'undefined')
-
-        getModuleState<SequencerState>(props.id).sequenceLength = sequenceLength
-      }
-    })
-
     connectKnobToParam(
       this.props.id,
       'glide',
@@ -142,9 +129,10 @@ class Sequencer
 
   render({ id }: Props) {
     const moduleState = getModuleState<SequencerState>(id)
-    const { editing, notes, sequenceLength } = moduleState
+    const { notes } = moduleState
 
     const groupedNotes = util.splitEvery(util.splitEvery(notes, 4), 4)
+    const sequenceLength = getKnobValue(id, 'sequenceLength') ?? 32
 
     return (
       <Module id={id} name="Sequencer" width={340} height={200}>
@@ -157,12 +145,12 @@ class Sequencer
                     {group.map((note) => (
                       <button
                         className={css('indicator', {
-                          on: note.index === editing,
+                          on: note.index === this.state.editing,
                           current: note.index === this.state.currentStep,
                           disabled: note.index >= sequenceLength,
                         })}
                         onClick={() => {
-                          moduleState.editing = note.index
+                          this.state.editing = note.index
                         }}
                       />
                     ))}
@@ -176,18 +164,18 @@ class Sequencer
               {OCTAVES.map((oct) => (
                 <button
                   onClick={() => {
-                    notes[editing]!.octave = oct
+                    notes[this.state.editing]!.octave = oct
                   }}
                   className={css('indicator', {
-                    on: notes[editing]!.octave === oct,
+                    on: notes[this.state.editing]!.octave === oct,
                   })}
                 />
               ))}
             </div>
             <Keyboard
-              note={notes[editing]!.name}
+              note={notes[this.state.editing]!.name}
               onChange={(note) => {
-                notes[editing]!.name = note as NoteName
+                notes[this.state.editing]!.name = note as NoteName
               }}
             />
             <Knob
@@ -215,19 +203,21 @@ class Sequencer
             Gate
             <button
               className={css('indicator', {
-                on: notes[editing]!.gate,
+                on: notes[this.state.editing]!.gate,
               })}
               onClick={() => {
-                notes[editing]!.gate = !notes[editing]!.gate
+                notes[this.state.editing]!.gate =
+                  !notes[this.state.editing]!.gate
               }}
             />
             Glide
             <button
               className={css('indicator', {
-                on: notes[editing]!.glide,
+                on: notes[this.state.editing]!.glide,
               })}
               onClick={() => {
-                notes[editing]!.glide = !notes[editing]!.glide
+                notes[this.state.editing]!.glide =
+                  !notes[this.state.editing]!.glide
               }}
             />
           </div>

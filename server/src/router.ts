@@ -152,7 +152,7 @@ const pathToSegments = (path: string): Segment[] =>
     const type = getSegmentType(segment)
     return {
       type,
-      name: type === 'parameter' ? segment.substr(1) : segment,
+      name: type === 'parameter' ? segment.substring(1) : segment,
     }
   })
 
@@ -186,7 +186,7 @@ const router = (): RouterChain => {
       send: res.write.bind(res),
       end: () => {
         logger.info(
-          `${req.headers['X-Real-IP'] ?? req.socket.remoteAddress} ${
+          `${req.headers['x-real-ip'] ?? req.socket.remoteAddress} ${
             req.method
           } ${url.pathname} [${res.statusCode}]`
         )
