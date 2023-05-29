@@ -79,7 +79,7 @@ const Header = () => {
         </i>
       </div>
 
-      {state.patchMetadata.id !== null ? (
+      {state.patchMetadata.id !== null && state.user ? (
         <>
           <VerticalDivider />
           <button onClick={() => createRoom(state.patchMetadata.id!)}>
