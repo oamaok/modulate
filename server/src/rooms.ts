@@ -12,23 +12,6 @@ import {
   Vec2,
 } from '@modulate/common/types'
 
-// TODO: Remove this, it is duplicated from router.ts
-const parseQuery = (queryString: string): Record<string, string> => {
-  const res: Record<string, string> = {}
-
-  for (const [key, value] of queryString
-    .substring(1)
-    .split('&')
-    .map((part) => {
-      const [key, value] = part.split('=') as [string, string]
-      return [key, decodeURIComponent(value)] as [string, string]
-    })) {
-    res[key] = value
-  }
-
-  return res
-}
-
 const rooms: Record<
   string,
   {
@@ -84,8 +67,9 @@ export default (server: http.Server) => {
       req.url ?? '',
       `http://${req.headers.host ?? 'localhost'}`
     )
-    const queryParams = parseQuery(url.search)
-    const { roomId } = queryParams
+
+    const [, roomId] = url.pathname.match(/^\/ws\/room\/(\w+)$/i) ?? []
+
 
     // TODO: More graceful errors
     if (!roomId) {

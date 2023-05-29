@@ -40,7 +40,7 @@ export const createRoom = async (patchId: string) => {
 
 export const joinRoom = (roomId: string) => {
   connection = new WebSocket(
-    location.origin.replace(/^http/, 'ws') + '?roomId=' + roomId
+    location.origin.replace(/^http/, 'ws') + '/ws/room/' + roomId
   )
 
   connection.addEventListener('open', () => {
