@@ -138,7 +138,8 @@ const normalizeValue = (value: number, props: Props): number => {
     }
 
     case 'stepped': {
-      return (value - props.min) / props.step
+      const steps = (props.max - props.min) / props.step
+      return (value - props.min) / steps
     }
 
     case 'exponential': {
@@ -195,12 +196,13 @@ const getHintText = (props: Props): string => {
 
 const Knob = (props: Props) => {
   const value = getValue(props)
-  const position = normalizeValue(value, props)
 
   const knobState = useState<{
+    position: number
     dragPosition: null | Vec2
     displayHint: boolean
   }>({
+    position: normalizeValue(value, props),
     dragPosition: null,
     displayHint: false,
   })
@@ -215,7 +217,7 @@ const Knob = (props: Props) => {
   }
 
   useEffect(() => {
-    // setKnobValue(props.moduleId, props.id, value)
+    setKnobValue(props.moduleId, props.id, value)
 
     document.addEventListener('mouseup', onDragEnd)
     document.addEventListener('blur', onDragEnd)
@@ -227,14 +229,20 @@ const Knob = (props: Props) => {
   })
 
   useEffect(() => {
+    if (!knobState.dragPosition) {
+      const externallyUpdatedPosition = normalizeValue(getValue(props), props)
+      knobState.position = externallyUpdatedPosition
+    }
+  })
+
+  useEffect(() => {
     if (knobState.dragPosition) {
-      let newPosition = normalizeValue(getValue(props), props)
-      newPosition -= (state.cursor.y - knobState.dragPosition.y) / 300
-      newPosition = Math.max(0, Math.min(1, newPosition))
+      knobState.position -= (state.cursor.y - knobState.dragPosition.y) / 300
+      knobState.position = Math.max(0, Math.min(1, knobState.position))
 
       knobState.dragPosition.x = state.cursor.x
       knobState.dragPosition.y = state.cursor.y
-      setNormalizedKnobValue(newPosition, props)
+      setNormalizedKnobValue(knobState.position, props)
     }
   })
 
@@ -264,7 +272,7 @@ const Knob = (props: Props) => {
         onMouseOut={hideHint}
         onMouseDown={onDragStart}
         style={{
-          transform: `rotate(${position * 300 - 60}deg)`,
+          transform: `rotate(${knobState.position * 300 - 60}deg)`,
         }}
       ></div>
       <div className={css('name')}>{props.label || props.id}</div>

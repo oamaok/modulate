@@ -50,8 +50,8 @@ window.addEventListener('popstate', () => {
 document.documentElement.addEventListener('mousemove', (evt) => {
   // TODO: Make this not permanent, maybe flag in state
   evt.preventDefault()
-  cursor.x = evt.clientX
-  cursor.y = evt.clientY
+  cursor.x = evt.pageX
+  cursor.y = evt.pageY
 })
 
 window.addEventListener('resize', () => {
@@ -83,11 +83,14 @@ export const addModule = (name: string) => {
       x: -state.viewOffset.x + window.innerWidth / 2,
       y: -state.viewOffset.y + window.innerHeight / 2,
     },
-    state: undefined,
+    state: null,
   }
 }
 
-export const setModuleState = (id: Id, moduleState: any) => {
+export const setModuleState = (
+  id: Id,
+  moduleState: Record<string, unknown>
+) => {
   const module = patch.modules[id]
   assert(module, `setModuleState: invalid module id (${id})`)
   module.state = moduleState

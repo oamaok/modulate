@@ -41,12 +41,13 @@ const rooms: Record<
         id: string
         username: string
         cursor: Vec2
-        socket: WebSocket
       }
     >
     patch: Patch
   }
 > = {}
+
+const connectionsByRoom: Record<string, Record<string, WebSocket>> = {}
 
 export const createRoomUsingPatch = async (user: User, patchId: string) => {
   const roomId = crypto.randomUUID()
@@ -65,6 +66,8 @@ export const createRoomUsingPatch = async (user: User, patchId: string) => {
     users: {},
     patch,
   }
+
+  connectionsByRoom[roomId] = {}
 
   return roomId
 }
@@ -93,6 +96,7 @@ export default (server: http.Server) => {
     }
 
     const room = rooms[roomId]
+    const roomConnections = connectionsByRoom[roomId]!
 
     if (!room) {
       logger.warn('tried to join room which doesnt exist')
@@ -107,8 +111,10 @@ export default (server: http.Server) => {
       id: crypto.randomUUID(),
       username: 'anonymous',
       cursor: { x: 0, y: 0 },
-      socket: ws,
     }
+
+    room.users[user.id] = user
+    roomConnections[user.id] = ws
 
     const send = (ws: WebSocket, message: ServerMessage) => {
       ws.send(JSON.stringify(message))
@@ -130,20 +136,24 @@ export default (server: http.Server) => {
         return
       }
 
-      logger.info(JSON.stringify(message))
-
       switch (message.type) {
         case 'join-room': {
           send(ws, {
             type: 'init-room',
-            room,
+            room: {
+              ...room,
+              users: Object.fromEntries(
+                Object.entries(room.users).filter(([id]) => id !== user.id)
+              ),
+            },
           })
 
-          room.users[user.id] = user
           for (const userId in room.users) {
             if (userId === user.id) continue
             const roomUser = room.users[userId]!
-            send(roomUser.socket, {
+            const socket = roomConnections[userId]!
+
+            send(socket, {
               type: 'user-join',
               user: {
                 id: user.id,
@@ -159,15 +169,16 @@ export default (server: http.Server) => {
           for (const userId in room.users) {
             if (userId === user.id) continue
             const roomUser = room.users[userId]!
-            send(roomUser.socket, { ...message, userId: user.id })
+            const socket = roomConnections[userId]!
+            send(socket, { ...message, userId: user.id })
           }
           break
         }
         case 'patch-update': {
           for (const userId in room.users) {
             if (userId === user.id) continue
-            const roomUser = room.users[userId]!
-            send(roomUser.socket, message)
+            const socket = roomConnections[userId]!
+            send(socket, message)
           }
 
           for (const event of message.events) {
@@ -176,7 +187,7 @@ export default (server: http.Server) => {
                 room.patch.modules[event.moduleId] = {
                   name: event.name,
                   position: event.position,
-                  state: undefined,
+                  state: null,
                 }
                 room.patch.knobs[event.moduleId] = {}
                 break
@@ -221,8 +232,10 @@ export default (server: http.Server) => {
       for (const userId in room.users) {
         if (userId === user.id) continue
         const roomUser = room.users[userId]!
-        send(roomUser.socket, { type: 'user-leave', userId: user.id })
+        const socket = roomConnections[userId]!
+        send(socket, { type: 'user-leave', userId: user.id })
       }
+      delete roomConnections[user.id]
       delete room.users[user.id]
     })
   })

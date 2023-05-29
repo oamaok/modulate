@@ -24,8 +24,7 @@ export const Cable = t.type({
 export const Module = t.type({
   name: t.string,
   position: Vec2,
-
-  state: t.union([t.undefined, t.UnknownRecord]),
+  state: nullable(t.UnknownRecord),
 })
 
 export const User = t.type({

@@ -15,10 +15,21 @@ let previousPatch: Patch = {
 }
 
 let connection: WebSocket | null = null
+let messageQueue: ClientMessage[] = []
 
 const send = (message: ClientMessage) => {
-  assert(connection)
-  connection.send(JSON.stringify(message))
+  messageQueue.push(message)
+  flushMessageQueue()
+}
+
+const flushMessageQueue = () => {
+  if (connection && connection.readyState === connection.OPEN) {
+    for (const message of messageQueue) {
+      connection.send(JSON.stringify(message))
+    }
+
+    messageQueue = []
+  }
 }
 
 export const createRoom = async (patchId: string) => {
@@ -108,7 +119,7 @@ export const joinRoom = (roomId: string) => {
                 patch.modules[event.moduleId] = {
                   name: event.name,
                   position: event.position,
-                  state: undefined,
+                  state: null,
                 }
                 break
               }
@@ -174,7 +185,7 @@ setInterval(() => {
       }
     }
   }
-}, 16)
+}, 50)
 
 export const leaveRoom = () => {
   assert(connection)
@@ -212,7 +223,7 @@ useEffect(() => {
         position: {
           ...module.position,
         },
-        state: undefined,
+        state: null,
       }
     }
   }
@@ -240,26 +251,19 @@ useEffect(() => {
     assert(module)
 
     const previousPatchModule = previousPatch.modules[moduleId]
-    if (!previousPatchModule) {
-      continue
-    }
+    assert(previousPatchModule)
 
-    if (typeof module.state !== 'undefined') {
-      if (
-        typeof previousPatchModule.state === 'undefined' ||
-        !util.deepEqual(previousPatchModule.state, module.state)
-      ) {
-        const newState = util.cloneObject(module.state) as Record<
-          string,
-          unknown
-        >
-        dispatchPatchEvent({
-          type: 'change-module-state',
-          moduleId,
-          state: newState,
-        })
-        previousPatchModule.state = newState
-      }
+    if (!util.deepEqual(previousPatchModule.state, module.state)) {
+      const newState = util.cloneObject(module.state!) as Record<
+        string,
+        unknown
+      >
+      dispatchPatchEvent({
+        type: 'change-module-state',
+        moduleId,
+        state: newState,
+      })
+      previousPatchModule.state = newState
     }
   }
 })

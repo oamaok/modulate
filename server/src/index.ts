@@ -4,10 +4,8 @@ import * as db from './database'
 import * as validators from '@modulate/common/validators'
 import * as auth from './authorization'
 import * as logger from './logger'
-import { WebSocketServer } from 'ws'
 import router, { serverStatic, Response } from './router'
 import migrate from './migrate'
-import { ClientMessage } from '@modulate/common/types'
 import rooms, { createRoomUsingPatch } from './rooms'
 
 const unauthorized = (res: Response) => {

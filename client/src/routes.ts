@@ -15,10 +15,7 @@ export const parseRoute = (location: Location): Route => {
 
   {
     // Room
-    const [, roomId] =
-      location.pathname.match(
-        /^\/room\/(\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b)$/i
-      ) || []
+    const [, roomId] = location.pathname.match(/^\/room\/([a-z0-9-]+)$/i) || []
 
     if (roomId) {
       return { name: 'room', roomId }

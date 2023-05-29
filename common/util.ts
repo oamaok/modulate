@@ -37,69 +37,35 @@ export const cloneObject = (obj: object): object => {
   return ret
 }
 
-// TODO: Optimize this
-export const deepEqual = (objA: object, objB: object): boolean => {
-  const aIsArray = Array.isArray(objA)
-  const bIsArray = Array.isArray(objB)
-
-  if (aIsArray !== bIsArray) return false
-
-  if (aIsArray && bIsArray) {
-    if (objA.length !== objB.length) return false
-
-    for (let i = 0; i < objA.length; i++) {
-      const a = objA[i]
-      const b = objB[i]
-
-      if ((a === null && b !== null) || (a !== null && b === null)) {
-        return false
-      }
-
-      const typeofA = typeof a
-      const typeofB = typeof b
-
-      if (typeofA !== typeofB) return false
-
-      if (typeofA === 'object' && typeofB === 'object') {
-        if (!deepEqual(a, b)) return false
-      } else if (a !== b) {
-        return false
-      }
-    }
-  } else {
-    const aKeys = Object.keys(objA)
-    const bKeys = Object.keys(objB)
-
-    if (aKeys.length !== bKeys.length) {
-      return false
-    }
-
-    for (const aKey of aKeys) {
-      bKeys.push(aKey)
-    }
-
-    const unionOfKeys = new Set(bKeys)
-
-    for (const key of unionOfKeys) {
-      const a = objA[key as keyof typeof objA]
-      const b = objB[key as keyof typeof objA]
-
-      if ((a === null && b !== null) || (a !== null && b === null)) {
-        return false
-      }
-
-      const typeofA = typeof a
-      const typeofB = typeof b
-
-      if (typeofA !== typeofB) return false
-
-      if (typeofA === 'object' && typeofB === 'object') {
-        if (!deepEqual(a, b)) return false
-      } else if (a !== b) {
-        return false
-      }
-    }
+export const deepEqual = (a: any, b: any): boolean => {
+  if (a === b) return true
+  const type = typeof a
+  if (type !== typeof b) return false
+  if (type === 'number') {
+    return Math.abs(a - b) <= 1e-20
   }
 
-  return true
+  if (type === 'object') {
+    if (a === null) return b === null
+    if (b === null) return false
+    if (Array.isArray(a)) {
+      if (!Array.isArray(b)) return false
+      const len = a.length
+      if (len != b.length) return false
+      for (let i = 0; i < len; i++) {
+        if (!deepEqual(a[i], b[i])) return false
+      }
+      return true
+    } else {
+      for (const key of Object.keys(a)) {
+        if (!b.hasOwnProperty(key)) return false
+        if (!deepEqual(a[key], b[key])) return false
+      }
+      for (const key of Object.keys(b)) {
+        if (!a.hasOwnProperty(key)) return false
+      }
+      return true
+    }
+  }
+  return false
 }
