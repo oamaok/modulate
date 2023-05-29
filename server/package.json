@@ -16,6 +16,7 @@
     "jsonwebtoken": "^9.0.0",
     "sql-template-strings": "^2.2.2",
     "sqlite3": "^5.1.6",
+    "ts-node": "^10.9.1",
     "ws": "^8.13.0"
   }
 }
