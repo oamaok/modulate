@@ -60,15 +60,10 @@ export default (server: http.Server) => {
   wss.on('connection', (ws, req) => {
     // TODO: Handle handshake properly before allowing a connection
     // TODO: Check origin of connection before accepting
+    logger.info('attempting to establish websocket connection', req.url)
 
-    logger.info('attempting to establish websocket connection')
-
-    const url = new URL(
-      req.url ?? '',
-      `http://${req.headers.host ?? 'localhost'}`
-    )
-
-    const [, roomId] = url.pathname.match(/^\/ws\/room\/(\w+)$/i) ?? []
+    // TODO: Do proper parsing
+    const [, roomId] = (req.url ?? '').match(/\/room\/([^\/]+)$/i) ?? []
 
 
     // TODO: More graceful errors
