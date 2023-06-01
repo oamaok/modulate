@@ -13,9 +13,7 @@ const RoomCursors = () => {
           className={css('cursor')}
           style={{
             transform: () =>
-              `translate(${state.viewOffset.x + cursor.x - 20}px, ${
-                state.viewOffset.y + cursor.y - 20
-              }px)`,
+              `translate(${cursor.x - 20}px, ${cursor.y - 20}px)`,
           }}
         >
           <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">

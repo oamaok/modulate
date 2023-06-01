@@ -65,7 +65,6 @@ export default (server: http.Server) => {
     // TODO: Do proper parsing
     const [, roomId] = (req.url ?? '').match(/\/room\/([^\/]+)$/i) ?? []
 
-
     // TODO: More graceful errors
     if (!roomId) {
       logger.warn('tried to join without room id')

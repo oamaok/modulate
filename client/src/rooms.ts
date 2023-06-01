@@ -52,7 +52,7 @@ export const joinRoom = (roomId: string) => {
 
     switch (message.type) {
       case 'init-room': {
-        previousPatch = util.cloneObject(message.room.patch) as Patch
+        previousPatch = util.cloneObject(message.room.patch)
         loadPatch({ id: null, name: 'Room', author: null }, message.room.patch)
 
         state.room = {
@@ -142,7 +142,7 @@ export const joinRoom = (roomId: string) => {
               case 'change-module-state': {
                 patch.modules[event.moduleId]!.state = util.cloneObject(
                   event.state
-                ) as Record<string, unknown>
+                )
                 break
               }
 
@@ -151,7 +151,7 @@ export const joinRoom = (roomId: string) => {
                 break
               }
               case 'connect-cable': {
-                patch.cables.push(event.cable)
+                patch.cables.push(util.cloneObject(event.cable))
                 break
               }
               case 'disconnect-cable': {
@@ -254,10 +254,7 @@ useEffect(() => {
     assert(previousPatchModule)
 
     if (!util.deepEqual(previousPatchModule.state, module.state)) {
-      const newState = util.cloneObject(module.state!) as Record<
-        string,
-        unknown
-      >
+      const newState = util.cloneObject(module.state!)
       dispatchPatchEvent({
         type: 'change-module-state',
         moduleId,
@@ -314,14 +311,17 @@ useEffect(() => {
         previousPatch.knobs[moduleId] = {}
       }
 
-      if (previousPatch.knobs[moduleId]![knobName] !== knobValue) {
+      const moduleKnobs = previousPatch.knobs[moduleId]
+      assert(moduleKnobs)
+
+      if (moduleKnobs[knobName] !== knobValue) {
         dispatchPatchEvent({
           type: 'tweak-knob',
           moduleId,
           knob: knobName,
           value: knobValue,
         })
-        previousPatch.knobs[moduleId]![knobName] = knobValue
+        moduleKnobs[knobName] = knobValue
       }
     }
   }
@@ -360,11 +360,7 @@ useEffect(() => {
         cable,
       })
 
-      previousPatch.cables.push({
-        id: cableId,
-        from: { ...cable.from },
-        to: { ...cable.to },
-      })
+      previousPatch.cables.push(util.cloneObject(cable))
     }
   }
 })
