@@ -28,7 +28,8 @@ class ReverbNode extends Component<Props> {
       <Module id={id} name="Reverb" width={250} height={120}>
         <Knob
           moduleId={id}
-          id="DELAY"
+          id="delay"
+          label="DELAY"
           type="linear"
           min={0}
           max={0.2}
@@ -36,7 +37,8 @@ class ReverbNode extends Component<Props> {
         />
         <Knob
           moduleId={id}
-          id="DECAY"
+          id="decay"
+          label="DECAY"
           type="linear"
           min={0}
           max={0.99}
@@ -44,7 +46,8 @@ class ReverbNode extends Component<Props> {
         />
         <Knob
           moduleId={id}
-          id="DIFFUSE"
+          id="diffuse"
+          label="DIFFUSE"
           type="linear"
           min={0}
           max={1}
@@ -52,7 +55,8 @@ class ReverbNode extends Component<Props> {
         />
         <Knob
           moduleId={id}
-          id="WET"
+          id="wet"
+          label="WET"
           type="linear"
           min={0}
           max={1}
@@ -60,7 +64,8 @@ class ReverbNode extends Component<Props> {
         />
         <Knob
           moduleId={id}
-          id="DRY"
+          id="dry"
+          label="DRY"
           type="linear"
           min={0}
           max={1}
