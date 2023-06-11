@@ -22,7 +22,7 @@ const ActiveCable = () => {
 
   const candidateSocket = getCableConnectionCandidate()
 
-  const a = getSocketPosition(state.activeCable.from)
+  const a = getSocketPosition(state.activeCable.draggingFrom)
   const b = candidateSocket
     ? getSocketPosition(candidateSocket)
     : {
@@ -33,7 +33,8 @@ const ActiveCable = () => {
   assert(a, 'state.activeCable.from is not a valid socket')
   assert(b, 'candidateSocket is not a valid socket')
 
-  const [from, to] = state.activeCable.from.type === 'output' ? [a, b] : [b, a]
+  const [from, to] =
+    state.activeCable.draggingFrom.type === 'output' ? [a, b] : [b, a]
 
   return <CablePath from={from} to={to} />
 }

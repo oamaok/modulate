@@ -21,7 +21,7 @@ const Patch = () => {
           const module = state.patch.modules[id]
           assert(module, `Patch: invalid module id (${id})`)
           const Component: any =
-          moduleMap[module.name as keyof typeof moduleMap]
+            moduleMap[module.name as keyof typeof moduleMap]
           return <Component key={id} id={id} />
         })}
         {state.room ? <RoomCursors /> : null}

@@ -7,6 +7,6 @@
   "author": "Teemu Pääkkönen",
   "license": "UNLICENSED",
   "dependencies": {
-    "kaiku": "^1.20.3"
+    "kaiku": "^1.21.1"
   }
 }

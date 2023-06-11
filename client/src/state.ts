@@ -1,14 +1,16 @@
 import { createState } from 'kaiku'
-import { getSockets, disconnectSockets, connectSockets } from './sockets'
 import { State } from './types'
 import {
   Cable,
-  ConnectedSocket,
+  Socket,
   Id,
   Patch,
   PatchMetadata,
   Vec2,
+  OutputSocket,
+  InputSocket,
 } from '@modulate/common/types'
+import * as engine from './engine'
 import { parseRoute } from './routes'
 import assert from './assert'
 
@@ -33,14 +35,14 @@ const state = createState<State>({
   },
   route: parseRoute(window.location),
   viewOffset: { x: 0, y: 0 },
-  socketPositions: {},
+  sockets: {},
   activeCable: null,
 
   room: null,
 })
 
 export default state
-export const { cursor, viewport, patch, socketPositions } = state
+export const { cursor, viewport, patch } = state
 export const nextId = () => crypto.randomUUID() as Id
 
 window.addEventListener('popstate', () => {
@@ -65,18 +67,18 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   patch.knobs = knobs
   patch.currentId = currentId
   patch.modules = modules
-  state.initialized = true
 
   await new Promise(requestAnimationFrame)
 
   for (const cable of cables) {
-    connectSockets(cable.from, cable.to)
+    await engine.connectCable(cable)
   }
 
   patch.cables = cables
+  state.initialized = true
 }
 
-export const addModule = (name: string) => {
+export const addModule = async (name: string) => {
   patch.modules[nextId()] = {
     name,
     position: {
@@ -114,36 +116,54 @@ export const setModulePosition = (id: Id, position: Vec2) => {
   module.position = position
 }
 
-export const setSocketPosition = (moduleId: Id, name: string, pos: Vec2) => {
-  if (!socketPositions[moduleId]) {
-    socketPositions[moduleId] = {}
+export const registerSocket = (socket: Socket) => {
+  if (!state.sockets[socket.moduleId]) {
+    state.sockets[socket.moduleId] = []
   }
-  socketPositions[moduleId]![name] = pos
+
+  state.sockets[socket.moduleId]!.push({
+    socket,
+    pos: { x: 0, y: 0 },
+  })
 }
 
-export const getSocketPosition = ({
-  moduleId,
-  name,
-}: {
-  moduleId: Id
-  name: string
-}): Vec2 | null => {
-  const moduleSockets = socketPositions[moduleId]
-  if (!moduleSockets) {
-    return null
-  }
+const isSameSocket = (a: Socket, b: Socket): boolean =>
+  a.type === b.type && a.index === b.index && a.moduleId === b.moduleId
 
-  const modulePosition = getModulePosition(moduleId)
-  const socketOffset = moduleSockets[name]
+export const getSocket = (
+  socket: Socket
+): { socket: Socket; pos: Vec2 } | null => {
+  const sockets = state.sockets[socket.moduleId]
+  if (!sockets) return null
+
+  return sockets.find((s) => isSameSocket(s.socket, socket)) ?? null
+}
+
+export const setSocketPosition = (socket: Socket, pos: Vec2) => {
+  const sockets = state.sockets[socket.moduleId]
+  assert(sockets)
+
+  const foundSocket = getSocket(socket)
+  assert(
+    foundSocket,
+    'setSocketPosition: socket was not registered before setting position'
+  )
+
+  foundSocket.pos = pos
+}
+
+export const getSocketPosition = (socket: Socket): Vec2 | null => {
+  const modulePosition = getModulePosition(socket.moduleId)
+  const moduleSocket = getSocket(socket)
 
   assert(
-    socketOffset,
-    `getSocketPosition: invalid socket name (${moduleId}, ${name})`
+    moduleSocket,
+    `getSocketPosition: invalid socket name (${socket.moduleId},${socket.type},${socket.index})`
   )
 
   return {
-    x: modulePosition.x + socketOffset.x,
-    y: modulePosition.y + socketOffset.y,
+    x: modulePosition.x + moduleSocket.pos.x,
+    y: modulePosition.y + moduleSocket.pos.y,
   }
 }
 
@@ -166,46 +186,47 @@ export const setKnobValue = (moduleId: Id, name: string, value: number) => {
   }
   patch.knobs[moduleId]![name] = value
 }
+const cableConnectsToSocket = (cable: Cable, socket: Socket): boolean =>
+  isSameSocket(cable.from, socket) || isSameSocket(cable.to, socket)
 
-const cableConnectsToSocket = (
-  cable: Cable,
-  socket: ConnectedSocket
-): boolean => {
-  const cableSocket = socket.type === 'input' ? cable.to : cable.from
-
-  return (
-    cableSocket.moduleId === socket.moduleId && cableSocket.name === socket.name
-  )
-}
-
-export const plugActiveCable = (socket: ConnectedSocket) => {
+export const plugActiveCable = (socket: Socket) => {
   const previousCable = patch.cables.find((cable) =>
     cableConnectsToSocket(cable, socket)
   )
 
   if (previousCable) {
-    disconnectSockets(previousCable.from, previousCable.to)
+    engine.disconnectCable(previousCable)
     patch.cables = patch.cables.filter((cable) => cable.id !== previousCable.id)
     state.activeCable = {
-      from: socket.type === 'input' ? previousCable.from : previousCable.to,
+      draggingFrom:
+        socket.type === 'output' ? previousCable.to : previousCable.from,
     }
   } else {
     state.activeCable = {
-      from: socket,
+      draggingFrom: socket,
     }
   }
 }
 
-export const getCableConnectionCandidate = () => {
+const getSockets = () => Object.values(state.sockets).flat()
+
+const canSocketsConnect = (a: Socket, b: Socket) => {
+  if (a.type === 'output') return b.type !== 'output'
+  return b.type === 'output'
+}
+
+export const getCableConnectionCandidate = (): Socket | null => {
   const { activeCable } = state
   if (!activeCable) return null
 
-  const targetSockets = getSockets().filter(
-    (socket) => socket.type !== activeCable.from.type
+  const targetSockets = getSockets().filter(({ socket }) =>
+    canSocketsConnect(activeCable.draggingFrom, socket)
   )
 
-  const candidateSocket = targetSockets.find((socket) => {
-    const { x, y } = getSocketPosition(socket)!
+  const candidateSocket = targetSockets.find(({ socket }) => {
+    const pos = getSocketPosition(socket)
+    assert(pos)
+    const { x, y } = pos
     return (
       (x - state.cursor.x + state.viewOffset.x) ** 2 +
         (y - state.cursor.y + state.viewOffset.y) ** 2 <
@@ -216,37 +237,27 @@ export const getCableConnectionCandidate = () => {
   if (!candidateSocket) return null
 
   const inputSocketIsOccupied =
-    candidateSocket.type === 'input' &&
-    patch.cables.some(
-      (cable) =>
-        cable.to.moduleId === candidateSocket.moduleId &&
-        cable.to.name === candidateSocket.name
-    )
+    candidateSocket.socket.type === 'input' &&
+    patch.cables.some((cable) => isSameSocket(cable.to, candidateSocket.socket))
 
   if (inputSocketIsOccupied) return null
 
-  return candidateSocket
+  return candidateSocket.socket
 }
 
 export const addConnectionBetweenSockets = (
-  from: ConnectedSocket,
-  to: ConnectedSocket
+  from: OutputSocket,
+  to: InputSocket
 ) => {
-  connectSockets(from, to)
-
-  patch.cables.push({
+  const cable = {
     id: nextId(),
-    from: {
-      moduleId: from.moduleId,
-      type: from.type,
-      name: from.name,
-    },
-    to: {
-      moduleId: to.moduleId,
-      type: to.type,
-      name: to.name,
-    },
-  })
+    from: { ...from },
+    to: { ...to },
+  }
+
+  engine.connectCable(cable)
+
+  patch.cables.push(cable)
 }
 
 export const releaseActiveCable = () => {
@@ -261,14 +272,18 @@ export const releaseActiveCable = () => {
     return
   }
 
-  if (activeCable.from.type === 'output') {
-    const from = activeCable.from
+  if (activeCable.draggingFrom.type === 'output') {
+    const from = activeCable.draggingFrom
     const to = candidateSocket
+
+    assert(to.type !== 'output')
 
     addConnectionBetweenSockets(from, to)
   } else {
     const from = candidateSocket
-    const to = activeCable.from
+    const to = activeCable.draggingFrom
+
+    assert(from.type === 'output')
 
     addConnectionBetweenSockets(from, to)
   }
@@ -276,20 +291,24 @@ export const releaseActiveCable = () => {
   state.activeCable = null
 }
 
-export const deleteModule = async (id: string) => {
+export const deleteModule = async (moduleId: string) => {
   const cablesToDisconnect = state.patch.cables.filter(
-    (cable) => cable.from.moduleId === id || cable.to.moduleId === id
+    (cable) =>
+      cable.from.moduleId === moduleId || cable.to.moduleId === moduleId
   )
 
   for (const cable of cablesToDisconnect) {
-    disconnectSockets(cable.from, cable.to)
+    await engine.disconnectCable(cable)
   }
 
+  await engine.deleteModule(moduleId)
+
   state.patch.cables = state.patch.cables.filter(
-    (cable) => cable.from.moduleId !== id && cable.to.moduleId !== id
+    (cable) =>
+      cable.from.moduleId !== moduleId && cable.to.moduleId !== moduleId
   )
 
-  delete state.patch.knobs[id]
-  delete state.socketPositions[id]
-  delete state.patch.modules[id]
+  delete state.patch.knobs[moduleId]
+  delete state.sockets[moduleId]
+  delete state.patch.modules[moduleId]
 }

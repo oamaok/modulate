@@ -1,5 +1,5 @@
 import { h, Component, useEffect } from 'kaiku'
-import { getAudioContext } from '../../audio'
+import { getAudioContext } from '../../engine'
 import { getKnobValue } from '../../state'
 import Knob from '../module-parts/Knob'
 import css from './UtilityBox.css'

@@ -2,10 +2,10 @@ import { useEffect } from 'kaiku'
 import { ClientMessage, Patch, ServerMessage } from '@modulate/common/types'
 import * as util from '@modulate/common/util'
 import * as api from './api'
-import state, { loadPatch } from './state'
+import state, { loadPatch, addConnectionBetweenSockets } from './state'
 import assert from './assert'
 import { PatchEvent } from '@modulate/common/types'
-import { connectSockets, disconnectSockets } from './sockets'
+import * as engine from './engine'
 
 let previousPatch: Patch = {
   currentId: 0,
@@ -92,14 +92,14 @@ export const joinRoom = (roomId: string) => {
               )
 
               for (const cable of cablesToDisconnect) {
-                disconnectSockets(cable.from, cable.to)
+                addConnectionBetweenSockets(cable.from, cable.to)
               }
 
-              delete state.socketPositions[event.moduleId]
+              delete state.sockets[event.moduleId]
               break
             }
             case 'connect-cable': {
-              connectSockets(event.cable.from, event.cable.to)
+              addConnectionBetweenSockets(event.cable.from, event.cable.to)
               break
             }
             case 'disconnect-cable': {
@@ -107,7 +107,7 @@ export const joinRoom = (roomId: string) => {
                 (cable) => cable.id === event.cableId
               )
               assert(cable)
-              disconnectSockets(cable.from, cable.to)
+              engine.disconnectCable(cable)
               break
             }
           }
@@ -253,7 +253,9 @@ useEffect(() => {
     const previousPatchModule = previousPatch.modules[moduleId]
     assert(previousPatchModule)
 
-    if (!util.deepEqual(previousPatchModule.state, module.state)) {
+    console.log(module, module.state, previousPatchModule.state)
+
+    if (!util.deepEqual(module.state, previousPatchModule.state)) {
       const newState = util.cloneObject(module.state!)
       dispatchPatchEvent({
         type: 'change-module-state',

@@ -1,50 +1,52 @@
 import { h, Component, useEffect } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
-import { getModuleKnobs } from '../../state'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { connectKnobToParam } from '../../modules'
+import { Limiter } from '@modulate/worklets/src/modules'
 
 type Props = {
   id: string
 }
 
-class Limiter extends Component<Props> implements IModule {
-  node: WorkletNode<'Limiter'>
-
+class LimiterNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
-    this.node = new WorkletNode(audioContext, 'Limiter')
-
-    const threshold = this.node.parameters.get('threshold')
-
-    connectKnobToParam(props.id, 'threshold', threshold)
+    engine.createModule(props.id, 'Limiter')
+    connectKnobToParam<Limiter, 'threshold'>(props.id, 'threshold', 0)
   }
 
   render({ id }: Props) {
     return (
       <Module id={id} name="Limiter">
-        <Knob moduleId={id} id="threshold" type="percentage" initial={0.4} />
+        <Knob moduleId={id} id="THRES" type="percentage" initial={0.4} />
         <ModuleInputs>
-          <Socket
+          <Socket<Limiter, 'parameter', 'threshold'>
+            moduleId={id}
+            type="parameter"
+            label="THRES"
+            index={0}
+          />
+          <Socket<Limiter, 'input', 'input'>
             moduleId={id}
             type="input"
-            name="threshold"
-            node={this.node.parameters.get('threshold')}
+            label="IN"
+            index={0}
           />
-          <Socket moduleId={id} type="input" name="in" node={this.node} />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="out" node={this.node} />
+          <Socket<Limiter, 'output', 'output'>
+            moduleId={id}
+            type="output"
+            label="OUT"
+            index={0}
+          />
         </ModuleOutputs>
       </Module>
     )
   }
 }
 
-export default Limiter
+export default LimiterNode

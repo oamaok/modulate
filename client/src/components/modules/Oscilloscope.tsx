@@ -1,8 +1,6 @@
-import { h, Component, useEffect } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
-import { getKnobValue, getModuleKnobs } from '../../state'
+import { h, Component } from 'kaiku'
+import { getAudioContext } from '../../engine'
+import { getKnobValue } from '../../state'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
@@ -16,7 +14,7 @@ type Props = {
 const QUANTUM_SIZE = 128
 const LENGTH = 64
 
-class Oscilloscope extends Component<Props> implements IModule {
+class Oscilloscope extends Component<Props> {
   node: AudioWorkletNode
   buffer: Float32Array
 

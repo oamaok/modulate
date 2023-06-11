@@ -6,7 +6,7 @@ import UtilityBox from '../utility-box/UtilityBox'
 import ModuleSelector from '../module-selector/ModuleSelector'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
-import { initializeAudio } from '../../audio'
+import { initializeAudio } from '../../engine'
 import state, { loadPatch, patch } from '../../state'
 import * as api from '../../api'
 import { joinRoom } from '../../rooms'
@@ -84,12 +84,12 @@ const App = () => {
           )}px`,
       }}
     >
-      {state.initialized ? <Patch /> : null}
+      <Patch />
       <Header />
       <UserBar />
       <ModuleSelector />
       <Hint />
-      {state.initialized ? <UtilityBox /> : <InitModal />}
+      {state.initialized ? null : <InitModal />}
     </div>
   )
 }

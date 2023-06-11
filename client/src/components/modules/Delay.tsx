@@ -1,37 +1,25 @@
 import { h, Component } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { connectKnobToParam } from '../../modules'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import { Delay } from '@modulate/worklets/src/modules'
 type Props = {
   id: string
 }
 
-class Delay extends Component<Props> implements IModule {
-  node: WorkletNode<'Delay'>
-
+class DelayNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
+    engine.createModule(props.id, 'Delay')
 
-    this.node = new WorkletNode(audioContext, 'Delay', {
-      numberOfOutputs: 2,
-    })
-
-    const dry = this.node.parameters.get('dry')
-    const wet = this.node.parameters.get('wet')
-    const delayTime = this.node.parameters.get('delayTime')
-    const feedBack = this.node.parameters.get('feedBack')
-
-    connectKnobToParam(props.id, 'dry', dry)
-    connectKnobToParam(props.id, 'wet', wet)
-    connectKnobToParam(props.id, 'delayTime', delayTime)
-    connectKnobToParam(props.id, 'feedBack', feedBack)
+    connectKnobToParam<Delay, 'time'>(props.id, 'delayTime', 0)
+    connectKnobToParam<Delay, 'feedback'>(props.id, 'feedBack', 1)
+    connectKnobToParam<Delay, 'wet'>(props.id, 'wet', 2)
+    connectKnobToParam<Delay, 'dry'>(props.id, 'dry', 3)
   }
 
   render({ id }: Props) {
@@ -40,7 +28,7 @@ class Delay extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           id="delayTime"
-          label="Delay"
+          label="TIME"
           type="exponential"
           exponent={2}
           unit="s"
@@ -51,45 +39,55 @@ class Delay extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           id="feedBack"
-          label="Feeback"
+          label="FDBK"
           type="percentage"
           initial={0.2}
         />
         <Knob
           moduleId={id}
           id="wet"
-          label="Wet"
+          label="WET"
           type="percentage"
           initial={0.5}
         />
         <Knob
           moduleId={id}
           id="dry"
-          label="Dry"
+          label="DRY"
           type="percentage"
           initial={1}
         />
         <ModuleInputs>
-          <Socket
+          <Socket<Delay, 'parameter', 'feedback'>
+            moduleId={id}
+            type="parameter"
+            label="FDBK"
+            index={1}
+          />
+          <Socket<Delay, 'parameter', 'time'>
+            moduleId={id}
+            type="parameter"
+            label="TIME"
+            index={0}
+          />
+          <Socket<Delay, 'input', 'input'>
             moduleId={id}
             type="input"
-            name="FDBK"
-            node={this.node.parameters.get('feedBack')}
+            label="IN"
+            index={0}
           />
-          <Socket
-            moduleId={id}
-            type="input"
-            name="TIME"
-            node={this.node.parameters.get('delayTime')}
-          />
-          <Socket moduleId={id} type="input" name="IN" node={this.node} />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="OUT" node={this.node} />
+          <Socket<Delay, 'output', 'output'>
+            moduleId={id}
+            type="output"
+            label="OUT"
+            index={0}
+          />
         </ModuleOutputs>
       </Module>
     )
   }
 }
 
-export default Delay
+export default DelayNode

@@ -3,11 +3,12 @@ import {
   Vec2,
   Patch,
   PatchMetadata,
-  ConnectedSocket,
   User,
+  EngineMessageType,
+  EngineRequest,
+  EngineResponse,
+  Socket,
 } from '@modulate/common/types'
-
-export interface IModule {}
 
 export type Route =
   | {
@@ -30,6 +31,8 @@ type Room = {
   >
 }
 
+export type SocketWithPosition = Socket & { pos: Vec2 }
+
 export type State = {
   initialized: boolean
   room: Room | null
@@ -41,12 +44,18 @@ export type State = {
   activeModule: Id | null
   user: User | null
   cursor: Vec2
-  socketPositions: Record<Id, Record<string, Vec2>>
+  sockets: Record<string, { socket: Socket; pos: Vec2 }[]>
   viewOffset: Vec2
   patchMetadata: PatchMetadata
   patch: Patch
   route: Route
   activeCable: {
-    from: ConnectedSocket
+    draggingFrom: Socket
   } | null
+}
+
+export type Engine = {
+  [K in EngineMessageType]: (
+    req: Omit<EngineRequest<K>, 'type' | 'id'>
+  ) => Promise<EngineResponse<K>>
 }

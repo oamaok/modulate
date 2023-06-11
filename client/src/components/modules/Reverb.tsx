@@ -1,37 +1,26 @@
 import { h, Component } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { connectKnobToParam } from '../../modules'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import { Reverb } from '@modulate/worklets/src/modules'
 type Props = {
   id: string
 }
 
-class Reverb extends Component<Props> implements IModule {
-  node: WorkletNode<'Reverb'>
-
+class ReverbNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
+    engine.createModule(props.id, 'Reverb')
 
-    this.node = new WorkletNode(audioContext, 'Reverb')
-
-    const dry = this.node.parameters.get('dry')
-    const wet = this.node.parameters.get('wet')
-    const decay = this.node.parameters.get('decay')
-    const delay = this.node.parameters.get('delay')
-    const diffuse = this.node.parameters.get('diffuse')
-
-    connectKnobToParam(props.id, 'dry', dry)
-    connectKnobToParam(props.id, 'wet', wet)
-    connectKnobToParam(props.id, 'decay', decay)
-    connectKnobToParam(props.id, 'delay', delay)
-    connectKnobToParam(props.id, 'diffuse', diffuse)
+    connectKnobToParam<Reverb, 'dry'>(props.id, 'dry', 4)
+    connectKnobToParam<Reverb, 'wet'>(props.id, 'wet', 3)
+    connectKnobToParam<Reverb, 'decay'>(props.id, 'decay', 1)
+    connectKnobToParam<Reverb, 'delay'>(props.id, 'delay', 0)
+    connectKnobToParam<Reverb, 'diffuse'>(props.id, 'diffuse', 2)
   }
 
   render({ id }: Props) {
@@ -39,7 +28,7 @@ class Reverb extends Component<Props> implements IModule {
       <Module id={id} name="Reverb" width={250} height={120}>
         <Knob
           moduleId={id}
-          id="delay"
+          id="DELAY"
           type="linear"
           min={0}
           max={0.2}
@@ -47,7 +36,7 @@ class Reverb extends Component<Props> implements IModule {
         />
         <Knob
           moduleId={id}
-          id="decay"
+          id="DECAY"
           type="linear"
           min={0}
           max={0.99}
@@ -55,7 +44,7 @@ class Reverb extends Component<Props> implements IModule {
         />
         <Knob
           moduleId={id}
-          id="diffuse"
+          id="DIFFUSE"
           type="linear"
           min={0}
           max={1}
@@ -63,7 +52,7 @@ class Reverb extends Component<Props> implements IModule {
         />
         <Knob
           moduleId={id}
-          id="wet"
+          id="WET"
           type="linear"
           min={0}
           max={1}
@@ -71,39 +60,49 @@ class Reverb extends Component<Props> implements IModule {
         />
         <Knob
           moduleId={id}
-          id="dry"
+          id="DRY"
           type="linear"
           min={0}
           max={1}
           initial={1}
         />
         <ModuleInputs>
-          <Socket
+          <Socket<Reverb, 'input', 'input'>
             moduleId={id}
             type="input"
-            name="DLY"
-            node={this.node.parameters.get('delay')}
+            label="IN"
+            index={0}
           />
-          <Socket
+          <Socket<Reverb, 'parameter', 'delay'>
             moduleId={id}
-            type="input"
-            name="DCY"
-            node={this.node.parameters.get('decay')}
+            type="parameter"
+            label="DLY"
+            index={0}
           />
-          <Socket
+          <Socket<Reverb, 'parameter', 'decay'>
             moduleId={id}
-            type="input"
-            name="DFS"
-            node={this.node.parameters.get('diffuse')}
+            type="parameter"
+            label="DCY"
+            index={1}
           />
-          <Socket moduleId={id} type="input" name="IN" node={this.node} />
+          <Socket<Reverb, 'parameter', 'diffuse'>
+            moduleId={id}
+            type="parameter"
+            label="DFS"
+            index={2}
+          />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="OUT" node={this.node} />
+          <Socket<Reverb, 'output', 'output'>
+            moduleId={id}
+            type="output"
+            label="OUT"
+            index={0}
+          />
         </ModuleOutputs>
       </Module>
     )
   }
 }
 
-export default Reverb
+export default ReverbNode

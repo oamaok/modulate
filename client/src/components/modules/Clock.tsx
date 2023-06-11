@@ -1,7 +1,5 @@
 import { h, Component, useEffect } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
@@ -9,10 +7,10 @@ import { connectKnobToParam } from '../../modules'
 
 import { ModuleOutputs } from '../module-parts/ModuleSockets'
 import { getModuleState, setModuleState } from '../../state'
-import { ClockMessage } from '@modulate/common/types'
 
 import css from './Clock.css'
 import Toggle from '../module-parts/Toggle'
+import { Clock } from '@modulate/worklets/src/modules'
 
 type Props = {
   id: string
@@ -48,18 +46,11 @@ type ClockState = {
   isRunning: boolean
 }
 
-class Clock extends Component<Props> implements IModule {
-  node: WorkletNode<'Clock'>
-
-  sendToClock = (message: ClockMessage) => {
-    this.node.port.postMessage(message)
-  }
+class ClockNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
-    this.node = new WorkletNode(audioContext, 'Clock', {
-      numberOfOutputs: 4,
-    })
+
+    engine.createModule(props.id, 'Clock')
 
     if (!getModuleState<ClockState>(props.id)) {
       setModuleState(props.id, {
@@ -69,36 +60,22 @@ class Clock extends Component<Props> implements IModule {
 
     useEffect(() => {
       const { isRunning } = getModuleState<ClockState>(props.id)
-      this.sendToClock({
-        type: 'SET_RUNNING',
-        isRunning,
+      engine.sendMessageToModule<Clock>(props.id, {
+        type: 'ClockSetRunning',
+        running: isRunning,
       })
     })
 
-    const tempo = this.node.parameters.get('tempo')
-
-    const pulseWidth1 = this.node.parameters.get('pulseWidth1')
-    const pulseWidth2 = this.node.parameters.get('pulseWidth2')
-    const pulseWidth3 = this.node.parameters.get('pulseWidth3')
-    const ratio1 = this.node.parameters.get('ratio1')
-    const ratio2 = this.node.parameters.get('ratio2')
-    const ratio3 = this.node.parameters.get('ratio3')
-    const swing1 = this.node.parameters.get('swing1')
-    const swing2 = this.node.parameters.get('swing2')
-    const swing3 = this.node.parameters.get('swing3')
-
-    connectKnobToParam(props.id, 'tempo', tempo)
-    connectKnobToParam(props.id, 'pulseWidth1', pulseWidth1)
-    connectKnobToParam(props.id, 'pulseWidth2', pulseWidth2)
-    connectKnobToParam(props.id, 'pulseWidth3', pulseWidth3)
-
-    connectKnobToParam(props.id, 'ratio1', ratio1)
-    connectKnobToParam(props.id, 'ratio2', ratio2)
-    connectKnobToParam(props.id, 'ratio3', ratio3)
-
-    connectKnobToParam(props.id, 'swing1', swing1)
-    connectKnobToParam(props.id, 'swing2', swing2)
-    connectKnobToParam(props.id, 'swing3', swing3)
+    connectKnobToParam<Clock, 'tempo'>(props.id, 'tempo', 0)
+    connectKnobToParam<Clock, 'ratio0'>(props.id, 'ratio0', 1)
+    connectKnobToParam<Clock, 'ratio1'>(props.id, 'ratio1', 2)
+    connectKnobToParam<Clock, 'ratio2'>(props.id, 'ratio2', 3)
+    connectKnobToParam<Clock, 'pw0'>(props.id, 'pulseWidth0', 4)
+    connectKnobToParam<Clock, 'pw1'>(props.id, 'pulseWidth1', 5)
+    connectKnobToParam<Clock, 'pw2'>(props.id, 'pulseWidth2', 6)
+    connectKnobToParam<Clock, 'swing0'>(props.id, 'swing0', 7)
+    connectKnobToParam<Clock, 'swing1'>(props.id, 'swing1', 8)
+    connectKnobToParam<Clock, 'swing2'>(props.id, 'swing1', 9)
   }
 
   render({ id }: Props) {
@@ -115,7 +92,9 @@ class Clock extends Component<Props> implements IModule {
           />
           <button
             onClick={() => {
-              this.sendToClock({ type: 'RESET' })
+              engine.sendMessageToModule<Clock>(id, {
+                type: 'ClockReset',
+              })
             }}
           >
             Reset
@@ -124,7 +103,7 @@ class Clock extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           id="tempo"
-          label="Tempo"
+          label="TEMPO"
           type="linear"
           min={1}
           max={500}
@@ -133,8 +112,34 @@ class Clock extends Component<Props> implements IModule {
         <div className={css('row')}>
           <Knob
             moduleId={id}
+            id="ratio0"
+            label="RATIO"
+            type="option"
+            options={RATIO_OPTIONS}
+            initial={1}
+          />
+          <div className={css('connector')} />
+          <Knob
+            moduleId={id}
+            id="swing0"
+            label="SWING"
+            type="percentage"
+            initial={0.5}
+          />
+          <div className={css('connector')} />
+          <Knob
+            moduleId={id}
+            id="pulseWidth0"
+            label="PW"
+            type="percentage"
+            initial={0.5}
+          />
+        </div>
+        <div className={css('row')}>
+          <Knob
+            moduleId={id}
             id="ratio1"
-            label="Ratio"
+            label="RATIO"
             type="option"
             options={RATIO_OPTIONS}
             initial={1}
@@ -143,7 +148,7 @@ class Clock extends Component<Props> implements IModule {
           <Knob
             moduleId={id}
             id="swing1"
-            label="Swing"
+            label="SWING"
             type="percentage"
             initial={0.5}
           />
@@ -160,7 +165,7 @@ class Clock extends Component<Props> implements IModule {
           <Knob
             moduleId={id}
             id="ratio2"
-            label="Ratio"
+            label="RATIO"
             type="option"
             options={RATIO_OPTIONS}
             initial={1}
@@ -169,7 +174,7 @@ class Clock extends Component<Props> implements IModule {
           <Knob
             moduleId={id}
             id="swing2"
-            label="Swing"
+            label="SWING"
             type="percentage"
             initial={0.5}
           />
@@ -182,53 +187,24 @@ class Clock extends Component<Props> implements IModule {
             initial={0.5}
           />
         </div>
-        <div className={css('row')}>
-          <Knob
-            moduleId={id}
-            id="ratio3"
-            label="Ratio"
-            type="option"
-            options={RATIO_OPTIONS}
-            initial={1}
-          />
-          <div className={css('connector')} />
-          <Knob
-            moduleId={id}
-            id="swing3"
-            label="Swing"
-            type="percentage"
-            initial={0.5}
-          />
-          <div className={css('connector')} />
-          <Knob
-            moduleId={id}
-            id="pulseWidth3"
-            label="PW"
-            type="percentage"
-            initial={0.5}
-          />
-        </div>
         <ModuleOutputs>
-          <Socket
+          <Socket<Clock, 'output', 'pulse0'>
             moduleId={id}
             type="output"
-            name="1"
-            node={this.node}
-            output={0}
+            label=""
+            index={0}
           />
-          <Socket
+          <Socket<Clock, 'output', 'pulse1'>
             moduleId={id}
             type="output"
-            name="2"
-            node={this.node}
-            output={1}
+            label=""
+            index={1}
           />
-          <Socket
+          <Socket<Clock, 'output', 'pulse2'>
             moduleId={id}
             type="output"
-            name="3"
-            node={this.node}
-            output={2}
+            label=""
+            index={2}
           />
         </ModuleOutputs>
       </Module>
@@ -236,4 +212,4 @@ class Clock extends Component<Props> implements IModule {
   }
 }
 
-export default Clock
+export default ClockNode

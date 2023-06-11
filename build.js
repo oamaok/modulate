@@ -139,19 +139,21 @@ const buildClient = async () => {
 }
 
 const buildRust = async () => {
+  console.time('Build rust')
   return new Promise((resolve, reject) => {
     const proc = cp.spawn('wasm-pack', [
       'build',
+      isProduction ? '--release' : '--dev',
       './worklets/',
       '--target',
       'web',
-      '--release',
     ])
 
     proc.stderr.pipe(process.stderr)
 
     proc.addListener('exit', (code) => {
       if (code === 0) {
+        console.timeEnd('Build rust')
         resolve()
       } else {
         reject(code)
@@ -162,7 +164,6 @@ const buildRust = async () => {
 
 const buildWorklets = async () => {
   console.time('Build worklets')
-
   const polyfill = await fs.readFile('./worklets/src/polyfill.js')
 
   await esbuild
@@ -185,23 +186,24 @@ const buildWorklets = async () => {
       )
     })
 
-  await terser
-    .minify(
-      (await fs.readFile('./dist/client/assets/worklets.js')).toString(),
-      {
-        sourceMap: true,
-        compress: {
-          passes: 3,
-        },
-        mangle: {
-          module: true,
-        },
-      }
-    )
-    .then(async (minified) => {
-      await fs.writeFile('dist/client/assets/worklets.js', minified.code)
-    })
-
+  if (isProduction) {
+    await terser
+      .minify(
+        (await fs.readFile('./dist/client/assets/worklets.js')).toString(),
+        {
+          sourceMap: false,
+          compress: {
+            passes: 3,
+          },
+          mangle: {
+            module: true,
+          },
+        }
+      )
+      .then(async (minified) => {
+        await fs.writeFile('dist/client/assets/worklets.js', minified.code)
+      })
+  }
   await fs.copyFile(
     './worklets/pkg/worklets_bg.wasm',
     './dist/client/assets/worklets.wasm'
@@ -233,6 +235,7 @@ const buildWorklets = async () => {
     .watch(['./worklets/src/**/*.ts', './worklets/pkg/**/*'], {
       persistent: true,
       ignoreInitial: true,
+      ignored: /wasm\.ts/,
     })
     .on('all', debounce(buildWorklets))
 
@@ -241,7 +244,10 @@ const buildWorklets = async () => {
       persistent: true,
       ignoreInitial: true,
     })
-    .on('all', debounce(buildRust))
+    .on(
+      'all',
+      debounce(() => buildRust().catch(() => {}))
+    )
 
   chokidar
     .watch('./client/src/**/*', {

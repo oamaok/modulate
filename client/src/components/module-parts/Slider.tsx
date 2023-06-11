@@ -5,14 +5,15 @@ import css from './Slider.css'
 
 type Props = {
   moduleId: Id
-  name: string
+  id: string
+  label?: string
   min: number
   max: number
   initial: number
 }
 
-const Slider = ({ moduleId, name, min, max, initial }: Props) => {
-  const knobValue = getKnobValue(moduleId, name)
+const Slider = ({ moduleId, id, label, min, max, initial }: Props) => {
+  const knobValue = getKnobValue(moduleId, id)
   const initialValue = knobValue ?? initial
 
   const knobState = useState<{
@@ -34,14 +35,14 @@ const Slider = ({ moduleId, name, min, max, initial }: Props) => {
 
   useEffect(() => {
     if (!knobState.dragPosition) {
-      const knobValue = getKnobValue(moduleId, name) ?? initial
+      const knobValue = getKnobValue(moduleId, id) ?? initial
       const externallyUpdatedPosition = (knobValue - min) / (max - min)
       knobState.position = externallyUpdatedPosition
     }
   })
 
   useEffect(() => {
-    setKnobValue(moduleId, name, initialValue)
+    setKnobValue(moduleId, id, initialValue)
 
     document.addEventListener('mouseup', onDragEnd)
     document.addEventListener('blur', onDragEnd)
@@ -60,14 +61,14 @@ const Slider = ({ moduleId, name, min, max, initial }: Props) => {
       knobState.dragPosition.x = state.cursor.x
       knobState.dragPosition.y = state.cursor.y
       const value = knobState.position * (max - min) + min
-      setKnobValue(moduleId, name, value)
+      setKnobValue(moduleId, id, value)
 
       displayHint(value)
     }
   })
 
   const displayHint = (value: number) => {
-    state.hint = `${name}: ${value.toFixed(2)}`
+    state.hint = `${label ?? id}: ${value.toFixed(2)}`
   }
 
   const hideHint = () => {

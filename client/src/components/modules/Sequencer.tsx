@@ -1,7 +1,8 @@
 import { h, Component, useEffect } from 'kaiku'
 import * as util from '@modulate/common/util'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
+import { NoteName, Note } from '@modulate/common/types'
+import { Sequencer } from '@modulate/worklets/src/modules'
+import * as engine from '../../engine'
 import { WorkletNode } from '../../worklets'
 import { getKnobValue, getModuleState, setModuleState } from '../../state'
 import { connectKnobToParam } from '../../modules'
@@ -12,51 +13,24 @@ import css from './Sequencer.css'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Keyboard from '../module-parts/Keyboard'
-import { SequencerMessage } from '@modulate/common/types'
 
 type Props = {
   id: string
 }
 
-const NOTE_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-] as const
-type NoteName = (typeof NOTE_NAMES)[number]
-
 const OCTAVES = [8, 7, 6, 5, 4, 3, 2]
-
-type Note = {
-  index: number
-  name: NoteName
-  octave: number
-  gate: boolean
-  glide: boolean
-}
 
 type SequencerState = {
   notes: Note[]
 }
 
-class Sequencer
-  extends Component<
-    Props,
-    {
-      currentStep: number
-    }
-  >
-  implements IModule
-{
+class SequencerNode extends Component<
+  Props,
+  {
+    currentStep: number
+    editing: number
+  }
+> {
   node: WorkletNode<'Sequencer'>
 
   state = {
@@ -66,24 +40,11 @@ class Sequencer
 
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
+    engine.createModule(props.id, 'Sequencer')
 
-    this.node = new WorkletNode(audioContext, 'Sequencer', {
-      numberOfOutputs: 2,
+    engine.onModuleEvent<Sequencer>(props.id, ({ position }) => {
+      this.state.currentStep = position
     })
-
-    const sendToSequencer = (message: SequencerMessage) => {
-      this.node.port.postMessage(message)
-    }
-
-    this.node.port.onmessage = (message) => {
-      switch (message.data.type) {
-        case 'CURRENT_STEP': {
-          this.state.currentStep = message.data.step
-          break
-        }
-      }
-    }
 
     if (!getModuleState<SequencerState>(props.id)) {
       setModuleState(props.id, {
@@ -103,28 +64,15 @@ class Sequencer
 
     useEffect(() => {
       const { notes } = getModuleState<SequencerState>(props.id)
-      sendToSequencer({
-        type: 'SET_NOTES',
-        notes: notes.map((note) => ({
-          voltage:
-            note.octave - 4 + (NOTE_NAMES.indexOf(note.name) * 1 - 9) / 12,
-          gate: note.gate,
-          glide: note.glide,
-        })),
+      engine.sendMessageToModule<Sequencer>(props.id, {
+        type: 'SequencerSetNotes',
+        notes,
       })
     })
 
-    connectKnobToParam(
-      this.props.id,
-      'glide',
-      this.node.parameters.get('glide')
-    )
+    connectKnobToParam<Sequencer, 'length'>(this.props.id, 'sequenceLength', 0)
 
-    connectKnobToParam(
-      this.props.id,
-      'sequenceLength',
-      this.node.parameters.get('sequenceLength')
-    )
+    connectKnobToParam<Sequencer, 'glide'>(this.props.id, 'glide', 1)
   }
 
   render({ id }: Props) {
@@ -223,22 +171,25 @@ class Sequencer
           </div>
         </div>
         <ModuleInputs>
-          <Socket moduleId={id} type="input" name="Gate" node={this.node} />
+          <Socket<Sequencer, 'input', 'gate'>
+            moduleId={id}
+            type="input"
+            label="GATE"
+            index={0}
+          />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket
+          <Socket<Sequencer, 'output', 'cv'>
             moduleId={id}
             type="output"
-            name="CV"
-            node={this.node}
-            output={0}
+            label="CV"
+            index={0}
           />
-          <Socket
+          <Socket<Sequencer, 'output', 'gate'>
             moduleId={id}
             type="output"
-            name="Out Gate"
-            node={this.node}
-            output={1}
+            label="GATE"
+            index={1}
           />
         </ModuleOutputs>
       </Module>
@@ -246,4 +197,4 @@ class Sequencer
   }
 }
 
-export default Sequencer
+export default SequencerNode

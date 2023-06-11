@@ -12,7 +12,9 @@ export const splitEvery = <T>(arr: T[], num: number): T[][] => {
   return res
 }
 
-export const cloneObject = <T extends Record<string, any> | any[]>(obj: T): T => {
+export const cloneObject = <T extends Record<string, any> | any[]>(
+  obj: T
+): T => {
   if (Array.isArray(obj)) {
     return obj.map((value) => {
       if (value === null) return null

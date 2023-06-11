@@ -1,29 +1,21 @@
 import { h, Component } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 
 import { ModuleInputs } from '../module-parts/ModuleSockets'
 import { connectKnobToParam } from '../../modules'
 import Knob from '../module-parts/Knob'
+import { AudioOut } from '@modulate/worklets/src/modules'
 type Props = {
   id: string
 }
 
-class AudioOut extends Component<Props> implements IModule {
-  node: AudioDestinationNode
-  gain: GainNode
-
+class AudioOutNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const context = getAudioContext()
-    this.node = context.destination
-    this.gain = context.createGain()
-
-    this.gain.connect(this.node)
-
-    connectKnobToParam(props.id, 'level', this.gain.gain)
+    engine.createModule(props.id, 'AudioOut')
+    connectKnobToParam<AudioOut, 'volume'>(props.id, 'volume', 0)
   }
 
   render({ id }: Props) {
@@ -32,17 +24,16 @@ class AudioOut extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           type="percentage"
-          id="level"
-          label="Level"
+          id="volume"
+          label="VOL"
           initial={0.75}
         />
         <ModuleInputs>
-          <Socket
+          <Socket<AudioOut, 'input', 'input'>
             moduleId={id}
             type="input"
-            name="destination"
             label=""
-            node={this.gain}
+            index={0}
           />
         </ModuleInputs>
       </Module>
@@ -50,4 +41,4 @@ class AudioOut extends Component<Props> implements IModule {
   }
 }
 
-export default AudioOut
+export default AudioOutNode

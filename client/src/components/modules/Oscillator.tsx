@@ -1,33 +1,26 @@
 import { h, Component } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { connectKnobToParam } from '../../modules'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import { Oscillator } from '@modulate/worklets/src/modules'
 type Props = {
   id: string
 }
 
-class Oscillator extends Component<Props> implements IModule {
-  node: WorkletNode<'Oscillator'>
-
+class OscillatorNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
 
-    this.node = new WorkletNode(audioContext, 'Oscillator', {
-      numberOfInputs: 3,
-      numberOfOutputs: 4,
-    })
+    engine.createModule(props.id, 'Oscillator')
 
-    connectKnobToParam(props.id, 'cv', this.node.parameters.get('cv'))
-    connectKnobToParam(props.id, 'fm', this.node.parameters.get('fm'))
-    connectKnobToParam(props.id, 'fine', this.node.parameters.get('fine'))
-    connectKnobToParam(props.id, 'pw', this.node.parameters.get('pw'))
+    connectKnobToParam<Oscillator, 'cv'>(props.id, 'cv', 0)
+    connectKnobToParam<Oscillator, 'fm'>(props.id, 'fm', 1)
+    connectKnobToParam<Oscillator, 'fine'>(props.id, 'fine', 3)
+    connectKnobToParam<Oscillator, 'pw'>(props.id, 'pw', 2)
   }
 
   render({ id }: Props) {
@@ -36,6 +29,7 @@ class Oscillator extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           id="cv"
+          label="CV"
           type="linear"
           min={-5}
           max={5}
@@ -44,6 +38,7 @@ class Oscillator extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           id="fm"
+          label="FM"
           type="linear"
           min={-1}
           max={1}
@@ -52,65 +47,65 @@ class Oscillator extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           id="fine"
+          label="FINE"
           type="linear"
           min={-1}
           max={1}
           initial={0}
         />
-        <Knob moduleId={id} id="pw" type="percentage" initial={0.5} />
+        <Knob
+          moduleId={id}
+          id="pw"
+          label="PW"
+          type="percentage"
+          initial={0.5}
+        />
 
         <ModuleInputs>
-          <Socket
+          <Socket<Oscillator, 'parameter', 'cv'>
             moduleId={id}
-            type="input"
-            name="CV"
-            input={0}
-            node={this.node}
+            type="parameter"
+            index={0}
+            label="CV"
           />
-          <Socket
+          <Socket<Oscillator, 'parameter', 'fm'>
             moduleId={id}
-            type="input"
-            name="FM"
-            input={1}
-            node={this.node}
+            type="parameter"
+            index={1}
+            label="FM"
           />
-          <Socket
+          <Socket<Oscillator, 'parameter', 'pw'>
             moduleId={id}
-            type="input"
-            name="PW"
-            input={2}
-            node={this.node}
+            type="parameter"
+            index={2}
+            label="PW"
           />
         </ModuleInputs>
 
         <ModuleOutputs>
-          <Socket
+          <Socket<Oscillator, 'output', 'sin'>
             moduleId={id}
             type="output"
-            name="SIN"
-            output={0}
-            node={this.node}
+            index={0}
+            label="SIN"
           />
-          <Socket
+          <Socket<Oscillator, 'output', 'tri'>
             moduleId={id}
             type="output"
-            name="TRI"
-            output={1}
-            node={this.node}
+            index={1}
+            label="TRI"
           />
-          <Socket
+          <Socket<Oscillator, 'output', 'saw'>
             moduleId={id}
             type="output"
-            name="SAW"
-            output={2}
-            node={this.node}
+            index={2}
+            label="SAW"
           />
-          <Socket
+          <Socket<Oscillator, 'output', 'sqr'>
             moduleId={id}
             type="output"
-            name="SQR"
-            output={3}
-            node={this.node}
+            index={3}
+            label="SQR"
           />
         </ModuleOutputs>
       </Module>
@@ -118,4 +113,4 @@ class Oscillator extends Component<Props> implements IModule {
   }
 }
 
-export default Oscillator
+export default OscillatorNode

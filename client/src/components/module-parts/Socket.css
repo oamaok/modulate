@@ -10,7 +10,8 @@
   transform: scale(1.5);
 }
 
-.socket-input .socket {
+.socket-input .socket,
+.socket-parameter .socket {
   border: 2px solid var(--primary-variant);
 }
 
@@ -23,15 +24,22 @@
   align-items: center;
 }
 
-.socket-wrapper.socket-input {
+.socket-wrapper.socket-input,
+.socket-wrapper.socket-parameter {
   flex-direction: row;
 }
 .socket-wrapper.socket-output {
   flex-direction: row-reverse;
 }
+
+.socket-name {
+  font-size: 12px;
+}
+
 .socket-output .socket-name {
   margin-right: 2px;
 }
-.socket-input .socket-name {
+.socket-input .socket-name,
+.socket-parameter .socket-name {
   margin-left: 2px;
 }

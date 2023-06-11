@@ -1,7 +1,5 @@
 import { h, Component } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
+import { getAudioContext } from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
@@ -12,7 +10,7 @@ type Props = {
   id: string
 }
 
-class LFO extends Component<Props> implements IModule {
+class LFO extends Component<Props> {
   node: OscillatorNode
 
   constructor(props: Props) {
