@@ -167,6 +167,11 @@
   resolved "https://registry.yarnpkg.com/@types/strip-json-comments/-/strip-json-comments-0.0.30.tgz#9aa30c04db212a9a0649d6ae6fd50accc40748a1"
   integrity sha512-7NQmHra/JILCd1QqpSzl8+mJRc8ZHz3uDm8YV1Ks9IhK0epEiTw8aIErbvH9PI+6XbqhyIQy3462nEsn7UVzjQ==
 
+"@types/webmidi@^2.0.7":
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/@types/webmidi/-/webmidi-2.0.7.tgz#db6bc2e5fbf2ece44265b0a4fafde6573acd5210"
+  integrity sha512-BMVefNAum/swSmQJdTbRWBuDPeWT7fHAZEzmtY6eBl1ObvkWVzh39VvAFC8v9n7Y5XoOpWmeYzyUUVfmpq3ggQ==
+
 "@types/ws@^8.5.4":
   version "8.5.4"
   resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.5.4.tgz#bb10e36116d6e570dd943735f86c933c1587b8a5"
@@ -979,10 +984,10 @@ jws@^3.2.2:
     jwa "^1.4.1"
     safe-buffer "^5.0.1"
 
-kaiku@^1.21.1:
-  version "1.21.1"
-  resolved "https://registry.yarnpkg.com/kaiku/-/kaiku-1.21.1.tgz#583ae077bbcd7f8fe491d4f10d157af1fa370f1b"
-  integrity sha512-4thRy/kA8YIPzyA4QTed6ffmjXb8slR7Z3ohyF13WH1PZ6LKYNtAnOLT8ZneV9oo2qjenJnM036zi3PewKVbrA==
+kaiku@^1.21.3:
+  version "1.21.3"
+  resolved "https://registry.yarnpkg.com/kaiku/-/kaiku-1.21.3.tgz#c623f82a05a9a8c4f46d736247a585948f870123"
+  integrity sha512-3VmNt1BQART4wa+RkVF+G2PDFpOm6LUHVYhgSxAyCKGQmc3RasmNaDEJ/DcP9QqK9lPwaRYavwsakcXBiV4XjQ==
 
 lilconfig@^2.0.3:
   version "2.1.0"

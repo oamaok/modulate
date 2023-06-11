@@ -18,7 +18,7 @@ class MIDINode extends Component<Props> {
     navigator.requestMIDIAccess().then((midiAccess) => {
       midiAccess.inputs.forEach((entry) => {
         entry.onmidimessage = (msg) => {
-          const midiEvent = msg as MIDIMessageEvent
+          const midiEvent = msg as WebMidi.MIDIMessageEvent
           let data = 0
           for (let i = 0; i < midiEvent.data.length; i++) {
             data |= midiEvent.data[i]! << (i * 8)

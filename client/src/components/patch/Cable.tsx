@@ -4,6 +4,7 @@ import { Socket } from '@modulate/common/types'
 import CablePath from './CablePath'
 
 type Props = {
+  key: any
   from: Socket
   to: Socket
 }

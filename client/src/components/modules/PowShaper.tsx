@@ -1,6 +1,5 @@
 import { h, Component } from 'kaiku'
 import * as engine from '../../engine'
-import { WorkletNode } from '../../worklets'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
@@ -13,8 +12,6 @@ type Props = {
 }
 
 class PowShaperNode extends Component<Props> {
-  node: WorkletNode<'PowShaper'>
-
   constructor(props: Props) {
     super(props)
 

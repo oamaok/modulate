@@ -13,8 +13,8 @@
     "jsx": "react-jsx",
     "jsxImportSource": "kaiku",
     "moduleResolution": "node",
-    "lib": ["DOM", "ES2021"],
-    "target": "ES2021",
+    "lib": ["DOM", "ESNext"],
+    "target": "ESNext",
     "resolveJsonModule": true
   }
 }

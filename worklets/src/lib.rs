@@ -270,19 +270,35 @@ impl Edge {
   }
 }
 
-#[derive(Default)]
 struct EdgeDetector {
+  threshold: f32,
   previous_sample: f32,
 }
 
+impl Default for EdgeDetector {
+  fn default() -> Self {
+    EdgeDetector {
+      threshold: 0.5,
+      previous_sample: 0.0,
+    }
+  }
+}
+
 impl EdgeDetector {
+  fn new(threshold: f32) -> EdgeDetector {
+    EdgeDetector {
+      threshold,
+      previous_sample: 0.0,
+    }
+  }
+
   fn step(&mut self, sample: f32) -> Edge {
-    let edge = if self.previous_sample < 0.5 && sample > 0.5 {
+    let edge = if self.previous_sample < self.threshold && sample > self.threshold {
       Edge::Rose
-    } else if self.previous_sample > 0.5 && sample < 0.5 {
+    } else if self.previous_sample > self.threshold && sample < self.threshold {
       Edge::Fell
     } else {
-      if sample < 0.5 {
+      if sample < self.threshold {
         Edge::Low
       } else {
         Edge::High
@@ -766,6 +782,9 @@ impl AudioOut {
 }
 
 struct Oscillator {
+  sync_input: AudioInput,
+  sync_edge_detector: EdgeDetector,
+
   sin_output: AudioOutput,
   tri_output: AudioOutput,
   saw_output: AudioOutput,
@@ -788,6 +807,12 @@ const OVERSAMPLE: usize = 8;
 impl Module for Oscillator {
   fn process(&mut self) {
     for sample in 0..QUANTUM_SIZE {
+      let edge = self.sync_edge_detector.step(self.sync_input.at(sample));
+
+      if edge == Edge::Rose {
+        self.phase = 0.5;
+      }
+
       let cv = self.cv_param.at(sample);
       let fm = self.fm_param.at(sample);
       let pw = self.pw_param.at(sample);
@@ -815,6 +840,10 @@ impl Module for Oscillator {
     }
   }
 
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
+    vec![&mut self.sync_input]
+  }
+
   fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![
       &mut self.cv_param,
@@ -837,6 +866,9 @@ impl Module for Oscillator {
 impl Oscillator {
   pub fn new() -> Oscillator {
     Oscillator {
+      sync_input: AudioInput::default(),
+      sync_edge_detector: EdgeDetector::new(0.0),
+
       sin_output: AudioOutput::default(),
       tri_output: AudioOutput::default(),
       saw_output: AudioOutput::default(),

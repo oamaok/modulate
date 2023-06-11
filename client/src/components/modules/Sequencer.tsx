@@ -3,7 +3,6 @@ import * as util from '@modulate/common/util'
 import { NoteName, Note } from '@modulate/common/types'
 import { Sequencer } from '@modulate/worklets/src/modules'
 import * as engine from '../../engine'
-import { WorkletNode } from '../../worklets'
 import { getKnobValue, getModuleState, setModuleState } from '../../state'
 import { connectKnobToParam } from '../../modules'
 import Socket from '../module-parts/Socket'
@@ -31,8 +30,6 @@ class SequencerNode extends Component<
     editing: number
   }
 > {
-  node: WorkletNode<'Sequencer'>
-
   state = {
     currentStep: 0,
     editing: 0,

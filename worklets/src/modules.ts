@@ -9,7 +9,7 @@ export type AudioOut = {
 
 export type Oscillator = {
   name: 'Oscillator'
-  inputs: []
+  inputs: ['sync']
   parameters: ['cv', 'fm', 'pw', 'fine']
   outputs: ['sin', 'tri', 'saw', 'sqr']
 }

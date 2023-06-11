@@ -80,6 +80,12 @@ class OscillatorNode extends Component<Props> {
             index={2}
             label="PW"
           />
+          <Socket<Oscillator, 'input', 'sync'>
+            moduleId={id}
+            type="input"
+            index={0}
+            label="SYNC"
+          />
         </ModuleInputs>
 
         <ModuleOutputs>
