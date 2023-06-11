@@ -3,8 +3,6 @@ name: Deploy
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: []
 
   workflow_dispatch:
 
@@ -15,6 +13,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Deploy
         run: |
+          yarn install
+          yarn typecheck
           TEMP=$(mktemp)
           echo "${{ secrets.SSH_KEY }}" > $TEMP
           ssh -o 'StrictHostKeyChecking no' -i $TEMP ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p${{ secrets.SSH_PORT }} 'bash -s' < scripts/deploy.sh
