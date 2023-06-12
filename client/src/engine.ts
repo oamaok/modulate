@@ -14,6 +14,7 @@ import { Module, ModuleName } from '@modulate/worklets/src/modules'
 
 let audioContext: AudioContext | null = null
 let engine: Engine | null = null
+let globalGain: AudioNode | null = null
 
 const eventSubscriptions: Record<number, (event: ModuleEvent<Module>) => void> =
   {}
@@ -30,7 +31,11 @@ export const initializeAudio = async () => {
   const engineNode = new AudioWorkletNode(audioContext, 'ModulateEngine', {
     numberOfOutputs: 1,
   })
-  engineNode.connect(audioContext.destination)
+
+  globalGain = audioContext.createGain()
+  globalGain.connect(audioContext.destination)
+
+  engineNode.connect(globalGain)
   const messageResolvers: Record<
     number,
     (res: EngineResponse<EngineMessageType>) => void
