@@ -100,6 +100,7 @@ export const initializeAudio = async () => {
   await engine.init({ wasm })
 }
 
+// TODO: This need not be exposed any longer
 export const getAudioContext = () => {
   assert(audioContext)
   return audioContext
