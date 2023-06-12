@@ -10,11 +10,19 @@ jobs:
   Deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install wasm-pack
+        run: |
+          rustup toolchain install nightly-x86_64-unknown-linux-gnu
+          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install packages
+        run: yarn install
+      - name: Build rust
+        run: yarn build --rust
       - name: Deploy
         run: |
-          yarn install
-          yarn build
           yarn typecheck
           TEMP=$(mktemp)
           echo "${{ secrets.SSH_KEY }}" > $TEMP

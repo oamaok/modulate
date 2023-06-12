@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production node build.js",
+    "build:rust": "yarn build --rust",
     "start:client": "node build.js",
     "start:server": "ts-node-dev --respawn --transpile-only ./server/src/index.ts",
     "add-migration": "node server/scripts/add-migration",

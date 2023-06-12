@@ -219,6 +219,11 @@ const buildWorklets = async () => {
 
   try {
     await buildRust()
+
+    if (process.argv[2] === '--rust') {
+      process.exit(0)
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 500))
     await Promise.all([buildWorklets(), buildClient()])
   } catch (err) {
