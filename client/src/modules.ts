@@ -4,7 +4,6 @@ import * as engine from './engine'
 import { Module } from '@modulate/worklets/src/modules'
 import { IndexOf } from '@modulate/common/types'
 
-
 export const connectKnobToParam = <
   M extends Module,
   N extends M['parameters'][number]
@@ -14,7 +13,7 @@ export const connectKnobToParam = <
   index: IndexOf<M['parameters'], N>
 ) => {
   let lastUpdate = 0
-  let timeout = -1 
+  let timeout = -1
 
   useEffect(() => {
     const knobs = getModuleKnobs(moduleId)

@@ -14,6 +14,13 @@ export type Oscillator = {
   outputs: ['sin', 'tri', 'saw', 'sqr']
 }
 
+export type LFO = {
+  name: 'LFO'
+  inputs: ['sync']
+  parameters: ['cv', 'pw', 'amount']
+  outputs: ['sin', 'tri', 'saw', 'sqr']
+}
+
 export type BiquadFilter = {
   name: 'BiquadFilter'
   inputs: ['input']
@@ -158,6 +165,7 @@ export type Module =
   | Clock
   | MIDI
   | BouncyBoi
+  | LFO
 
 export type ModuleName = Module['name']
 
