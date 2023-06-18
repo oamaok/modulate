@@ -3,8 +3,13 @@ use wasm_bindgen::prelude::*;
 
 pub mod modulate_core;
 pub mod module;
-pub mod vec;
 pub mod modules;
+pub mod vec;
+
+use modules::{
+  adsr, audio_out, biquad_filter, bouncy_boi, clock, delay, gain, lfo, limiter, midi, mixer,
+  oscillator, pow_shaper, reverb, sequencer,
+};
 
 #[wasm_bindgen]
 extern "C" {
@@ -58,50 +63,62 @@ impl ModulateEngine {
     let id = self.get_next_id() as module::ModuleId;
     match module_name {
       "AudioOut" => {
-        self.modules.insert(id, Box::new(modules::audio_out::AudioOut::new()));
+        self
+          .modules
+          .insert(id, Box::new(audio_out::AudioOut::new()));
         self.audio_outputs.insert(id);
       }
       "Oscillator" => {
-        self.modules.insert(id, Box::new(modules::oscillator::Oscillator::new()));
+        self
+          .modules
+          .insert(id, Box::new(oscillator::Oscillator::new()));
       }
       "LFO" => {
-        self.modules.insert(id, Box::new(modules::lfo::LFO::new()));
+        self.modules.insert(id, Box::new(lfo::LFO::new()));
       }
       "BiquadFilter" => {
-        self.modules.insert(id, Box::new(modules::biquad_filter::BiquadFilter::new()));
+        self
+          .modules
+          .insert(id, Box::new(biquad_filter::BiquadFilter::new()));
       }
       "Mixer" => {
-        self.modules.insert(id, Box::new(modules::mixer::Mixer::new()));
+        self.modules.insert(id, Box::new(mixer::Mixer::new()));
       }
       "Gain" => {
-        self.modules.insert(id, Box::new(modules::gain::Gain::new()));
+        self.modules.insert(id, Box::new(gain::Gain::new()));
       }
       "Limiter" => {
-        self.modules.insert(id, Box::new(modules::limiter::Limiter::new()));
+        self.modules.insert(id, Box::new(limiter::Limiter::new()));
       }
       "PowShaper" => {
-        self.modules.insert(id, Box::new(modules::pow_shaper::PowShaper::new()));
+        self
+          .modules
+          .insert(id, Box::new(pow_shaper::PowShaper::new()));
       }
       "Sequencer" => {
-        self.modules.insert(id, Box::new(modules::sequencer::Sequencer::new()));
+        self
+          .modules
+          .insert(id, Box::new(sequencer::Sequencer::new()));
       }
       "ADSR" => {
-        self.modules.insert(id, Box::new(modules::adsr::ADSR::new()));
+        self.modules.insert(id, Box::new(adsr::ADSR::new()));
       }
       "Reverb" => {
-        self.modules.insert(id, Box::new(modules::reverb::Reverb::new()));
+        self.modules.insert(id, Box::new(reverb::Reverb::new()));
       }
       "Delay" => {
-        self.modules.insert(id, Box::new(modules::delay::Delay::new()));
+        self.modules.insert(id, Box::new(delay::Delay::new()));
       }
       "Clock" => {
-        self.modules.insert(id, Box::new(modules::clock::Clock::new()));
+        self.modules.insert(id, Box::new(clock::Clock::new()));
       }
       "MIDI" => {
-        self.modules.insert(id, Box::new(modules::midi::MIDI::new()));
+        self.modules.insert(id, Box::new(midi::MIDI::new()));
       }
       "BouncyBoi" => {
-        self.modules.insert(id, Box::new(modules::bouncy_boi::BouncyBoi::new()));
+        self
+          .modules
+          .insert(id, Box::new(bouncy_boi::BouncyBoi::new()));
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }
@@ -133,7 +150,12 @@ impl ModulateEngine {
     self.modules.remove(&module_id);
   }
 
-  pub fn set_parameter_value(&mut self, module_id: module::ModuleId, parameter: module::ParameterId, value: f32) {
+  pub fn set_parameter_value(
+    &mut self,
+    module_id: module::ModuleId,
+    parameter: module::ParameterId,
+    value: f32,
+  ) {
     let module = self.modules.get_mut(&module_id).unwrap();
     let mut parameters = module.get_parameters();
     let param = parameters.get_mut(parameter).unwrap();
@@ -294,7 +316,12 @@ impl ModulateEngineWrapper {
   }
 
   #[wasm_bindgen(js_name = setParameterValue)]
-  pub fn set_parameter_value(&mut self, module_id: module::ModuleId, parameter: module::ParameterId, value: f32) {
+  pub fn set_parameter_value(
+    &mut self,
+    module_id: module::ModuleId,
+    parameter: module::ParameterId,
+    value: f32,
+  ) {
     self.engine.set_parameter_value(module_id, parameter, value);
   }
 
@@ -327,7 +354,11 @@ impl ModulateEngineWrapper {
   }
 
   #[wasm_bindgen(js_name = connectToParameter)]
-  pub fn connect_to_parameter(&mut self, from: IntegerTuple, to: IntegerTuple) -> module::ConnectionId {
+  pub fn connect_to_parameter(
+    &mut self,
+    from: IntegerTuple,
+    to: IntegerTuple,
+  ) -> module::ConnectionId {
     // TODO: use serde
 
     let from_tuple: (module::ModuleId, module::OutputId) = match from

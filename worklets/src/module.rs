@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use super::vec;
 use super::modulate_core;
+use super::vec;
+use serde::{Deserialize, Serialize};
 
 pub type ModuleId = u32;
 pub type ConnectionId = u32;

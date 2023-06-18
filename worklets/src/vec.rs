@@ -1,4 +1,4 @@
-use serde::{Serialize};
+use serde::Serialize;
 
 #[derive(Copy, Clone, Default, Serialize)]
 pub struct Vec2 {
