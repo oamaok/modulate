@@ -199,10 +199,12 @@ const dispatchPatchEvent = (event: PatchEvent) => {
   send({ type: 'patch-update', events: [event] })
 }
 
+const isRoomReady = () => state.initialized && state.room
+
 // NOTE: Currently there is no need to account for module name changes
 // Module creations and deletions
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
 
@@ -242,7 +244,7 @@ useEffect(() => {
 
 // Module state changes
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
 
@@ -252,8 +254,6 @@ useEffect(() => {
 
     const previousPatchModule = previousPatch.modules[moduleId]
     assert(previousPatchModule)
-
-    console.log(module, module.state, previousPatchModule.state)
 
     if (!util.deepEqual(module.state, previousPatchModule.state)) {
       const newState = util.cloneObject(module.state!)
@@ -269,7 +269,7 @@ useEffect(() => {
 
 // Module position changes
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
 
@@ -299,7 +299,7 @@ useEffect(() => {
 
 // Knob tweaks
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
   for (const moduleId in state.patch.knobs) {
@@ -331,7 +331,7 @@ useEffect(() => {
 
 // Cable connects and disconnects
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
 
