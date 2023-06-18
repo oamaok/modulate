@@ -1,0 +1,25 @@
+name: Typecheck
+
+on:
+  pull_request:
+    branches: ['*']
+
+  workflow_dispatch:
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install wasm-pack
+        run: |
+          rustup toolchain install nightly-x86_64-unknown-linux-gnu
+          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install packages
+        run: yarn install
+      - name: Build rust
+        run: yarn build --rust
+      - name: Typecheck
+        run: yarn typecheck

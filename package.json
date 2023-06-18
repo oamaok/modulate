@@ -6,11 +6,14 @@
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production node build.js",
+    "build:rust": "yarn build --rust",
     "start:client": "node build.js",
     "start:server": "ts-node-dev --respawn --transpile-only ./server/src/index.ts",
     "add-migration": "node server/scripts/add-migration",
     "run-migrations": "node server/scripts/run-migrations",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "rustfmt": "rustfmt worklets/**/*.rs"
   },
   "workspaces": [
     "client",

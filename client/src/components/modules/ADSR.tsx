@@ -1,35 +1,26 @@
 import { h, Component } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
+import * as engine from '../../engine'
 import { connectKnobToParam } from '../../modules'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import { ADSR } from '@modulate/worklets/src/modules'
 
 type Props = {
   id: string
 }
 
-class ADSR extends Component<Props> implements IModule {
-  node: WorkletNode<'ADSR'>
-
+class ADSRNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
 
-    this.node = new WorkletNode(audioContext, 'ADSR')
+    engine.createModule(props.id, 'ADSR')
 
-    const attack = this.node.parameters.get('attack')
-    const decay = this.node.parameters.get('decay')
-    const sustain = this.node.parameters.get('sustain')
-    const release = this.node.parameters.get('release')
-
-    connectKnobToParam(props.id, 'attack', attack)
-    connectKnobToParam(props.id, 'decay', decay)
-    connectKnobToParam(props.id, 'sustain', sustain)
-    connectKnobToParam(props.id, 'release', release)
+    connectKnobToParam<ADSR, 'attack'>(props.id, 'attack', 0)
+    connectKnobToParam<ADSR, 'decay'>(props.id, 'decay', 1)
+    connectKnobToParam<ADSR, 'sustain'>(props.id, 'sustain', 2)
+    connectKnobToParam<ADSR, 'release'>(props.id, 'release', 3)
   }
 
   render({ id }: Props) {
@@ -78,14 +69,24 @@ class ADSR extends Component<Props> implements IModule {
           initial={0.1}
         />
         <ModuleInputs>
-          <Socket moduleId={id} type="input" name="gate" node={this.node} />
+          <Socket<ADSR, 'input', 'gate'>
+            moduleId={id}
+            type="input"
+            label="GATE"
+            index={0}
+          />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="out" node={this.node} />
+          <Socket<ADSR, 'output', 'envelope'>
+            moduleId={id}
+            type="output"
+            label="ENV"
+            index={0}
+          />
         </ModuleOutputs>
       </Module>
     )
   }
 }
 
-export default ADSR
+export default ADSRNode

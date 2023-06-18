@@ -1,14 +1,15 @@
-import { h, Fragment, useEffect, useRef } from 'kaiku'
-import { plugActiveCable, setSocketPosition } from '../../state'
+import { h, Fragment, useEffect, useRef, useState } from 'kaiku'
 import {
-  RegisteredSocket,
+  getSocket,
+  getSocketPosition,
+  plugActiveCable,
   registerSocket,
-  unregisterSocket,
-} from '../../sockets'
-import { Vec2 } from '@modulate/common/types'
+  setSocketPosition,
+} from '../../state'
+import { IndexOf, Vec2 } from '@modulate/common/types'
 import css from './Socket.css'
-import UtilityBox from '../utility-box/UtilityBox'
 import assert from '../../assert'
+import { Module } from '@modulate/worklets/src/modules'
 
 const getSocketOffset = (
   element: HTMLElement,
@@ -32,56 +33,58 @@ const getSocketOffset = (
   })
 }
 
-type Props = RegisteredSocket & {
-  label?: string
+type Props<
+  M extends Module,
+  T extends 'input' | 'output' | 'parameter',
+  N extends M[`${T}s`][number]
+> = {
+  type: T
+  index: IndexOf<M[`${T}s`], N>
+  label: string
+  moduleId: string
 }
 
-const Socket = (props: Props) => {
-  const { label, moduleId, type, name, node } = props
+const Socket = <
+  M extends Module,
+  T extends 'input' | 'output' | 'parameter',
+  N extends M[`${T}s`][number]
+>(
+  props: Props<M, T, N>
+) => {
+  const { label, moduleId, index, type } = props
   const ref = useRef<HTMLDivElement>()
-
-  useEffect(() => {
-    registerSocket(props)
-    return () => {
-      unregisterSocket(moduleId, name)
-    }
-  })
+  const socketState = useState<{ positionSet: boolean }>({ positionSet: false })
 
   const onMouseDown = (evt: MouseEvent) => {
     evt.preventDefault()
-    plugActiveCable({ moduleId, name, type })
+    plugActiveCable({ moduleId, index, type })
   }
 
   useEffect(() => {
-    if (ref.current) {
+    if (!getSocket({ moduleId, type, index }))
+      registerSocket({ moduleId, type, index })
+  })
+
+  useEffect(() => {
+    if (ref.current && !socketState.positionSet) {
+      socketState.positionSet = true
       const offset = getSocketOffset(ref.current)
       const { width, height } = ref.current.getBoundingClientRect()
 
-      setSocketPosition(moduleId, name, {
-        x: offset.x + width / 2,
-        y: offset.y + height / 2,
-      })
+      setSocketPosition(
+        { moduleId, type, index },
+        {
+          x: offset.x + width / 2,
+          y: offset.y + height / 2,
+        }
+      )
     }
   })
 
   return (
     <div className={css(['socket-wrapper', `socket-${type}`])}>
-      <div
-        ref={ref}
-        className={css('socket')}
-        onMouseDown={onMouseDown}
-        onMouseOver={() => {
-          if (type === 'output') node.connect(UtilityBox.node, props.output)
-        }}
-        onMouseOut={() => {
-          if (type === 'output')
-            node.disconnect(
-              UtilityBox.node as AudioNode,
-              props.output as number
-            )
-        }}
-      />
-      <div className={css('socket-name')}>{label ?? name}</div>
+      <div ref={ref} className={css('socket')} onMouseDown={onMouseDown} />
+      <div className={css('socket-name')}>{label}</div>
     </div>
   )
 }

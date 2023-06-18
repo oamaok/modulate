@@ -12,21 +12,23 @@ export const splitEvery = <T>(arr: T[], num: number): T[][] => {
   return res
 }
 
-export const cloneObject = (obj: object): object => {
+export const cloneObject = <T extends Record<string, any> | any[]>(
+  obj: T
+): T => {
   if (Array.isArray(obj)) {
     return obj.map((value) => {
       if (value === null) return null
       if (typeof value === 'object') return cloneObject(value)
       return value
-    })
+    }) as T
   }
 
-  const ret: Record<string, unknown> = {}
+  const ret: Record<keyof T, T[keyof T]> = {} as Record<keyof T, T[keyof T]>
 
   for (const key in obj) {
-    const value = obj[key as keyof typeof obj]
+    const value = obj[key as keyof T]
     if (value === null) {
-      ret[key] = null
+      ret[key] = null as T[keyof T]
     } else if (typeof value === 'object') {
       ret[key] = cloneObject(value)
     } else {
@@ -34,7 +36,7 @@ export const cloneObject = (obj: object): object => {
     }
   }
 
-  return ret
+  return ret as T
 }
 
 export const deepEqual = (a: any, b: any): boolean => {
@@ -58,11 +60,11 @@ export const deepEqual = (a: any, b: any): boolean => {
       return true
     } else {
       for (const key of Object.keys(a)) {
-        if (!b.hasOwnProperty(key)) return false
+        if (!(key in b)) return false
         if (!deepEqual(a[key], b[key])) return false
       }
       for (const key of Object.keys(b)) {
-        if (!a.hasOwnProperty(key)) return false
+        if (!(key in a)) return false
       }
       return true
     }

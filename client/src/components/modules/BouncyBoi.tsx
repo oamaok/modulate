@@ -1,43 +1,41 @@
 import { h, Component } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleOutputs } from '../module-parts/ModuleSockets'
 import { connectKnobToParam } from '../../modules'
 import css from './BouncyBoi.css'
+import { BouncyBoi, EventTypes } from '@modulate/worklets/src/modules'
 
 type Props = {
   id: string
 }
 
-class BouncyBoi extends Component<Props> implements IModule {
-  node: WorkletNode<'BouncyBoi'>
-
+class BouncyBoiNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
-    this.node = new WorkletNode(audioContext, 'BouncyBoi', {
-      numberOfInputs: 0,
-      numberOfOutputs: 6,
+
+    engine.createModule(props.id, 'BouncyBoi')
+    engine.onModuleEvent<BouncyBoi>(props.id, (message) => {
+      switch (message.type) {
+        case 'BouncyBoiUpdate': {
+          this.renderCanvas(message)
+          break
+        }
+
+        default:
+          throw new Error(
+            `bouncyboi: unexpected message ${JSON.stringify(message)}`
+          )
+      }
     })
 
-    const speed = this.node.parameters.get('speed')
-    const gravity = this.node.parameters.get('gravity')
-
-    connectKnobToParam(props.id, 'speed', speed)
-    connectKnobToParam(props.id, 'gravity', gravity)
-
-    setInterval(() => this.node.port.postMessage(null), 30)
-
-    this.node.port.onmessage = (msg) => {
-      this.renderCanvas(msg.data)
-    }
+    connectKnobToParam<BouncyBoi, 'speed'>(props.id, 'speed', 0)
+    connectKnobToParam<BouncyBoi, 'gravity'>(props.id, 'gravity', 1)
   }
 
-  renderCanvas = (state: Float32Array) => {
+  renderCanvas = (state: EventTypes<BouncyBoi, 'BouncyBoiUpdate'>) => {
     const canvas = document.getElementById(
       'bouncy-boi-' + this.props.id
     ) as HTMLCanvasElement
@@ -51,11 +49,11 @@ class BouncyBoi extends Component<Props> implements IModule {
     context.strokeStyle = '#e85d00'
     context.lineWidth = 2
 
-    for (let i = 0; i < 6; i += 2) {
+    for (const ball of state.balls) {
       context.beginPath()
       context.arc(
-        state[i]! * 0.5 + 75,
-        state[i + 1]! * 0.5 + 75,
+        ball.pos.x * 0.5 + 75,
+        ball.pos.y * 0.5 + 75,
         5,
         0,
         Math.PI * 2
@@ -63,17 +61,15 @@ class BouncyBoi extends Component<Props> implements IModule {
       context.stroke()
     }
 
-    const phase = state[6]
-
     for (let i = 0; i < 5; i++) {
       const from = {
-        x: Math.sin((i * Math.PI * 2) / 5 + phase!) * 50 + 75,
-        y: Math.cos((i * Math.PI * 2) / 5 + phase!) * 50 + 75,
+        x: Math.sin((i * Math.PI * 2) / 5 + state.phase) * 50 + 75,
+        y: Math.cos((i * Math.PI * 2) / 5 + state.phase) * 50 + 75,
       }
 
       const to = {
-        x: Math.sin(((i + 1) * Math.PI * 2) / 5 + phase!) * 50 + 75,
-        y: Math.cos(((i + 1) * Math.PI * 2) / 5 + phase!) * 50 + 75,
+        x: Math.sin(((i + 1) * Math.PI * 2) / 5 + state.phase) * 50 + 75,
+        y: Math.cos(((i + 1) * Math.PI * 2) / 5 + state.phase) * 50 + 75,
       }
       context.beginPath()
       context.moveTo(from.x, from.y)
@@ -109,48 +105,23 @@ class BouncyBoi extends Component<Props> implements IModule {
           <canvas id={'bouncy-boi-' + id} width="150" height="150" />
         </div>
         <ModuleOutputs>
-          <Socket
+          <Socket<BouncyBoi, 'output', 'trig0'>
             moduleId={id}
             type="output"
-            name="trig0"
-            output={0}
-            node={this.node}
+            label="TRIG"
+            index={0}
           />
-          <Socket
+          <Socket<BouncyBoi, 'output', 'trig1'>
             moduleId={id}
             type="output"
-            name="trig1"
-            output={1}
-            node={this.node}
+            label="TRIG"
+            index={1}
           />
-          <Socket
+          <Socket<BouncyBoi, 'output', 'trig2'>
             moduleId={id}
             type="output"
-            name="trig2"
-            output={2}
-            node={this.node}
-          />
-
-          <Socket
-            moduleId={id}
-            type="output"
-            name="vel0"
-            output={3}
-            node={this.node}
-          />
-          <Socket
-            moduleId={id}
-            type="output"
-            name="vel1"
-            output={4}
-            node={this.node}
-          />
-          <Socket
-            moduleId={id}
-            type="output"
-            name="vel2"
-            output={5}
-            node={this.node}
+            label="TRIG"
+            index={2}
           />
         </ModuleOutputs>
       </Module>
@@ -158,4 +129,4 @@ class BouncyBoi extends Component<Props> implements IModule {
   }
 }
 
-export default BouncyBoi
+export default BouncyBoiNode

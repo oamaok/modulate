@@ -58,6 +58,7 @@ const mimeTypes: Record<string, string> = {
   ttf: 'font/ttf',
   txt: 'text/plain',
   vsd: 'application/vnd.visio',
+  wasm: 'application/wasm',
   wav: 'audio/wav',
   weba: 'audio/webm',
   webm: 'video/webm',

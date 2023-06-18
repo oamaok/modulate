@@ -2,10 +2,10 @@ import { useEffect } from 'kaiku'
 import { ClientMessage, Patch, ServerMessage } from '@modulate/common/types'
 import * as util from '@modulate/common/util'
 import * as api from './api'
-import state, { loadPatch } from './state'
+import state, { loadPatch, addConnectionBetweenSockets } from './state'
 import assert from './assert'
 import { PatchEvent } from '@modulate/common/types'
-import { connectSockets, disconnectSockets } from './sockets'
+import * as engine from './engine'
 
 let previousPatch: Patch = {
   currentId: 0,
@@ -52,7 +52,7 @@ export const joinRoom = (roomId: string) => {
 
     switch (message.type) {
       case 'init-room': {
-        previousPatch = util.cloneObject(message.room.patch) as Patch
+        previousPatch = util.cloneObject(message.room.patch)
         loadPatch({ id: null, name: 'Room', author: null }, message.room.patch)
 
         state.room = {
@@ -92,14 +92,14 @@ export const joinRoom = (roomId: string) => {
               )
 
               for (const cable of cablesToDisconnect) {
-                disconnectSockets(cable.from, cable.to)
+                addConnectionBetweenSockets(cable.from, cable.to)
               }
 
-              delete state.socketPositions[event.moduleId]
+              delete state.sockets[event.moduleId]
               break
             }
             case 'connect-cable': {
-              connectSockets(event.cable.from, event.cable.to)
+              addConnectionBetweenSockets(event.cable.from, event.cable.to)
               break
             }
             case 'disconnect-cable': {
@@ -107,7 +107,7 @@ export const joinRoom = (roomId: string) => {
                 (cable) => cable.id === event.cableId
               )
               assert(cable)
-              disconnectSockets(cable.from, cable.to)
+              engine.disconnectCable(cable)
               break
             }
           }
@@ -142,7 +142,7 @@ export const joinRoom = (roomId: string) => {
               case 'change-module-state': {
                 patch.modules[event.moduleId]!.state = util.cloneObject(
                   event.state
-                ) as Record<string, unknown>
+                )
                 break
               }
 
@@ -151,7 +151,7 @@ export const joinRoom = (roomId: string) => {
                 break
               }
               case 'connect-cable': {
-                patch.cables.push(event.cable)
+                patch.cables.push(util.cloneObject(event.cable))
                 break
               }
               case 'disconnect-cable': {
@@ -199,10 +199,12 @@ const dispatchPatchEvent = (event: PatchEvent) => {
   send({ type: 'patch-update', events: [event] })
 }
 
+const isRoomReady = () => state.initialized && state.room
+
 // NOTE: Currently there is no need to account for module name changes
 // Module creations and deletions
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
 
@@ -242,7 +244,7 @@ useEffect(() => {
 
 // Module state changes
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
 
@@ -253,11 +255,8 @@ useEffect(() => {
     const previousPatchModule = previousPatch.modules[moduleId]
     assert(previousPatchModule)
 
-    if (!util.deepEqual(previousPatchModule.state, module.state)) {
-      const newState = util.cloneObject(module.state!) as Record<
-        string,
-        unknown
-      >
+    if (!util.deepEqual(module.state, previousPatchModule.state)) {
+      const newState = util.cloneObject(module.state!)
       dispatchPatchEvent({
         type: 'change-module-state',
         moduleId,
@@ -270,7 +269,7 @@ useEffect(() => {
 
 // Module position changes
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
 
@@ -300,7 +299,7 @@ useEffect(() => {
 
 // Knob tweaks
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
   for (const moduleId in state.patch.knobs) {
@@ -314,14 +313,17 @@ useEffect(() => {
         previousPatch.knobs[moduleId] = {}
       }
 
-      if (previousPatch.knobs[moduleId]![knobName] !== knobValue) {
+      const moduleKnobs = previousPatch.knobs[moduleId]
+      assert(moduleKnobs)
+
+      if (moduleKnobs[knobName] !== knobValue) {
         dispatchPatchEvent({
           type: 'tweak-knob',
           moduleId,
           knob: knobName,
           value: knobValue,
         })
-        previousPatch.knobs[moduleId]![knobName] = knobValue
+        moduleKnobs[knobName] = knobValue
       }
     }
   }
@@ -329,7 +331,7 @@ useEffect(() => {
 
 // Cable connects and disconnects
 useEffect(() => {
-  if (!state.room) {
+  if (!isRoomReady()) {
     return
   }
 
@@ -360,11 +362,7 @@ useEffect(() => {
         cable,
       })
 
-      previousPatch.cables.push({
-        id: cableId,
-        from: { ...cable.from },
-        to: { ...cable.to },
-      })
+      previousPatch.cables.push(util.cloneObject(cable))
     }
   }
 })

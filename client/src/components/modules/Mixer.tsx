@@ -1,7 +1,5 @@
-import { h, Component, useEffect } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
+import { h, Component } from 'kaiku'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import { connectKnobToParam } from '../../modules'
@@ -9,164 +7,152 @@ import css from './Mixer.css'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Slider from '../module-parts/Slider'
+import { Mixer } from '@modulate/worklets/src/modules'
 type Props = {
   id: string
 }
 
-class Mixer extends Component<Props> implements IModule {
-  node: WorkletNode<'Mixer'>
-
+class MixerNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
-    this.node = new WorkletNode(audioContext, 'Mixer', {
-      numberOfInputs: 8,
-    })
-    const busLevel0 = this.node.parameters.get('busLevel0')
-    const busLevel1 = this.node.parameters.get('busLevel1')
-    const busLevel2 = this.node.parameters.get('busLevel2')
-    const busLevel3 = this.node.parameters.get('busLevel3')
-    const busLevel4 = this.node.parameters.get('busLevel4')
-    const busLevel5 = this.node.parameters.get('busLevel5')
-    const busLevel6 = this.node.parameters.get('busLevel6')
-    const busLevel7 = this.node.parameters.get('busLevel7')
 
-    connectKnobToParam(props.id, 'busLevel0', busLevel0)
-    connectKnobToParam(props.id, 'busLevel1', busLevel1)
-    connectKnobToParam(props.id, 'busLevel2', busLevel2)
-    connectKnobToParam(props.id, 'busLevel3', busLevel3)
-    connectKnobToParam(props.id, 'busLevel4', busLevel4)
-    connectKnobToParam(props.id, 'busLevel5', busLevel5)
-    connectKnobToParam(props.id, 'busLevel6', busLevel6)
-    connectKnobToParam(props.id, 'busLevel7', busLevel7)
+    engine.createModule(props.id, 'Mixer')
+
+    connectKnobToParam<Mixer, 'level0'>(props.id, 'busLevel0', 0)
+    connectKnobToParam<Mixer, 'level1'>(props.id, 'busLevel1', 1)
+    connectKnobToParam<Mixer, 'level2'>(props.id, 'busLevel2', 2)
+    connectKnobToParam<Mixer, 'level3'>(props.id, 'busLevel3', 3)
+    connectKnobToParam<Mixer, 'level4'>(props.id, 'busLevel4', 4)
+    connectKnobToParam<Mixer, 'level5'>(props.id, 'busLevel5', 5)
+    connectKnobToParam<Mixer, 'level6'>(props.id, 'busLevel6', 6)
+    connectKnobToParam<Mixer, 'level7'>(props.id, 'busLevel7', 7)
   }
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Mixer" width={200} height={200}>
+      <Module id={id} name="Mixer" width={140} height={200}>
         <div className={css('mixer')}>
           <Slider
             moduleId={id}
-            name="busLevel0"
+            id="busLevel0"
+            label="Bus 1"
             min={0}
             max={1}
             initial={0.8}
           />
           <Slider
             moduleId={id}
-            name="busLevel1"
+            id="busLevel1"
+            label="Bus 2"
             min={0}
             max={1}
             initial={0.8}
           />
           <Slider
             moduleId={id}
-            name="busLevel2"
+            id="busLevel2"
+            label="Bus 3"
             min={0}
             max={1}
             initial={0.8}
           />
           <Slider
             moduleId={id}
-            name="busLevel3"
+            id="busLevel3"
+            label="Bus 4"
             min={0}
             max={1}
             initial={0.8}
           />
           <Slider
             moduleId={id}
-            name="busLevel4"
+            id="busLevel4"
+            label="Bus 5"
             min={0}
             max={1}
             initial={0.8}
           />
           <Slider
             moduleId={id}
-            name="busLevel5"
+            id="busLevel5"
+            label="Bus 6"
             min={0}
             max={1}
             initial={0.8}
           />
           <Slider
             moduleId={id}
-            name="busLevel6"
+            id="busLevel6"
+            label="Bus 7"
             min={0}
             max={1}
             initial={0.8}
           />
           <Slider
             moduleId={id}
-            name="busLevel7"
+            id="busLevel7"
+            label="Bus 8"
             min={0}
             max={1}
             initial={0.8}
           />
         </div>
         <ModuleInputs>
-          <Socket
+          <Socket<Mixer, 'input', 'input0'>
             moduleId={id}
             type="input"
-            name="Bus 1"
-            input={0}
-            node={this.node}
+            label=""
+            index={0}
           />
-          <Socket
+          <Socket<Mixer, 'input', 'input1'>
             moduleId={id}
             type="input"
-            name="Bus 2"
-            input={1}
-            node={this.node}
+            label=""
+            index={1}
           />
-          <Socket
+          <Socket<Mixer, 'input', 'input2'>
             moduleId={id}
             type="input"
-            name="Bus 3"
-            input={2}
-            node={this.node}
+            label=""
+            index={2}
           />
-          <Socket
+          <Socket<Mixer, 'input', 'input3'>
             moduleId={id}
             type="input"
-            name="Bus 4"
-            input={3}
-            node={this.node}
+            label=""
+            index={3}
           />
-          <Socket
+          <Socket<Mixer, 'input', 'input4'>
             moduleId={id}
             type="input"
-            name="Bus 5"
-            input={4}
-            node={this.node}
+            label=""
+            index={4}
           />
-          <Socket
+          <Socket<Mixer, 'input', 'input5'>
             moduleId={id}
             type="input"
-            name="Bus 6"
-            input={5}
-            node={this.node}
+            label=""
+            index={5}
           />
-          <Socket
+          <Socket<Mixer, 'input', 'input6'>
             moduleId={id}
             type="input"
-            name="Bus 7"
-            input={6}
-            node={this.node}
+            label=""
+            index={6}
           />
-          <Socket
+          <Socket<Mixer, 'input', 'input7'>
             moduleId={id}
             type="input"
-            name="Bus 8"
-            input={7}
-            node={this.node}
+            label=""
+            index={7}
           />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket
+          <Socket<Mixer, 'output', 'output'>
             moduleId={id}
             type="output"
-            name="Out"
-            output={0}
-            node={this.node}
+            label=""
+            index={0}
           />
         </ModuleOutputs>
       </Module>
@@ -174,4 +160,4 @@ class Mixer extends Component<Props> implements IModule {
   }
 }
 
-export default Mixer
+export default MixerNode

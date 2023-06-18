@@ -1,497 +1,175 @@
-import { ClockMessage, SequencerMessage } from '@modulate/common/types'
-import {
-  Oscillator,
-  Mixer,
-  Sequencer,
-  ADSR,
-  Reverb,
-  Delay,
-  Clock,
-  Gain,
-  Limiter,
-  BiquadFilter,
-  PowShaper,
-  MIDI,
-  BouncyBoi,
-} from '../pkg/worklets'
+import { Note, Vec2 } from '@modulate/common/types'
 
-export type Module<
-  T extends {
-    inputs: () => Int32Array
-    outputs: () => Int32Array
-    parameters: () => Int32Array
-    process: () => void
-  }
-> = {
-  name: string
-  constructor: { new (): T }
-  parameterDescriptors?: AudioParamDescriptor[]
-  init: (instance: T, port: MessagePort) => void
-  onMessage?: (instance: T, message: any, port: MessagePort) => void
+export type AudioOut = {
+  name: 'AudioOut'
+  inputs: ['input']
+  parameters: ['volume']
+  outputs: []
 }
 
-const OscillatorDef = {
-  name: 'Oscillator',
-  constructor: Oscillator,
-  parameterDescriptors: [
-    {
-      name: 'cv',
-      minValue: -5,
-      maxValue: 5,
-      defaultValue: 0,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'fm',
-      minValue: -1,
-      maxValue: 1,
-      defaultValue: 0,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'pw',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'fine',
-      minValue: -1,
-      maxValue: 1,
-      defaultValue: 0,
-    },
-  ],
-} as const
+export type Oscillator = {
+  name: 'Oscillator'
+  inputs: ['sync']
+  parameters: ['cv', 'fm', 'pw', 'fine']
+  outputs: ['sin', 'tri', 'saw', 'sqr']
+}
 
-const MixerDef = {
-  name: 'Mixer',
-  constructor: Mixer,
-  parameterDescriptors: [
-    {
-      name: 'busLevel0',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.8,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'busLevel1',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.8,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'busLevel2',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.8,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'busLevel3',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.8,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'busLevel4',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.8,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'busLevel5',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.8,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'busLevel6',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.8,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'busLevel7',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.8,
-      automationRate: 'a-rate',
-    },
-  ],
-} as const
+export type LFO = {
+  name: 'LFO'
+  inputs: ['sync']
+  parameters: ['cv', 'pw', 'amount']
+  outputs: ['sin', 'tri', 'saw', 'sqr']
+}
 
-const SequencerDef = {
-  name: 'Sequencer',
-  constructor: Sequencer,
-  parameterDescriptors: [
-    {
-      name: 'sequenceLength',
-      minValue: 1,
-      maxValue: 32,
-      defaultValue: 32,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'glide',
-      minValue: 0,
-      maxValue: 4,
-      defaultValue: 0,
-      automationRate: 'a-rate',
-    },
-  ],
-  init(instance: Sequencer, port: MessagePort) {
-    instance.on_advance((step: number) => {
-      port.postMessage({
-        type: 'CURRENT_STEP',
-        step,
-      })
-    })
-  },
-  onMessage(instance: Sequencer, msg: SequencerMessage) {
-    switch (msg.type) {
-      case 'SET_NOTES': {
-        instance.set_notes(msg.notes)
-        break
-      }
-    }
-  },
-} as const
+export type BiquadFilter = {
+  name: 'BiquadFilter'
+  inputs: ['input']
+  parameters: ['frequency', 'resonance']
+  outputs: ['lowpass', 'highpass']
+}
 
-const ReverbDef = {
-  name: 'Reverb',
-  constructor: Reverb,
-  parameterDescriptors: [
-    {
-      name: 'delay',
-      minValue: 0,
-      maxValue: 10,
-      defaultValue: 0.3,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'decay',
-      minValue: 0,
-      maxValue: 0.99,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'diffuse',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'wet',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.25,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'dry',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-  ],
-} as const
+export type Mixer = {
+  name: 'Mixer'
+  inputs: [
+    'input0',
+    'input1',
+    'input2',
+    'input3',
+    'input4',
+    'input5',
+    'input6',
+    'input7'
+  ]
+  parameters: [
+    'level0',
+    'level1',
+    'level2',
+    'level3',
+    'level4',
+    'level5',
+    'level6',
+    'level7'
+  ]
+  outputs: ['output']
+}
 
-const DelayDef = {
-  name: 'Delay',
-  constructor: Delay,
-  parameterDescriptors: [
-    {
-      name: 'delayTime',
-      minValue: 0.01,
-      maxValue: 10,
-      defaultValue: 0.1,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'feedBack',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.2,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'wet',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'dry',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-  ],
-} as const
+export type Gain = {
+  name: 'Gain'
+  inputs: ['input']
+  parameters: ['gain']
+  outputs: ['output']
+}
 
-const ADSRDef = {
-  name: 'ADSR',
-  constructor: ADSR,
-  parameterDescriptors: [
-    {
-      name: 'attack',
-      minValue: 0,
-      maxValue: 60,
-      defaultValue: 0.1,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'decay',
-      minValue: 0,
-      maxValue: 60,
-      defaultValue: 0.1,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'sustain',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'release',
-      minValue: 0,
-      maxValue: 60,
-      defaultValue: 0.1,
-      automationRate: 'a-rate',
-    },
-  ],
-} as const
+export type Limiter = {
+  name: 'Limiter'
+  inputs: ['input']
+  parameters: ['threshold']
+  outputs: ['output']
+}
 
-const ClockDef = {
-  name: 'Clock',
-  constructor: Clock,
-  onMessage(instance: Clock, msg: ClockMessage) {
-    switch (msg.type) {
-      case 'RESET': {
-        instance.reset()
-        break
-      }
+export type PowShaper = {
+  name: 'PowShaper'
+  inputs: ['input']
+  parameters: ['exponent', 'gain', 'preGain']
+  outputs: ['output']
+}
 
-      case 'SET_RUNNING': {
-        instance.set_running(msg.isRunning)
-        break
-      }
-    }
-  },
-  parameterDescriptors: [
-    {
-      name: 'tempo',
-      minValue: 1,
-      maxValue: 512,
-      defaultValue: 128,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'ratio1',
-      minValue: 0.1,
-      maxValue: 32,
-      defaultValue: 1,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'ratio2',
-      minValue: 0.1,
-      maxValue: 32,
-      defaultValue: 2,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'ratio3',
-      minValue: 0.1,
-      maxValue: 32,
-      defaultValue: 4,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'pulseWidth1',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'pulseWidth2',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'pulseWidth3',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'swing1',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'swing2',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'swing3',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-  ],
-} as const
+export type Sequencer = {
+  name: 'Sequencer'
+  inputs: ['gate']
+  parameters: ['length', 'glide']
+  outputs: ['cv', 'gate']
+  // Set sequencer notes
+  messages: { type: 'SequencerSetNotes'; notes: Note[] }
 
-const GainDef = {
-  name: 'Gain',
-  constructor: Gain,
-  parameterDescriptors: [
-    {
-      name: 'gain',
-      minValue: 0,
-      maxValue: 2,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-  ],
-} as const
+  // Sequencer advance
+  events: { type: 'SequencerAdvance'; position: number }
+}
 
-const LimiterDef = {
-  name: 'Limiter',
-  constructor: Limiter,
-  parameterDescriptors: [
-    {
-      name: 'threshold',
-      minValue: 0,
-      maxValue: 2,
-      defaultValue: 0.5,
-      automationRate: 'a-rate',
-    },
-  ],
-} as const
+export type ADSR = {
+  name: 'ADSR'
+  inputs: ['gate']
+  parameters: ['attack', 'decay', 'sustain', 'release']
+  outputs: ['envelope']
+}
 
-const FilterDef = {
-  name: 'Filter',
-  constructor: BiquadFilter,
-  parameterDescriptors: [
-    {
-      name: 'frequency',
-      minValue: -5,
-      maxValue: 5,
-      defaultValue: 0,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'Q',
-      minValue: 0,
-      maxValue: 20,
-      defaultValue: 0,
-      automationRate: 'a-rate',
-    },
-  ],
-} as const
+export type Delay = {
+  name: 'Delay'
+  inputs: ['input']
+  parameters: ['time', 'feedback', 'wet', 'dry']
+  outputs: ['output']
+}
 
-const PowShaperDef = {
-  name: 'PowShaper',
-  constructor: PowShaper,
-  parameterDescriptors: [
-    {
-      name: 'exponent',
-      minValue: 0.01,
-      maxValue: 4,
-      defaultValue: 2,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'gain',
-      minValue: 0,
-      maxValue: 2,
-      defaultValue: 1,
-      automationRate: 'a-rate',
-    },
-    {
-      name: 'preGain',
-      minValue: 0,
-      maxValue: 2,
-      defaultValue: 1,
-      automationRate: 'a-rate',
-    },
-  ],
-} as const
+export type Reverb = {
+  name: 'Reverb'
+  inputs: ['input']
+  parameters: ['delay', 'decay', 'diffuse', 'wet', 'dry']
+  outputs: ['output']
+}
 
-const MIDIDef = {
-  name: 'MIDI',
-  constructor: MIDI,
-  onMessage(instance: MIDI, msg: number) {
-    instance.on_message(msg)
-  },
-  parameterDescriptors: [],
-} as const
+export type Clock = {
+  name: 'Clock'
+  inputs: []
+  parameters: [
+    'tempo',
+    'ratio0',
+    'ratio1',
+    'ratio2',
+    'pw0',
+    'pw1',
+    'pw2',
+    'swing0',
+    'swing1',
+    'swing2'
+  ]
+  outputs: ['pulse0', 'pulse1', 'pulse2']
 
-const BouncyBoiDef = {
-  name: 'BouncyBoi',
-  constructor: BouncyBoi,
-  onMessage(instance: BouncyBoi, _msg: any, port: MessagePort) {
-    port.postMessage(instance.get_state())
-  },
-  parameterDescriptors: [
-    {
-      name: 'speed',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.1,
-      automationRate: 'k-rate',
-    },
-    {
-      name: 'gravity',
-      minValue: 0,
-      maxValue: 1,
-      defaultValue: 0.1,
-      automationRate: 'k-rate',
-    },
-  ],
-} as const
+  messages:
+    | { type: 'ClockReset' }
+    | { type: 'ClockSetRunning'; running: boolean }
+}
 
-export const modules = [
-  OscillatorDef,
-  MixerDef,
-  SequencerDef,
-  ReverbDef,
-  DelayDef,
-  ADSRDef,
-  ClockDef,
-  GainDef,
-  LimiterDef,
-  FilterDef,
-  PowShaperDef,
-  MIDIDef,
-  BouncyBoiDef,
-] as const
+export type MIDI = {
+  name: 'MIDI'
+  inputs: []
+  parameters: []
+  outputs: ['cv', 'velocity', 'gate']
+  messages: { type: 'MidiMessage'; message: number }
+}
 
-export type Modules = typeof modules extends { [k: number]: infer Mod }
-  ? Mod
-  : never
+export type BouncyBoi = {
+  name: 'BouncyBoi'
+  inputs: []
+  parameters: ['speed', 'gravity']
+  outputs: ['trig0', 'trig1', 'trig2', 'vel0', 'vel1', 'vel2']
+
+  events: {
+    type: 'BouncyBoiUpdate'
+    balls: { pos: Vec2; vel: Vec2 }[]
+    phase: number
+  }
+}
+
+export type Module =
+  | AudioOut
+  | Oscillator
+  | BiquadFilter
+  | Mixer
+  | Gain
+  | Limiter
+  | PowShaper
+  | Sequencer
+  | ADSR
+  | Delay
+  | Reverb
+  | Clock
+  | MIDI
+  | BouncyBoi
+  | LFO
+
+export type ModuleName = Module['name']
+
+export type EventTypes<
+  M extends Extract<Module, { events: any }>,
+  T extends M['events']['type']
+> = Extract<M['events'], { type: T }>

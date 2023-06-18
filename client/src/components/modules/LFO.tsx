@@ -1,51 +1,107 @@
 import { h, Component } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { connectKnobToParam } from '../../modules'
-
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import { LFO } from '@modulate/worklets/src/modules'
+
 type Props = {
   id: string
 }
 
-class LFO extends Component<Props> implements IModule {
+class LFONode extends Component<Props> {
   node: OscillatorNode
 
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
-    this.node = audioContext.createOscillator()
-    this.node.type = 'sine'
-    this.node.start()
+    engine.createModule(props.id, 'LFO')
 
-    connectKnobToParam(props.id, 'frequency', this.node.frequency)
+    connectKnobToParam<LFO, 'cv'>(props.id, 'freq', 0)
+    connectKnobToParam<LFO, 'pw'>(props.id, 'pw', 1)
+    connectKnobToParam<LFO, 'amount'>(props.id, 'amount', 2)
   }
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="LFO" width={120}>
+      <Module id={id} name="LFO" width={200}>
         <Knob
           moduleId={id}
-          id="frequency"
-          type="exponential"
-          exponent={2}
-          min={0.01}
+          id="freq"
+          label="FREQ"
+          type="linear"
+          min={0}
           max={10}
           initial={1}
         />
+        <Knob
+          moduleId={id}
+          id="pw"
+          label="PW"
+          type="linear"
+          min={0}
+          max={1}
+          initial={0.5}
+        />
+        <Knob
+          moduleId={id}
+          id="amount"
+          label="AMOUNT"
+          type="percentage"
+          initial={1.0}
+        />
 
-        <ModuleInputs></ModuleInputs>
+        <ModuleInputs>
+          <Socket<LFO, 'parameter', 'cv'>
+            moduleId={id}
+            type="parameter"
+            index={0}
+            label="FREQ"
+          />
+          <Socket<LFO, 'parameter', 'pw'>
+            moduleId={id}
+            type="parameter"
+            index={1}
+            label="PW"
+          />
+          <Socket<LFO, 'input', 'sync'>
+            moduleId={id}
+            type="input"
+            index={0}
+            label="SYNC"
+          />
+        </ModuleInputs>
 
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="out" node={this.node} />
+          <Socket<LFO, 'output', 'sin'>
+            moduleId={id}
+            type="output"
+            index={0}
+            label="SIN"
+          />
+          <Socket<LFO, 'output', 'tri'>
+            moduleId={id}
+            type="output"
+            index={1}
+            label="TRI"
+          />
+          <Socket<LFO, 'output', 'saw'>
+            moduleId={id}
+            type="output"
+            index={2}
+            label="SAW"
+          />
+          <Socket<LFO, 'output', 'sqr'>
+            moduleId={id}
+            type="output"
+            index={3}
+            label="SQR"
+          />
         </ModuleOutputs>
       </Module>
     )
   }
 }
 
-export default LFO
+export default LFONode

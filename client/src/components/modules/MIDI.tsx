@@ -1,37 +1,33 @@
-import { h, Component, useEffect } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
-import { getModuleKnobs } from '../../state'
+import { h, Component } from 'kaiku'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
-import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
+import { MIDI } from '@modulate/worklets/src/modules'
 
 type Props = {
   id: string
 }
 
-class MIDI extends Component<Props> implements IModule {
-  node: WorkletNode<'MIDI'>
-
+class MIDINode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
-    this.node = new WorkletNode(audioContext, 'MIDI', {
-      numberOfOutputs: 3,
-    })
+
+    engine.createModule(props.id, 'MIDI')
 
     navigator.requestMIDIAccess().then((midiAccess) => {
       midiAccess.inputs.forEach((entry) => {
         entry.onmidimessage = (msg) => {
-          const midiEvent = msg as MIDIMessageEvent
+          const midiEvent = msg as WebMidi.MIDIMessageEvent
           let data = 0
           for (let i = 0; i < midiEvent.data.length; i++) {
             data |= midiEvent.data[i]! << (i * 8)
           }
 
-          this.node.port.postMessage(data)
+          engine.sendMessageToModule<MIDI>(props.id, {
+            type: 'MidiMessage',
+            message: data,
+          })
         }
       })
     }, console.error)
@@ -42,26 +38,23 @@ class MIDI extends Component<Props> implements IModule {
       <Module id={id} name="MIDI" width={50}>
         <ModuleInputs></ModuleInputs>
         <ModuleOutputs>
-          <Socket
+          <Socket<MIDI, 'output', 'cv'>
             moduleId={id}
             type="output"
-            name="CV"
-            node={this.node}
-            output={0}
+            label="CV"
+            index={0}
           />
-          <Socket
+          <Socket<MIDI, 'output', 'velocity'>
             moduleId={id}
             type="output"
-            name="VEL"
-            node={this.node}
-            output={1}
+            label="VEL"
+            index={1}
           />
-          <Socket
+          <Socket<MIDI, 'output', 'gate'>
             moduleId={id}
             type="output"
-            name="GATE"
-            node={this.node}
-            output={2}
+            label="GATE"
+            index={2}
           />
         </ModuleOutputs>
       </Module>
@@ -69,4 +62,4 @@ class MIDI extends Component<Props> implements IModule {
   }
 }
 
-export default MIDI
+export default MIDINode

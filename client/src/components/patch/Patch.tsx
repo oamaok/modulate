@@ -5,6 +5,7 @@ import Cables from './Cables'
 
 import css from './Patch.css'
 import assert from '../../assert'
+import RoomCursors from '../room-cursors/RoomCursors'
 
 const Patch = () => {
   return (
@@ -23,6 +24,7 @@ const Patch = () => {
             moduleMap[module.name as keyof typeof moduleMap]
           return <Component key={id} id={id} />
         })}
+        {state.room ? <RoomCursors /> : null}
       </div>
     </div>
   )

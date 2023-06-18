@@ -7,18 +7,24 @@ export const Vec2 = t.type({
   y: t.number,
 })
 
-export const SocketType = t.union([t.literal('output'), t.literal('input')])
-
-export const ConnectedSocket = t.type({
+export const InputSocket = t.type({
+  type: t.union([t.literal('input'), t.literal('parameter')]),
+  index: t.number,
   moduleId: t.string,
-  name: t.string,
-  type: SocketType,
 })
+
+export const OutputSocket = t.type({
+  type: t.literal('output'),
+  index: t.number,
+  moduleId: t.string,
+})
+
+export const Socket = t.union([InputSocket, OutputSocket])
 
 export const Cable = t.type({
   id: t.string,
-  from: ConnectedSocket,
-  to: ConnectedSocket,
+  from: OutputSocket,
+  to: InputSocket,
 })
 
 export const Module = t.type({

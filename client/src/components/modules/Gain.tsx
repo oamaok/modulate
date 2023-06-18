@@ -1,36 +1,21 @@
-import { h, Component, useEffect } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
-import { getModuleKnobs } from '../../state'
+import { h, Component } from 'kaiku'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
-import assert from '../../assert'
+import { connectKnobToParam } from '../../modules'
+import { Gain } from '@modulate/worklets/src/modules'
 
 type Props = {
   id: string
 }
 
-class Gain extends Component<Props> implements IModule {
-  node: WorkletNode<'Gain'>
-
+class GainNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
-    this.node = new WorkletNode(audioContext, 'Gain')
-
-    const level = this.node.parameters.get('gain')
-
-    useEffect(() => {
-      const knobs = getModuleKnobs(props.id)
-
-      if (knobs) {
-        assert(typeof knobs.gain !== 'undefined')
-        level.setTargetAtTime(knobs.gain, audioContext.currentTime, 0.01)
-      }
-    })
+    engine.createModule(props.id, 'Gain')
+    connectKnobToParam<Gain, 'gain'>(props.id, 'gain', 0)
   }
 
   render({ id }: Props) {
@@ -46,20 +31,30 @@ class Gain extends Component<Props> implements IModule {
           initial={0.4}
         />
         <ModuleInputs>
-          <Socket
+          <Socket<Gain, 'parameter', 'gain'>
+            moduleId={id}
+            type="parameter"
+            index={0}
+            label="GAIN"
+          />
+          <Socket<Gain, 'input', 'input'>
             moduleId={id}
             type="input"
-            name="gain"
-            node={this.node.parameters.get('gain')}
+            index={0}
+            label="IN"
           />
-          <Socket moduleId={id} type="input" name="in" node={this.node} />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="out" node={this.node} />
+          <Socket<Gain, 'output', 'output'>
+            moduleId={id}
+            type="output"
+            index={0}
+            label="OUT"
+          />
         </ModuleOutputs>
       </Module>
     )
   }
 }
 
-export default Gain
+export default GainNode

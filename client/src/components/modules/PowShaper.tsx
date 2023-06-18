@@ -1,33 +1,25 @@
-import { h, Component, useEffect } from 'kaiku'
-import { IModule } from '../../types'
-import { getAudioContext } from '../../audio'
-import { WorkletNode } from '../../worklets'
-import { getModuleKnobs } from '../../state'
+import { h, Component } from 'kaiku'
+import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { connectKnobToParam } from '../../modules'
+import { PowShaper } from '@modulate/worklets/src/modules'
 
 type Props = {
   id: string
 }
 
-class PowShaper extends Component<Props> implements IModule {
-  node: WorkletNode<'PowShaper'>
-
+class PowShaperNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-    const audioContext = getAudioContext()
-    this.node = new WorkletNode(audioContext, 'PowShaper')
 
-    const gain = this.node.parameters.get('gain')
-    const preGain = this.node.parameters.get('preGain')
-    const exponent = this.node.parameters.get('exponent')
+    engine.createModule(props.id, 'PowShaper')
 
-    connectKnobToParam(props.id, 'gain', gain)
-    connectKnobToParam(props.id, 'preGain', preGain)
-    connectKnobToParam(props.id, 'exponent', exponent)
+    connectKnobToParam<PowShaper, 'gain'>(props.id, 'gain', 1)
+    connectKnobToParam<PowShaper, 'preGain'>(props.id, 'preGain', 2)
+    connectKnobToParam<PowShaper, 'exponent'>(props.id, 'exponent', 0)
   }
 
   render({ id }: Props) {
@@ -36,6 +28,7 @@ class PowShaper extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           id="exponent"
+          label="EXP"
           type="linear"
           min={0.01}
           max={2}
@@ -44,6 +37,7 @@ class PowShaper extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           id="preGain"
+          label="PRE-GAIN"
           type="linear"
           min={0}
           max={2}
@@ -52,38 +46,49 @@ class PowShaper extends Component<Props> implements IModule {
         <Knob
           moduleId={id}
           id="gain"
+          label="GAIN"
           type="linear"
           min={0}
           max={2}
           initial={1}
         />
         <ModuleInputs>
-          <Socket
+          <Socket<PowShaper, 'input', 'input'>
             moduleId={id}
             type="input"
-            name="EXP"
-            node={this.node.parameters.get('exponent')}
+            label="IN"
+            index={0}
           />
-          <Socket
+          <Socket<PowShaper, 'parameter', 'exponent'>
             moduleId={id}
-            type="input"
-            name="PRE"
-            node={this.node.parameters.get('preGain')}
+            type="parameter"
+            label="EXP"
+            index={0}
           />
-          <Socket
+          <Socket<PowShaper, 'parameter', 'preGain'>
             moduleId={id}
-            type="input"
-            name="GAIN"
-            node={this.node.parameters.get('gain')}
+            type="parameter"
+            label="PRE"
+            index={2}
           />
-          <Socket moduleId={id} type="input" name="in" node={this.node} />
+          <Socket<PowShaper, 'parameter', 'gain'>
+            moduleId={id}
+            type="parameter"
+            label="GAIN"
+            index={1}
+          />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket moduleId={id} type="output" name="out" node={this.node} />
+          <Socket<PowShaper, 'output', 'output'>
+            moduleId={id}
+            type="output"
+            label="OUT"
+            index={0}
+          />
         </ModuleOutputs>
       </Module>
     )
   }
 }
 
-export default PowShaper
+export default PowShaperNode
