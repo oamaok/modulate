@@ -12,7 +12,8 @@
     "add-migration": "node server/scripts/add-migration",
     "run-migrations": "node server/scripts/run-migrations",
     "prettier": "prettier --write .",
-    "typecheck": "tsc --project tsconfig.json --noEmit"
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "rustfmt": "rustfmt worklets/**/*.rs"
   },
   "workspaces": [
     "client",
