@@ -21,9 +21,10 @@ jobs:
         run: yarn install
       - name: Build rust
         run: yarn build --rust
+      - name: Typecheck
+        run: yarn typecheck
       - name: Deploy
         run: |
-          yarn typecheck
           TEMP=$(mktemp)
           echo "${{ secrets.SSH_KEY }}" > $TEMP
           ssh -o 'StrictHostKeyChecking no' -i $TEMP ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p${{ secrets.SSH_PORT }} 'bash -s' < scripts/deploy.sh
