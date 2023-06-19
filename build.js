@@ -179,18 +179,14 @@ const buildWorklets = async () => {
         URL: 'undefined',
       },
     })
-    .then((res) =>
-      fs.writeFile(
-        `./dist/client/assets/worklets.js`,
-        polyfill + new TextDecoder().decode(res.outputFiles[0].contents)
-      )
+    .then(
+      (res) => polyfill + new TextDecoder().decode(res.outputFiles[0].contents)
     )
+    .then((code) => {
+      if (!isProduction) return code
 
-  if (isProduction) {
-    await terser
-      .minify(
-        (await fs.readFile('./dist/client/assets/worklets.js')).toString(),
-        {
+      return terser
+        .minify(code, {
           sourceMap: false,
           compress: {
             passes: 3,
@@ -198,12 +194,11 @@ const buildWorklets = async () => {
           mangle: {
             module: true,
           },
-        }
-      )
-      .then((minified) =>
-        fs.writeFile('dist/client/assets/worklets.js', minified.code)
-      )
-  }
+        })
+        .then((minified) => minified.code)
+    })
+    .then((code) => fs.writeFile(`./dist/client/assets/worklets.js`, code))
+
   await fs.copyFile(
     './worklets/pkg/worklets_bg.wasm',
     './dist/client/assets/worklets.wasm'
