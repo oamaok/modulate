@@ -23,7 +23,7 @@ jobs:
         run: yarn build
       - name: Typecheck
         run: yarn typecheck
-      - name: Copy dist directory to remove host
+      - name: Copy dist directory to remote host
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -31,7 +31,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           source: "./dist/*"
-          target: "~/dist"
+          target: "~/dist/"
           rm: true
       - name: Deploy
         run: |

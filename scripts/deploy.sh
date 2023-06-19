@@ -8,7 +8,7 @@ git clone https://github.com/oamaok/modulate.git build
 
 cd build
 yarn install
-cp -R ~/dist ./dist
+cp -R ~/dist/dist ./dist
 
 cd ~
 rm -rf modulate.previous
