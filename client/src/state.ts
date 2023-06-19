@@ -56,7 +56,7 @@ document.documentElement.addEventListener('mousemove', (evt) => {
   cursor.y = evt.pageY
 })
 
-document.addEventListener('wheel', evt => {
+document.addEventListener('wheel', (evt) => {
   state.viewOffset.x -= evt.deltaX
   state.viewOffset.y -= evt.deltaY
 })

@@ -179,12 +179,12 @@ const buildWorklets = async () => {
         URL: 'undefined',
       },
     })
-    .then((res) => {
-      return fs.writeFile(
+    .then((res) =>
+      fs.writeFile(
         `./dist/client/assets/worklets.js`,
         polyfill + new TextDecoder().decode(res.outputFiles[0].contents)
       )
-    })
+    )
 
   if (isProduction) {
     await terser
@@ -200,9 +200,9 @@ const buildWorklets = async () => {
           },
         }
       )
-      .then(async (minified) => {
-        await fs.writeFile('dist/client/assets/worklets.js', minified.code)
-      })
+      .then((minified) =>
+        fs.writeFile('dist/client/assets/worklets.js', minified.code)
+      )
   }
   await fs.copyFile(
     './worklets/pkg/worklets_bg.wasm',
