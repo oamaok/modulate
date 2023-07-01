@@ -166,38 +166,43 @@ const buildWorklets = async () => {
   console.time('Build worklets')
   const polyfill = await fs.readFile('./worklets/src/polyfill.js')
 
-  await esbuild
-    .build({
-      entryPoints: [`./worklets/src/index.ts`],
-      bundle: true,
-      write: false,
-      incremental: true,
-      minify: isProduction,
-      define: {
-        Response: 'undefined',
-        Request: 'undefined',
-        URL: 'undefined',
-      },
-    })
-    .then(
-      (res) => polyfill + new TextDecoder().decode(res.outputFiles[0].contents)
-    )
-    .then((code) => {
-      if (!isProduction) return code
+  const entries = ['audio-worklet', 'main-worker', 'thread-worker']
 
-      return terser
-        .minify(code, {
-          sourceMap: false,
-          compress: {
-            passes: 3,
-          },
-          mangle: {
-            module: true,
-          },
-        })
-        .then((minified) => minified.code)
-    })
-    .then((code) => fs.writeFile(`./dist/client/assets/worklets.js`, code))
+  for (const entry of entries) {
+    await esbuild
+      .build({
+        entryPoints: [`./worklets/src/${entry}.ts`],
+        bundle: true,
+        write: false,
+        incremental: true,
+        minify: isProduction,
+        define: {
+          Response: 'undefined',
+          Request: 'undefined',
+          URL: 'undefined',
+        },
+      })
+      .then(
+        (res) =>
+          polyfill + new TextDecoder().decode(res.outputFiles[0].contents)
+      )
+      .then((code) => {
+        if (!isProduction) return code
+
+        return terser
+          .minify(code, {
+            sourceMap: false,
+            compress: {
+              passes: 3,
+            },
+            mangle: {
+              module: true,
+            },
+          })
+          .then((minified) => minified.code)
+      })
+      .then((code) => fs.writeFile(`./dist/client/assets/${entry}.js`, code))
+  }
 
   await fs.copyFile(
     './worklets/pkg/worklets_bg.wasm',

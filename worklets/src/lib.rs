@@ -1,15 +1,25 @@
+#![feature(stdsimd)]
+use core::arch::wasm32::{memory_atomic_notify, memory_atomic_wait32};
 use std::collections::{HashMap, HashSet};
+use std::sync::atomic::{AtomicI32, AtomicU64, AtomicUsize};
+use std::sync::{Arc, Mutex};
 use wasm_bindgen::prelude::*;
 
 pub mod modulate_core;
 pub mod module;
 pub mod modules;
 pub mod vec;
+pub mod barrier;
 
 use modules::{
   adsr, audio_out, biquad_filter, bouncy_boi, clock, delay, gain, lfo, limiter, midi, mixer,
   oscillator, pow_shaper, reverb, sequencer,
 };
+
+#[wasm_bindgen(inline_js = "export function now() { return performance.now() }")]
+extern "C" {
+    fn now() -> f64;
+}
 
 #[wasm_bindgen]
 extern "C" {
@@ -32,6 +42,25 @@ enum ConnectionTarget {
 struct ModuleConnection {
   from: (module::ModuleId, module::OutputId),
   to: ConnectionTarget,
+}
+
+struct WorkerContext {
+  barrier: *const barrier::Barrier
+}
+
+struct Worker {
+  context: WorkerContext
+}
+
+impl Worker {
+  fn run(&mut self) {
+    unsafe {
+      let barrier = self.context.barrier;
+      loop {
+        (*barrier).wait();
+      }
+    }
+  }
 }
 
 struct ModulateEngine {
@@ -402,5 +431,13 @@ impl ModulateEngineWrapper {
 
   pub fn process(&mut self) {
     self.engine.process(&mut self.output);
+  }
+}
+
+#[wasm_bindgen(js_name = workerEntry)]
+pub fn worker_entry(ptr: usize) {
+  unsafe {
+    let worker = &mut *(ptr as *mut Worker);
+    worker.run();
   }
 }

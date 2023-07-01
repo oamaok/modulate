@@ -58,4 +58,10 @@ export type Engine = {
   [K in EngineMessageType]: (
     req: Omit<EngineRequest<K>, 'type' | 'id'>
   ) => Promise<EngineResponse<K>>
+} & {
+  memory: WebAssembly.Memory
+  workerPointers: Uint32Array
+  workerTimerPointers: Uint32Array
+  audioContext: AudioContext
+  globalGain: GainNode
 }

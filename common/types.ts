@@ -124,7 +124,11 @@ export type EngineMessage =
         wasm: ArrayBuffer
       }
       res: {
-        success: boolean
+        outputBufferPtr: number
+        audioThreadPositionPtr: number
+        memory: WebAssembly.Memory
+        workerPointers: Uint32Array
+        workerTimerPointers: Uint32Array
       }
     }
   | {

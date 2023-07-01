@@ -12,36 +12,27 @@ import assert from './assert'
 import { Engine } from './types'
 import { Module, ModuleName } from '@modulate/worklets/src/modules'
 
-let audioContext: AudioContext | null = null
 let engine: Engine | null = null
-let globalGain: AudioNode | null = null
 
 const eventSubscriptions: Record<number, (event: ModuleEvent<Module>) => void> =
   {}
 
 export const initializeAudio = async () => {
-  audioContext = new AudioContext()
+  const audioContext = new AudioContext()
 
   assert(audioContext)
-  const [wasm] = await Promise.all([
-    fetch('/assets/worklets.wasm').then((res) => res.arrayBuffer()),
-    audioContext.audioWorklet.addModule('/assets/worklets.js'),
-  ])
+  const wasm = await fetch('/assets/worklets.wasm').then((res) =>
+    res.arrayBuffer()
+  )
 
-  const engineNode = new AudioWorkletNode(audioContext, 'ModulateEngine', {
-    numberOfOutputs: 1,
-  })
+  const engineWorker = new Worker('./assets/main-worker.js')
 
-  globalGain = audioContext.createGain()
-  globalGain.connect(audioContext.destination)
-
-  engineNode.connect(globalGain)
   const messageResolvers: Record<
     number,
     (res: EngineResponse<EngineMessageType>) => void
   > = {}
 
-  engineNode.port.onmessage = ({
+  engineWorker.onmessage = ({
     data: msg,
   }: MessageEvent<EngineResponse<EngineMessageType> | EngineEvent>) => {
     if (msg.type === 'moduleEvent') {
@@ -67,7 +58,7 @@ export const initializeAudio = async () => {
   ): Promise<EngineResponse<T>> => {
     const id = messageId++
 
-    engineNode.port.postMessage({
+    engineWorker.postMessage({
       ...msg,
       id,
     })
@@ -79,36 +70,62 @@ export const initializeAudio = async () => {
     })
   }
 
-  const engineMessageTypes = [
-    'init',
-    'createModule',
-    'deleteModule',
-    'setParameterValue',
-    'connectToInput',
-    'connectToParameter',
-    'removeConnection',
-    'sendMessageToModule',
-  ] as const
+  const createEngineMethod =
+    <T extends EngineMessageType>(type: T) =>
+    (req: Omit<EngineRequest<T>, 'id' | 'type'>) =>
+      sendMessage<T>({ type, ...req } as Omit<EngineRequest<T>, 'id'>)
 
-  engine = Object.fromEntries(
-    engineMessageTypes.map((type) => [
-      type,
-      (req: Omit<EngineRequest<typeof type>, 'id' | 'type'>) =>
-        sendMessage<typeof type>({ type, ...req }),
-    ])
-  ) as unknown as {
-    [K in (typeof engineMessageTypes)[number]]: (
-      req: Omit<EngineRequest<K>, 'id' | 'type'>
-    ) => Promise<EngineResponse<K>>
+  const {
+    memory,
+    workerPointers,
+    outputBufferPtr,
+    audioThreadPositionPtr,
+    workerTimerPointers,
+  } = await createEngineMethod('init')({ wasm })
+
+  engine = {
+    init: createEngineMethod('init'),
+    createModule: createEngineMethod('createModule'),
+    deleteModule: createEngineMethod('deleteModule'),
+    setParameterValue: createEngineMethod('setParameterValue'),
+    connectToInput: createEngineMethod('connectToInput'),
+    connectToParameter: createEngineMethod('connectToParameter'),
+    removeConnection: createEngineMethod('removeConnection'),
+    sendMessageToModule: createEngineMethod('sendMessageToModule'),
+    memory,
+    workerPointers,
+    workerTimerPointers,
+    audioContext,
+    globalGain: audioContext.createGain(),
   }
 
-  await engine.init({ wasm })
+  for (const pointer of workerPointers) {
+    const worker = new Worker('./assets/thread-worker.js')
+    worker.postMessage([wasm, memory, pointer])
+  }
+  await audioContext.audioWorklet.addModule('/assets/audio-worklet.js')
+  const engineOutputNode = new AudioWorkletNode(audioContext, 'EngineOutput', {
+    numberOfOutputs: 1,
+  })
+
+  engineOutputNode.port.postMessage({
+    memory,
+    outputBufferPtr,
+    audioThreadPositionPtr,
+  })
+
+  engine.globalGain.connect(audioContext.destination)
+
+  engineOutputNode.connect(engine.globalGain)
 }
 
-// TODO: This need not be exposed any longer
-export const getAudioContext = () => {
-  assert(audioContext)
-  return audioContext
+export const getWorkerTimers = () => {
+  assert(engine)
+  const { memory } = engine
+
+  return [...engine.workerTimerPointers].map(
+    (ptr) => new Float64Array(memory.buffer, ptr, 1)[0]
+  )
 }
 
 const moduleHandles: Record<string, Promise<number>> = {}
