@@ -95,7 +95,7 @@ impl module::Module for BouncyBoi {
     for sample in 0..modulate_core::QUANTUM_SIZE {
       for i in 0..3 {
         if sample != 0 {
-          self.velocity_outputs[i][sample] = self.velocity_outputs[i].previous[0];
+          self.velocity_outputs[i][sample] = self.velocity_outputs[i].previous()[0];
         }
         if self.trigger_timers[i] != 0 {
           self.trigger_outputs[i][sample] = 1.0;

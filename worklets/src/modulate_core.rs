@@ -5,6 +5,7 @@ pub const SAMPLE_RATE: usize = 44100;
 pub const QUANTUM_SIZE: usize = 128;
 pub const INV_SAMPLE_RATE: f32 = 1.0 / SAMPLE_RATE as f32;
 
+#[derive(Clone, Copy)]
 pub struct AudioBuffer([f32; QUANTUM_SIZE]);
 
 impl Deref for AudioBuffer {
@@ -26,18 +27,24 @@ impl Default for AudioBuffer {
   }
 }
 
-#[derive(PartialEq, Default)]
-pub struct AudioInput(usize);
+#[derive(PartialEq)]
+pub struct AudioInput(*const AudioOutput);
+
+impl Default for AudioInput {
+  fn default() -> Self {
+    AudioInput(std::ptr::null())
+  }
+}
 
 impl AudioInput {
   pub fn at(&self, sample: usize) -> f32 {
-    if self.0 == 0 {
+    if self.0 == std::ptr::null() {
       return 0.0;
     }
-    unsafe { (*(self.0 as *const AudioBuffer))[sample] }
+    unsafe { (*self.0).previous()[sample] }
   }
 
-  pub fn set_ptr(&mut self, ptr: usize) {
+  pub fn set_ptr(&mut self, ptr: *const AudioOutput) {
     self.0 = ptr;
   }
 }
@@ -80,37 +87,56 @@ impl AudioParam {
   }
 }
 
-// TODO: Swap references to two buffers instead of swapping the whole contents each time
+const AUDIO_OUTPUT_NUM_BUFFERS: usize = 2;
+
 pub struct AudioOutput {
-  pub previous: AudioBuffer,
-  pub current: AudioBuffer,
+  buffers: [AudioBuffer; AUDIO_OUTPUT_NUM_BUFFERS],
+  current: usize,
 }
 
 impl Index<usize> for AudioOutput {
   type Output = f32;
   fn index(&self, i: usize) -> &f32 {
-    &self.current[i]
+    &self.buffers[self.current][i]
   }
 }
 
 impl IndexMut<usize> for AudioOutput {
   fn index_mut(&mut self, i: usize) -> &mut f32 {
-    &mut self.current[i]
+    &mut self.buffers[self.current][i]
   }
 }
 
 impl Default for AudioOutput {
   fn default() -> Self {
     AudioOutput {
-      previous: AudioBuffer::default(),
-      current: AudioBuffer::default(),
+      buffers: [AudioBuffer::default(); AUDIO_OUTPUT_NUM_BUFFERS],
+      current: 0,
     }
   }
 }
 
 impl AudioOutput {
   pub fn swap(&mut self) {
-    std::mem::swap(&mut self.current, &mut self.previous)
+    self.current = (self.current + 1) % AUDIO_OUTPUT_NUM_BUFFERS;
+  }
+
+  pub fn current(&self) -> &AudioBuffer {
+    &self.buffers[self.current]
+  }
+
+  pub fn current_mut(&mut self) -> &mut AudioBuffer {
+    &mut self.buffers[self.current]
+  }
+
+  pub fn previous(&self) -> &AudioBuffer {
+    let prev = (self.current + AUDIO_OUTPUT_NUM_BUFFERS - 1) % AUDIO_OUTPUT_NUM_BUFFERS;
+    &self.buffers[prev]
+  }
+
+  pub fn previous_mut(&mut self) -> &mut AudioBuffer {
+    let prev = (self.current + AUDIO_OUTPUT_NUM_BUFFERS - 1) % AUDIO_OUTPUT_NUM_BUFFERS;
+    &mut self.buffers[prev]
   }
 }
 

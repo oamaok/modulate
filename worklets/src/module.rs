@@ -38,7 +38,7 @@ pub enum ModuleMessage {
   MidiMessage { message: u32 },
 }
 
-pub trait Module: Send {
+pub trait Module {
   fn process(&mut self);
   fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
     vec![]
@@ -60,22 +60,30 @@ pub trait Module: Send {
       buffer.swap();
     }
   }
-  fn get_output_buffer_ptr(&mut self, output: OutputId) -> usize {
+  fn get_output_buffer_ptr(&mut self, output: OutputId) -> *const modulate_core::AudioOutput {
     let ptr = self
       .get_outputs()
       .get(output)
-      .map(|x| &x.previous as *const modulate_core::AudioBuffer as usize)
+      .map(|x| *x as *const modulate_core::AudioOutput)
       .unwrap();
     ptr
   }
 
-  fn set_input_buffer_ptr(&mut self, input: InputId, buffer_ptr: usize) {
+  fn set_input_buffer_ptr(
+    &mut self,
+    input: InputId,
+    buffer_ptr: *const modulate_core::AudioOutput,
+  ) {
     let mut inputs = self.get_inputs();
     let buffer = inputs.get_mut(input).unwrap();
     buffer.set_ptr(buffer_ptr);
   }
 
-  fn set_parameter_buffer_ptr(&mut self, input: ParameterId, buffer_ptr: usize) {
+  fn set_parameter_buffer_ptr(
+    &mut self,
+    input: ParameterId,
+    buffer_ptr: *const modulate_core::AudioOutput,
+  ) {
     let mut params = self.get_parameters();
     let buffer = params.get_mut(input).unwrap();
     buffer.modulation.set_ptr(buffer_ptr);

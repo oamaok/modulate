@@ -230,11 +230,11 @@ impl ModulateEngine {
     match connection.to {
       ConnectionTarget::Input(to_module_id, to_input) => {
         let to_module = self.modules.get_mut(&to_module_id).unwrap();
-        to_module.set_input_buffer_ptr(to_input, 0);
+        to_module.set_input_buffer_ptr(to_input, std::ptr::null());
       }
       ConnectionTarget::Parameter(to_module_id, to_parameter) => {
         let to_module = self.modules.get_mut(&to_module_id).unwrap();
-        to_module.set_parameter_buffer_ptr(to_parameter, 0);
+        to_module.set_parameter_buffer_ptr(to_parameter, std::ptr::null());
       }
     }
 
@@ -262,12 +262,11 @@ impl ModulateEngine {
 
     for audio_output in self.audio_outputs.iter() {
       let module = self.modules.get_mut(audio_output).unwrap();
-      let buffer_ptr = module.get_output_buffer_ptr(0) as *const modulate_core::AudioBuffer;
-      unsafe {
-        for sample in 0..modulate_core::QUANTUM_SIZE {
-          output_buffer[sample] += (*buffer_ptr)[sample];
-        }
-      };
+      let mut outputs = module.get_outputs();
+      let output = outputs.get_mut(0).unwrap().current();
+      for sample in 0..modulate_core::QUANTUM_SIZE {
+        output_buffer[sample] += output[sample];
+      }
     }
 
     for (module_id, module) in self.modules.iter_mut() {
