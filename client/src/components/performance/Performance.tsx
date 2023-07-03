@@ -23,8 +23,7 @@ const Performance = () => {
       total /= 1000
       const imageData = context.getImageData(0, 0, 200, 100)
       context.fillStyle = '#000'
-      context.fillRect(0, 0, 200, 100)
-
+      context.fillRect(199, 0, 1, 100)
       context.putImageData(imageData, -1, 0)
       context.fillStyle = '#f00'
       context.fillRect(199, (1 - total) * 100, 1, 100)

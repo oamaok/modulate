@@ -173,6 +173,8 @@ struct ContextPointers {
 }
 
 struct WorkerContext {
+  num_threads: usize,
+
   barrier: barrier::Barrier,
   current_module: AtomicUsize,
 
@@ -186,7 +188,7 @@ struct WorkerContext {
   audio_outputs: HashSet<module::ModuleId>,
   output_buffers: [modulate_core::AudioBuffer; NUM_OUTPUT_BUFFERS],
 
-  performance: [f32; NUM_WORKERS],
+  performance: Vec<f32>,
 }
 
 struct Worker {
@@ -196,7 +198,6 @@ struct Worker {
   context: *mut WorkerContext,
 }
 
-const NUM_WORKERS: usize = 8;
 const NUM_OUTPUT_BUFFERS: usize = 16;
 
 impl Worker {
@@ -247,13 +248,11 @@ impl Worker {
           break;
         }
 
-        // TODO: The length might change in between and this could potentially be unstable.
-        // Might need to change parts of the ModuleStore to be atomic
-        let module = &mut modules[module_index];
-        module.process();
+        modules[module_index].process();
       }
 
       modules.read_unlock();
+      
       // Have the leader write the output buffers
       if context.barrier.wait() {
         modules.read_lock();
@@ -301,7 +300,7 @@ struct ModulateEngine {
 }
 
 impl ModulateEngine {
-  pub fn new(on_event_callback: js_sys::Function) -> ModulateEngine {
+  pub fn new(num_threads: usize, on_event_callback: js_sys::Function) -> ModulateEngine {
     ModulateEngine {
       next_id: 0,
       modules: ModuleStore::new(),
@@ -310,7 +309,8 @@ impl ModulateEngine {
 
       workers: vec![],
       worker_context: WorkerContext {
-        barrier: barrier::Barrier::new(NUM_WORKERS),
+        num_threads,
+        barrier: barrier::Barrier::new(num_threads),
         current_module: AtomicUsize::new(0),
 
         worker_position: 0,
@@ -319,7 +319,7 @@ impl ModulateEngine {
         audio_outputs: HashSet::new(),
         output_buffers: [modulate_core::AudioBuffer::default(); NUM_OUTPUT_BUFFERS],
 
-        performance: [0.0; NUM_WORKERS],
+        performance: vec![0.0; num_threads],
       },
     }
   }
@@ -331,12 +331,12 @@ impl ModulateEngine {
   }
 
   pub fn init_workers(&mut self) -> Vec<usize> {
-    for i in 0..NUM_WORKERS {
+    for i in 0..self.worker_context.num_threads {
       let worker = Worker {
         id: i,
         performance_samples: [0.0; 64],
         modules: &mut self.modules,
-        context: &mut self.worker_context as *mut WorkerContext,
+        context: &mut self.worker_context,
       };
 
       self.workers.push(worker);
@@ -552,6 +552,8 @@ impl ModulateEngine {
   }
 
   pub fn send_message_to_module(&mut self, module_id: module::ModuleId, message: JsValue) {
+    self.modules.write_lock();
+
     let module = self.modules.get_mut(&module_id).unwrap();
 
     // TODO: Move this deserialization to the wrapper
@@ -559,6 +561,8 @@ impl ModulateEngine {
       Ok(msg) => module.on_message(msg),
       Err(err) => panic!("error deserializing message: {}", err.to_string().as_str()),
     }
+
+    self.modules.write_unlock();
   }
 }
 
@@ -570,12 +574,12 @@ pub struct ModulateEngineWrapper {
 #[wasm_bindgen]
 impl ModulateEngineWrapper {
   #[wasm_bindgen(constructor)]
-  pub fn new(on_event_callback: js_sys::Function) -> ModulateEngineWrapper {
+  pub fn new(num_threads: usize, on_event_callback: js_sys::Function) -> ModulateEngineWrapper {
     #[cfg(debug_assertions)]
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     ModulateEngineWrapper {
-      engine: ModulateEngine::new(on_event_callback),
+      engine: ModulateEngine::new(num_threads, on_event_callback),
     }
   }
 

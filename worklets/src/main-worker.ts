@@ -14,9 +14,9 @@ const requestHandlers: {
     | Omit<EngineResponse<K>, 'type' | 'id'>
     | Promise<Omit<EngineResponse<K>, 'type' | 'id'>>
 } = {
-  init: async ({ wasm }) => {
+  init: async ({ threads, wasm }) => {
     const { memory } = await init(wasm)
-    engine = new ModulateEngineWrapper(onMessage)
+    engine = new ModulateEngineWrapper(threads, onMessage)
     // TODO: Report error if WASM init failed
     const workerPointers = await engine.initWorkers()
     const { audio_buffers, worklet_performance, audio_worklet_position } =

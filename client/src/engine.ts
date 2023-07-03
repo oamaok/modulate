@@ -75,7 +75,10 @@ export const initializeAudio = async () => {
     (req: Omit<EngineRequest<T>, 'id' | 'type'>) =>
       sendMessage<T>({ type, ...req } as Omit<EngineRequest<T>, 'id'>)
 
-  const { memory, pointers } = await createEngineMethod('init')({ wasm })
+  const { memory, pointers } = await createEngineMethod('init')({
+    threads: navigator.hardwareConcurrency,
+    wasm,
+  })
 
   engine = {
     init: createEngineMethod('init'),

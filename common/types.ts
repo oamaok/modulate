@@ -129,6 +129,7 @@ export type EngineMessage =
       type: 'init'
       req: {
         wasm: ArrayBuffer
+        threads: number
       }
       res: {
         memory: WebAssembly.Memory
