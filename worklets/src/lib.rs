@@ -1,11 +1,11 @@
 #![feature(stdsimd)]
-use core::arch::wasm32::{memory_atomic_notify, memory_atomic_wait64};
+use core::arch::wasm32::{memory_atomic_notify, memory_atomic_wait32, memory_atomic_wait64};
 use modulate_core::AudioBuffer;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::ops::{Index, IndexMut};
-use std::sync::atomic::{AtomicI32, AtomicU64, AtomicUsize};
-use std::sync::{Arc, Mutex};
+use std::sync::atomic::{AtomicI32, AtomicU64, AtomicUsize, Ordering};
+use std::sync::{Arc, RwLock};
 use wasm_bindgen::prelude::*;
 
 pub mod barrier;
@@ -50,6 +50,7 @@ struct ModuleConnection {
 struct ModuleStore {
   modules: Vec<Box<dyn module::Module>>,
   module_ids: HashMap<module::ModuleId, usize>,
+  rw_state: AtomicI32,
 }
 
 impl Index<usize> for ModuleStore {
@@ -70,6 +71,7 @@ impl ModuleStore {
     ModuleStore {
       modules: vec![],
       module_ids: HashMap::new(),
+      rw_state: AtomicI32::new(0),
     }
   }
 
@@ -78,12 +80,18 @@ impl ModuleStore {
   }
 
   pub fn insert(&mut self, id: module::ModuleId, module: Box<dyn module::Module>) {
+    self.write_lock();
+
     let index = self.modules.len();
     self.modules.push(module);
     self.module_ids.insert(id, index);
+
+    self.write_unlock();
   }
 
   pub fn remove(&mut self, id: &module::ModuleId) {
+    self.write_lock();
+
     let module_index = *self.module_ids.get(&id).unwrap();
     self.modules.remove(module_index);
     self.module_ids.remove(&id);
@@ -93,6 +101,8 @@ impl ModuleStore {
         *i -= 1;
       }
     }
+
+    self.write_unlock();
   }
 
   pub fn swap_buffers(&mut self) {
@@ -104,6 +114,56 @@ impl ModuleStore {
   pub fn get_mut(&mut self, id: &module::ModuleId) -> Option<&mut Box<dyn module::Module>> {
     let module_index = *self.module_ids.get(id).unwrap();
     self.modules.get_mut(module_index)
+  }
+
+  pub fn read_lock(&mut self) {
+    loop {
+      let readers = self.rw_state.load(Ordering::SeqCst);
+
+      if readers < 0 {
+        unsafe {
+          memory_atomic_wait32(
+            &mut self.rw_state as *mut AtomicI32 as *mut i32,
+            readers,
+            -1,
+          );
+        }
+        continue;
+      }
+
+      if self
+        .rw_state
+        .compare_exchange(readers, readers + 1, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+      {
+        break;
+      }
+    }
+  }
+
+  pub fn read_unlock(&mut self) {
+    if self.rw_state.fetch_sub(1, Ordering::SeqCst) == 1 {
+      unsafe { memory_atomic_notify(&mut self.rw_state as *mut AtomicI32 as *mut i32, u32::MAX) };
+    }
+  }
+
+  pub fn write_lock(&mut self) {
+    loop {
+      match self
+        .rw_state
+        .compare_exchange(0, -1, Ordering::SeqCst, Ordering::SeqCst)
+      {
+        Ok(_) => break,
+        Err(v) => unsafe {
+          memory_atomic_wait32(&mut self.rw_state as *mut AtomicI32 as *mut i32, v, -1);
+        },
+      }
+    }
+  }
+
+  pub fn write_unlock(&mut self) {
+    self.rw_state.store(0, Ordering::SeqCst);
+    unsafe { memory_atomic_notify(&mut self.rw_state as *mut AtomicI32 as *mut i32, u32::MAX) };
   }
 }
 
@@ -163,28 +223,24 @@ impl Worker {
           );
         }
 
-        let audio_worklet_position = context
-          .audio_worklet_position
-          .load(std::sync::atomic::Ordering::SeqCst);
+        let audio_worklet_position = context.audio_worklet_position.load(Ordering::SeqCst);
 
         if audio_worklet_position < wait_for_position {
           continue;
         }
       }
 
+      modules.read_lock();
+
       // Have the leader swap the buffers
       if context.barrier.wait() {
         modules.swap_buffers();
-        context
-          .current_module
-          .store(0, std::sync::atomic::Ordering::SeqCst);
+        context.current_module.store(0, Ordering::SeqCst);
       }
       context.barrier.wait();
 
       loop {
-        let module_index = context
-          .current_module
-          .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let module_index = context.current_module.fetch_add(1, Ordering::SeqCst);
 
         if module_index >= modules.len() {
           break;
@@ -217,6 +273,8 @@ impl Worker {
           }
         }
       }
+
+      modules.read_unlock();
     }
   }
 }
@@ -400,6 +458,8 @@ impl ModulateEngine {
     let (from_module_id, from_output) = from;
     let (to_module_id, to_input) = to;
 
+    self.modules.write_lock();
+
     self.connections.insert(
       id,
       ModuleConnection {
@@ -418,6 +478,8 @@ impl ModulateEngine {
       to_module.set_input_buffer_ptr(to_input, output_buffer_ptr);
     }
 
+    self.modules.write_unlock();
+
     id
   }
 
@@ -426,6 +488,8 @@ impl ModulateEngine {
     from: (module::ModuleId, module::OutputId),
     to: (module::ModuleId, module::ParameterId),
   ) -> module::ConnectionId {
+    self.modules.write_lock();
+
     let id = self.get_next_id() as module::ConnectionId;
 
     let (from_module_id, from_output) = from;
@@ -449,10 +513,14 @@ impl ModulateEngine {
       to_module.set_parameter_buffer_ptr(to_parameter, output_buffer_ptr);
     }
 
+    self.modules.write_unlock();
+
     id
   }
 
   pub fn remove_connection(&mut self, connection_id: module::ConnectionId) {
+    self.modules.write_lock();
+
     let connection = self.connections.get(&connection_id).unwrap();
 
     match connection.to {
@@ -466,6 +534,8 @@ impl ModulateEngine {
       }
     }
 
+    self.modules.write_unlock();
+
     self.connections.remove(&connection_id);
   }
 
@@ -478,40 +548,6 @@ impl ModulateEngine {
       Err(err) => panic!("error deserializing message: {}", err.to_string().as_str()),
     }
   }
-  /*
-  pub fn process(&mut self, output_buffer: &mut modulate_core::AudioBuffer) {
-    for (_, module) in self.modules.iter_mut() {
-      module.swap_output_buffers();
-    }
-
-    for (_, module) in self.modules.iter_mut() {
-      module.process();
-    }
-
-    for audio_output in self.audio_outputs.iter() {
-      let module = self.modules.get_mut(audio_output).unwrap();
-      let mut outputs = module.get_outputs();
-      let output = outputs.get_mut(0).unwrap().current();
-      for sample in 0..modulate_core::QUANTUM_SIZE {
-        output_buffer[sample] += output[sample];
-      }
-    }
-
-    for (module_id, module) in self.modules.iter_mut() {
-      loop {
-        match module.pop_event() {
-          Some(message) => {
-            let _ = self.on_event_callback.call2(
-              &JsValue::null(),
-              &JsValue::from(*module_id),
-              &serde_wasm_bindgen::to_value(&message).unwrap(),
-            );
-          }
-          None => break,
-        };
-      }
-    }
-  } */
 }
 
 #[wasm_bindgen]
