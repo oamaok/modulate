@@ -116,7 +116,7 @@ export const getWorkerTimers = () => {
   assert(engine)
   const { memory } = engine
 
-  return new Float64Array(
+  return new Float32Array(
     memory.buffer,
     engine.pointers.workerPerformance,
     engine.pointers.workers.length

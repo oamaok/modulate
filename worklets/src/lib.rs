@@ -1,6 +1,6 @@
 #![feature(stdsimd)]
 use core::arch::wasm32::{memory_atomic_notify, memory_atomic_wait32, memory_atomic_wait64};
-use serde::{Serialize};
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::ops::{Index, IndexMut};
 use std::sync::atomic::{AtomicI32, AtomicU64, AtomicUsize, Ordering};
@@ -186,11 +186,12 @@ struct WorkerContext {
   audio_outputs: HashSet<module::ModuleId>,
   output_buffers: [modulate_core::AudioBuffer; NUM_OUTPUT_BUFFERS],
 
-  performance: [f64; NUM_WORKERS],
+  performance: [f32; NUM_WORKERS],
 }
 
 struct Worker {
   id: usize,
+  performance_samples: [f32; 64],
   modules: *mut ModuleStore,
   context: *mut WorkerContext,
 }
@@ -228,6 +229,8 @@ impl Worker {
         }
       }
 
+      let start_time = now() as f32;
+
       modules.read_lock();
 
       // Have the leader swap the buffers
@@ -250,8 +253,11 @@ impl Worker {
         module.process();
       }
 
+      modules.read_unlock();
       // Have the leader write the output buffers
       if context.barrier.wait() {
+        modules.read_lock();
+
         // NOTE: If this `worker_position` changes are not done by the barrier leader, it must be converted
         // into an atomic. Currently only a single thread reads and writes to it.
         context.worker_position += 1;
@@ -270,9 +276,16 @@ impl Worker {
             (*output_buffer)[sample] += output[sample];
           }
         }
+
+        modules.read_unlock();
       }
 
-      modules.read_unlock();
+      self.performance_samples[context.worker_position as usize % 64] = (now() as f32) - start_time;
+
+      context.performance[self.id] = 0.0;
+      for i in 0..64 {
+        context.performance[self.id] += self.performance_samples[i] / 64.0;
+      }
     }
   }
 }
@@ -321,6 +334,7 @@ impl ModulateEngine {
     for i in 0..NUM_WORKERS {
       let worker = Worker {
         id: i,
+        performance_samples: [0.0; 64],
         modules: &mut self.modules,
         context: &mut self.worker_context as *mut WorkerContext,
       };

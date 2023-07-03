@@ -10,6 +10,7 @@ import { initializeAudio } from '../../engine'
 import state, { loadPatch, patch } from '../../state'
 import * as api from '../../api'
 import { joinRoom } from '../../rooms'
+import Performance from '../performance/Performance'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -84,6 +85,7 @@ const App = () => {
           )}px`,
       }}
     >
+      {state.initialized ? <Performance /> : null}
       <Patch />
       <Header />
       <UserBar />
