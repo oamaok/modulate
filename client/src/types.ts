@@ -8,6 +8,7 @@ import {
   EngineRequest,
   EngineResponse,
   Socket,
+  ContextPointers,
 } from '@modulate/common/types'
 
 export type Route =
@@ -60,8 +61,7 @@ export type Engine = {
   ) => Promise<EngineResponse<K>>
 } & {
   memory: WebAssembly.Memory
-  workerPointers: Uint32Array
-  workerTimerPointers: Uint32Array
+  pointers: ContextPointers
   audioContext: AudioContext
   globalGain: GainNode
 }

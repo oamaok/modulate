@@ -1,5 +1,5 @@
 use core::arch::wasm32::{memory_atomic_notify, memory_atomic_wait32};
-use std::sync::atomic::{AtomicI32};
+use std::sync::atomic::AtomicI32;
 
 pub struct Barrier {
   num_threads: usize,

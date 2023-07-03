@@ -75,13 +75,7 @@ export const initializeAudio = async () => {
     (req: Omit<EngineRequest<T>, 'id' | 'type'>) =>
       sendMessage<T>({ type, ...req } as Omit<EngineRequest<T>, 'id'>)
 
-  const {
-    memory,
-    workerPointers,
-    outputBufferPtr,
-    audioThreadPositionPtr,
-    workerTimerPointers,
-  } = await createEngineMethod('init')({ wasm })
+  const { memory, pointers } = await createEngineMethod('init')({ wasm })
 
   engine = {
     init: createEngineMethod('init'),
@@ -93,13 +87,12 @@ export const initializeAudio = async () => {
     removeConnection: createEngineMethod('removeConnection'),
     sendMessageToModule: createEngineMethod('sendMessageToModule'),
     memory,
-    workerPointers,
-    workerTimerPointers,
+    pointers,
     audioContext,
     globalGain: audioContext.createGain(),
   }
 
-  for (const pointer of workerPointers) {
+  for (const pointer of pointers.workers) {
     const worker = new Worker('./assets/thread-worker.js')
     worker.postMessage([wasm, memory, pointer])
   }
@@ -110,8 +103,8 @@ export const initializeAudio = async () => {
 
   engineOutputNode.port.postMessage({
     memory,
-    outputBufferPtr,
-    audioThreadPositionPtr,
+    outputBufferPtr: pointers.outputBuffers,
+    audioThreadPositionPtr: pointers.audioWorkletPosition,
   })
 
   engine.globalGain.connect(audioContext.destination)
@@ -123,8 +116,10 @@ export const getWorkerTimers = () => {
   assert(engine)
   const { memory } = engine
 
-  return [...engine.workerTimerPointers].map(
-    (ptr) => new Float64Array(memory.buffer, ptr, 1)[0]
+  return new Float64Array(
+    memory.buffer,
+    engine.pointers.workerPerformance,
+    engine.pointers.workers.length
   )
 }
 
