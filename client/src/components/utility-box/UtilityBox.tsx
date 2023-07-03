@@ -1,5 +1,4 @@
 import { h, Component, useEffect } from 'kaiku'
-import { getAudioContext } from '../../engine'
 import { getKnobValue } from '../../state'
 import Knob from '../module-parts/Knob'
 import css from './UtilityBox.css'
@@ -14,20 +13,6 @@ class UtilityBox extends Component<{}> {
 
   constructor() {
     super({})
-
-    if (UtilityBox.node) {
-      throw new Error('More than one utility box initialized')
-    }
-
-    const audioContext = getAudioContext()
-    UtilityBox.node = new AudioWorkletNode(audioContext, 'Oscilloscope', {
-      numberOfInputs: 1,
-    })
-
-    const sharedBuffer = new SharedArrayBuffer(QUANTUM_SIZE * LENGTH * 4 + 4)
-    UtilityBox.buffer = new Float32Array(sharedBuffer)
-
-    UtilityBox.node.port.postMessage(sharedBuffer)
 
     this.updateCanvas()
   }
