@@ -1,11 +1,9 @@
 #![feature(stdsimd)]
 use core::arch::wasm32::{memory_atomic_notify, memory_atomic_wait32, memory_atomic_wait64};
-use modulate_core::AudioBuffer;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::collections::{HashMap, HashSet};
 use std::ops::{Index, IndexMut};
 use std::sync::atomic::{AtomicI32, AtomicU64, AtomicUsize, Ordering};
-use std::sync::{Arc, RwLock};
 use wasm_bindgen::prelude::*;
 
 pub mod barrier;
