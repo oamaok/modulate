@@ -156,8 +156,11 @@ impl Worker {
       context.barrier.wait();
 
       if context.worker_position >= NUM_OUTPUT_BUFFERS as u64 {
+        // `audio_worklet_position` is atomically incremented by one from the AudioWorklet each time
+        // it has consumed a quantum and then calls `Atomic.notify` on the address. If the workers
+        // have reached the buffer right before the one being consumed, wait until the AudioWorklet
+        // has proceeded to the next one.
         let wait_for_position = context.worker_position + 1 - NUM_OUTPUT_BUFFERS as u64;
-
         unsafe {
           memory_atomic_wait64(
             context.audio_worklet_position.as_ptr() as usize as *mut i64,
@@ -167,8 +170,11 @@ impl Worker {
         }
 
         let audio_worklet_position = context.audio_worklet_position.load(Ordering::SeqCst);
-
         if audio_worklet_position < wait_for_position {
+          // We are ahead of the audio worklet, so just spin here.
+          // TODO: This could probably be replaced with `cmpxchg` like in the RwLock.
+          // That would avoid unnecessary spinning and CPU usage, but this has worked fine
+          // for now.
           continue;
         }
       }
@@ -177,7 +183,7 @@ impl Worker {
 
       modules.rw_lock.lock_read();
 
-      // Have the leader swap the buffers
+      // Have the leader swap the buffers.
       if context.barrier.wait() {
         modules.swap_buffers();
         context.current_module.store(0, Ordering::SeqCst);
@@ -223,7 +229,6 @@ impl Worker {
       }
 
       self.performance_samples[context.worker_position as usize % 64] = (now() as f32) - start_time;
-
       context.performance[self.id] = 0.0;
       for i in 0..64 {
         context.performance[self.id] += self.performance_samples[i] / 64.0;

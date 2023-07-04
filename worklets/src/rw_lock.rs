@@ -1,8 +1,22 @@
 use core::arch::wasm32::{memory_atomic_notify, memory_atomic_wait32};
-
 use std::sync::atomic::{AtomicI32, Ordering};
 
+// NOTE: This RwLock implementation has no proper fairness checks in place.
+// If read locks are acquired between multiple threads without them being
+// released simultaneously at any point in time, this implementation WILL
+// starve the write locks. As a result, the `lock_write` call will block
+// indefinitely. In this project's use case, we know that there are
+// synchronization points where all read locks are dimissed across all
+// worker threads, so this sub-optimal implementation suffices.
+
 pub struct RwLock {
+  // State of the lock is defined as a range [-1, N], where:
+  //  - `-1` is a write lock. Only one thread can read at a time, so other negative numbers
+  //    are not allowed.
+  //  - `0` is idle state, where no read or write locks are present. Any thread is free to
+  //    acquire any type of lock.
+  //  - Integers larger then zero imply the number of read locks currently present.
+  //    The amount of read locks is not limited.
   state: AtomicI32,
 }
 
