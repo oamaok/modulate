@@ -1,15 +1,16 @@
 #![feature(stdsimd)]
-use core::arch::wasm32::{memory_atomic_notify, memory_atomic_wait32, memory_atomic_wait64};
+use core::arch::wasm32::memory_atomic_wait64;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::ops::{Index, IndexMut};
-use std::sync::atomic::{AtomicI32, AtomicU64, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use wasm_bindgen::prelude::*;
 
 pub mod barrier;
 pub mod modulate_core;
 pub mod module;
 pub mod modules;
+pub mod rw_lock;
 pub mod vec;
 
 use modules::{
@@ -48,7 +49,7 @@ struct ModuleConnection {
 struct ModuleStore {
   modules: Vec<Box<dyn module::Module>>,
   module_ids: HashMap<module::ModuleId, usize>,
-  rw_state: AtomicI32,
+  rw_lock: rw_lock::RwLock,
 }
 
 impl Index<usize> for ModuleStore {
@@ -69,7 +70,7 @@ impl ModuleStore {
     ModuleStore {
       modules: vec![],
       module_ids: HashMap::new(),
-      rw_state: AtomicI32::new(0),
+      rw_lock: rw_lock::RwLock::new(),
     }
   }
 
@@ -78,18 +79,12 @@ impl ModuleStore {
   }
 
   pub fn insert(&mut self, id: module::ModuleId, module: Box<dyn module::Module>) {
-    self.write_lock();
-
     let index = self.modules.len();
     self.modules.push(module);
     self.module_ids.insert(id, index);
-
-    self.write_unlock();
   }
 
   pub fn remove(&mut self, id: &module::ModuleId) {
-    self.write_lock();
-
     let module_index = *self.module_ids.get(&id).unwrap();
     self.modules.remove(module_index);
     self.module_ids.remove(&id);
@@ -99,8 +94,6 @@ impl ModuleStore {
         *i -= 1;
       }
     }
-
-    self.write_unlock();
   }
 
   pub fn swap_buffers(&mut self) {
@@ -112,56 +105,6 @@ impl ModuleStore {
   pub fn get_mut(&mut self, id: &module::ModuleId) -> Option<&mut Box<dyn module::Module>> {
     let module_index = *self.module_ids.get(id).unwrap();
     self.modules.get_mut(module_index)
-  }
-
-  pub fn read_lock(&mut self) {
-    loop {
-      let readers = self.rw_state.load(Ordering::SeqCst);
-
-      if readers < 0 {
-        unsafe {
-          memory_atomic_wait32(
-            &mut self.rw_state as *mut AtomicI32 as *mut i32,
-            readers,
-            -1,
-          );
-        }
-        continue;
-      }
-
-      if self
-        .rw_state
-        .compare_exchange(readers, readers + 1, Ordering::SeqCst, Ordering::SeqCst)
-        .is_ok()
-      {
-        break;
-      }
-    }
-  }
-
-  pub fn read_unlock(&mut self) {
-    if self.rw_state.fetch_sub(1, Ordering::SeqCst) == 1 {
-      unsafe { memory_atomic_notify(&mut self.rw_state as *mut AtomicI32 as *mut i32, u32::MAX) };
-    }
-  }
-
-  pub fn write_lock(&mut self) {
-    loop {
-      match self
-        .rw_state
-        .compare_exchange(0, -1, Ordering::SeqCst, Ordering::SeqCst)
-      {
-        Ok(_) => break,
-        Err(v) => unsafe {
-          memory_atomic_wait32(&mut self.rw_state as *mut AtomicI32 as *mut i32, v, -1);
-        },
-      }
-    }
-  }
-
-  pub fn write_unlock(&mut self) {
-    self.rw_state.store(0, Ordering::SeqCst);
-    unsafe { memory_atomic_notify(&mut self.rw_state as *mut AtomicI32 as *mut i32, u32::MAX) };
   }
 }
 
@@ -232,7 +175,7 @@ impl Worker {
 
       let start_time = now() as f32;
 
-      modules.read_lock();
+      modules.rw_lock.lock_read();
 
       // Have the leader swap the buffers
       if context.barrier.wait() {
@@ -251,11 +194,11 @@ impl Worker {
         modules[module_index].process();
       }
 
-      modules.read_unlock();
+      modules.rw_lock.unlock_read();
 
       // Have the leader write the output buffers
       if context.barrier.wait() {
-        modules.read_lock();
+        modules.rw_lock.lock_read();
 
         // NOTE: If this `worker_position` changes are not done by the barrier leader, it must be converted
         // into an atomic. Currently only a single thread reads and writes to it.
@@ -276,7 +219,7 @@ impl Worker {
           }
         }
 
-        modules.read_unlock();
+        modules.rw_lock.unlock_read();
       }
 
       self.performance_samples[context.worker_position as usize % 64] = (now() as f32) - start_time;
@@ -357,6 +300,8 @@ impl ModulateEngine {
 
   pub fn create_module(&mut self, module_name: &str) -> module::ModuleId {
     let id = self.get_next_id() as module::ModuleId;
+    self.modules.rw_lock.lock_write();
+
     match module_name {
       "AudioOut" => {
         self
@@ -418,11 +363,13 @@ impl ModulateEngine {
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }
+
+    self.modules.rw_lock.unlock_write();
     id
   }
 
   pub fn delete_module(&mut self, module_id: module::ModuleId) {
-    self.modules.write_lock();
+    self.modules.rw_lock.lock_write();
 
     self.worker_context.audio_outputs.remove(&module_id);
 
@@ -447,7 +394,7 @@ impl ModulateEngine {
 
     self.modules.remove(&module_id);
 
-    self.modules.write_unlock();
+    self.modules.rw_lock.unlock_write();
   }
 
   pub fn set_parameter_value(
@@ -472,7 +419,7 @@ impl ModulateEngine {
     let (from_module_id, from_output) = from;
     let (to_module_id, to_input) = to;
 
-    self.modules.write_lock();
+    self.modules.rw_lock.lock_write();
 
     self.connections.insert(
       id,
@@ -492,7 +439,7 @@ impl ModulateEngine {
       to_module.set_input_buffer_ptr(to_input, output_buffer_ptr);
     }
 
-    self.modules.write_unlock();
+    self.modules.rw_lock.unlock_write();
 
     id
   }
@@ -502,7 +449,7 @@ impl ModulateEngine {
     from: (module::ModuleId, module::OutputId),
     to: (module::ModuleId, module::ParameterId),
   ) -> module::ConnectionId {
-    self.modules.write_lock();
+    self.modules.rw_lock.lock_write();
 
     let id = self.get_next_id() as module::ConnectionId;
 
@@ -527,13 +474,13 @@ impl ModulateEngine {
       to_module.set_parameter_buffer_ptr(to_parameter, output_buffer_ptr);
     }
 
-    self.modules.write_unlock();
+    self.modules.rw_lock.unlock_write();
 
     id
   }
 
   pub fn remove_connection(&mut self, connection_id: module::ConnectionId) {
-    self.modules.write_lock();
+    self.modules.rw_lock.lock_write();
 
     let connection = self.connections.get(&connection_id).unwrap();
 
@@ -548,13 +495,13 @@ impl ModulateEngine {
       }
     }
 
-    self.modules.write_unlock();
+    self.modules.rw_lock.unlock_write();
 
     self.connections.remove(&connection_id);
   }
 
   pub fn send_message_to_module(&mut self, module_id: module::ModuleId, message: JsValue) {
-    self.modules.write_lock();
+    self.modules.rw_lock.lock_write();
 
     let module = self.modules.get_mut(&module_id).unwrap();
 
@@ -564,11 +511,11 @@ impl ModulateEngine {
       Err(err) => panic!("error deserializing message: {}", err.to_string().as_str()),
     }
 
-    self.modules.write_unlock();
+    self.modules.rw_lock.unlock_write();
   }
 
   pub fn collect_module_events(&mut self) -> Vec<module::ModuleEventWithId> {
-    // NOTE: This need not be atomic or `write_lock`ed, as the only place where other modifying
+    // NOTE: This need not be atomic or `lock_write`ed, as the only place where other modifying
     // operations can be called is this thread (main worker)
     let mut events = vec![];
     let module_ids = &self.modules.module_ids;
