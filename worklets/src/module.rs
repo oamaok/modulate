@@ -21,6 +21,12 @@ pub enum ModuleEvent {
   BouncyBoiUpdate { balls: [Ball; 3], phase: f32 },
 }
 
+#[derive(Serialize)]
+pub struct ModuleEventWithId {
+  pub id: ModuleId,
+  pub event: ModuleEvent,
+}
+
 #[derive(Deserialize)]
 pub struct NamedNote {
   pub name: String,

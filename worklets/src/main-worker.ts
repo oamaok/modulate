@@ -3,8 +3,10 @@ import {
   EngineResponse,
   EngineMessageType,
   EngineEvent,
+  ModuleEvent,
 } from '@modulate/common/types'
 import init, { ModulateEngineWrapper } from '../pkg/worklets'
+import { Module } from './modules'
 
 let engine: ModulateEngineWrapper | null = null
 const requestHandlers: {
@@ -16,7 +18,7 @@ const requestHandlers: {
 } = {
   init: async ({ threads, wasm }) => {
     const { memory } = await init(wasm)
-    engine = new ModulateEngineWrapper(threads, onMessage)
+    engine = new ModulateEngineWrapper(threads)
     // TODO: Report error if WASM init failed
     const workerPointers = await engine.initWorkers()
     const { audio_buffers, worklet_performance, audio_worklet_position } =
@@ -61,15 +63,22 @@ const requestHandlers: {
   },
 }
 
-const onMessage = (moduleHandle: number, message: any) => {
-  const engineEvent: EngineEvent = {
-    type: 'moduleEvent',
-    moduleHandle,
-    message,
-  }
+setInterval(() => {
+  if (!engine) return
 
-  self.postMessage(engineEvent)
-}
+  const events: { id: number; event: ModuleEvent<Module> }[] =
+    engine.collectModuleEvents()
+
+  for (const { id, event } of events) {
+    const engineEvent: EngineEvent = {
+      type: 'moduleEvent',
+      moduleHandle: id,
+      message: event,
+    }
+
+    self.postMessage(engineEvent)
+  }
+}, 16)
 
 self.onmessage = async (
   msg: MessageEvent<EngineRequest<EngineMessageType>>

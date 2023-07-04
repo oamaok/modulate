@@ -166,9 +166,13 @@ const buildWorklets = async () => {
   console.time('Build worklets')
   const polyfill = await fs.readFile('./worklets/src/polyfill.js')
 
-  const entries = ['audio-worklet', 'main-worker', 'thread-worker']
+  const entries = {
+    'audio-worklet': { needsTextDecoderPolyfill: false },
+    'main-worker': { needsTextDecoderPolyfill: true },
+    'thread-worker': { needsTextDecoderPolyfill: true },
+  }
 
-  for (const entry of entries) {
+  for (const [entry, options] of Object.entries(entries)) {
     await esbuild
       .build({
         entryPoints: [`./worklets/src/${entry}.ts`],
@@ -184,7 +188,8 @@ const buildWorklets = async () => {
       })
       .then(
         (res) =>
-          polyfill + new TextDecoder().decode(res.outputFiles[0].contents)
+          (options.needsTextDecoderPolyfill ? polyfill : '') +
+          new TextDecoder().decode(res.outputFiles[0].contents)
       )
       .then((code) => {
         if (!isProduction) return code

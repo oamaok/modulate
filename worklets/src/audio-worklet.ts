@@ -18,7 +18,6 @@ class EngineOutput extends AudioWorkletProcessor {
       }>
     ) => {
       const { memory, outputBufferPtr, audioThreadPositionPtr } = message.data
-      console.log(outputBufferPtr)
       this.memory = memory
       this.outputBufferPtr = outputBufferPtr
       this.audioThreadPositionPtr = audioThreadPositionPtr

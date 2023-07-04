@@ -252,7 +252,7 @@ impl Worker {
       }
 
       modules.read_unlock();
-      
+
       // Have the leader write the output buffers
       if context.barrier.wait() {
         modules.read_lock();
@@ -293,19 +293,17 @@ struct ModulateEngine {
   next_id: u32,
   modules: ModuleStore,
   connections: HashMap<module::ConnectionId, ModuleConnection>,
-  on_event_callback: js_sys::Function,
 
   workers: Vec<Worker>,
   worker_context: WorkerContext,
 }
 
 impl ModulateEngine {
-  pub fn new(num_threads: usize, on_event_callback: js_sys::Function) -> ModulateEngine {
+  pub fn new(num_threads: usize) -> ModulateEngine {
     ModulateEngine {
       next_id: 0,
       modules: ModuleStore::new(),
       connections: HashMap::new(),
-      on_event_callback,
 
       workers: vec![],
       worker_context: WorkerContext {
@@ -424,6 +422,8 @@ impl ModulateEngine {
   }
 
   pub fn delete_module(&mut self, module_id: module::ModuleId) {
+    self.modules.write_lock();
+
     self.worker_context.audio_outputs.remove(&module_id);
 
     let connections_to_drop: Vec<module::ConnectionId> = self
@@ -446,6 +446,8 @@ impl ModulateEngine {
     }
 
     self.modules.remove(&module_id);
+
+    self.modules.write_unlock();
   }
 
   pub fn set_parameter_value(
@@ -564,6 +566,28 @@ impl ModulateEngine {
 
     self.modules.write_unlock();
   }
+
+  pub fn collect_module_events(&mut self) -> Vec<module::ModuleEventWithId> {
+    // NOTE: This need not be atomic or `write_lock`ed, as the only place where other modifying
+    // operations can be called is this thread (main worker)
+    let mut events = vec![];
+    let module_ids = &self.modules.module_ids;
+    let modules = &mut self.modules.modules;
+
+    for (&id, &idx) in module_ids.iter() {
+      let module = &mut modules[idx];
+      loop {
+        match module.pop_event() {
+          Some(event) => {
+            events.push(module::ModuleEventWithId { id, event });
+          }
+          None => break,
+        };
+      }
+    }
+
+    events
+  }
 }
 
 #[wasm_bindgen]
@@ -574,12 +598,12 @@ pub struct ModulateEngineWrapper {
 #[wasm_bindgen]
 impl ModulateEngineWrapper {
   #[wasm_bindgen(constructor)]
-  pub fn new(num_threads: usize, on_event_callback: js_sys::Function) -> ModulateEngineWrapper {
+  pub fn new(num_threads: usize) -> ModulateEngineWrapper {
     #[cfg(debug_assertions)]
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     ModulateEngineWrapper {
-      engine: ModulateEngine::new(num_threads, on_event_callback),
+      engine: ModulateEngine::new(num_threads),
     }
   }
 
@@ -682,6 +706,11 @@ impl ModulateEngineWrapper {
   #[wasm_bindgen(js_name = sendMessageToModule)]
   pub fn send_message_to_module(&mut self, module_id: module::ModuleId, message: JsValue) {
     self.engine.send_message_to_module(module_id, message);
+  }
+
+  #[wasm_bindgen(js_name = collectModuleEvents)]
+  pub fn collect_module_events(&mut self) -> JsValue {
+    serde_wasm_bindgen::to_value(&self.engine.collect_module_events()).unwrap()
   }
 }
 
