@@ -1,3 +1,4 @@
+import path from 'path'
 import * as http from 'http'
 import * as t from 'io-ts'
 import * as db from './database'
@@ -22,9 +23,18 @@ const badRequest = (res: Response) => {
 
 const server = http.createServer(
   router()
-    .get('/*', serverStatic('./dist/client/index.html'))
-    .get('/assets/*', serverStatic('./dist/client/assets'))
-    .get('/worklets/*', serverStatic('./dist/client/worklets'))
+    .get(
+      '/*',
+      serverStatic(path.join(__dirname, '../../dist/client/index.html'))
+    )
+    .get(
+      '/assets/*',
+      serverStatic(path.join(__dirname, '../../dist/client/assets'))
+    )
+    .get(
+      '/worklets/*',
+      serverStatic(path.join(__dirname, '../../dist/client/worklets'))
+    )
     .get('/api/identity', async (req, res) => {
       const { authorization } = req
       if (!authorization) {
@@ -177,8 +187,13 @@ const server = http.createServer(
 )
 
 rooms(server)
-;(async () => {
-  await migrate()
-  server.listen(8888)
-  logger.info('Listening to :8888')
-})()
+
+if (require.main === module) {
+  ;(async () => {
+    await migrate()
+    server.listen(8888)
+    logger.info('Listening to :8888')
+  })()
+}
+
+export default server

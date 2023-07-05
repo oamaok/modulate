@@ -12,12 +12,22 @@ import assert from './assert'
 import { Engine } from './types'
 import { Module, ModuleName } from '@modulate/worklets/src/modules'
 
+type InitOptions = {
+  spawnAudioWorklet: boolean
+  numWorklets: number
+}
+
 let engine: Engine | null = null
 
 const eventSubscriptions: Record<number, (event: ModuleEvent<Module>) => void> =
   {}
 
-export const initializeAudio = async () => {
+export const initializeEngine = async (
+  options: InitOptions = {
+    spawnAudioWorklet: true,
+    numWorklets: Math.max(4, navigator.hardwareConcurrency) - 1,
+  }
+) => {
   const audioContext = new AudioContext()
 
   assert(audioContext)
@@ -76,7 +86,7 @@ export const initializeAudio = async () => {
       sendMessage<T>({ type, ...req } as Omit<EngineRequest<T>, 'id'>)
 
   const { memory, pointers } = await createEngineMethod('init')({
-    threads: navigator.hardwareConcurrency,
+    threads: options.numWorklets,
     wasm,
   })
 
@@ -95,24 +105,56 @@ export const initializeAudio = async () => {
     globalGain: audioContext.createGain(),
   }
 
-  for (const pointer of pointers.workers) {
-    const worker = new Worker('./assets/thread-worker.js')
-    worker.postMessage([wasm, memory, pointer])
-  }
-  await audioContext.audioWorklet.addModule('/assets/audio-worklet.js')
-  const engineOutputNode = new AudioWorkletNode(audioContext, 'EngineOutput', {
-    numberOfOutputs: 1,
-  })
-
-  engineOutputNode.port.postMessage({
-    memory,
-    outputBufferPtr: pointers.outputBuffers,
-    audioThreadPositionPtr: pointers.audioWorkletPosition,
-  })
-
   engine.globalGain.connect(audioContext.destination)
 
-  engineOutputNode.connect(engine.globalGain)
+  assert(pointers.workers.length === options.numWorklets)
+
+  const workers = await Promise.all(
+    [...pointers.workers].map((pointer) => {
+      const worker = new Worker('./assets/thread-worker.js')
+      worker.postMessage([wasm, memory, pointer])
+      return new Promise<Worker>((resolve) => {
+        worker.onmessage = () => resolve(worker)
+      })
+    })
+  )
+
+  if (options.spawnAudioWorklet) {
+    await audioContext.audioWorklet.addModule('/assets/audio-worklet.js')
+    const engineOutputNode = new AudioWorkletNode(
+      audioContext,
+      'EngineOutput',
+      {
+        numberOfOutputs: 1,
+      }
+    )
+    engineOutputNode.connect(engine.globalGain)
+
+    engineOutputNode.port.postMessage({
+      memory,
+      outputBufferPtr: pointers.outputBuffers,
+      audioThreadPositionPtr: pointers.audioWorkletPosition,
+    })
+  }
+}
+
+export const getContextPointers = () => {
+  assert(engine)
+  return engine.pointers
+}
+
+export const getWorkerPosition = () => {
+  assert(engine)
+  return new BigUint64Array(
+    engine.memory.buffer,
+    engine.pointers.workerPosition,
+    1
+  )[0]!
+}
+
+export const getMemory = () => {
+  assert(engine)
+  return engine.memory
 }
 
 export const getWorkerTimers = () => {

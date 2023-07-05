@@ -111,7 +111,8 @@ impl ModuleStore {
 #[derive(Serialize)]
 struct ContextPointers {
   audio_buffers: usize,
-  worklet_performance: usize,
+  worker_performance: usize,
+  worker_position: usize,
   audio_worklet_position: usize,
 }
 
@@ -298,7 +299,8 @@ impl ModulateEngine {
   pub fn get_context_pointers(&self) -> ContextPointers {
     ContextPointers {
       audio_buffers: self.worker_context.output_buffers.as_ptr() as usize,
-      worklet_performance: self.worker_context.performance.as_ptr() as usize,
+      worker_performance: self.worker_context.performance.as_ptr() as usize,
+      worker_position: &self.worker_context.worker_position as *const u64 as usize,
       audio_worklet_position: self.worker_context.audio_worklet_position.as_ptr() as usize,
     }
   }
@@ -375,8 +377,8 @@ impl ModulateEngine {
 
   pub fn delete_module(&mut self, module_id: module::ModuleId) {
     self.modules.rw_lock.lock_write();
-
     self.worker_context.audio_outputs.remove(&module_id);
+    self.modules.rw_lock.unlock_write();
 
     let connections_to_drop: Vec<module::ConnectionId> = self
       .connections
@@ -397,8 +399,8 @@ impl ModulateEngine {
       self.remove_connection(connection_id);
     }
 
+    self.modules.rw_lock.lock_write();
     self.modules.remove(&module_id);
-
     self.modules.rw_lock.unlock_write();
   }
 
@@ -408,7 +410,10 @@ impl ModulateEngine {
     parameter: module::ParameterId,
     value: f32,
   ) {
-    let module = self.modules.get_mut(&module_id).unwrap();
+    let module = self
+      .modules
+      .get_mut(&module_id)
+      .expect("set_parameter_value: module_id doesn't exist");
     let mut parameters = module.get_parameters();
     let param = parameters.get_mut(parameter).unwrap();
     param.value = value;
@@ -435,12 +440,18 @@ impl ModulateEngine {
     );
 
     let output_buffer_ptr = {
-      let from_module = self.modules.get_mut(&from_module_id).unwrap();
+      let from_module = self
+        .modules
+        .get_mut(&from_module_id)
+        .expect("connect_to_input: from_module_id doesn't exist");
       from_module.get_output_buffer_ptr(from_output)
     };
 
     {
-      let to_module = self.modules.get_mut(&to_module_id).unwrap();
+      let to_module = self
+        .modules
+        .get_mut(&to_module_id)
+        .expect("connect_to_input: to_module_id doesn't exist");
       to_module.set_input_buffer_ptr(to_input, output_buffer_ptr);
     }
 
@@ -454,12 +465,12 @@ impl ModulateEngine {
     from: (module::ModuleId, module::OutputId),
     to: (module::ModuleId, module::ParameterId),
   ) -> module::ConnectionId {
-    self.modules.rw_lock.lock_write();
-
     let id = self.get_next_id() as module::ConnectionId;
 
     let (from_module_id, from_output) = from;
     let (to_module_id, to_parameter) = to;
+
+    self.modules.rw_lock.lock_write();
 
     self.connections.insert(
       id,
@@ -470,12 +481,18 @@ impl ModulateEngine {
     );
 
     let output_buffer_ptr = {
-      let from_module = self.modules.get_mut(&from_module_id).unwrap();
+      let from_module = self
+        .modules
+        .get_mut(&from_module_id)
+        .expect("connect_to_parameter: from_module_id doesn't exist");
       from_module.get_output_buffer_ptr(from_output)
     };
 
     {
-      let to_module = self.modules.get_mut(&to_module_id).unwrap();
+      let to_module = self
+        .modules
+        .get_mut(&to_module_id)
+        .expect("connect_to_parameter: to_module_id doesn't exist");
       to_module.set_parameter_buffer_ptr(to_parameter, output_buffer_ptr);
     }
 
@@ -487,22 +504,24 @@ impl ModulateEngine {
   pub fn remove_connection(&mut self, connection_id: module::ConnectionId) {
     self.modules.rw_lock.lock_write();
 
-    let connection = self.connections.get(&connection_id).unwrap();
+    if let Some(connection) = self.connections.get(&connection_id) {
+      match connection.to {
+        ConnectionTarget::Input(to_module_id, to_input) => {
+          if let Some(to_module) = self.modules.get_mut(&to_module_id) {
+            to_module.set_input_buffer_ptr(to_input, std::ptr::null());
+          };
+        }
+        ConnectionTarget::Parameter(to_module_id, to_parameter) => {
+          if let Some(to_module) = self.modules.get_mut(&to_module_id) {
+            to_module.set_parameter_buffer_ptr(to_parameter, std::ptr::null());
+          }
+        }
+      }
 
-    match connection.to {
-      ConnectionTarget::Input(to_module_id, to_input) => {
-        let to_module = self.modules.get_mut(&to_module_id).unwrap();
-        to_module.set_input_buffer_ptr(to_input, std::ptr::null());
-      }
-      ConnectionTarget::Parameter(to_module_id, to_parameter) => {
-        let to_module = self.modules.get_mut(&to_module_id).unwrap();
-        to_module.set_parameter_buffer_ptr(to_parameter, std::ptr::null());
-      }
-    }
+      self.connections.remove(&connection_id);
+    };
 
     self.modules.rw_lock.unlock_write();
-
-    self.connections.remove(&connection_id);
   }
 
   pub fn send_message_to_module(&mut self, module_id: module::ModuleId, message: JsValue) {

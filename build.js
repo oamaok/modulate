@@ -8,6 +8,7 @@ const cp = require('child_process')
 const CssModulesPlugin = require('./build/css-modules-plugin')
 
 const isProduction = process.env.NODE_ENV === 'production'
+const isTest = process.env.NODE_ENV === 'test'
 
 const debounce = (fn) => {
   let timeout = null
@@ -73,11 +74,13 @@ const replaceWithoutSpecialReplacements = (string, pattern, replacement) => {
 const buildClient = async () => {
   console.time('Build client')
 
+  const entry = isTest ? './client/src/test-index.ts' : './client/src/index.tsx'
+
   const buildDir = await fs.mkdtemp(path.join(os.tmpdir(), 'modulate-'))
 
   await Promise.all([
     esbuild.build({
-      entryPoints: ['./client/src/index.tsx'],
+      entryPoints: [entry],
       bundle: true,
       outdir: buildDir,
       incremental: true,
@@ -85,7 +88,7 @@ const buildClient = async () => {
       jsxFragment: 'Fragment',
       minify: isProduction,
       define: {
-        'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
+        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
       },
 
       plugins: [CssModulesPlugin()],
@@ -93,7 +96,10 @@ const buildClient = async () => {
     recursiveCopy('./client/static', './dist/client'),
   ])
 
-  const scriptsPath = path.join(buildDir, './index.js')
+  const scriptsPath = path.join(
+    buildDir,
+    isTest ? './test-index.js' : './index.js'
+  )
 
   if (isProduction) {
     await terser
@@ -143,7 +149,7 @@ const buildRust = async () => {
   return new Promise((resolve, reject) => {
     const proc = cp.spawn('wasm-pack', [
       'build',
-      '--release',
+      '--dev',
       './worklets/',
       '--target',
       'web',
@@ -237,7 +243,8 @@ const buildWorklets = async () => {
       process.exit(1)
     }
   }
-  if (isProduction) {
+
+  if (process.env.NODE_ENV !== 'development') {
     process.exit(0)
   }
 

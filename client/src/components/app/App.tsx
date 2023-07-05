@@ -6,7 +6,7 @@ import UtilityBox from '../utility-box/UtilityBox'
 import ModuleSelector from '../module-selector/ModuleSelector'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
-import { initializeAudio } from '../../engine'
+import { initializeEngine } from '../../engine'
 import state, { loadPatch, patch } from '../../state'
 import * as api from '../../api'
 import { joinRoom } from '../../rooms'
@@ -23,7 +23,7 @@ const loadSaveState = async () => {
 }
 
 const initialize = async () => {
-  await initializeAudio()
+  await initializeEngine()
 
   switch (state.route.name) {
     case 'index': {

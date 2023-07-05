@@ -122,6 +122,7 @@ export type ContextPointers = {
   workers: Uint32Array
   audioWorkletPosition: number
   workerPerformance: number
+  workerPosition: number
 }
 
 export type EngineMessage =

@@ -21,15 +21,20 @@ const requestHandlers: {
     engine = new ModulateEngineWrapper(threads)
     // TODO: Report error if WASM init failed
     const workerPointers = await engine.initWorkers()
-    const { audio_buffers, worklet_performance, audio_worklet_position } =
-      await engine.getContextPointers()
+    const {
+      audio_buffers,
+      worker_performance,
+      worker_position,
+      audio_worklet_position,
+    } = await engine.getContextPointers()
     return {
       memory,
       pointers: {
         outputBuffers: audio_buffers,
         workers: workerPointers,
         audioWorkletPosition: audio_worklet_position,
-        workerPerformance: worklet_performance,
+        workerPerformance: worker_performance,
+        workerPosition: worker_position,
       },
     }
   },
