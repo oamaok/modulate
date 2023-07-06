@@ -74,7 +74,9 @@ const replaceWithoutSpecialReplacements = (string, pattern, replacement) => {
 const buildClient = async () => {
   console.time('Build client')
 
-  const entry = isTest ? './client/src/test-index.ts' : './client/src/index.tsx'
+  const entry = isTest
+    ? path.join(__dirname, './client/src/test-index.ts')
+    : path.join(__dirname, './client/src/index.tsx')
 
   const buildDir = await fs.mkdtemp(path.join(os.tmpdir(), 'modulate-'))
 
@@ -93,7 +95,10 @@ const buildClient = async () => {
 
       plugins: [CssModulesPlugin()],
     }),
-    recursiveCopy('./client/static', './dist/client'),
+    recursiveCopy(
+      path.join(__dirname, './client/static'),
+      path.join(__dirname, './dist/client')
+    ),
   ])
 
   const scriptsPath = path.join(
@@ -119,9 +124,9 @@ const buildClient = async () => {
   }
 
   const scriptsFile = (await fs.readFile(scriptsPath)).toString('utf-8')
-  const indexFile = (await fs.readFile('./client/static/index.html')).toString(
-    'utf-8'
-  )
+  const indexFile = (
+    await fs.readFile(path.join(__dirname, './client/static/index.html'))
+  ).toString('utf-8')
   const stylesFile = (
     await fs.readFile(path.join(buildDir, './index.css'))
   ).toString('utf-8')
@@ -138,7 +143,10 @@ const buildClient = async () => {
     `<script>${scriptsFile}</script>`
   )
 
-  await fs.writeFile('./dist/client/index.html', generatedIndex)
+  await fs.writeFile(
+    path.join(__dirname, './dist/client/index.html'),
+    generatedIndex
+  )
   await fs.rm(buildDir, { recursive: true, force: true })
 
   console.timeEnd('Build client')
@@ -170,7 +178,9 @@ const buildRust = async () => {
 
 const buildWorklets = async () => {
   console.time('Build worklets')
-  const polyfill = await fs.readFile('./worklets/src/polyfill.js')
+  const polyfill = await fs.readFile(
+    path.join(__dirname, './worklets/src/polyfill.js')
+  )
 
   const entries = {
     'audio-worklet': { needsTextDecoderPolyfill: false },
@@ -182,7 +192,7 @@ const buildWorklets = async () => {
     console.time(`Build worklet ${entry}`)
     await esbuild
       .build({
-        entryPoints: [`./worklets/src/${entry}.ts`],
+        entryPoints: [path.join(__dirname, `./worklets/src/${entry}.ts`)],
         bundle: true,
         write: false,
         incremental: true,
@@ -213,13 +223,18 @@ const buildWorklets = async () => {
           })
           .then((minified) => minified.code)
       })
-      .then((code) => fs.writeFile(`./dist/client/assets/${entry}.js`, code))
+      .then((code) =>
+        fs.writeFile(
+          path.join(__dirname, `./dist/client/assets/${entry}.js`),
+          code
+        )
+      )
     console.timeEnd(`Build worklet ${entry}`)
   }
 
   await fs.copyFile(
-    './worklets/pkg/worklets_bg.wasm',
-    './dist/client/assets/worklets.wasm'
+    path.join(__dirname, './worklets/pkg/worklets_bg.wasm'),
+    path.join(__dirname, './dist/client/assets/worklets.wasm')
   )
 
   console.timeEnd('Build worklets')
@@ -227,7 +242,9 @@ const buildWorklets = async () => {
 
 ;(async () => {
   try {
-    await fs.mkdir('./dist')
+    await fs.mkdir(path.join(__dirname, './dist/client/assets'), {
+      recursive: true,
+    })
   } catch (err) {
     if (err.code !== 'EEXIST') {
       console.error(err)
