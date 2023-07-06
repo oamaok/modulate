@@ -108,9 +108,12 @@ export const initializeEngine = async (
     pointers,
     audioContext,
     globalGain: audioContext.createGain(),
+    analyser: audioContext.createAnalyser(),
   }
 
+  engine.analyser.fftSize = 1 << 15
   engine.globalGain.connect(audioContext.destination)
+  engine.globalGain.connect(engine.analyser)
 
   assert(pointers.workers.length === options.numWorklets)
 
@@ -146,6 +149,11 @@ export const initializeEngine = async (
 export const getContextPointers = () => {
   assert(engine)
   return engine.pointers
+}
+
+export const getAnalyser = () => {
+  assert(engine)
+  return engine.analyser
 }
 
 let workerPositionBuf: BigUint64Array | null = null

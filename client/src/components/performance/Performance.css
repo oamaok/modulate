@@ -1,0 +1,9 @@
+.performance {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 20;
+  background: #000;
+  border-radius: 4px;
+  box-shadow: var(--box-shadow);
+}

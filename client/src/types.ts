@@ -64,4 +64,5 @@ export type Engine = {
   pointers: ContextPointers
   audioContext: AudioContext
   globalGain: GainNode
+  analyser: AnalyserNode
 }

@@ -1,5 +1,6 @@
 import { h, useState, useRef, useEffect } from 'kaiku'
 import * as engine from '../../engine'
+import css from './Performance.css'
 
 const Performance = () => {
   const canvasRef = useRef<HTMLCanvasElement>()
@@ -25,8 +26,8 @@ const Performance = () => {
       context.fillStyle = '#000'
       context.fillRect(199, 0, 1, 100)
       context.putImageData(imageData, -1, 0)
-      context.fillStyle = '#f00'
-      context.fillRect(199, (1 - total) * 100, 1, 100)
+      context.fillStyle = `hsl(${120 - total * 120}deg 80% 50%)`
+      context.fillRect(199, (1 - total) * 100, 1, total * 100)
     }, 100)
 
     return () => clearInterval(interval)
@@ -34,13 +35,8 @@ const Performance = () => {
 
   return (
     <canvas
+      className={css('performance')}
       ref={canvasRef}
-      style={{
-        zIndex: 9001,
-        position: 'absolute',
-        left: '10px',
-        bottom: '10px',
-      }}
       width="200px"
       height="100px"
     />
