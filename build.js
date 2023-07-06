@@ -246,7 +246,7 @@ const buildWorklets = async () => {
     await Promise.all([buildWorklets(), buildClient()])
   } catch (err) {
     console.error(err)
-    if (isProduction) {
+    if (process.env.NODE_ENV !== 'development') {
       process.exit(1)
     }
   }
