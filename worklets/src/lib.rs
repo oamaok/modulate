@@ -197,7 +197,7 @@ impl Worker {
       modules.rw_lock.unlock_read();
 
       // Have the leader write the output buffers
-       context.barrier.wait_and_do(|| {
+      context.barrier.wait_and_do(|| {
         modules.rw_lock.lock_read();
 
         // NOTE: If `worker_position` changes are not done by the barrier leader, it must be converted

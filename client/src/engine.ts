@@ -28,7 +28,10 @@ export const initializeEngine = async (
     numWorklets: Math.max(4, navigator.hardwareConcurrency) - 1,
   }
 ) => {
-  assert(options.numWorklets > 0)
+  assert(
+    options.numWorklets > 0,
+    'initializeEngine: numWorklets must be greater than zero'
+  )
 
   const audioContext = new AudioContext()
 
@@ -189,6 +192,11 @@ export const getModuleHandle = async (
 
 export const createModule = async (moduleId: string, name: ModuleName) => {
   assert(engine)
+  assert(
+    !(moduleId in moduleHandles),
+    `createModule: module with the id "${moduleId}" already exists`
+  )
+
   moduleHandles[moduleId] = engine
     .createModule({ name })
     .then(({ moduleHandle }) => moduleHandle)
@@ -204,13 +212,23 @@ export const deleteModule = async (moduleId: string) => {
 
 export const connectCable = async (cable: Cable) => {
   assert(engine)
+  assert(
+    !(cable.id in cableHandles),
+    `connectCable: cable with the id "${cable.id}" already exists`
+  )
   let connectionHandle: number
 
   const toModuleHandle = await getModuleHandle(cable.to.moduleId)
   const fromModuleHandle = await getModuleHandle(cable.from.moduleId)
 
-  assert(toModuleHandle !== null)
-  assert(fromModuleHandle !== null)
+  assert(
+    toModuleHandle !== null,
+    `connectCable: trying to connect to a non-existent module "${cable.to.moduleId}"`
+  )
+  assert(
+    fromModuleHandle !== null,
+    `connectCable: trying to connect from a non-existent module "${cable.from.moduleId}"`
+  )
 
   switch (cable.to.type) {
     case 'input': {

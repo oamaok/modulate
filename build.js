@@ -227,8 +227,10 @@ const buildWorklets = async () => {
   try {
     await fs.mkdir('./dist')
   } catch (err) {
-    console.error(err)
-    process.exit(1)
+    if (err.code !== 'EEXIST') {
+      console.error(err)
+      process.exit(1)
+    }
   }
 
   try {
