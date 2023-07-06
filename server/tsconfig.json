@@ -11,7 +11,7 @@
     "noUncheckedIndexedAccess": true,
     "sourceMap": true,
     "moduleResolution": "node",
-    "lib": ["ESNext"],
+    "lib": ["DOM", "ESNext"],
     "target": "ESNext",
     "resolveJsonModule": true
   }
