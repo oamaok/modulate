@@ -36,7 +36,7 @@ const ActiveCable = () => {
   const [from, to] =
     state.activeCable.draggingFrom.type === 'output' ? [a, b] : [b, a]
 
-  return <CablePath from={from} to={to} />
+  return <CablePath isActive from={from} to={to} />
 }
 
 export default ActiveCable
