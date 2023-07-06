@@ -179,6 +179,7 @@ const buildWorklets = async () => {
   }
 
   for (const [entry, options] of Object.entries(entries)) {
+    console.time(`Build worklet ${entry}`)
     await esbuild
       .build({
         entryPoints: [`./worklets/src/${entry}.ts`],
@@ -213,6 +214,7 @@ const buildWorklets = async () => {
           .then((minified) => minified.code)
       })
       .then((code) => fs.writeFile(`./dist/client/assets/${entry}.js`, code))
+    console.timeEnd(`Build worklet ${entry}`)
   }
 
   await fs.copyFile(
