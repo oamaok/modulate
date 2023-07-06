@@ -154,8 +154,6 @@ impl Worker {
     };
 
     loop {
-      context.barrier.wait();
-
       if context.worker_position >= NUM_OUTPUT_BUFFERS as u64 {
         // `audio_worklet_position` is atomically incremented by one from the AudioWorklet each time
         // it has consumed a quantum and then calls `Atomic.notify` on the address. If the workers
@@ -173,9 +171,6 @@ impl Worker {
         let audio_worklet_position = context.audio_worklet_position.load(Ordering::SeqCst);
         if audio_worklet_position < wait_for_position {
           // We are ahead of the audio worklet, so just spin here.
-          // TODO: This could probably be replaced with `cmpxchg` like in the RwLock.
-          // That would avoid unnecessary spinning and CPU usage, but this has worked fine
-          // for now.
           continue;
         }
       }
@@ -185,15 +180,13 @@ impl Worker {
       modules.rw_lock.lock_read();
 
       // Have the leader swap the buffers.
-      if context.barrier.wait() {
+      context.barrier.wait_and_do(|| {
         modules.swap_buffers();
         context.current_module.store(0, Ordering::SeqCst);
-      }
-      context.barrier.wait();
+      });
 
       loop {
         let module_index = context.current_module.fetch_add(1, Ordering::SeqCst);
-
         if module_index >= modules.len() {
           break;
         }
@@ -204,10 +197,10 @@ impl Worker {
       modules.rw_lock.unlock_read();
 
       // Have the leader write the output buffers
-      if context.barrier.wait() {
+       context.barrier.wait_and_do(|| {
         modules.rw_lock.lock_read();
 
-        // NOTE: If this `worker_position` changes are not done by the barrier leader, it must be converted
+        // NOTE: If `worker_position` changes are not done by the barrier leader, it must be converted
         // into an atomic. Currently only a single thread reads and writes to it.
         context.worker_position += 1;
         let output_index = context.worker_position % NUM_OUTPUT_BUFFERS as u64;
@@ -227,7 +220,7 @@ impl Worker {
         }
 
         modules.rw_lock.unlock_read();
-      }
+      });
 
       self.performance_samples[context.worker_position as usize % 64] = (now() as f32) - start_time;
       context.performance[self.id] = 0.0;
