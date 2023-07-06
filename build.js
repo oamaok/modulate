@@ -226,7 +226,10 @@ const buildWorklets = async () => {
 ;(async () => {
   try {
     await fs.mkdir('./dist')
-  } catch (err) {}
+  } catch (err) {
+    console.error(err)
+    process.exit(1)
+  }
 
   try {
     await buildRust()
