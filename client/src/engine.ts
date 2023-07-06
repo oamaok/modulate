@@ -28,6 +28,8 @@ export const initializeEngine = async (
     numWorklets: Math.max(4, navigator.hardwareConcurrency) - 1,
   }
 ) => {
+  assert(options.numWorklets > 0)
+
   const audioContext = new AudioContext()
 
   assert(audioContext)
@@ -143,13 +145,19 @@ export const getContextPointers = () => {
   return engine.pointers
 }
 
+let workerPositionBuf: BigUint64Array | null = null
 export const getWorkerPosition = () => {
   assert(engine)
-  return new BigUint64Array(
-    engine.memory.buffer,
-    engine.pointers.workerPosition,
-    1
-  )[0]!
+
+  if (!workerPositionBuf) {
+    workerPositionBuf = new BigUint64Array(
+      engine.memory.buffer,
+      engine.pointers.workerPosition,
+      1
+    )
+  }
+
+  return workerPositionBuf[0]!
 }
 
 export const getMemory = () => {
@@ -227,7 +235,7 @@ export const connectCable = async (cable: Cable) => {
   cableHandles[cable.id] = connectionHandle
 }
 
-export const disconnectCable = async (cable: Cable) => {
+export const disconnectCable = async (cable: Pick<Cable, 'id'>) => {
   assert(engine)
   const connectionHandle = cableHandles[cable.id]
   assert(typeof connectionHandle !== 'undefined')

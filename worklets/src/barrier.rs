@@ -17,6 +17,10 @@ impl Barrier {
   }
 
   pub fn wait(&self) -> bool {
+    self.wait_and_do(|| {})
+  }
+
+  pub fn wait_and_do<F: FnOnce()>(&self, func: F) -> bool {
     let local_gen = self
       .generation_id
       .load(std::sync::atomic::Ordering::Acquire);
@@ -32,6 +36,7 @@ impl Barrier {
       }
       false
     } else {
+      func();
       self.count.store(0, std::sync::atomic::Ordering::Release);
       self.generation_id.store(
         local_gen.wrapping_add(1),

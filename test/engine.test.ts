@@ -17,11 +17,17 @@ afterAll(async () => {
 
 describe('Engine', () => {
   it('should output audio when oscillator is connected to audio output', async () => {
+    page
+    .on('console', message =>
+      console.log(message.text()))
+
     const buffer = await page.evaluate(async () => {
       await engine.initializeEngine({
         numWorklets: 4,
         spawnAudioWorklet: false,
       })
+
+      await advanceToPosition(0n)
 
       await engine.createModule('out', 'AudioOut')
       await engine.createModule('osc', 'Oscillator')

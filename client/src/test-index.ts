@@ -13,20 +13,19 @@ window.advanceToPosition = async (pos: bigint) => {
   Atomics.notify(audioThreadPosition, 0)
 
   for (;;) {
-    if (engine.getWorkerPosition() === pos + 15n) {
+    if (engine.getWorkerPosition() >= pos + 15n) {
       break
-    } else {
-      await new Promise((resolve) => setTimeout(resolve, 100))
     }
+    await new Promise((resolve) => setTimeout(resolve, 100))
   }
 }
 
 // @ts-ignore
-window.getBuffer = async (buf: number) => {
+window.getBuffer = async (pos: number) => {
   const pointers = engine.getContextPointers()
   const buffer = new Float32Array(
     engine.getMemory().buffer,
-    pointers.outputBuffers + buf * 4 * 128,
+    pointers.outputBuffers + pos * 128 * 4,
     128
   )
   return [...buffer]
