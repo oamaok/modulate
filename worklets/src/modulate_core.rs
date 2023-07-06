@@ -149,8 +149,8 @@ pub fn exp_curve(x: f32) -> f32 {
 }
 
 pub struct RingBuffer {
-  buffer: Vec<f32>,
-  alt_buffer: Vec<f32>,
+  buffers: [Vec<f32>; 2],
+  current: usize,
   length: usize,
   pos: usize,
 }
@@ -158,8 +158,8 @@ pub struct RingBuffer {
 impl RingBuffer {
   pub fn new(length: usize) -> RingBuffer {
     RingBuffer {
-      buffer: vec![0.0; SAMPLE_RATE * 16],
-      alt_buffer: vec![0.0; SAMPLE_RATE * 16],
+      buffers: [vec![0.0; SAMPLE_RATE * 16], vec![0.0; SAMPLE_RATE * 16]],
+      current: 0,
       length,
       pos: 0,
     }
@@ -169,7 +169,7 @@ impl RingBuffer {
     let mut value = 0.0;
 
     for i in 0..self.length {
-      value += self.buffer[i] * self.buffer[i];
+      value += self.buffers[self.current][i] * self.buffers[self.current][i];
     }
 
     value /= self.length as f32;
@@ -188,35 +188,45 @@ impl RingBuffer {
 
     let ratio = self.length as f32 / len as f32;
 
+    let dst = if self.current == 0 {
+      self.buffers[1].as_mut_ptr()
+    } else {
+      self.buffers[0].as_mut_ptr()
+    };
+
+    let mut pos = 0.0;
     for sample in 0..len {
-      let pos = ratio * sample as f32;
-      let src_index = pos as i32;
-      let t = pos - src_index as f32;
-      let a = self.at(src_index + self.pos as i32);
-      let b = self.at(src_index + 1 + self.pos as i32);
-      self.alt_buffer[sample] = lerp(a, b, t);
+      let ipos = pos as u32;
+      let src_index = ipos as usize;
+      let t = pos - ipos as f32;
+
+      let a = self.at_usize(src_index + self.pos);
+      let b = self.at_usize(src_index + 1 + self.pos);
+
+      unsafe {
+        *dst.add(sample) = lerp(a, b, t);
+      }
+
+      pos += ratio;
     }
 
-    std::mem::swap(&mut self.buffer, &mut self.alt_buffer);
+    self.current = if self.current == 0 { 1 } else { 0 };
 
     self.pos = 0;
     self.length = len;
   }
 
-  pub fn at(&self, mut index: i32) -> f32 {
-    if index < 0 {
-      index += self.length as i32;
-    }
-    index %= self.length as i32;
-    self.buffer[index as usize]
+  pub fn at_usize(&self, mut index: usize) -> f32 {
+    index %= self.length;
+    self.buffers[self.current][index as usize]
   }
 
   pub fn head(&self) -> f32 {
-    self.buffer[self.pos]
+    self.buffers[self.current][self.pos]
   }
 
   pub fn write(&mut self, value: f32) {
-    self.buffer[self.pos] = value;
+    self.buffers[self.current][self.pos] = value;
     self.pos = (self.pos + 1) % self.length;
   }
 }

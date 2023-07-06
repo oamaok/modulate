@@ -157,7 +157,7 @@ const buildRust = async () => {
   return new Promise((resolve, reject) => {
     const proc = cp.spawn('wasm-pack', [
       'build',
-      '--dev',
+      process.env.NODE_ENV === 'test' ? '--dev' : '--release',
       './worklets/',
       '--target',
       'web',
