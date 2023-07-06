@@ -1,5 +1,5 @@
-import path from 'path'
-import sqlite from 'sqlite3'
+import * as path from 'path'
+import * as sqlite from 'sqlite3'
 import sql, { SQLStatement } from 'sql-template-strings'
 import crypto from 'crypto'
 import argon2 from 'argon2'
