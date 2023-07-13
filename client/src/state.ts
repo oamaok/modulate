@@ -94,9 +94,9 @@ export const addModule = async (name: string) => {
   }
 }
 
-export const setModuleState = (
+export const setModuleState = <T extends Record<string, unknown>>(
   id: Id,
-  moduleState: Record<string, unknown>
+  moduleState: T
 ) => {
   const module = patch.modules[id]
   assert(module, `setModuleState: invalid module id (${id})`)

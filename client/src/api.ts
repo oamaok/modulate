@@ -10,12 +10,13 @@ type Method = 'GET' | 'POST'
 type Options = {
   body?: any
   params?: Record<string, any>
+  headers?: Record<string, string>
 }
 
 const request = (
   method: Method,
   endpoint: string,
-  { body, params }: Options
+  { body, params, headers }: Options
 ) => {
   const token = auth.get()
 
@@ -26,13 +27,21 @@ const request = (
         .join('&')
     : ''
 
+  const isFormData = body instanceof FormData
+
   return fetch(endpoint + queryParams, {
     method,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
     credentials: 'include',
     headers: {
       Accept: 'application/json',
       Authorization: token ? `Bearer ${token}` : '',
+      ...(isFormData && typeof body !== undefined
+        ? {}
+        : {
+            'Content-Type': 'application/json',
+          }),
+      ...headers,
     },
   }).then((res) => res.json())
 }
@@ -81,4 +90,14 @@ export const getLatestPatchVersion = (patchId: string) => {
 
 export const getRoomUsingPatch = (patchId: string) => {
   return get(`/api/room/${patchId}`)
+}
+
+export const saveSample = (
+  name: string,
+  buffer: Float32Array
+): Promise<{ id: string; name: string }> => {
+  const formData = new FormData()
+  formData.append('name', name)
+  formData.append('buffer', new Blob([buffer], { type: 'octet/stream' }))
+  return post(`/api/sample`, { body: formData })
 }

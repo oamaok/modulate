@@ -1,3 +1,4 @@
+import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as http from 'http'
 import * as t from 'io-ts'
@@ -5,6 +6,7 @@ import * as db from './database'
 import * as validators from '@modulate/common/validators'
 import * as auth from './authorization'
 import * as logger from './logger'
+import config from './config'
 import router, { serverStatic, Response } from './router'
 import migrate from './migrate'
 import rooms, { createRoomUsingPatch } from './rooms'
@@ -15,10 +17,32 @@ const unauthorized = (res: Response) => {
   res.end()
 }
 
-const badRequest = (res: Response) => {
+const badRequest = (res: Response, reason = '') => {
   res.status(400)
-  res.json({ error: 'bad request' })
+  res.json({ error: 'bad request', reason })
   res.end()
+}
+
+const serverError = (res: Response) => {
+  res.status(500)
+  res.json({ error: 'server error' })
+  res.end()
+}
+
+const ensureDirectoryExists = async (dir: string) => {
+  try {
+    const stat = await fs.stat(dir)
+    if (!stat.isDirectory()) {
+      throw new Error(`Path "${dir}" already exists and is not a directory`)
+    }
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      // Path doesn't exist, attempt to create
+      await fs.mkdir(dir, { recursive: true })
+    } else {
+      throw err
+    }
+  }
 }
 
 const server = http.createServer(
@@ -31,10 +55,7 @@ const server = http.createServer(
       '/assets/*',
       serverStatic(path.join(__dirname, '../../dist/client/assets'))
     )
-    .get(
-      '/worklets/*',
-      serverStatic(path.join(__dirname, '../../dist/client/worklets'))
-    )
+    .get('/samples/*', serverStatic(config.sampleDirectory))
     .get('/api/identity', async (req, res) => {
       const { authorization } = req
       if (!authorization) {
@@ -48,14 +69,15 @@ const server = http.createServer(
     .get('/api/user/availability', async (req, res) => {
       const { email, username } = req.query
 
-      if (!email || !username) {
+      if (typeof email === 'undefined' || typeof username === 'undefined') {
         badRequest(res)
         return
       }
 
       res.json({
-        email: await db.isEmailAvailable(email),
-        username: await db.isUsernameAvailable(username),
+        email: email.length !== 0 && (await db.isEmailAvailable(email)),
+        username:
+          username.length !== 0 && (await db.isUsernameAvailable(username)),
       })
       res.end()
     })
@@ -184,6 +206,60 @@ const server = http.createServer(
       res.json({ roomId })
       res.end()
     })
+    .post(
+      '/api/sample',
+      t.type({ name: t.string, buffer: t.any }),
+      async (req, res) => {
+        const { authorization } = req
+        if (!authorization) {
+          unauthorized(res)
+          return
+        }
+
+        const MAX_LENGTH = 44100 * 20 * 4 // Max 20 seconds
+        if (req.body.buffer.length > MAX_LENGTH) {
+          badRequest(res, 'buffer too long, max 20s')
+          return
+        }
+
+        const metadata = await db.saveSampleMetadata({
+          name: req.body.name,
+          ownerId: authorization.id,
+        })
+
+        try {
+          await fs.writeFile(
+            path.join(config.sampleDirectory, metadata.id),
+            req.body.buffer
+          )
+          res.json(metadata)
+          res.end()
+        } catch (err) {
+          logger.error(err)
+          serverError(res)
+        }
+      }
+    )
+    .get('/api/sample/:id', async (req, res) => {
+      const { id } = req.parameters
+      if (!id) {
+        badRequest(res)
+        return
+      }
+
+      const metadata = await db.getSampleMetadataById(id)
+      if (!metadata) {
+        res.status(404)
+        res.json({ error: 'not found' })
+        res.end()
+        return
+      }
+
+      res.json({
+        id: metadata.id,
+        name: metadata.name,
+      })
+    })
 )
 
 rooms(server)
@@ -191,6 +267,8 @@ rooms(server)
 if (require.main === module) {
   ;(async () => {
     await migrate()
+    await ensureDirectoryExists(config.sampleDirectory)
+
     server.listen(8888)
     logger.info('Listening to :8888')
   })()

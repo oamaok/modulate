@@ -13,6 +13,7 @@ import MIDI from './components/modules/MIDI'
 import Limiter from './components/modules/Limiter'
 import PowShaper from './components/modules/PowShaper'
 import BouncyBoi from './components/modules/BouncyBoi'
+import Sampler from './components/modules/Sampler'
 
 export const moduleMap = {
   AudioOut,
@@ -30,4 +31,5 @@ export const moduleMap = {
   Limiter,
   PowShaper,
   BouncyBoi,
+  Sampler,
 } as const

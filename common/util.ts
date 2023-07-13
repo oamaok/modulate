@@ -15,6 +15,11 @@ export const splitEvery = <T>(arr: T[], num: number): T[][] => {
 export const cloneObject = <T extends Record<string, any> | any[]>(
   obj: T
 ): T => {
+  if (obj instanceof Float32Array) {
+    // TODO: Fix this
+    return obj
+  }
+
   if (Array.isArray(obj)) {
     return obj.map((value) => {
       if (value === null) return null

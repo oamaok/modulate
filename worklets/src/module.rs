@@ -19,6 +19,8 @@ pub struct Ball {
 pub enum ModuleEvent {
   SequencerAdvance { position: usize },
   BouncyBoiUpdate { balls: [Ball; 3], phase: f32 },
+  SamplerAllocateSuccess { ptr: usize },
+  SamplerPlayheadPosition { position: f64 },
 }
 
 #[derive(Serialize)]
@@ -39,9 +41,13 @@ pub struct NamedNote {
 #[serde(tag = "type")]
 pub enum ModuleMessage {
   SequencerSetNotes { notes: Vec<NamedNote> },
+
   ClockReset,
   ClockSetRunning { running: bool },
+
   MidiMessage { message: u32 },
+
+  SamplerAllocate { size: usize },
 }
 
 pub trait Module {

@@ -12,4 +12,5 @@ pub mod mixer;
 pub mod oscillator;
 pub mod pow_shaper;
 pub mod reverb;
+pub mod sampler;
 pub mod sequencer;

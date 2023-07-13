@@ -151,6 +151,11 @@ export const getContextPointers = () => {
   return engine.pointers
 }
 
+export const getAudioContext = () => {
+  assert(engine)
+  return engine.audioContext
+}
+
 export const getAnalyser = () => {
   assert(engine)
   return engine.analyser

@@ -1,0 +1,24 @@
+.sampler {
+  padding: 8px;
+}
+
+.canvases {
+  background: #000;
+  position: relative;
+  height: 100px;
+  width: 300px;
+  border-radius: 4px;
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+}
+
+.canvases canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.knob-group {
+  display: flex;
+  flex-direction: row;
+}

@@ -42,7 +42,8 @@ html {
 }
 
 textarea,
-input {
+input[type='text'],
+input[type='password'] {
   background: var(--background);
   border-radius: 2px;
   padding: 2px 4px;

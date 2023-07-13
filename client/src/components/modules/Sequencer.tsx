@@ -44,9 +44,7 @@ class SequencerNode extends Component<
     })
 
     if (!getModuleState<SequencerState>(props.id)) {
-      setModuleState(props.id, {
-        editing: 0,
-        sequenceLength: 32,
+      setModuleState<SequencerState>(props.id, {
         notes: Array(32)
           .fill(null)
           .map((_, index) => ({
@@ -73,8 +71,7 @@ class SequencerNode extends Component<
   }
 
   render({ id }: Props) {
-    const moduleState = getModuleState<SequencerState>(id)
-    const { notes } = moduleState
+    const { notes } = getModuleState<SequencerState>(id)
 
     const groupedNotes = util.splitEvery(util.splitEvery(notes, 4), 4)
     const sequenceLength = getKnobValue(id, 'sequenceLength') ?? 32

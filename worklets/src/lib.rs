@@ -15,7 +15,7 @@ pub mod vec;
 
 use modules::{
   adsr, audio_out, biquad_filter, bouncy_boi, clock, delay, gain, lfo, limiter, midi, mixer,
-  oscillator, pow_shaper, reverb, sequencer,
+  oscillator, pow_shaper, reverb, sampler, sequencer,
 };
 
 #[wasm_bindgen(inline_js = "export function now() { return performance.now() }")]
@@ -360,6 +360,9 @@ impl ModulateEngine {
         self
           .modules
           .insert(id, Box::new(bouncy_boi::BouncyBoi::new()));
+      }
+      "Sampler" => {
+        self.modules.insert(id, Box::new(sampler::Sampler::new()));
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }
