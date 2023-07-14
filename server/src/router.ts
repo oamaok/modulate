@@ -171,32 +171,29 @@ const parseMultipartBody = async (req: http.IncomingMessage) => {
     throw new Error('invalid multipart request')
   }
 
-  let buffer = await new Promise<Buffer>((resolve) => {
-    let buf = Buffer.from([])
+  const buffer = await new Promise<Buffer>((resolve) => {
+    const parts: Buffer[] = []
 
     req.on('data', (chunk: Buffer) => {
-      if (buf === null) {
-        buf = chunk
-      } else {
-        buf = Buffer.concat([buf, chunk])
-      }
+      parts.push(chunk)
     })
 
     req.on('end', () => {
-      resolve(buf)
+      resolve(Buffer.concat(parts))
     })
   })
 
+  let readPos = 0
+
   const readUntil = (marker: Buffer) => {
-    const index = buffer.indexOf(marker)
+    const subBuffer = buffer.subarray(readPos)
+    const index = subBuffer.indexOf(marker)
     if (index === -1) {
       throw new Error('parse error: marker not found')
     }
+    readPos += index + marker.length
 
-    let res = buffer.subarray(0, index)
-    buffer = buffer.subarray(index + marker.length)
-
-    return res
+    return subBuffer.subarray(0, index)
   }
 
   const INIT_BOUNDARY = Buffer.from('--' + boundary + '\r\n')
