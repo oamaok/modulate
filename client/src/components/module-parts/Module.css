@@ -4,14 +4,14 @@
   position: absolute;
   top: 0;
   left: 0;
-  opacity: 0.8;
+  filter: brightness(0.75);
   box-shadow: var(--box-shadow);
   display: flex;
   flex-direction: column;
 }
 
 .module.active {
-  opacity: 1;
+  filter: none;
 }
 
 .module-name {

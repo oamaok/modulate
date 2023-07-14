@@ -56,7 +56,23 @@ document.documentElement.addEventListener('mousemove', (evt) => {
   cursor.y = evt.pageY
 })
 
+const hasScrollbar = (elem: HTMLElement) => {
+  const style = window.getComputedStyle(elem)
+  return style.overflowY === 'scroll'
+}
+
+const elementIsWithinScrollableElement = (elem: HTMLElement): boolean => {
+  if (hasScrollbar(elem)) return true
+  if (elem.parentElement)
+    return elementIsWithinScrollableElement(elem.parentElement)
+  return false
+}
+
 document.addEventListener('wheel', (evt) => {
+  if (elementIsWithinScrollableElement(evt.target as HTMLElement)) {
+    return
+  }
+
   state.viewOffset.x -= evt.deltaX
   state.viewOffset.y -= evt.deltaY
 })
@@ -242,7 +258,7 @@ export const getCableConnectionCandidate = (): Socket | null => {
   if (!candidateSocket) return null
 
   const inputSocketIsOccupied =
-    candidateSocket.socket.type === 'input' &&
+    candidateSocket.socket.type !== 'output' &&
     patch.cables.some((cable) => isSameSocket(cable.to, candidateSocket.socket))
 
   if (inputSocketIsOccupied) return null

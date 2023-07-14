@@ -101,3 +101,5 @@ export const saveSample = (
   formData.append('buffer', new Blob([buffer], { type: 'octet/stream' }))
   return post(`/api/sample`, { body: formData })
 }
+
+export const getSamples = () => get('/api/samples')

@@ -206,3 +206,11 @@ export const getSampleMetadataById = async (id: string) => {
   )
   return sample ?? null
 }
+
+export const getSamplesByUser = async (userId: string) => {
+  const samples = await query<SampleMetadata>(sql`
+    SELECT * FROM samples WHERE ownerId = ${userId}
+  `)
+
+  return samples
+}

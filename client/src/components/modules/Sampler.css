@@ -1,5 +1,8 @@
 .sampler {
   padding: 8px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .canvases {
@@ -8,8 +11,11 @@
   height: 100px;
   width: 300px;
   border-radius: 4px;
-  box-shadow: var(--box-shadow);
+  border-left: 1px solid #555;
+  border-right: 1px solid #555;
+  border-top: 2px solid #666;
   overflow: hidden;
+  margin-bottom: 8px;
 }
 
 .canvases canvas {
@@ -21,4 +27,7 @@
 .knob-group {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+  flex-grow: 1;
+  margin-left: 10px;
 }

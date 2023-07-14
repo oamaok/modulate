@@ -15,6 +15,7 @@ import {
   getModuleState,
   setModuleState,
 } from '../../state'
+import SampleBrowser from '../sample-browser/SampleBrowser'
 
 type Props = {
   id: string
@@ -163,40 +164,26 @@ class SamplerNode extends Component<Props, { playheadPosition: number }> {
     })
   }
 
-  onFileChange = async (evt: InputEvent) => {
-    const fileElement = evt.target! as HTMLInputElement
-    const file = fileElement.files?.[0]
-    if (file) {
-      const buffer = (
-        await engine.getAudioContext().decodeAudioData(await file.arrayBuffer())
-      ).getChannelData(0)
-
-      if (buffer.length > 44100 * 20) {
-        // TODO: Tell user that the sample is too long
-        return
-      }
-
-      const { id } = await api.saveSample(file.name, buffer)
-
-      setModuleState<SamplerState>(this.props.id, {
-        sampleId: id,
-      })
-    }
-  }
-
   render({ id }: Props) {
+    const samplerState = getModuleState<SamplerState>(id)
+
     return (
-      <Module id={id} name="Sampler" height={240} width={400}>
+      <Module id={id} name="Sampler" height={260} width={400}>
         <div className={css('sampler')}>
           <div className={css('canvases')}>
             <canvas ref={this.waveformCanvasRef} width="300" height="100" />
             <canvas ref={this.settingsCanvasRef} width="300" height="100" />
           </div>
-          <input
-            type="file"
-            accept=".wav,.mp3,.ogg"
-            onChange={this.onFileChange}
-          />
+          <div className={css('browser')}>
+            <SampleBrowser
+              onSelect={(id) => {
+                setModuleState<SamplerState>(this.props.id, {
+                  sampleId: id,
+                })
+              }}
+              selected={samplerState?.sampleId ?? null}
+            />
+          </div>
           <div className={css('knob-group')}>
             <Knob
               moduleId={id}

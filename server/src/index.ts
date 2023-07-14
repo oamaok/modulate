@@ -260,6 +260,24 @@ const server = http.createServer(
         name: metadata.name,
       })
     })
+    .get('/api/samples', async (req, res) => {
+      const { authorization } = req
+
+      // TODO: Add fetching for factory samples
+      const factorySamples: db.SampleMetadata[] = []
+
+      if (authorization) {
+        const userSamples = await db.getSamplesByUser(authorization.id)
+
+        res.json([...factorySamples, ...userSamples])
+        res.end()
+        return
+      }
+
+      res.json(factorySamples)
+      res.end()
+      return
+    })
 )
 
 rooms(server)

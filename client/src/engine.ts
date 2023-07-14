@@ -22,12 +22,14 @@ let engine: Engine | null = null
 const eventSubscriptions: Record<number, (event: ModuleEvent<Module>) => void> =
   {}
 
-export const initializeEngine = async (
-  options: InitOptions = {
-    spawnAudioWorklet: true,
-    numWorklets: Math.max(4, navigator.hardwareConcurrency) - 1,
-  }
-) => {
+const DEFAULT_OPTIONS: InitOptions = {
+  spawnAudioWorklet: true,
+  numWorklets: Math.max(4, navigator.hardwareConcurrency) - 1,
+}
+
+export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
+  const options: InitOptions = Object.assign({}, DEFAULT_OPTIONS, opts)
+
   assert(
     options.numWorklets > 0,
     'initializeEngine: numWorklets must be greater than zero'
