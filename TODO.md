@@ -1,37 +1,60 @@
 # TODO
 
-## View offset stuffs:
+# Modules
 
-- Single transform on a container
-- Calculate bounding box for the cable SVG instead of using the viewport h/w. Should be easy just by iterating over socket positions. Maybe still resize so that the user cannot drag the cables outside the bounding box, so i.e. the SVG element's boundary will alway hug the viewport edge, but the minimum size will be defined by the bounding box.
+## Oscillator
 
-## Modules
+- [ ] Invert signal toggle
+- [ ] Built-in filter
+- [ ] Build-in ADSR
+- [ ] Built-in LFO maybe?
 
-- MIDI input
-- Better oscillator, maybe multiple
-- Mixer
-- Octave
-- Delay
-- Reverb
-- Distortion
-- Compressor
-- Limiter
-- LFO
+## Equalizer
 
-- Controllable ADSR
+- [ ] Initial implementation
 
-## Knobs
+## LFO
 
-- Exponential curves (for e.g. ADSR timings: presice short timings, impresice long ones)
-- Unit types (seconds, Hz, volts, etc)
+- [ ] Invert signal toggle
+
+## Sampler
+
+- [ ] Loop option
+- [ ] Built-in volume ADSR envelope
+- [ ] Gain knob
+
+## ADSR
+
+- [ ] Visualizer
+- [ ] Make into generic component maybe?
+- [ ] Gain knob
+
+## Voltage quantizer
+
+Takes an input voltage and snaps it to the closest appropriate voltage selected using the keyboard component.
+
+- [ ] Initial implementation
+
+## Octave
+
+- [ ] Initial implementation
+
+## Compressor
+
+- [ ] Initial implementation
 
 # Module selector
 
-- Starred items
-- Ability to drag the modules from the selector
+- [ ] Starred items
+- [ ] Ability to drag the modules from the selector
 
-# General UI/UX
+# Testing
 
-- Load unsaved patch Y/N at startup to mask the audio init
-- Hotkey configuration?
-- Global volume control
+- [ ] Add API testing
+
+# UI/UX
+
+- [ ] Hotkey configuration?
+- [ ] Global volume control
+- [ ] Right click menu for adding modules
+- [ ] Select module on spawn
