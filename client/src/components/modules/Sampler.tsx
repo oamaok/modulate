@@ -25,13 +25,12 @@ type SamplerState = {
   sampleId: null | string
 }
 
-class SamplerNode extends Component<Props, { playheadPosition: number }> {
+class SamplerNode extends Component<Props> {
   audioBuffer: Float32Array | null = null
+  playheadPosition: Float64Array | null = null
+  animationFrameRequest: number = 0
   waveformCanvasRef = useRef<HTMLCanvasElement>()
   settingsCanvasRef = useRef<HTMLCanvasElement>()
-  state = {
-    playheadPosition: 0.0,
-  }
 
   constructor(props: Props) {
     super(props)
@@ -39,6 +38,8 @@ class SamplerNode extends Component<Props, { playheadPosition: number }> {
     connectKnobToParam<Sampler, 'speed'>(props.id, 'speed', 0)
     connectKnobToParam<Sampler, 'start'>(props.id, 'start', 1)
     connectKnobToParam<Sampler, 'length'>(props.id, 'length', 2)
+
+    this.drawSettingsAndPlayhead()
 
     engine.onModuleEvent(props.id, (evt) => {
       switch (evt.type) {
@@ -54,8 +55,12 @@ class SamplerNode extends Component<Props, { playheadPosition: number }> {
           break
         }
 
-        case 'SamplerPlayheadPosition': {
-          this.state.playheadPosition = evt.position
+        case 'SamplerPlayheadPtr': {
+          this.playheadPosition = new Float64Array(
+            engine.getMemory().buffer,
+            evt.ptr,
+            1
+          )
           break
         }
       }
@@ -77,44 +82,54 @@ class SamplerNode extends Component<Props, { playheadPosition: number }> {
         }
       }
     })
+  }
 
-    useEffect(() => {
-      const canvas = this.settingsCanvasRef.current
-      if (!canvas) return
-      const length = this.audioBuffer?.length ?? 0
+  componentWillUnmount() {
+    cancelAnimationFrame(this.animationFrameRequest)
+  }
 
-      const context = canvas.getContext('2d')!
+  drawSettingsAndPlayhead = () => {
+    this.animationFrameRequest = requestAnimationFrame(
+      this.drawSettingsAndPlayhead
+    )
 
-      context.clearRect(0, 0, canvas.width, canvas.height)
+    const canvas = this.settingsCanvasRef.current
+    if (!canvas) return
+    const length = this.audioBuffer?.length ?? 0
 
-      const startAt = getKnobValue(props.id, 'start') ?? 0
-      const playLength = getKnobValue(props.id, 'length') ?? 0
-      context.fillStyle = 'rgba(0,0,0,0.5)'
-      context.fillRect(0, 0, canvas.width * startAt, canvas.height)
-      context.fillRect(
-        canvas.width * (playLength + startAt),
-        0,
-        canvas.width,
-        canvas.height
-      )
+    const context = canvas.getContext('2d')!
 
+    context.clearRect(0, 0, canvas.width, canvas.height)
+
+    const startAt = getKnobValue(this.props.id, 'start') ?? 0
+    const playLength = getKnobValue(this.props.id, 'length') ?? 0
+    context.fillStyle = 'rgba(0,0,0,0.5)'
+    context.fillRect(0, 0, canvas.width * startAt, canvas.height)
+    context.fillRect(
+      canvas.width * (playLength + startAt),
+      0,
+      canvas.width,
+      canvas.height
+    )
+
+    if (this.playheadPosition) {
       context.fillStyle = '#e85d00'
       context.fillRect(
-        (this.state.playheadPosition * canvas.width) / length,
+        (this.playheadPosition[0]! * canvas.width) / length,
         0,
         1.5,
         canvas.height
       )
+    }
 
-      context.fillStyle = '#e7e7e7'
-      context.fillRect(canvas.width * startAt - 1, 0, 1.5, canvas.height)
-      context.fillRect(
-        canvas.width * (playLength + startAt),
-        0,
-        1.5,
-        canvas.height
-      )
-    })
+    context.fillStyle = '#e7e7e7'
+    context.fillRect(canvas.width * startAt - 1, 0, 1.5, canvas.height)
+    context.fillRect(
+      canvas.width * (playLength + startAt),
+      0,
+      1.5,
+      canvas.height
+    )
   }
 
   drawWaveform = () => {

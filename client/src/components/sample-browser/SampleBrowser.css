@@ -45,6 +45,7 @@
   color: var(--primary);
   border-bottom: 1px solid var(--primary);
   padding: 0 2px;
+  text-shadow: none;
 }
 
 .samples button.selected {
@@ -65,4 +66,5 @@
   color: var(--primary);
   border: 1px solid var(--primary);
   padding: 0 2px;
+  text-shadow: none;
 }

@@ -2,7 +2,7 @@ use crate::modulate_core::{
   lerp, AudioInput, AudioOutput, AudioParam, Edge, EdgeDetector, QUANTUM_SIZE,
 };
 
-use super::super::module;
+use crate::module::{Module, ModuleEvent, ModuleMessage};
 
 pub struct Sampler {
   gate_input: AudioInput,
@@ -14,10 +14,10 @@ pub struct Sampler {
   pos: f64,
   sample: Option<Box<[f32]>>,
 
-  events: Vec<module::ModuleEvent>,
+  events: Vec<ModuleEvent>,
 }
 
-impl module::Module for Sampler {
+impl Module for Sampler {
   fn process(&mut self) {
     for sample in 0..QUANTUM_SIZE {
       self.output[sample] = 0.0;
@@ -52,10 +52,6 @@ impl module::Module for Sampler {
         f32::min(1.0, start_param + len_param) as f64 * sample_len as f64,
       );
     }
-
-    self
-      .events
-      .push(module::ModuleEvent::SamplerPlayheadPosition { position: self.pos })
   }
 
   fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
@@ -70,19 +66,26 @@ impl module::Module for Sampler {
     vec![&mut self.output]
   }
 
-  fn pop_event(&mut self) -> Option<module::ModuleEvent> {
+  fn pop_event(&mut self) -> Option<ModuleEvent> {
     self.events.pop()
   }
 
-  fn on_message(&mut self, message: module::ModuleMessage) {
+  fn on_message(&mut self, message: ModuleMessage) {
     match message {
-      module::ModuleMessage::SamplerAllocate { size } => {
-        let zeros = vec![0.0; size];
-        self.sample = Some(zeros.into_boxed_slice());
-        let ptr = self.sample.as_ref().unwrap().as_ptr() as usize;
-        self
-          .events
-          .push(module::ModuleEvent::SamplerAllocateSuccess { ptr })
+      ModuleMessage::SamplerAllocate { size } => {
+        {
+          let zeros = vec![0.0; size];
+          self.sample = Some(zeros.into_boxed_slice());
+          let ptr = self.sample.as_ref().unwrap().as_ptr() as usize;
+          self
+            .events
+            .push(ModuleEvent::SamplerAllocateSuccess { ptr })
+        }
+
+        {
+          let ptr = &self.pos as *const f64 as usize;
+          self.events.push(ModuleEvent::SamplerPlayheadPtr { ptr });
+        }
       }
       _ => panic!("sampler: received unhandled message"),
     }

@@ -159,7 +159,7 @@ export type Sampler = {
   messages: { type: 'SamplerAllocate'; size: number }
   events:
     | { type: 'SamplerAllocateSuccess'; ptr: number }
-    | { type: 'SamplerPlayheadPosition'; position: number }
+    | { type: 'SamplerPlayheadPtr'; ptr: number }
 }
 
 export type Module =

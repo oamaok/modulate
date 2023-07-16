@@ -20,7 +20,7 @@ pub enum ModuleEvent {
   SequencerAdvance { position: usize },
   BouncyBoiUpdate { balls: [Ball; 3], phase: f32 },
   SamplerAllocateSuccess { ptr: usize },
-  SamplerPlayheadPosition { position: f64 },
+  SamplerPlayheadPtr { ptr: usize },
 }
 
 #[derive(Serialize)]

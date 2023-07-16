@@ -57,6 +57,7 @@ const SampleBrowser = ({ onSelect, selected }: Props) => {
     <div className={css('sample-browser')}>
       <input
         type="file"
+        accept=".wav,.ogg,.mp3"
         className={css('file-input')}
         ref={fileInputRef}
         onChange={onFileChange}
