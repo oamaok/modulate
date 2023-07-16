@@ -49,11 +49,19 @@ window.addEventListener('popstate', () => {
   state.route = parseRoute(location)
 })
 
+const latestCursorPos = { x: 0, y: 0 }
+const updateCursor = () => {
+  state.cursor.x = latestCursorPos.x
+  state.cursor.y = latestCursorPos.y
+}
+let cursorAnimationFrame = -1
 document.documentElement.addEventListener('mousemove', (evt) => {
   // TODO: Make this not permanent, maybe flag in state
   evt.preventDefault()
-  cursor.x = evt.pageX
-  cursor.y = evt.pageY
+  latestCursorPos.x = evt.pageX
+  latestCursorPos.y = evt.pageY
+  cancelAnimationFrame(cursorAnimationFrame)
+  cursorAnimationFrame = requestAnimationFrame(updateCursor)
 })
 
 const hasScrollbar = (elem: HTMLElement) => {
