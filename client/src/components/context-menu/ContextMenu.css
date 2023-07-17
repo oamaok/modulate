@@ -23,8 +23,9 @@
   padding: 5px 10px;
   background-color: var(--secondary);
   color: #fff;
-  text-shadow: none;
   margin-bottom: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
 }
 
 .items {

@@ -39,6 +39,14 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 - [ ] Initial implementation
 
+## Flanger
+
+- [ ] Initial implementation
+
+## Phaser
+
+- [ ] Initial implementation
+
 ## Compressor
 
 - [ ] Initial implementation
@@ -58,6 +66,9 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 - [ ] Global volume control
 - [x] Right click menu for adding modules
 - [ ] Select module on spawn
+- [ ] Jump back to middle/audio-out
+- [ ] Implement a minimap
+- [ ] Color coding for modules
 
 # Misc
 

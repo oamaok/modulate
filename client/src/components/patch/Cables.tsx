@@ -16,6 +16,7 @@ const Cables = () => {
   const ref = useRef<HTMLDivElement>()
 
   const onDragStart = (evt: MouseEvent) => {
+    state.contextMenu.open = false
     if (ref.current && evt.target === unwrap(ref.current as any)) {
       patchState.dragPosition = { x: state.cursor.x, y: state.cursor.y }
     }

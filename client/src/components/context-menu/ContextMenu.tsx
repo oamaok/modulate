@@ -5,7 +5,7 @@ import * as moduleMap from '../../moduleMap'
 
 type Props = {}
 
-const CONTEXT_MENU_DISABLE_DISTANCE = 30 // px
+const CONTEXT_MENU_DISABLE_DISTANCE = 50 // px
 
 const ContextMenu = ({}: Props) => {
   const menuRef = useRef<HTMLDivElement>()
@@ -41,12 +41,26 @@ const ContextMenu = ({}: Props) => {
     }
   })
 
+  const getContextMenuTransform = () => {
+    const rect = menuRef.current?.getBoundingClientRect()
+    const width = rect?.width ?? 0
+    const height = rect?.height ?? 0
+
+    const x = Math.min(state.contextMenu.position.x, window.innerWidth - width)
+    const y = Math.min(
+      state.contextMenu.position.y,
+      window.innerHeight - height
+    )
+
+    return `translate(${x}px, ${y}px)`
+  }
+
   return (
     <div
       ref={menuRef}
-      className={css('context-menu', { open: state.contextMenu.open })}
+      className={() => css('context-menu', { open: state.contextMenu.open })}
       style={{
-        transform: `translate(${state.contextMenu.position.x}px, ${state.contextMenu.position.y}px)`,
+        transform: getContextMenuTransform,
       }}
     >
       <div className={css('group')}>Add a module</div>
