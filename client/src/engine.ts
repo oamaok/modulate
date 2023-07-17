@@ -27,21 +27,26 @@ const DEFAULT_OPTIONS: InitOptions = {
   numWorklets: Math.max(4, navigator.hardwareConcurrency) - 1,
 }
 
+const toDataUrl = (script: string) =>
+  `data:application/javascript;base64,${btoa(script)}`
+
+const prefetchedContent = Promise.all([
+  fetch('/assets/worklets.wasm').then((res) => res.arrayBuffer()),
+  fetch('./assets/thread-worker.js').then((res) => res.text()),
+  fetch('./assets/audio-worklet.js').then((res) => res.text()),
+])
+
 export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
   const options: InitOptions = Object.assign({}, DEFAULT_OPTIONS, opts)
-
   assert(
     options.numWorklets > 0,
     'initializeEngine: numWorklets must be greater than zero'
   )
 
   const audioContext = new AudioContext()
-
   assert(audioContext)
-  const wasm = await fetch('/assets/worklets.wasm').then((res) =>
-    res.arrayBuffer()
-  )
 
+  const [wasm, threadWorkerScript, audioWorkletScript] = await prefetchedContent
   const engineWorker = new Worker('./assets/main-worker.js')
 
   const messageResolvers: Record<
@@ -121,7 +126,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
 
   const workers = await Promise.all(
     [...pointers.workers].map((pointer) => {
-      const worker = new Worker('./assets/thread-worker.js')
+      const worker = new Worker(toDataUrl(threadWorkerScript))
       worker.postMessage([wasm, memory, pointer])
       return new Promise<Worker>((resolve) => {
         worker.onmessage = () => resolve(worker)
@@ -130,7 +135,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
   )
 
   if (options.spawnAudioWorklet) {
-    await audioContext.audioWorklet.addModule('/assets/audio-worklet.js')
+    await audioContext.audioWorklet.addModule(toDataUrl(audioWorkletScript))
     const engineOutputNode = new AudioWorkletNode(
       audioContext,
       'EngineOutput',
