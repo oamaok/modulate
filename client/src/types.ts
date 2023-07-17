@@ -53,6 +53,10 @@ export type State = {
   activeCable: {
     draggingFrom: Socket
   } | null
+  contextMenu: {
+    open: boolean
+    position: Vec2
+  }
 }
 
 export type Engine = {

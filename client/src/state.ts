@@ -39,6 +39,11 @@ const state = createState<State>({
   activeCable: null,
 
   room: null,
+
+  contextMenu: {
+    open: false,
+    position: { x: 0, y: 0 },
+  },
 })
 
 export default state
@@ -107,13 +112,16 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   state.initialized = true
 }
 
-export const addModule = async (name: string) => {
+export const addModule = async (
+  name: string,
+  pos: Vec2 = {
+    x: -state.viewOffset.x + window.innerWidth / 2,
+    y: -state.viewOffset.y + window.innerHeight / 2,
+  }
+) => {
   patch.modules[nextId()] = {
     name,
-    position: {
-      x: -state.viewOffset.x + window.innerWidth / 2,
-      y: -state.viewOffset.y + window.innerHeight / 2,
-    },
+    position: pos,
     state: null,
   }
 }

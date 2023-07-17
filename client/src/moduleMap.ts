@@ -1,35 +1,16 @@
-import Oscillator from './components/modules/Oscillator'
-import AudioOut from './components/modules/AudioOut'
-import Gain from './components/modules/Gain'
-import Clock from './components/modules/Clock'
-import ADSR from './components/modules/ADSR'
-import BiquadFilter from './components/modules/Filter'
-import Sequencer from './components/modules/Sequencer'
-import Mixer from './components/modules/Mixer'
-import Delay from './components/modules/Delay'
-import LFO from './components/modules/LFO'
-import Reverb from './components/modules/Reverb'
-import MIDI from './components/modules/MIDI'
-import Limiter from './components/modules/Limiter'
-import PowShaper from './components/modules/PowShaper'
-import BouncyBoi from './components/modules/BouncyBoi'
-import Sampler from './components/modules/Sampler'
-
-export const moduleMap = {
-  AudioOut,
-  Oscillator,
-  Gain,
-  Clock,
-  ADSR,
-  BiquadFilter,
-  Sequencer,
-  Mixer,
-  Delay,
-  LFO,
-  Reverb,
-  MIDI,
-  Limiter,
-  PowShaper,
-  BouncyBoi,
-  Sampler,
-} as const
+export { default as Oscillator } from './components/modules/Oscillator'
+export { default as AudioOut } from './components/modules/AudioOut'
+export { default as Gain } from './components/modules/Gain'
+export { default as Clock } from './components/modules/Clock'
+export { default as ADSR } from './components/modules/ADSR'
+export { default as BiquadFilter } from './components/modules/Filter'
+export { default as Sequencer } from './components/modules/Sequencer'
+export { default as Mixer } from './components/modules/Mixer'
+export { default as Delay } from './components/modules/Delay'
+export { default as LFO } from './components/modules/LFO'
+export { default as Reverb } from './components/modules/Reverb'
+export { default as MIDI } from './components/modules/MIDI'
+export { default as Limiter } from './components/modules/Limiter'
+export { default as PowShaper } from './components/modules/PowShaper'
+export { default as BouncyBoi } from './components/modules/BouncyBoi'
+export { default as Sampler } from './components/modules/Sampler'

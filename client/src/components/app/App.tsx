@@ -10,6 +10,7 @@ import state, { loadPatch, patch } from '../../state'
 import * as api from '../../api'
 import { joinRoom } from '../../rooms'
 import Performance from '../performance/Performance'
+import ContextMenu from '../context-menu/ContextMenu'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -88,8 +89,8 @@ const App = () => {
       <Patch />
       <Header />
       <UserBar />
-      <ModuleSelector />
       <Hint />
+      <ContextMenu />
       {state.initialized ? null : <InitModal />}
     </div>
   )

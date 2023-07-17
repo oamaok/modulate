@@ -56,5 +56,9 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 - [ ] Hotkey configuration?
 - [ ] Global volume control
-- [ ] Right click menu for adding modules
+- [x] Right click menu for adding modules
 - [ ] Select module on spawn
+
+# Misc
+
+- [ ] Move onDragStart handler from `Cables.tsx` to a more suitable component, maybe a completely separate component for handling clicks to the background

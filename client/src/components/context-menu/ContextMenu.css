@@ -1,0 +1,51 @@
+.context-menu {
+  width: 240px;
+  background-color: #ccc;
+  box-shadow: var(--box-shadow);
+  border-radius: 4px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease-out;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.context-menu.open {
+  opacity: 1;
+  transition: none;
+  pointer-events: all;
+}
+
+.group {
+  width: 100%;
+  padding: 5px 10px;
+  background-color: var(--secondary);
+  color: #fff;
+  text-shadow: none;
+  margin-bottom: 4px;
+}
+
+.items {
+  padding: 6px 10px;
+}
+
+.item {
+  background-color: var(--secondary-variant);
+  color: var(--background);
+  text-shadow: none;
+  border-radius: 2px;
+  padding: 2px 4px;
+  text-decoration: none;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  flex-grow: 0;
+}
+
+.item:hover {
+  color: var(--on-background);
+  background-color: var(--primary);
+  font-weight: bold;
+  text-shadow: inherit;
+}

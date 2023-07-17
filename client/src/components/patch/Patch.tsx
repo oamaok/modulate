@@ -1,6 +1,6 @@
 import { h, Fragment, useState, useEffect, useRef, unwrap } from 'kaiku'
 import state from '../../state'
-import { moduleMap } from '../../moduleMap'
+import * as moduleMap from '../../moduleMap'
 import Cables from './Cables'
 
 import css from './Patch.css'
