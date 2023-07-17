@@ -32,8 +32,8 @@ const toDataUrl = (script: string) =>
 
 const prefetchedContent = Promise.all([
   fetch('/assets/worklets.wasm').then((res) => res.arrayBuffer()),
-  fetch('./assets/thread-worker.js').then((res) => res.text()),
-  fetch('./assets/audio-worklet.js').then((res) => res.text()),
+  fetch('/assets/thread-worker.js').then((res) => res.text()),
+  fetch('/assets/audio-worklet.js').then((res) => res.text()),
 ])
 
 export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
@@ -47,7 +47,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
   assert(audioContext)
 
   const [wasm, threadWorkerScript, audioWorkletScript] = await prefetchedContent
-  const engineWorker = new Worker('./assets/main-worker.js')
+  const engineWorker = new Worker('/assets/main-worker.js')
 
   const messageResolvers: Record<
     number,
