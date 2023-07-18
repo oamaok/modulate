@@ -81,7 +81,11 @@ const SampleBrowser = ({ onSelect, selected }: Props) => {
         ))}
       </div>
       <div className={css('controls')}>
-        {state.user ? <button onClick={addSample}>add</button> : null}
+        {state.user ? (
+          <button onClick={addSample}>add</button>
+        ) : (
+          <span>log in to add samples</span>
+        )}
       </div>
     </div>
   )
