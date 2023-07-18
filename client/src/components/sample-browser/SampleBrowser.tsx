@@ -1,4 +1,5 @@
 import { h, useEffect, useRef, useState } from 'kaiku'
+import state from '../../state'
 import * as api from '../../api'
 import * as engine from '../../engine'
 import css from './SampleBrowser.css'
@@ -26,7 +27,14 @@ const SampleBrowser = ({ onSelect, selected }: Props) => {
     })
   }
 
-  useEffect(fetchSamples)
+  useEffect(() => {
+    // Reload samples if user logs in or out
+    if (state.user) {
+      fetchSamples()
+    } else {
+      fetchSamples()
+    }
+  })
 
   const onFileChange = async (evt: InputEvent) => {
     const fileElement = evt.target! as HTMLInputElement
@@ -73,7 +81,7 @@ const SampleBrowser = ({ onSelect, selected }: Props) => {
         ))}
       </div>
       <div className={css('controls')}>
-        <button onClick={addSample}>add</button>
+        {state.user ? <button onClick={addSample}>add</button> : null}
       </div>
     </div>
   )
