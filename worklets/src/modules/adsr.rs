@@ -18,7 +18,7 @@ pub struct ADSR {
 }
 
 impl module::Module for ADSR {
-  fn process(&mut self) {
+  fn process(&mut self, quantum: u64) {
     for sample in 0..modulate_core::QUANTUM_SIZE {
       let edge = self.edge_detector.step(self.gate_input.at(sample));
 
@@ -28,9 +28,9 @@ impl module::Module for ADSR {
       }
 
       if edge == modulate_core::Edge::High {
-        let attack = self.attack.at(sample);
-        let decay = self.decay.at(sample);
-        let sustain = self.sustain.at(sample);
+        let attack = self.attack.at(sample, quantum);
+        let decay = self.decay.at(sample, quantum);
+        let sustain = self.sustain.at(sample, quantum);
 
         let attack_time = self.time * modulate_core::INV_SAMPLE_RATE / attack;
         let decay_time = (self.time - attack * modulate_core::SAMPLE_RATE as f32)
@@ -45,7 +45,8 @@ impl module::Module for ADSR {
           self.level = sustain;
         }
       } else {
-        let release_time = self.time * modulate_core::INV_SAMPLE_RATE / self.release.at(sample);
+        let release_time =
+          self.time * modulate_core::INV_SAMPLE_RATE / self.release.at(sample, quantum);
         if release_time < 1.0 {
           self.level = modulate_core::lerp(self.release_level, 0.0, release_time)
         } else {

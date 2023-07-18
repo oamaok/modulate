@@ -56,7 +56,9 @@ pub enum AudioParamModulationType {
 
 pub struct AudioParam {
   modulation_type: AudioParamModulationType,
-  pub value: f32,
+  target: f32,
+  previous: f32,
+  target_set_at_quantum: u64,
   pub modulation: AudioInput,
 }
 
@@ -64,25 +66,48 @@ impl Default for AudioParam {
   fn default() -> Self {
     AudioParam {
       modulation_type: AudioParamModulationType::Additive,
-      value: 0.0,
+      target: 0.0,
+      previous: 0.0,
+      target_set_at_quantum: 0,
       modulation: AudioInput::default(),
     }
   }
 }
 
+const PARAMETER_SMOOTHING_TIME: f32 = 44100.0 * 0.01; // samples
+
 impl AudioParam {
   pub fn new(modulation_type: AudioParamModulationType) -> AudioParam {
     AudioParam {
       modulation_type,
-      value: 0.0,
+      target: 0.0,
+      previous: 0.0,
+      target_set_at_quantum: 0,
       modulation: AudioInput::default(),
     }
   }
 
-  pub fn at(&self, sample: usize) -> f32 {
+  pub fn set_target(&mut self, target: f32, target_set_at_quantum: u64) {
+    let prev = self.at(0, target_set_at_quantum);
+
+    self.previous = prev;
+    self.target = target;
+    self.target_set_at_quantum = target_set_at_quantum;
+  }
+
+  pub fn at(&self, sample: usize, quantum: u64) -> f32 {
+    let dq = quantum - self.target_set_at_quantum;
+    let ds = dq * 128 + sample as u64;
+    let t = ds as f32 / PARAMETER_SMOOTHING_TIME;
+    let value = if t > 1.0 {
+      self.target
+    } else {
+      lerp(self.previous, self.target, t)
+    };
+
     match self.modulation_type {
-      AudioParamModulationType::Additive => self.value + self.modulation.at(sample),
-      AudioParamModulationType::Multiplicative => self.value * self.modulation.at(sample),
+      AudioParamModulationType::Additive => value + self.modulation.at(sample),
+      AudioParamModulationType::Multiplicative => value * self.modulation.at(sample),
     }
   }
 }

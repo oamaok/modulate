@@ -21,7 +21,7 @@ pub struct Oscillator {
 const OSCILLATOR_OVERSAMPLE: usize = 8;
 
 impl module::Module for Oscillator {
-  fn process(&mut self) {
+  fn process(&mut self, quantum: u64) {
     for sample in 0..modulate_core::QUANTUM_SIZE {
       let edge = self.sync_edge_detector.step(self.sync_input.at(sample));
 
@@ -29,10 +29,10 @@ impl module::Module for Oscillator {
         self.phase = 0.5;
       }
 
-      let cv = self.cv_param.at(sample);
-      let fm = self.fm_param.at(sample);
-      let pw = self.pw_param.at(sample);
-      let fine = self.fine_param.at(sample);
+      let cv = self.cv_param.at(sample, quantum);
+      let fm = self.fm_param.at(sample, quantum);
+      let pw = self.pw_param.at(sample, quantum);
+      let fine = self.fine_param.at(sample, quantum);
 
       let voltage = 5.0 + cv + fm + fine / 12.0;
       let freq = 13.75 * f32::powf(2.0, voltage);

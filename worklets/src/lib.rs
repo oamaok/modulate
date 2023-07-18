@@ -191,7 +191,7 @@ impl Worker {
           break;
         }
 
-        modules[module_index].process();
+        modules[module_index].process(context.worker_position);
       }
 
       modules.rw_lock.unlock_read();
@@ -412,7 +412,7 @@ impl ModulateEngine {
       .expect("set_parameter_value: module_id doesn't exist");
     let mut parameters = module.get_parameters();
     let param = parameters.get_mut(parameter).unwrap();
-    param.value = value;
+    param.set_target(value, self.worker_context.worker_position);
   }
 
   pub fn connect_to_input(

@@ -15,7 +15,7 @@ pub struct Clock {
 }
 
 impl module::Module for Clock {
-  fn process(&mut self) {
+  fn process(&mut self, quantum: u64) {
     for sample in 0..modulate_core::QUANTUM_SIZE {
       for output in 0..3 {
         if !self.is_running {
@@ -23,12 +23,13 @@ impl module::Module for Clock {
           continue;
         }
 
-        let samples_per_beat = 60.0 / self.tempo.at(sample) * modulate_core::SAMPLE_RATE as f32
-          / self.ratios[output].at(sample);
+        let samples_per_beat = 60.0 / self.tempo.at(sample, quantum)
+          * modulate_core::SAMPLE_RATE as f32
+          / self.ratios[output].at(sample, quantum);
 
-        let odd_end = samples_per_beat * self.pulse_widths[output].at(sample);
-        let even_start =
-          samples_per_beat + (self.swing_ratios[output].at(sample) - 0.5) * samples_per_beat * 2.0;
+        let odd_end = samples_per_beat * self.pulse_widths[output].at(sample, quantum);
+        let even_start = samples_per_beat
+          + (self.swing_ratios[output].at(sample, quantum) - 0.5) * samples_per_beat * 2.0;
         let even_end = even_start + odd_end;
         let pos = self.cycle_positions[output];
         if pos < odd_end as usize {

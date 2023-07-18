@@ -54,7 +54,7 @@ pub struct Sequencer {
 }
 
 impl module::Module for Sequencer {
-  fn process(&mut self) {
+  fn process(&mut self, quantum: u64) {
     for sample in 0..modulate_core::QUANTUM_SIZE {
       let edge = self.edge_detector.step(self.gate_input.at(sample));
 
@@ -65,7 +65,7 @@ impl module::Module for Sequencer {
           self.time as f32
             / f32::max(
               1.0,
-              modulate_core::SAMPLE_RATE as f32 * self.glide.at(sample),
+              modulate_core::SAMPLE_RATE as f32 * self.glide.at(sample, quantum),
             ),
           0.0,
           1.0,
@@ -82,7 +82,7 @@ impl module::Module for Sequencer {
           self.time = 0;
           self.previous_voltage = voltage;
 
-          if self.current_step >= self.sequence_length.at(sample) as usize {
+          if self.current_step >= self.sequence_length.at(sample, quantum) as usize {
             self.current_step = 0;
           }
 
