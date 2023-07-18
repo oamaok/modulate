@@ -41,7 +41,11 @@ export type State = {
     width: number
     height: number
   }
-  hint: string | null
+  hint: {
+    visible: boolean
+    position: Vec2
+    content: string
+  }
   activeModule: Id | null
   user: User | null
 

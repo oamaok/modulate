@@ -1,3 +1,5 @@
+import { Vec2 } from './types'
+
 export const splitEvery = <T>(arr: T[], num: number): T[][] => {
   const res: T[][] = []
 
@@ -76,3 +78,5 @@ export const deepEqual = (a: any, b: any): boolean => {
   }
   return false
 }
+
+export const origin = (): Vec2 => ({ x: 0, y: 0 })

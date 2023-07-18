@@ -1,5 +1,11 @@
 import { h, useState, useEffect } from 'kaiku'
-import state, { getKnobValue, setKnobValue } from '../../state'
+import state, {
+  displayHint,
+  getKnobValue,
+  hideHint,
+  setHintContent,
+  setKnobValue,
+} from '../../state'
 import { Vec2 } from '@modulate/common/types'
 import css from './Knob.css'
 import assert from '../../assert'
@@ -205,20 +211,19 @@ const Knob = (props: Props) => {
   const knobState = useState<{
     position: number
     dragPosition: null | Vec2
-    displayHint: boolean
   }>({
     position: normalizeValue(value, props),
     dragPosition: null,
-    displayHint: false,
   })
 
   const onDragStart = () => {
     knobState.dragPosition = { x: state.cursor.x, y: state.cursor.y }
+    displayHint(getHintText(props), state.cursor)
   }
 
   const onDragEnd = () => {
     knobState.dragPosition = null
-    knobState.displayHint = false
+    hideHint()
   }
 
   useEffect(() => {
@@ -250,33 +255,36 @@ const Knob = (props: Props) => {
       knobState.dragPosition.x = state.cursor.x
       knobState.dragPosition.y = state.cursor.y
       setNormalizedKnobValue(knobState.position, props)
+      setHintContent(getHintText(props))
     }
   })
-
-  useEffect(() => {
-    if (knobState.displayHint) {
-      state.hint = getHintText(props)
-    } else {
-      state.hint = null
-    }
-  })
-
-  const displayHint = () => {
-    knobState.displayHint = true
-  }
-
-  const hideHint = () => {
-    if (!knobState.dragPosition) {
-      knobState.displayHint = false
-    }
-  }
 
   return (
     <div className={css('wrapper')}>
       <div
         className={css('knob')}
-        onMouseOver={displayHint}
-        onMouseOut={hideHint}
+        onMouseMove={() => {
+          // Dirty hack to not replace another knob's hint if user sweeps
+          // over another knob while tweaking the value
+          const isContentSame = getHintText(props) === state.hint.content
+          const isHintVisible = state.hint.visible
+          const updateHint = isContentSame || !isHintVisible
+
+          if (!knobState.dragPosition && updateHint) {
+            displayHint(getHintText(props), state.cursor)
+          }
+        }}
+        onMouseOut={() => {
+          // Dirty hack to not replace another knob's hint if user sweeps
+          // over another knob while tweaking the value
+          const isContentSame = getHintText(props) === state.hint.content
+          const isHintVisible = state.hint.visible
+          const updateHint = isContentSame || !isHintVisible
+
+          if (!knobState.dragPosition && updateHint) {
+            hideHint()
+          }
+        }}
         onMouseDown={onDragStart}
         style={{
           transform: `rotate(${knobState.position * 300 - 60}deg)`,

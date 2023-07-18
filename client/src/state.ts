@@ -13,10 +13,11 @@ import {
 import * as engine from './engine'
 import { parseRoute } from './routes'
 import assert from './assert'
+import { origin } from '@modulate/common/util'
 
 const state = createState<State>({
   initialized: false,
-  cursor: { x: 0, y: 0 },
+  cursor: origin(),
   keyboard: {
     modifiers: {
       ctrl: false,
@@ -27,7 +28,11 @@ const state = createState<State>({
 
   viewport: { width: window.innerWidth, height: window.innerHeight },
   user: null,
-  hint: null,
+  hint: {
+    visible: false,
+    position: origin(),
+    content: '',
+  },
   activeModule: null,
 
   patchMetadata: {
@@ -42,7 +47,7 @@ const state = createState<State>({
     cables: [],
   },
   route: parseRoute(window.location),
-  viewOffset: { x: 0, y: 0 },
+  viewOffset: origin(),
   sockets: {},
   activeCable: null,
 
@@ -50,7 +55,7 @@ const state = createState<State>({
 
   contextMenu: {
     open: false,
-    position: { x: 0, y: 0 },
+    position: origin(),
   },
 })
 
@@ -62,7 +67,7 @@ window.addEventListener('popstate', () => {
   state.route = parseRoute(location)
 })
 
-const latestCursorPos = { x: 0, y: 0 }
+const latestCursorPos = origin()
 const updateCursor = () => {
   state.cursor.x = latestCursorPos.x
   state.cursor.y = latestCursorPos.y
@@ -166,6 +171,21 @@ export const addModule = async (
     position: pos,
     state: null,
   }
+}
+
+export const displayHint = (content: string, position: Vec2) => {
+  state.hint.visible = true
+  state.hint.content = content
+  state.hint.position.x = position.x
+  state.hint.position.y = position.y
+}
+
+export const setHintContent = (content: string) => {
+  state.hint.content = content
+}
+
+export const hideHint = () => {
+  state.hint.visible = false
 }
 
 export const setModuleState = <T extends Record<string, unknown>>(
