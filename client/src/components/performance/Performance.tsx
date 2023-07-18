@@ -12,7 +12,7 @@ const Performance = () => {
       if (!canvas) return
       const width = canvas.width
       const height = canvas.height
-      const context = canvas.getContext('2d')!
+      const context = canvas.getContext('2d', { willReadFrequently: true })!
 
       const timers = engine.getWorkerTimers()
       let total = 0

@@ -114,7 +114,11 @@ const buildClient = async () => {
           passes: 4,
           inline: false,
           unsafe: true,
-          booleans_as_integers: true,
+          // The only reason this is currently set to `false` instead of true
+          // is that one `getContext` call required the `willReadFrequently`
+          // option to be set true. Only `true` or `false` is allowed, truthy
+          // values other `true` will throw an error.
+          booleans_as_integers: false,
         },
         mangle: {
           toplevel: true,
