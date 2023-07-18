@@ -120,7 +120,12 @@ const setNormalizedKnobValue = (value: number, props: Props) => {
           Math.round(value * props.options.length)
         )
       } else {
-        const option = props.options[Math.round(value * props.options.length)]
+        const maxIndex = props.options.length - 1
+        const index = Math.min(
+          Math.round(value * props.options.length),
+          maxIndex
+        )
+        const option = props.options[index]
 
         assert(option)
 
