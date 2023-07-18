@@ -1,6 +1,5 @@
 {
   "name": "@modulate/server",
-  "type": "module",
   "version": "0.0.0",
   "description": "",
   "main": "src/",
