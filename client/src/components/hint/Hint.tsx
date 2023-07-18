@@ -1,18 +1,17 @@
 import { h } from 'kaiku'
-import state, { cursor } from '../../state'
+import state from '../../state'
 import css from './Hint.css'
 
 const Hint = () => {
-  if (!state.hint) return null
-
   return (
     <div
-      className={css('hint')}
+      className={css('hint', { visible: state.hint.visible })}
       style={{
-        transform: () => `translate(${cursor.x}px, ${cursor.y}px)`,
+        transform: () =>
+          `translate(${state.hint.position.x}px, ${state.hint.position.y}px)`,
       }}
     >
-      {state.hint}
+      {state.hint.content}
     </div>
   )
 }

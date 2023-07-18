@@ -108,33 +108,213 @@ export const serverStatic = (staticPath: string): GetCallback => {
 
 type Route = PostRoute | GetRoute
 
-const parseRequestBody = (req: http.IncomingMessage) =>
-  new Promise((resolve, reject) => {
+enum MultipartParserState {
+  INIT,
+  READ_HEADERS,
+  READ_DATA,
+  READ_BOUNDARY,
+  DONE,
+}
+
+type MultipartBodyPart =
+  | {
+      type: 'string'
+      name: string
+      value: string
+    }
+  | {
+      type: 'buffer'
+      name: string
+      value: Buffer
+    }
+
+const getPartType = (headers: Record<string, string>) => {
+  const contentType = headers['content-type']
+
+  if (!contentType || contentType === 'text/plain') {
+    return 'text'
+  }
+
+  return 'binary'
+}
+
+const getPartName = (headers: Record<string, string>) => {
+  const contentDisposition = headers['content-disposition']
+  if (!contentDisposition) {
+    throw new Error('invalid multipart headers, missing content-disposition')
+  }
+
+  const entries = contentDisposition
+    .split(';')
+    .map((kvp) => kvp.trim().split('='))
+
+  for (const [key, value] of entries) {
+    if (key === 'name') {
+      if (!value) {
+        throw new Error('invalid multipart headers, name field has no value')
+      }
+
+      return decodeURIComponent(value.replace(/^"(.*)"$/, '$1'))
+    }
+  }
+
+  throw new Error(
+    'invalid multipart headers, no name field provided in content-disposition header'
+  )
+}
+
+const parseMultipartBody = async (req: http.IncomingMessage) => {
+  const contentType = req.headers['content-type'] ?? ''
+  const [, boundary] = contentType.split('boundary=')
+
+  if (!boundary) {
+    throw new Error('invalid multipart request')
+  }
+
+  const buffer = await new Promise<Buffer>((resolve) => {
+    const parts: Buffer[] = []
+
+    req.on('data', (chunk: Buffer) => {
+      parts.push(chunk)
+    })
+
+    req.on('end', () => {
+      resolve(Buffer.concat(parts))
+    })
+  })
+
+  let readPos = 0
+
+  const readUntil = (marker: Buffer) => {
+    const subBuffer = buffer.subarray(readPos)
+    const index = subBuffer.indexOf(marker)
+    if (index === -1) {
+      throw new Error('parse error: marker not found')
+    }
+    readPos += index + marker.length
+
+    return subBuffer.subarray(0, index)
+  }
+
+  const INIT_BOUNDARY = Buffer.from('--' + boundary + '\r\n')
+  const BOUNDARY = Buffer.from('\r\n--' + boundary)
+  const NEWLINE = Buffer.from('\r\n')
+
+  let parserState: MultipartParserState = MultipartParserState.INIT
+  let partHeaders: Record<string, string> = {}
+
+  const parts: Record<string, string | Buffer> = {}
+
+  while (parserState !== MultipartParserState.DONE) {
+    switch (parserState) {
+      case MultipartParserState.INIT: {
+        const buf = readUntil(INIT_BOUNDARY)
+        if (buf.length === 0) {
+          parserState = MultipartParserState.READ_HEADERS
+        } else {
+          throw new Error('malformed initial boundary')
+        }
+        break
+      }
+
+      case MultipartParserState.READ_HEADERS: {
+        const line = readUntil(NEWLINE).toString()
+        if (line.length === 0) {
+          parserState = MultipartParserState.READ_DATA
+        } else {
+          const [key, value] = line.split(':')
+          if (!key || !value) {
+            throw new Error('invalid multipart headers')
+          }
+
+          partHeaders[key.toLowerCase()] = value
+        }
+        break
+      }
+
+      case MultipartParserState.READ_DATA: {
+        const data = readUntil(BOUNDARY)
+
+        const partName = getPartName(partHeaders)
+        const partType = getPartType(partHeaders)
+
+        if (partType === 'text') {
+          parts[partName] = data.toString()
+        } else {
+          parts[partName] = data
+        }
+
+        partHeaders = {}
+        parserState = MultipartParserState.READ_BOUNDARY
+        break
+      }
+
+      case MultipartParserState.READ_BOUNDARY: {
+        const boundaryEnd = readUntil(NEWLINE).toString()
+        if (boundaryEnd === '') {
+          parserState = MultipartParserState.READ_HEADERS
+        } else if (boundaryEnd === '--') {
+          parserState = MultipartParserState.DONE
+        } else {
+          throw new Error('malformed boundary end')
+        }
+        break
+      }
+    }
+  }
+
+  return parts
+}
+
+const parseRequestBody = async (req: http.IncomingMessage) => {
+  const contentType = req.headers['content-type'] ?? ''
+  if (contentType === 'application/json') {
+    return new Promise<string>((resolve, reject) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+
+      req.on('end', () => {
+        try {
+          resolve(JSON.parse(body))
+        } catch (err) {
+          reject(err)
+        }
+      })
+    })
+  }
+
+  const isFormData = contentType
+    .toLocaleLowerCase()
+    .startsWith('multipart/form-data')
+
+  if (isFormData) {
+    return parseMultipartBody(req)
+  }
+
+  return await new Promise<string>((resolve, reject) => {
     let body = ''
     req.on('data', (chunk) => {
       body += chunk
     })
 
-    req.on('end', () => {
-      try {
-        if (body === '') {
-          resolve(null)
-        } else {
-          resolve(JSON.parse(body))
-        }
-      } catch (err) {
-        reject(err)
-      }
-    })
+    req.on('end', () => resolve(body))
   })
+}
 
 const parseQuery = (queryString: string): Record<string, string> => {
   const res: Record<string, string> = {}
 
-  for (const [key, value] of queryString.split('&').map((part) => {
-    const [key, value] = part.split('=') as [string, string]
-    return [key, decodeURIComponent(value)] as [string, string]
-  })) {
+  const offset = queryString.startsWith('?') ? 1 : 0
+
+  for (const [key, value] of queryString
+    .substring(offset)
+    .split('&')
+    .map((part) => {
+      const [key, value] = part.split('=') as [string, string]
+      return [key, decodeURIComponent(value)] as [string, string]
+    })) {
     res[key] = value
   }
 
@@ -283,9 +463,8 @@ const router = (): RouterChain => {
       case 'POST': {
         let body: any
         try {
-          const validationResult = route.validator.decode(
-            await parseRequestBody(req)
-          )
+          const parsedBody = await parseRequestBody(req)
+          const validationResult = route.validator.decode(parsedBody)
 
           if (validationResult._tag === 'Left') {
             throw validationResult.left
@@ -293,6 +472,7 @@ const router = (): RouterChain => {
             body = validationResult.right
           }
         } catch (err) {
+          console.error(err)
           response.status(400)
           response.json({ error: err })
           response.end()

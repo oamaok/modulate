@@ -5,6 +5,7 @@ pub const SAMPLE_RATE: usize = 44100;
 pub const QUANTUM_SIZE: usize = 128;
 pub const INV_SAMPLE_RATE: f32 = 1.0 / SAMPLE_RATE as f32;
 
+#[derive(Clone, Copy)]
 pub struct AudioBuffer([f32; QUANTUM_SIZE]);
 
 impl Deref for AudioBuffer {
@@ -26,18 +27,24 @@ impl Default for AudioBuffer {
   }
 }
 
-#[derive(PartialEq, Default)]
-pub struct AudioInput(usize);
+#[derive(PartialEq)]
+pub struct AudioInput(*const AudioOutput);
+
+impl Default for AudioInput {
+  fn default() -> Self {
+    AudioInput(std::ptr::null())
+  }
+}
 
 impl AudioInput {
   pub fn at(&self, sample: usize) -> f32 {
-    if self.0 == 0 {
+    if self.0 == std::ptr::null() {
       return 0.0;
     }
-    unsafe { (*(self.0 as *const AudioBuffer))[sample] }
+    unsafe { (*self.0).previous()[sample] }
   }
 
-  pub fn set_ptr(&mut self, ptr: usize) {
+  pub fn set_ptr(&mut self, ptr: *const AudioOutput) {
     self.0 = ptr;
   }
 }
@@ -49,7 +56,9 @@ pub enum AudioParamModulationType {
 
 pub struct AudioParam {
   modulation_type: AudioParamModulationType,
-  pub value: f32,
+  target: f32,
+  previous: f32,
+  target_set_at_quantum: u64,
   pub modulation: AudioInput,
 }
 
@@ -57,60 +66,102 @@ impl Default for AudioParam {
   fn default() -> Self {
     AudioParam {
       modulation_type: AudioParamModulationType::Additive,
-      value: 0.0,
+      target: 0.0,
+      previous: 0.0,
+      target_set_at_quantum: 0,
       modulation: AudioInput::default(),
     }
   }
 }
+
+const PARAMETER_SMOOTHING_TIME: f32 = 44100.0 * 0.01; // samples
 
 impl AudioParam {
   pub fn new(modulation_type: AudioParamModulationType) -> AudioParam {
     AudioParam {
       modulation_type,
-      value: 0.0,
+      target: 0.0,
+      previous: 0.0,
+      target_set_at_quantum: 0,
       modulation: AudioInput::default(),
     }
   }
 
-  pub fn at(&self, sample: usize) -> f32 {
+  pub fn set_target(&mut self, target: f32, target_set_at_quantum: u64) {
+    let prev = self.at(0, target_set_at_quantum);
+
+    self.previous = prev;
+    self.target = target;
+    self.target_set_at_quantum = target_set_at_quantum;
+  }
+
+  pub fn at(&self, sample: usize, quantum: u64) -> f32 {
+    let dq = quantum - self.target_set_at_quantum;
+    let ds = dq * 128 + sample as u64;
+    let t = ds as f32 / PARAMETER_SMOOTHING_TIME;
+    let value = if t > 1.0 {
+      self.target
+    } else {
+      lerp(self.previous, self.target, t)
+    };
+
     match self.modulation_type {
-      AudioParamModulationType::Additive => self.value + self.modulation.at(sample),
-      AudioParamModulationType::Multiplicative => self.value * self.modulation.at(sample),
+      AudioParamModulationType::Additive => value + self.modulation.at(sample),
+      AudioParamModulationType::Multiplicative => value * self.modulation.at(sample),
     }
   }
 }
 
-// TODO: Swap references to two buffers instead of swapping the whole contents each time
+const AUDIO_OUTPUT_NUM_BUFFERS: usize = 2;
+
 pub struct AudioOutput {
-  pub previous: AudioBuffer,
-  pub current: AudioBuffer,
+  buffers: [AudioBuffer; AUDIO_OUTPUT_NUM_BUFFERS],
+  current: usize,
 }
 
 impl Index<usize> for AudioOutput {
   type Output = f32;
   fn index(&self, i: usize) -> &f32 {
-    &self.current[i]
+    &self.buffers[self.current][i]
   }
 }
 
 impl IndexMut<usize> for AudioOutput {
   fn index_mut(&mut self, i: usize) -> &mut f32 {
-    &mut self.current[i]
+    &mut self.buffers[self.current][i]
   }
 }
 
 impl Default for AudioOutput {
   fn default() -> Self {
     AudioOutput {
-      previous: AudioBuffer::default(),
-      current: AudioBuffer::default(),
+      buffers: [AudioBuffer::default(); AUDIO_OUTPUT_NUM_BUFFERS],
+      current: 0,
     }
   }
 }
 
 impl AudioOutput {
   pub fn swap(&mut self) {
-    std::mem::swap(&mut self.current, &mut self.previous)
+    self.current = (self.current + 1) % AUDIO_OUTPUT_NUM_BUFFERS;
+  }
+
+  pub fn current(&self) -> &AudioBuffer {
+    &self.buffers[self.current]
+  }
+
+  pub fn current_mut(&mut self) -> &mut AudioBuffer {
+    &mut self.buffers[self.current]
+  }
+
+  pub fn previous(&self) -> &AudioBuffer {
+    let prev = (self.current + AUDIO_OUTPUT_NUM_BUFFERS - 1) % AUDIO_OUTPUT_NUM_BUFFERS;
+    &self.buffers[prev]
+  }
+
+  pub fn previous_mut(&mut self) -> &mut AudioBuffer {
+    let prev = (self.current + AUDIO_OUTPUT_NUM_BUFFERS - 1) % AUDIO_OUTPUT_NUM_BUFFERS;
+    &mut self.buffers[prev]
   }
 }
 
@@ -123,8 +174,8 @@ pub fn exp_curve(x: f32) -> f32 {
 }
 
 pub struct RingBuffer {
-  buffer: Vec<f32>,
-  alt_buffer: Vec<f32>,
+  buffers: [Vec<f32>; 2],
+  current: usize,
   length: usize,
   pos: usize,
 }
@@ -132,8 +183,8 @@ pub struct RingBuffer {
 impl RingBuffer {
   pub fn new(length: usize) -> RingBuffer {
     RingBuffer {
-      buffer: vec![0.0; SAMPLE_RATE * 16],
-      alt_buffer: vec![0.0; SAMPLE_RATE * 16],
+      buffers: [vec![0.0; SAMPLE_RATE * 16], vec![0.0; SAMPLE_RATE * 16]],
+      current: 0,
       length,
       pos: 0,
     }
@@ -143,7 +194,7 @@ impl RingBuffer {
     let mut value = 0.0;
 
     for i in 0..self.length {
-      value += self.buffer[i] * self.buffer[i];
+      value += self.buffers[self.current][i] * self.buffers[self.current][i];
     }
 
     value /= self.length as f32;
@@ -162,35 +213,45 @@ impl RingBuffer {
 
     let ratio = self.length as f32 / len as f32;
 
+    let dst = if self.current == 0 {
+      self.buffers[1].as_mut_ptr()
+    } else {
+      self.buffers[0].as_mut_ptr()
+    };
+
+    let mut pos = 0.0;
     for sample in 0..len {
-      let pos = ratio * sample as f32;
-      let src_index = pos as i32;
-      let t = pos - src_index as f32;
-      let a = self.at(src_index + self.pos as i32);
-      let b = self.at(src_index + 1 + self.pos as i32);
-      self.alt_buffer[sample] = lerp(a, b, t);
+      let ipos = pos as u32;
+      let src_index = ipos as usize;
+      let t = pos - ipos as f32;
+
+      let a = self.at_usize(src_index + self.pos);
+      let b = self.at_usize(src_index + 1 + self.pos);
+
+      unsafe {
+        *dst.add(sample) = lerp(a, b, t);
+      }
+
+      pos += ratio;
     }
 
-    std::mem::swap(&mut self.buffer, &mut self.alt_buffer);
+    self.current = if self.current == 0 { 1 } else { 0 };
 
     self.pos = 0;
     self.length = len;
   }
 
-  pub fn at(&self, mut index: i32) -> f32 {
-    if index < 0 {
-      index += self.length as i32;
-    }
-    index %= self.length as i32;
-    self.buffer[index as usize]
+  pub fn at_usize(&self, mut index: usize) -> f32 {
+    index %= self.length;
+    self.buffers[self.current][index as usize]
   }
 
   pub fn head(&self) -> f32 {
-    self.buffer[self.pos]
+    self.buffers[self.current][self.pos]
   }
 
   pub fn write(&mut self, value: f32) {
-    self.buffer[self.pos] = value;
+    self.buffers[self.current][self.pos] = value;
     self.pos = (self.pos + 1) % self.length;
   }
 }

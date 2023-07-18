@@ -17,14 +17,14 @@ pub struct BiquadFilter {
 }
 
 impl module::Module for BiquadFilter {
-  fn process(&mut self) {
+  fn process(&mut self, quantum: u64) {
     for sample in 0..modulate_core::QUANTUM_SIZE {
-      let voltage = 5.0 + self.frequency.at(sample);
+      let voltage = 5.0 + self.frequency.at(sample, quantum);
       let freq = 13.75 * f32::powf(2.0, voltage);
 
       let omega = std::f32::consts::PI * 2.0 * freq * modulate_core::INV_SAMPLE_RATE;
       let (sin_omega, cos_omega) = f32::sin_cos(omega);
-      let alpha = sin_omega / 2.0 / f32::max(f32::EPSILON, self.q.at(sample));
+      let alpha = sin_omega / 2.0 / f32::max(f32::EPSILON, self.q.at(sample, quantum));
       let input = self.input.at(sample);
 
       let a0 = 1.0 + alpha;

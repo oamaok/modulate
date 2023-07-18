@@ -8,6 +8,7 @@ import {
   EngineRequest,
   EngineResponse,
   Socket,
+  ContextPointers,
 } from '@modulate/common/types'
 
 export type Route =
@@ -40,10 +41,23 @@ export type State = {
     width: number
     height: number
   }
-  hint: string | null
+  hint: {
+    visible: boolean
+    position: Vec2
+    content: string
+  }
   activeModule: Id | null
   user: User | null
+
   cursor: Vec2
+  keyboard: {
+    modifiers: {
+      ctrl: boolean
+      alt: boolean
+      shift: boolean
+    }
+  }
+
   sockets: Record<string, { socket: Socket; pos: Vec2 }[]>
   viewOffset: Vec2
   patchMetadata: PatchMetadata
@@ -52,10 +66,20 @@ export type State = {
   activeCable: {
     draggingFrom: Socket
   } | null
+  contextMenu: {
+    open: boolean
+    position: Vec2
+  }
 }
 
 export type Engine = {
   [K in EngineMessageType]: (
     req: Omit<EngineRequest<K>, 'type' | 'id'>
   ) => Promise<EngineResponse<K>>
+} & {
+  memory: WebAssembly.Memory
+  pointers: ContextPointers
+  audioContext: AudioContext
+  globalGain: GainNode
+  analyser: AnalyserNode
 }

@@ -117,14 +117,24 @@ export type ClockMessage =
       isRunning: boolean
     }
 
+export type ContextPointers = {
+  outputBuffers: number
+  workers: Uint32Array
+  audioWorkletPosition: number
+  workerPerformance: number
+  workerPosition: number
+}
+
 export type EngineMessage =
   | {
       type: 'init'
       req: {
         wasm: ArrayBuffer
+        threads: number
       }
       res: {
-        success: boolean
+        memory: WebAssembly.Memory
+        pointers: ContextPointers
       }
     }
   | {

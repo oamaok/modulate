@@ -9,13 +9,13 @@ pub struct Mixer {
 }
 
 impl module::Module for Mixer {
-  fn process(&mut self) {
+  fn process(&mut self, quantum: u64) {
     for sample in 0..modulate_core::QUANTUM_SIZE {
       let v = self
         .inputs
         .iter()
         .enumerate()
-        .map(|(ix, input)| input.at(sample) * self.params[ix].at(sample))
+        .map(|(ix, input)| input.at(sample) * self.params[ix].at(sample, quantum))
         .sum();
       self.output[sample] = v
     }

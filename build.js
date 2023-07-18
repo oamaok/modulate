@@ -8,6 +8,7 @@ const cp = require('child_process')
 const CssModulesPlugin = require('./build/css-modules-plugin')
 
 const isProduction = process.env.NODE_ENV === 'production'
+const isTest = process.env.NODE_ENV === 'test'
 
 const debounce = (fn) => {
   let timeout = null
@@ -73,11 +74,15 @@ const replaceWithoutSpecialReplacements = (string, pattern, replacement) => {
 const buildClient = async () => {
   console.time('Build client')
 
+  const entry = isTest
+    ? path.join(__dirname, './client/src/test-index.ts')
+    : path.join(__dirname, './client/src/index.tsx')
+
   const buildDir = await fs.mkdtemp(path.join(os.tmpdir(), 'modulate-'))
 
   await Promise.all([
     esbuild.build({
-      entryPoints: ['./client/src/index.tsx'],
+      entryPoints: [entry],
       bundle: true,
       outdir: buildDir,
       incremental: true,
@@ -85,15 +90,21 @@ const buildClient = async () => {
       jsxFragment: 'Fragment',
       minify: isProduction,
       define: {
-        'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
+        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
       },
 
       plugins: [CssModulesPlugin()],
     }),
-    recursiveCopy('./client/static', './dist/client'),
+    recursiveCopy(
+      path.join(__dirname, './client/static'),
+      path.join(__dirname, './dist/client')
+    ),
   ])
 
-  const scriptsPath = path.join(buildDir, './index.js')
+  const scriptsPath = path.join(
+    buildDir,
+    isTest ? './test-index.js' : './index.js'
+  )
 
   if (isProduction) {
     await terser
@@ -103,7 +114,11 @@ const buildClient = async () => {
           passes: 4,
           inline: false,
           unsafe: true,
-          booleans_as_integers: true,
+          // The only reason this is currently set to `false` instead of true
+          // is that one `getContext` call required the `willReadFrequently`
+          // option to be set true. Only `true` or `false` is allowed, truthy
+          // values other `true` will throw an error.
+          booleans_as_integers: false,
         },
         mangle: {
           toplevel: true,
@@ -113,9 +128,9 @@ const buildClient = async () => {
   }
 
   const scriptsFile = (await fs.readFile(scriptsPath)).toString('utf-8')
-  const indexFile = (await fs.readFile('./client/static/index.html')).toString(
-    'utf-8'
-  )
+  const indexFile = (
+    await fs.readFile(path.join(__dirname, './client/static/index.html'))
+  ).toString('utf-8')
   const stylesFile = (
     await fs.readFile(path.join(buildDir, './index.css'))
   ).toString('utf-8')
@@ -132,7 +147,10 @@ const buildClient = async () => {
     `<script>${scriptsFile}</script>`
   )
 
-  await fs.writeFile('./dist/client/index.html', generatedIndex)
+  await fs.writeFile(
+    path.join(__dirname, './dist/client/index.html'),
+    generatedIndex
+  )
   await fs.rm(buildDir, { recursive: true, force: true })
 
   console.timeEnd('Build client')
@@ -143,7 +161,7 @@ const buildRust = async () => {
   return new Promise((resolve, reject) => {
     const proc = cp.spawn('wasm-pack', [
       'build',
-      isProduction ? '--release' : '--dev',
+      process.env.NODE_ENV === 'test' ? '--dev' : '--release',
       './worklets/',
       '--target',
       'web',
@@ -164,44 +182,63 @@ const buildRust = async () => {
 
 const buildWorklets = async () => {
   console.time('Build worklets')
-  const polyfill = await fs.readFile('./worklets/src/polyfill.js')
+  const polyfill = await fs.readFile(
+    path.join(__dirname, './worklets/src/polyfill.js')
+  )
 
-  await esbuild
-    .build({
-      entryPoints: [`./worklets/src/index.ts`],
-      bundle: true,
-      write: false,
-      incremental: true,
-      minify: isProduction,
-      define: {
-        Response: 'undefined',
-        Request: 'undefined',
-        URL: 'undefined',
-      },
-    })
-    .then(
-      (res) => polyfill + new TextDecoder().decode(res.outputFiles[0].contents)
-    )
-    .then((code) => {
-      if (!isProduction) return code
+  const entries = {
+    'audio-worklet': { needsTextDecoderPolyfill: false },
+    'main-worker': { needsTextDecoderPolyfill: true },
+    'thread-worker': { needsTextDecoderPolyfill: true },
+  }
 
-      return terser
-        .minify(code, {
-          sourceMap: false,
-          compress: {
-            passes: 3,
-          },
-          mangle: {
-            module: true,
-          },
-        })
-        .then((minified) => minified.code)
-    })
-    .then((code) => fs.writeFile(`./dist/client/assets/worklets.js`, code))
+  for (const [entry, options] of Object.entries(entries)) {
+    console.time(`Build worklet ${entry}`)
+    await esbuild
+      .build({
+        entryPoints: [path.join(__dirname, `./worklets/src/${entry}.ts`)],
+        bundle: true,
+        write: false,
+        incremental: true,
+        minify: isProduction,
+        define: {
+          Response: 'undefined',
+          Request: 'undefined',
+          URL: 'undefined',
+        },
+      })
+      .then(
+        (res) =>
+          (options.needsTextDecoderPolyfill ? polyfill : '') +
+          new TextDecoder().decode(res.outputFiles[0].contents)
+      )
+      .then((code) => {
+        if (!isProduction) return code
+
+        return terser
+          .minify(code, {
+            sourceMap: false,
+            compress: {
+              passes: 3,
+            },
+            mangle: {
+              module: true,
+            },
+          })
+          .then((minified) => minified.code)
+      })
+      .then((code) =>
+        fs.writeFile(
+          path.join(__dirname, `./dist/client/assets/${entry}.js`),
+          code
+        )
+      )
+    console.timeEnd(`Build worklet ${entry}`)
+  }
 
   await fs.copyFile(
-    './worklets/pkg/worklets_bg.wasm',
-    './dist/client/assets/worklets.wasm'
+    path.join(__dirname, './worklets/pkg/worklets_bg.wasm'),
+    path.join(__dirname, './dist/client/assets/worklets.wasm')
   )
 
   console.timeEnd('Build worklets')
@@ -209,8 +246,15 @@ const buildWorklets = async () => {
 
 ;(async () => {
   try {
-    await fs.mkdir('./dist')
-  } catch (err) {}
+    await fs.mkdir(path.join(__dirname, './dist/client/assets'), {
+      recursive: true,
+    })
+  } catch (err) {
+    if (err.code !== 'EEXIST') {
+      console.error(err)
+      process.exit(1)
+    }
+  }
 
   try {
     await buildRust()
@@ -223,11 +267,12 @@ const buildWorklets = async () => {
     await Promise.all([buildWorklets(), buildClient()])
   } catch (err) {
     console.error(err)
-    if (isProduction) {
+    if (process.env.NODE_ENV !== 'development') {
       process.exit(1)
     }
   }
-  if (isProduction) {
+
+  if (process.env.NODE_ENV !== 'development') {
     process.exit(0)
   }
 

@@ -1,15 +1,27 @@
+#![feature(stdsimd)]
+use core::arch::wasm32::memory_atomic_wait64;
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
+use std::ops::{Index, IndexMut};
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use wasm_bindgen::prelude::*;
 
+pub mod barrier;
 pub mod modulate_core;
 pub mod module;
 pub mod modules;
+pub mod rw_lock;
 pub mod vec;
 
 use modules::{
   adsr, audio_out, biquad_filter, bouncy_boi, clock, delay, gain, lfo, limiter, midi, mixer,
-  oscillator, pow_shaper, reverb, sequencer,
+  oscillator, pow_shaper, reverb, sampler, sequencer,
 };
+
+#[wasm_bindgen(inline_js = "export function now() { return performance.now() }")]
+extern "C" {
+  fn now() -> f64;
+}
 
 #[wasm_bindgen]
 extern "C" {
@@ -34,39 +46,268 @@ struct ModuleConnection {
   to: ConnectionTarget,
 }
 
-struct ModulateEngine {
-  next_id: u32,
-  modules: HashMap<module::ModuleId, Box<dyn module::Module>>,
-  connections: HashMap<module::ConnectionId, ModuleConnection>,
-  audio_outputs: HashSet<module::ModuleId>,
-  on_event_callback: js_sys::Function,
+struct ModuleStore {
+  modules: Vec<Box<dyn module::Module>>,
+  module_ids: HashMap<module::ModuleId, usize>,
+  rw_lock: rw_lock::RwLock,
 }
 
-impl ModulateEngine {
-  pub fn new(on_event_callback: js_sys::Function) -> ModulateEngine {
-    ModulateEngine {
-      next_id: 0,
-      modules: HashMap::new(),
-      connections: HashMap::new(),
-      audio_outputs: HashSet::new(),
-      on_event_callback,
+impl Index<usize> for ModuleStore {
+  type Output = Box<dyn module::Module>;
+  fn index(&self, i: usize) -> &Box<dyn module::Module> {
+    &self.modules[i]
+  }
+}
+
+impl IndexMut<usize> for ModuleStore {
+  fn index_mut(&mut self, i: usize) -> &mut Box<dyn module::Module> {
+    &mut self.modules[i]
+  }
+}
+
+impl ModuleStore {
+  pub fn new() -> ModuleStore {
+    ModuleStore {
+      modules: vec![],
+      module_ids: HashMap::new(),
+      rw_lock: rw_lock::RwLock::new(),
     }
   }
 
-  fn get_next_id(&mut self) -> u32 {
+  pub fn len(&self) -> usize {
+    self.modules.len()
+  }
+
+  pub fn insert(&mut self, id: module::ModuleId, module: Box<dyn module::Module>) {
+    let index = self.modules.len();
+    self.modules.push(module);
+    self.module_ids.insert(id, index);
+  }
+
+  pub fn remove(&mut self, id: &module::ModuleId) {
+    let module_index = *self.module_ids.get(&id).unwrap();
+    self.modules.remove(module_index);
+    self.module_ids.remove(&id);
+
+    for (_, i) in self.module_ids.iter_mut() {
+      if *i > module_index {
+        *i -= 1;
+      }
+    }
+  }
+
+  pub fn swap_buffers(&mut self) {
+    for module in self.modules.iter_mut() {
+      module.swap_output_buffers()
+    }
+  }
+
+  pub fn get_mut(&mut self, id: &module::ModuleId) -> Option<&mut Box<dyn module::Module>> {
+    let module_index = *self.module_ids.get(id).unwrap();
+    self.modules.get_mut(module_index)
+  }
+}
+
+#[derive(Serialize)]
+struct ContextPointers {
+  audio_buffers: usize,
+  worker_performance: usize,
+  worker_position: usize,
+  audio_worklet_position: usize,
+}
+
+struct WorkerContext {
+  num_threads: usize,
+
+  barrier: barrier::Barrier,
+  current_module: AtomicUsize,
+
+  // Output buffer positions
+  audio_worklet_position: AtomicU64,
+
+  // Worker position needs not be atomic as it is only read and written by the barrier leader
+  // after each processing loop.
+  worker_position: u64,
+
+  audio_outputs: HashSet<module::ModuleId>,
+  output_buffers: [modulate_core::AudioBuffer; NUM_OUTPUT_BUFFERS],
+
+  performance: Vec<f32>,
+}
+
+struct Worker {
+  id: usize,
+  performance_samples: [f32; 64],
+  modules: *mut ModuleStore,
+  context: *mut WorkerContext,
+}
+
+const NUM_OUTPUT_BUFFERS: usize = 16;
+
+impl Worker {
+  fn run(&mut self) {
+    let (context, modules) = unsafe {
+      (
+        self.context.as_mut().unwrap(),
+        self.modules.as_mut().unwrap(),
+      )
+    };
+
+    loop {
+      if context.worker_position >= NUM_OUTPUT_BUFFERS as u64 {
+        // `audio_worklet_position` is atomically incremented by one from the AudioWorklet each time
+        // it has consumed a quantum and then calls `Atomic.notify` on the address. If the workers
+        // have reached the buffer right before the one being consumed, wait until the AudioWorklet
+        // has proceeded to the next one.
+        let wait_for_position = context.worker_position + 1 - NUM_OUTPUT_BUFFERS as u64;
+        unsafe {
+          memory_atomic_wait64(
+            context.audio_worklet_position.as_ptr() as usize as *mut i64,
+            wait_for_position as i64,
+            -1,
+          );
+        }
+
+        let audio_worklet_position = context.audio_worklet_position.load(Ordering::SeqCst);
+        if audio_worklet_position < wait_for_position {
+          // We are ahead of the audio worklet, so just spin here.
+          continue;
+        }
+      }
+
+      let start_time = now() as f32;
+
+      modules.rw_lock.lock_read();
+
+      // Have the leader swap the buffers.
+      context.barrier.wait_and_do(|| {
+        modules.swap_buffers();
+        context.current_module.store(0, Ordering::SeqCst);
+      });
+
+      loop {
+        let module_index = context.current_module.fetch_add(1, Ordering::SeqCst);
+        if module_index >= modules.len() {
+          break;
+        }
+
+        modules[module_index].process(context.worker_position);
+      }
+
+      modules.rw_lock.unlock_read();
+
+      // Have the leader write the output buffers
+      context.barrier.wait_and_do(|| {
+        modules.rw_lock.lock_read();
+
+        // NOTE: If `worker_position` changes are not done by the barrier leader, it must be converted
+        // into an atomic. Currently only a single thread reads and writes to it.
+        context.worker_position += 1;
+        let output_index = context.worker_position % NUM_OUTPUT_BUFFERS as u64;
+        let output_buffer = &mut context.output_buffers[output_index as usize];
+
+        for sample in 0..modulate_core::QUANTUM_SIZE {
+          (*output_buffer)[sample] = 0.0;
+        }
+
+        for audio_output in context.audio_outputs.iter() {
+          let module = modules.get_mut(audio_output).unwrap();
+          let mut outputs = module.get_outputs();
+          let output = outputs.get_mut(0).unwrap().current();
+          for sample in 0..modulate_core::QUANTUM_SIZE {
+            (*output_buffer)[sample] += output[sample];
+          }
+        }
+
+        modules.rw_lock.unlock_read();
+      });
+
+      self.performance_samples[context.worker_position as usize % 64] = (now() as f32) - start_time;
+      context.performance[self.id] = 0.0;
+      for i in 0..64 {
+        context.performance[self.id] += self.performance_samples[i] / 64.0;
+      }
+    }
+  }
+}
+
+struct ModulateEngine {
+  next_id: u32,
+  modules: ModuleStore,
+  connections: HashMap<module::ConnectionId, ModuleConnection>,
+
+  workers: Vec<Worker>,
+  worker_context: WorkerContext,
+}
+
+impl ModulateEngine {
+  pub fn new(num_threads: usize) -> ModulateEngine {
+    ModulateEngine {
+      next_id: 0,
+      modules: ModuleStore::new(),
+      connections: HashMap::new(),
+
+      workers: vec![],
+      worker_context: WorkerContext {
+        num_threads,
+        barrier: barrier::Barrier::new(num_threads),
+        current_module: AtomicUsize::new(0),
+
+        worker_position: 0,
+        audio_worklet_position: AtomicU64::new(0),
+
+        audio_outputs: HashSet::new(),
+        output_buffers: [modulate_core::AudioBuffer::default(); NUM_OUTPUT_BUFFERS],
+
+        performance: vec![0.0; num_threads],
+      },
+    }
+  }
+
+  fn get_next_id(&mut self) -> module::ModuleId {
     let id = self.next_id;
     self.next_id += 1;
     id
   }
 
+  pub fn init_workers(&mut self) -> Vec<usize> {
+    for i in 0..self.worker_context.num_threads {
+      let worker = Worker {
+        id: i,
+        performance_samples: [0.0; 64],
+        modules: &mut self.modules,
+        context: &mut self.worker_context,
+      };
+
+      self.workers.push(worker);
+    }
+
+    self
+      .workers
+      .iter()
+      .map(|worker| worker as *const Worker as usize)
+      .collect()
+  }
+
+  pub fn get_context_pointers(&self) -> ContextPointers {
+    ContextPointers {
+      audio_buffers: self.worker_context.output_buffers.as_ptr() as usize,
+      worker_performance: self.worker_context.performance.as_ptr() as usize,
+      worker_position: &self.worker_context.worker_position as *const u64 as usize,
+      audio_worklet_position: self.worker_context.audio_worklet_position.as_ptr() as usize,
+    }
+  }
+
   pub fn create_module(&mut self, module_name: &str) -> module::ModuleId {
     let id = self.get_next_id() as module::ModuleId;
+    self.modules.rw_lock.lock_write();
+
     match module_name {
       "AudioOut" => {
         self
           .modules
           .insert(id, Box::new(audio_out::AudioOut::new()));
-        self.audio_outputs.insert(id);
+        self.worker_context.audio_outputs.insert(id);
       }
       "Oscillator" => {
         self
@@ -120,13 +361,20 @@ impl ModulateEngine {
           .modules
           .insert(id, Box::new(bouncy_boi::BouncyBoi::new()));
       }
+      "Sampler" => {
+        self.modules.insert(id, Box::new(sampler::Sampler::new()));
+      }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }
+
+    self.modules.rw_lock.unlock_write();
     id
   }
 
   pub fn delete_module(&mut self, module_id: module::ModuleId) {
-    self.audio_outputs.remove(&module_id);
+    self.modules.rw_lock.lock_write();
+    self.worker_context.audio_outputs.remove(&module_id);
+    self.modules.rw_lock.unlock_write();
 
     let connections_to_drop: Vec<module::ConnectionId> = self
       .connections
@@ -147,7 +395,9 @@ impl ModulateEngine {
       self.remove_connection(connection_id);
     }
 
+    self.modules.rw_lock.lock_write();
     self.modules.remove(&module_id);
+    self.modules.rw_lock.unlock_write();
   }
 
   pub fn set_parameter_value(
@@ -156,10 +406,13 @@ impl ModulateEngine {
     parameter: module::ParameterId,
     value: f32,
   ) {
-    let module = self.modules.get_mut(&module_id).unwrap();
+    let module = self
+      .modules
+      .get_mut(&module_id)
+      .expect("set_parameter_value: module_id doesn't exist");
     let mut parameters = module.get_parameters();
     let param = parameters.get_mut(parameter).unwrap();
-    param.value = value;
+    param.set_target(value, self.worker_context.worker_position);
   }
 
   pub fn connect_to_input(
@@ -172,6 +425,8 @@ impl ModulateEngine {
     let (from_module_id, from_output) = from;
     let (to_module_id, to_input) = to;
 
+    self.modules.rw_lock.lock_write();
+
     self.connections.insert(
       id,
       ModuleConnection {
@@ -181,14 +436,22 @@ impl ModulateEngine {
     );
 
     let output_buffer_ptr = {
-      let from_module = self.modules.get_mut(&from_module_id).unwrap();
+      let from_module = self
+        .modules
+        .get_mut(&from_module_id)
+        .expect("connect_to_input: from_module_id doesn't exist");
       from_module.get_output_buffer_ptr(from_output)
     };
 
     {
-      let to_module = self.modules.get_mut(&to_module_id).unwrap();
+      let to_module = self
+        .modules
+        .get_mut(&to_module_id)
+        .expect("connect_to_input: to_module_id doesn't exist");
       to_module.set_input_buffer_ptr(to_input, output_buffer_ptr);
     }
+
+    self.modules.rw_lock.unlock_write();
 
     id
   }
@@ -203,6 +466,8 @@ impl ModulateEngine {
     let (from_module_id, from_output) = from;
     let (to_module_id, to_parameter) = to;
 
+    self.modules.rw_lock.lock_write();
+
     self.connections.insert(
       id,
       ModuleConnection {
@@ -212,36 +477,52 @@ impl ModulateEngine {
     );
 
     let output_buffer_ptr = {
-      let from_module = self.modules.get_mut(&from_module_id).unwrap();
+      let from_module = self
+        .modules
+        .get_mut(&from_module_id)
+        .expect("connect_to_parameter: from_module_id doesn't exist");
       from_module.get_output_buffer_ptr(from_output)
     };
 
     {
-      let to_module = self.modules.get_mut(&to_module_id).unwrap();
+      let to_module = self
+        .modules
+        .get_mut(&to_module_id)
+        .expect("connect_to_parameter: to_module_id doesn't exist");
       to_module.set_parameter_buffer_ptr(to_parameter, output_buffer_ptr);
     }
+
+    self.modules.rw_lock.unlock_write();
 
     id
   }
 
   pub fn remove_connection(&mut self, connection_id: module::ConnectionId) {
-    let connection = self.connections.get(&connection_id).unwrap();
+    self.modules.rw_lock.lock_write();
 
-    match connection.to {
-      ConnectionTarget::Input(to_module_id, to_input) => {
-        let to_module = self.modules.get_mut(&to_module_id).unwrap();
-        to_module.set_input_buffer_ptr(to_input, 0);
+    if let Some(connection) = self.connections.get(&connection_id) {
+      match connection.to {
+        ConnectionTarget::Input(to_module_id, to_input) => {
+          if let Some(to_module) = self.modules.get_mut(&to_module_id) {
+            to_module.set_input_buffer_ptr(to_input, std::ptr::null());
+          };
+        }
+        ConnectionTarget::Parameter(to_module_id, to_parameter) => {
+          if let Some(to_module) = self.modules.get_mut(&to_module_id) {
+            to_module.set_parameter_buffer_ptr(to_parameter, std::ptr::null());
+          }
+        }
       }
-      ConnectionTarget::Parameter(to_module_id, to_parameter) => {
-        let to_module = self.modules.get_mut(&to_module_id).unwrap();
-        to_module.set_parameter_buffer_ptr(to_parameter, 0);
-      }
-    }
 
-    self.connections.remove(&connection_id);
+      self.connections.remove(&connection_id);
+    };
+
+    self.modules.rw_lock.unlock_write();
   }
 
   pub fn send_message_to_module(&mut self, module_id: module::ModuleId, message: JsValue) {
+    self.modules.rw_lock.lock_write();
+
     let module = self.modules.get_mut(&module_id).unwrap();
 
     // TODO: Move this deserialization to the wrapper
@@ -249,60 +530,58 @@ impl ModulateEngine {
       Ok(msg) => module.on_message(msg),
       Err(err) => panic!("error deserializing message: {}", err.to_string().as_str()),
     }
+
+    self.modules.rw_lock.unlock_write();
   }
 
-  pub fn process(&mut self, output_buffer: &mut modulate_core::AudioBuffer) {
-    for (_, module) in self.modules.iter_mut() {
-      module.swap_output_buffers();
-    }
+  pub fn collect_module_events(&mut self) -> Vec<module::ModuleEventWithId> {
+    // NOTE: This need not be atomic or `lock_write`ed, as the only place where other modifying
+    // operations can be called is this thread (main worker)
+    let mut events = vec![];
+    let module_ids = &self.modules.module_ids;
+    let modules = &mut self.modules.modules;
 
-    for (_, module) in self.modules.iter_mut() {
-      module.process();
-    }
-
-    for audio_output in self.audio_outputs.iter() {
-      let module = self.modules.get_mut(audio_output).unwrap();
-      let buffer_ptr = module.get_output_buffer_ptr(0) as *const modulate_core::AudioBuffer;
-      unsafe {
-        for sample in 0..modulate_core::QUANTUM_SIZE {
-          output_buffer[sample] += (*buffer_ptr)[sample];
-        }
-      };
-    }
-
-    for (module_id, module) in self.modules.iter_mut() {
+    for (&id, &idx) in module_ids.iter() {
+      let module = &mut modules[idx];
       loop {
         match module.pop_event() {
-          Some(message) => {
-            let _ = self.on_event_callback.call2(
-              &JsValue::null(),
-              &JsValue::from(*module_id),
-              &serde_wasm_bindgen::to_value(&message).unwrap(),
-            );
+          Some(event) => {
+            events.push(module::ModuleEventWithId { id, event });
           }
           None => break,
         };
       }
     }
+
+    events
   }
 }
 
 #[wasm_bindgen]
 pub struct ModulateEngineWrapper {
-  output: modulate_core::AudioBuffer,
   engine: ModulateEngine,
 }
 
 #[wasm_bindgen]
 impl ModulateEngineWrapper {
   #[wasm_bindgen(constructor)]
-  pub fn new(on_event_callback: js_sys::Function) -> ModulateEngineWrapper {
+  pub fn new(num_threads: usize) -> ModulateEngineWrapper {
+    #[cfg(debug_assertions)]
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     ModulateEngineWrapper {
-      output: modulate_core::AudioBuffer::default(),
-      engine: ModulateEngine::new(on_event_callback),
+      engine: ModulateEngine::new(num_threads),
     }
+  }
+
+  #[wasm_bindgen(js_name = initWorkers)]
+  pub fn init_workers(&mut self) -> Vec<usize> {
+    self.engine.init_workers()
+  }
+
+  #[wasm_bindgen(js_name = getContextPointers)]
+  pub fn get_context_pointers(&self) -> JsValue {
+    serde_wasm_bindgen::to_value(&self.engine.get_context_pointers()).unwrap()
   }
 
   #[wasm_bindgen(js_name = createModule)]
@@ -391,17 +670,21 @@ impl ModulateEngineWrapper {
     self.engine.remove_connection(connection_id)
   }
 
-  #[wasm_bindgen(js_name = getOutputBufferPtr)]
-  pub fn get_output_buffer_ptr(&self) -> u32 {
-    self.output.as_ptr() as u32
-  }
-
   #[wasm_bindgen(js_name = sendMessageToModule)]
   pub fn send_message_to_module(&mut self, module_id: module::ModuleId, message: JsValue) {
     self.engine.send_message_to_module(module_id, message);
   }
 
-  pub fn process(&mut self) {
-    self.engine.process(&mut self.output);
+  #[wasm_bindgen(js_name = collectModuleEvents)]
+  pub fn collect_module_events(&mut self) -> JsValue {
+    serde_wasm_bindgen::to_value(&self.engine.collect_module_events()).unwrap()
+  }
+}
+
+#[wasm_bindgen(js_name = workerEntry)]
+pub fn worker_entry(ptr: usize) {
+  unsafe {
+    let worker = &mut *(ptr as *mut Worker);
+    worker.run();
   }
 }

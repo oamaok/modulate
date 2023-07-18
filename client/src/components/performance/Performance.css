@@ -1,0 +1,16 @@
+.performance {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 20;
+  background: transparent;
+  border-radius: 4px;
+  box-shadow: var(--box-shadow);
+  opacity: 0.4;
+  transition: all 0.1s ease-out;
+}
+
+.performance:hover {
+  opacity: 1;
+  background: #000;
+}

@@ -150,6 +150,18 @@ export type BouncyBoi = {
   }
 }
 
+export type Sampler = {
+  name: 'Sampler'
+  inputs: ['gate']
+  parameters: ['speed', 'start', 'length']
+  outputs: ['out']
+
+  messages: { type: 'SamplerAllocate'; size: number }
+  events:
+    | { type: 'SamplerAllocateSuccess'; ptr: number }
+    | { type: 'SamplerPlayheadPtr'; ptr: number }
+}
+
 export type Module =
   | AudioOut
   | Oscillator
@@ -166,6 +178,7 @@ export type Module =
   | MIDI
   | BouncyBoi
   | LFO
+  | Sampler
 
 export type ModuleName = Module['name']
 

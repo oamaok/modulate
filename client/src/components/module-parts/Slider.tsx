@@ -1,5 +1,10 @@
 import { h, useState, useEffect } from 'kaiku'
-import state, { getKnobValue, setKnobValue } from '../../state'
+import state, {
+  displayHint,
+  getKnobValue,
+  hideHint,
+  setKnobValue,
+} from '../../state'
 import { Id, Vec2 } from '@modulate/common/types'
 import css from './Slider.css'
 
@@ -24,13 +29,15 @@ const Slider = ({ moduleId, id, label, min, max, initial }: Props) => {
     dragPosition: null,
   })
 
+  const getHintText = (value: number) => `${label ?? id}: ${value.toFixed(2)}`
+
   const onDragStart = () => {
     knobState.dragPosition = { x: state.cursor.x, y: state.cursor.y }
   }
 
   const onDragEnd = () => {
     knobState.dragPosition = null
-    state.hint = null
+    hideHint()
   }
 
   useEffect(() => {
@@ -63,24 +70,16 @@ const Slider = ({ moduleId, id, label, min, max, initial }: Props) => {
       const value = knobState.position * (max - min) + min
       setKnobValue(moduleId, id, value)
 
-      displayHint(value)
+      displayHint(getHintText(value), state.cursor)
     }
   })
-
-  const displayHint = (value: number) => {
-    state.hint = `${label ?? id}: ${value.toFixed(2)}`
-  }
-
-  const hideHint = () => {
-    if (!knobState.dragPosition) {
-      state.hint = null
-    }
-  }
 
   return (
     <div
       className={css('slider-track')}
-      onMouseOver={() => displayHint(knobValue!)}
+      onMouseMove={() => {
+        displayHint(getHintText(knobValue!), state.cursor)
+      }}
       onMouseOut={hideHint}
     >
       <div

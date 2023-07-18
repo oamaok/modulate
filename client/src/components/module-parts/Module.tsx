@@ -71,7 +71,9 @@ const Module: FC<Props> = ({
         width: width + 'px',
         height: height + 'px',
         transform: () =>
-          `translate(${modulePosition.x}px, ${modulePosition.y}px)`,
+          `translate(${Math.round(modulePosition.x)}px, ${Math.round(
+            modulePosition.y
+          )}px)`,
       }}
     >
       <div className={css('module-name')} onMouseDown={onDragStart}>

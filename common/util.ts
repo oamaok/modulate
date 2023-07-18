@@ -1,3 +1,5 @@
+import { Vec2 } from './types'
+
 export const splitEvery = <T>(arr: T[], num: number): T[][] => {
   const res: T[][] = []
 
@@ -15,6 +17,11 @@ export const splitEvery = <T>(arr: T[], num: number): T[][] => {
 export const cloneObject = <T extends Record<string, any> | any[]>(
   obj: T
 ): T => {
+  if (obj instanceof Float32Array) {
+    // TODO: Fix this
+    return obj
+  }
+
   if (Array.isArray(obj)) {
     return obj.map((value) => {
       if (value === null) return null
@@ -71,3 +78,5 @@ export const deepEqual = (a: any, b: any): boolean => {
   }
   return false
 }
+
+export const origin = (): Vec2 => ({ x: 0, y: 0 })

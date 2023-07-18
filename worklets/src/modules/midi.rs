@@ -20,7 +20,7 @@ pub struct MIDI {
 }
 
 impl module::Module for MIDI {
-  fn process(&mut self) {
+  fn process(&mut self, _quantum: u64) {
     let mut velocity = 0.0;
 
     for note in 0..128 {

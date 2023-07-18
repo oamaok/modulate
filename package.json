@@ -7,19 +7,21 @@
   "scripts": {
     "build": "NODE_ENV=production node build.js",
     "build:rust": "yarn build --rust",
-    "start:client": "node build.js",
-    "start:server": "ts-node-dev --respawn --transpile-only ./server/src/index.ts",
+    "start:client": "NODE_ENV=development node build.js",
+    "start:server": "NODE_ENV=development ts-node-dev --respawn --transpile-only ./server/src/index.ts",
+    "test": "NODE_ENV=test node build.js && yarn workspace @modulate/test test",
     "add-migration": "node server/scripts/add-migration",
     "run-migrations": "node server/scripts/run-migrations",
     "prettier": "prettier --write .",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck": "yarn workspaces run typecheck",
     "rustfmt": "rustfmt worklets/**/*.rs"
   },
   "workspaces": [
     "client",
     "server",
     "common",
-    "worklets"
+    "worklets",
+    "test"
   ],
   "author": "Teemu Pääkkönen",
   "license": "UNLICENSED",

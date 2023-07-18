@@ -1,13 +1,11 @@
 import { h, Fragment, render, useEffect } from 'kaiku'
-import { initializeAudio } from './engine'
-import state, { patch, deleteModule } from './state'
+import state, { deleteModule } from './state'
 import * as api from './api'
 import * as auth from './auth'
 
 import './reset.css'
 
 import App from './components/app/App'
-import { joinRoom, leaveRoom } from './rooms'
 
 api.getIdentity().then((res) => {
   if (!res.error) {

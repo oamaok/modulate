@@ -75,7 +75,7 @@ class ClockNode extends Component<Props> {
     connectKnobToParam<Clock, 'pw2'>(props.id, 'pulseWidth2', 6)
     connectKnobToParam<Clock, 'swing0'>(props.id, 'swing0', 7)
     connectKnobToParam<Clock, 'swing1'>(props.id, 'swing1', 8)
-    connectKnobToParam<Clock, 'swing2'>(props.id, 'swing1', 9)
+    connectKnobToParam<Clock, 'swing2'>(props.id, 'swing2', 9)
   }
 
   render({ id }: Props) {

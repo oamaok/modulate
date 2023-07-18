@@ -13,13 +13,26 @@ import {
 import * as engine from './engine'
 import { parseRoute } from './routes'
 import assert from './assert'
+import { origin } from '@modulate/common/util'
 
 const state = createState<State>({
   initialized: false,
-  cursor: { x: 0, y: 0 },
+  cursor: origin(),
+  keyboard: {
+    modifiers: {
+      ctrl: false,
+      alt: false,
+      shift: false,
+    },
+  },
+
   viewport: { width: window.innerWidth, height: window.innerHeight },
   user: null,
-  hint: null,
+  hint: {
+    visible: false,
+    position: origin(),
+    content: '',
+  },
   activeModule: null,
 
   patchMetadata: {
@@ -34,11 +47,16 @@ const state = createState<State>({
     cables: [],
   },
   route: parseRoute(window.location),
-  viewOffset: { x: 0, y: 0 },
+  viewOffset: origin(),
   sockets: {},
   activeCable: null,
 
   room: null,
+
+  contextMenu: {
+    open: false,
+    position: origin(),
+  },
 })
 
 export default state
@@ -49,14 +67,72 @@ window.addEventListener('popstate', () => {
   state.route = parseRoute(location)
 })
 
+const latestCursorPos = origin()
+const updateCursor = () => {
+  state.cursor.x = latestCursorPos.x
+  state.cursor.y = latestCursorPos.y
+}
+let cursorAnimationFrame = -1
 document.documentElement.addEventListener('mousemove', (evt) => {
   // TODO: Make this not permanent, maybe flag in state
   evt.preventDefault()
-  cursor.x = evt.pageX
-  cursor.y = evt.pageY
+  latestCursorPos.x = evt.pageX
+  latestCursorPos.y = evt.pageY
+  cancelAnimationFrame(cursorAnimationFrame)
+  cursorAnimationFrame = requestAnimationFrame(updateCursor)
 })
 
+document.addEventListener('keydown', (evt) => {
+  switch (evt.key) {
+    case 'Control': {
+      state.keyboard.modifiers.ctrl = true
+      break
+    }
+    case 'Shift': {
+      state.keyboard.modifiers.shift = true
+      break
+    }
+    case 'Alt': {
+      state.keyboard.modifiers.alt = true
+      break
+    }
+  }
+})
+
+document.addEventListener('keyup', (evt) => {
+  switch (evt.key) {
+    case 'Control': {
+      state.keyboard.modifiers.ctrl = false
+      break
+    }
+    case 'Shift': {
+      state.keyboard.modifiers.shift = false
+      break
+    }
+    case 'Alt': {
+      state.keyboard.modifiers.alt = false
+      break
+    }
+  }
+})
+
+const hasScrollbar = (elem: HTMLElement) => {
+  const style = window.getComputedStyle(elem)
+  return style.overflowY === 'scroll'
+}
+
+const elementIsWithinScrollableElement = (elem: HTMLElement): boolean => {
+  if (hasScrollbar(elem)) return true
+  if (elem.parentElement)
+    return elementIsWithinScrollableElement(elem.parentElement)
+  return false
+}
+
 document.addEventListener('wheel', (evt) => {
+  if (elementIsWithinScrollableElement(evt.target as HTMLElement)) {
+    return
+  }
+
   state.viewOffset.x -= evt.deltaX
   state.viewOffset.y -= evt.deltaY
 })
@@ -83,20 +159,38 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   state.initialized = true
 }
 
-export const addModule = async (name: string) => {
+export const addModule = async (
+  name: string,
+  pos: Vec2 = {
+    x: -state.viewOffset.x + window.innerWidth / 2,
+    y: -state.viewOffset.y + window.innerHeight / 2,
+  }
+) => {
   patch.modules[nextId()] = {
     name,
-    position: {
-      x: -state.viewOffset.x + window.innerWidth / 2,
-      y: -state.viewOffset.y + window.innerHeight / 2,
-    },
+    position: pos,
     state: null,
   }
 }
 
-export const setModuleState = (
+export const displayHint = (content: string, position: Vec2) => {
+  state.hint.visible = true
+  state.hint.content = content
+  state.hint.position.x = position.x
+  state.hint.position.y = position.y
+}
+
+export const setHintContent = (content: string) => {
+  state.hint.content = content
+}
+
+export const hideHint = () => {
+  state.hint.visible = false
+}
+
+export const setModuleState = <T extends Record<string, unknown>>(
   id: Id,
-  moduleState: Record<string, unknown>
+  moduleState: T
 ) => {
   const module = patch.modules[id]
   assert(module, `setModuleState: invalid module id (${id})`)
@@ -242,7 +336,7 @@ export const getCableConnectionCandidate = (): Socket | null => {
   if (!candidateSocket) return null
 
   const inputSocketIsOccupied =
-    candidateSocket.socket.type === 'input' &&
+    candidateSocket.socket.type !== 'output' &&
     patch.cables.some((cable) => isSameSocket(cable.to, candidateSocket.socket))
 
   if (inputSocketIsOccupied) return null

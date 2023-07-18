@@ -2,14 +2,14 @@ import { h, Fragment, useEffect } from 'kaiku'
 import Header from '../header/Header'
 import css from './App.css'
 import UserBar from '../user-bar/UserBar'
-import UtilityBox from '../utility-box/UtilityBox'
-import ModuleSelector from '../module-selector/ModuleSelector'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
-import { initializeAudio } from '../../engine'
+import { initializeEngine } from '../../engine'
 import state, { loadPatch, patch } from '../../state'
 import * as api from '../../api'
 import { joinRoom } from '../../rooms'
+import Performance from '../performance/Performance'
+import ContextMenu from '../context-menu/ContextMenu'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -22,7 +22,7 @@ const loadSaveState = async () => {
 }
 
 const initialize = async () => {
-  await initializeAudio()
+  await initializeEngine()
 
   switch (state.route.name) {
     case 'index': {
@@ -84,11 +84,12 @@ const App = () => {
           )}px`,
       }}
     >
+      {state.initialized ? <Performance /> : null}
       <Patch />
       <Header />
       <UserBar />
-      <ModuleSelector />
       <Hint />
+      <ContextMenu />
       {state.initialized ? null : <InitModal />}
     </div>
   )

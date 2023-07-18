@@ -15,9 +15,19 @@ const Cables = () => {
 
   const ref = useRef<HTMLDivElement>()
 
-  const onDragStart = (evt: any) => {
+  const onDragStart = (evt: MouseEvent) => {
+    state.contextMenu.open = false
     if (ref.current && evt.target === unwrap(ref.current as any)) {
       patchState.dragPosition = { x: state.cursor.x, y: state.cursor.y }
+    }
+  }
+
+  const onContextMenu = (evt: MouseEvent) => {
+    evt.preventDefault()
+    state.contextMenu.open = true
+    state.contextMenu.position = {
+      x: state.cursor.x,
+      y: state.cursor.y,
     }
   }
 
@@ -49,6 +59,7 @@ const Cables = () => {
       <svg
         viewBox={`0 0 ${viewport.width} ${viewport.height}`}
         onMouseDown={onDragStart}
+        onContextMenu={onContextMenu}
         ref={ref}
       >
         <g

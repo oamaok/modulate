@@ -1,0 +1,71 @@
+.sample-browser {
+  background: #000;
+  height: 107px;
+  width: 160px;
+  border-left: 1px solid #555;
+  border-right: 1px solid #555;
+  border-top: 2px solid #666;
+  border-radius: 4px;
+  padding: 4px;
+  overflow: hidden;
+}
+
+.file-input {
+  display: none;
+}
+
+.samples {
+  max-height: 80px;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--primary);
+  margin-bottom: 4px;
+}
+
+.samples::-webkit-scrollbar {
+  width: 8px;
+}
+
+.samples::-webkit-scrollbar-track {
+  background: #000;
+  border-left: 1px solid var(--primary);
+}
+
+.samples::-webkit-scrollbar-thumb {
+  background: var(--primary);
+}
+
+.samples button {
+  font-size: 12px;
+  text-decoration: none;
+  text-transform: uppercase;
+  display: block;
+  text-align: left;
+  color: var(--primary);
+  border-bottom: 1px solid var(--primary);
+  padding: 0 2px;
+  text-shadow: none;
+}
+
+.samples button.selected {
+  background-color: var(--primary);
+  color: #000;
+}
+.controls {
+  display: flex;
+  justify-content: end;
+}
+
+.controls button,
+.controls span {
+  font-size: 12px;
+  text-decoration: none;
+  text-transform: uppercase;
+  display: block;
+  text-align: left;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 0 2px;
+  text-shadow: none;
+}
