@@ -51,11 +51,6 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 - [ ] Initial implementation
 
-# Module selector
-
-- [ ] Starred items
-- [ ] Ability to drag the modules from the selector
-
 # Testing
 
 - [ ] Add API testing

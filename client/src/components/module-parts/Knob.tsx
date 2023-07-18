@@ -237,7 +237,9 @@ const Knob = (props: Props) => {
 
   useEffect(() => {
     if (knobState.dragPosition) {
-      knobState.position -= (state.cursor.y - knobState.dragPosition.y) / 300
+      const multiplier = state.keyboard.modifiers.shift ? 1 / 3000 : 1 / 300
+      knobState.position -=
+        (state.cursor.y - knobState.dragPosition.y) * multiplier
       knobState.position = Math.max(0, Math.min(1, knobState.position))
 
       knobState.dragPosition.x = state.cursor.x

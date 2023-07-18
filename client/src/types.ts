@@ -44,7 +44,16 @@ export type State = {
   hint: string | null
   activeModule: Id | null
   user: User | null
+
   cursor: Vec2
+  keyboard: {
+    modifiers: {
+      ctrl: boolean
+      alt: boolean
+      shift: boolean
+    }
+  }
+
   sockets: Record<string, { socket: Socket; pos: Vec2 }[]>
   viewOffset: Vec2
   patchMetadata: PatchMetadata

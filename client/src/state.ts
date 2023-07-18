@@ -17,6 +17,14 @@ import assert from './assert'
 const state = createState<State>({
   initialized: false,
   cursor: { x: 0, y: 0 },
+  keyboard: {
+    modifiers: {
+      ctrl: false,
+      alt: false,
+      shift: false,
+    },
+  },
+
   viewport: { width: window.innerWidth, height: window.innerHeight },
   user: null,
   hint: null,
@@ -67,6 +75,40 @@ document.documentElement.addEventListener('mousemove', (evt) => {
   latestCursorPos.y = evt.pageY
   cancelAnimationFrame(cursorAnimationFrame)
   cursorAnimationFrame = requestAnimationFrame(updateCursor)
+})
+
+document.addEventListener('keydown', (evt) => {
+  switch (evt.key) {
+    case 'Control': {
+      state.keyboard.modifiers.ctrl = true
+      break
+    }
+    case 'Shift': {
+      state.keyboard.modifiers.shift = true
+      break
+    }
+    case 'Alt': {
+      state.keyboard.modifiers.alt = true
+      break
+    }
+  }
+})
+
+document.addEventListener('keyup', (evt) => {
+  switch (evt.key) {
+    case 'Control': {
+      state.keyboard.modifiers.ctrl = false
+      break
+    }
+    case 'Shift': {
+      state.keyboard.modifiers.shift = false
+      break
+    }
+    case 'Alt': {
+      state.keyboard.modifiers.alt = false
+      break
+    }
+  }
 })
 
 const hasScrollbar = (elem: HTMLElement) => {
