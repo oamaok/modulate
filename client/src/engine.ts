@@ -97,7 +97,14 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     (req: Omit<EngineRequest<T>, 'id' | 'type'>) =>
       sendMessage<T>({ type, ...req } as Omit<EngineRequest<T>, 'id'>)
 
-  const { memory, pointers } = await createEngineMethod('init')({
+  const memory = new WebAssembly.Memory({
+    initial: 18,
+    maximum: 16384,
+    shared: true,
+  })
+
+  const { pointers } = await createEngineMethod('init')({
+    memory,
     threads: options.numWorklets,
     wasm,
   })

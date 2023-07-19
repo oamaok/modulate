@@ -129,11 +129,11 @@ export type EngineMessage =
   | {
       type: 'init'
       req: {
+        memory: WebAssembly.Memory
         wasm: ArrayBuffer
         threads: number
       }
       res: {
-        memory: WebAssembly.Memory
         pointers: ContextPointers
       }
     }
