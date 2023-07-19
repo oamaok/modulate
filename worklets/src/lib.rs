@@ -144,6 +144,13 @@ struct Worker {
 
 const NUM_OUTPUT_BUFFERS: usize = 16;
 
+// Sequence of primes used to determine the amount of work iterations each thread completes
+// before returning to the JS realm. Primes are used to interleave the returning workers
+// better and to ensure most threads are running while one takes a break.
+const WORKER_MAX_ITERATIONS: [usize; 16] = [
+  127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199,
+];
+
 impl Worker {
   fn run(&mut self) {
     let (context, modules) = unsafe {
@@ -153,7 +160,11 @@ impl Worker {
       )
     };
 
-    loop {
+    // This could theoretically be an endless loop, but it seems that Firefox terminates the worker
+    // if it spends too much time on the WASM side of things. For Chromium the endless loop works
+    // just fine, but Firefox requires us to return to the JS realm every once in a while.
+    let iterations = WORKER_MAX_ITERATIONS[self.id % WORKER_MAX_ITERATIONS.len()];
+    for _ in 0..iterations {
       if context.worker_position >= NUM_OUTPUT_BUFFERS as u64 {
         // `audio_worklet_position` is atomically incremented by one from the AudioWorklet each time
         // it has consumed a quantum and then calls `Atomic.notify` on the address. If the workers
