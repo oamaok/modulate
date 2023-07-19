@@ -10,6 +10,7 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         DATABASE_FILE: path.resolve(os.homedir(), 'database.sqlite3'),
+        SAMPLE_DIRECTORY: path.resolve(os.homedir(), 'samples'),
         JWT_KEY_FILE: path.resolve(os.homedir(), 'jwt.key'),
       },
     },
