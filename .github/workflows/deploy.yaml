@@ -7,7 +7,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  Deploy:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install wasm-pack
+        run: |
+          rustup toolchain install nightly-2023-06-15-x86_64-unknown-linux-gnu
+          rustup component add rust-src --toolchain nightly-2023-06-15-x86_64-unknown-linux-gnu
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install packages
+        run: yarn install
+      - name: Build rust
+        run: yarn build --rust
+      - name: Typecheck
+        run: yarn typecheck
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install wasm-pack
+        run: |
+          rustup toolchain install nightly-2023-06-15-x86_64-unknown-linux-gnu
+          rustup component add rust-src --toolchain nightly-2023-06-15-x86_64-unknown-linux-gnu
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install packages
+        run: yarn install
+      - name: Test
+        run: yarn test
+
+  deploy:
+    needs: [typecheck, test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,8 +53,6 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build
-      - name: Typecheck
-        run: yarn typecheck
       - name: Copy dist directory to remote host
         uses: appleboy/scp-action@v0.1.4
         with:
