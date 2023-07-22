@@ -1,3 +1,4 @@
+import * as fs from 'fs/promises'
 import * as sqlite from 'sqlite3'
 import config from './config'
 import sql, { SQLStatement } from 'sql-template-strings'
@@ -11,7 +12,16 @@ import {
   UserRegistration,
 } from '@modulate/common/types'
 
-export const database = new (sqlite.verbose().Database)(config.databaseFile)
+let database = new (sqlite.verbose().Database)(config.databaseFile)
+
+export const resetDatabase = async () => {
+  await fs.rm(config.databaseFile)
+  database = new (sqlite.verbose().Database)(config.databaseFile)
+}
+
+export const getDatabase = () => {
+  return database
+}
 
 export const query = <T>(query: SQLStatement) => {
   return new Promise<T[]>((resolve, reject) =>
@@ -20,6 +30,18 @@ export const query = <T>(query: SQLStatement) => {
         reject(err)
       } else {
         resolve(res)
+      }
+    })
+  )
+}
+
+export const exec = (query: string) => {
+  return new Promise<void>((resolve, reject) =>
+    database.exec(query, (err) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
       }
     })
   )

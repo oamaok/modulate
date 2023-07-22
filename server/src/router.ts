@@ -48,9 +48,9 @@ type GetCallback = (request: GetRequest, response: Response) => void
 type PostCallback<T extends t.Any> = (
   request: PostRequest<T>,
   response: Response
-) => void
+) => void | Promise<void>
 
-type Callback = (request: Request, response: Response) => void
+type Callback = (request: Request, response: Response) => void | Promise<void>
 
 type Segment =
   | { type: 'exact'; name: string }
@@ -456,7 +456,14 @@ const router = (): RouterChain => {
 
     switch (route.method) {
       case 'GET': {
-        route.callback(baseRequest, response)
+        try {
+          await route.callback(baseRequest, response)
+        } catch (err) {
+          logger.error(err)
+          response.status(500)
+          response.json({ error: 'internal server errror' })
+          response.end()
+        }
         break
       }
 
@@ -472,14 +479,19 @@ const router = (): RouterChain => {
             body = validationResult.right
           }
         } catch (err) {
-          console.error(err)
           response.status(400)
           response.json({ error: err })
           response.end()
           break
         }
-
-        route.callback({ ...baseRequest, body }, response)
+        try {
+          await route.callback({ ...baseRequest, body }, response)
+        } catch (err) {
+          logger.error(err)
+          response.status(500)
+          response.json({ error: 'internal server errror' })
+          response.end()
+        }
         break
       }
     }

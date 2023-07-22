@@ -98,7 +98,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
       sendMessage<T>({ type, ...req } as Omit<EngineRequest<T>, 'id'>)
 
   const memory = new WebAssembly.Memory({
-    initial: 18,
+    initial: 32,
     maximum: 16384,
     shared: true,
   })

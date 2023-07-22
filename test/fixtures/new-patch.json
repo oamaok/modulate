@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "id": null,
+    "author": null,
+    "name": "New Patch"
+  },
+  "patch": {
+    "currentId": 0,
+    "modules": {
+      "e3b4d035-2f17-4bd0-bed7-fe5da037395b": {
+        "name": "AudioOut",
+        "position": {
+          "x": 455,
+          "y": 412
+        },
+        "state": null
+      },
+      "8c0ef564-93db-4e2c-bac4-944f2663ccf7": {
+        "name": "Oscillator",
+        "position": {
+          "x": 155,
+          "y": 410
+        },
+        "state": null
+      }
+    },
+    "knobs": {
+      "e3b4d035-2f17-4bd0-bed7-fe5da037395b": {
+        "volume": 0
+      },
+      "8c0ef564-93db-4e2c-bac4-944f2663ccf7": {
+        "pw": 0.5,
+        "fine": 0,
+        "fm": 0,
+        "cv": -5
+      }
+    },
+    "cables": [
+      {
+        "id": "e9a835e2-d0b4-46c7-9aff-73d7c399dd9c",
+        "from": {
+          "moduleId": "8c0ef564-93db-4e2c-bac4-944f2663ccf7",
+          "type": "output",
+          "index": 2
+        },
+        "to": {
+          "moduleId": "e3b4d035-2f17-4bd0-bed7-fe5da037395b",
+          "type": "input",
+          "index": 0
+        }
+      }
+    ]
+  }
+}

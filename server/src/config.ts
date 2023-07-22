@@ -6,7 +6,7 @@ const config = {
     path.resolve(__dirname, '../../data', 'database.sqlite3'),
   jwtKeyFile:
     process.env.JWT_KEY_FILE ??
-    path.resolve(__dirname, '../../data', 'database.sqlite3'),
+    path.resolve(__dirname, '../../data', 'jwt.key'),
   sampleDirectory:
     process.env.SAMPLE_DIRECTORY ??
     path.resolve(__dirname, '../../data', 'samples'),

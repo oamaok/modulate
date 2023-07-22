@@ -3,24 +3,7 @@ import * as path from 'path'
 import * as logger from './logger'
 import sql from 'sql-template-strings'
 
-import { query } from './database'
-
-const promisify =
-  (fn: (...args: any) => any): ((...args: any) => any) =>
-  (...args: any[]) =>
-    new Promise((resolve, reject) => {
-      try {
-        fn(...args, (err: Error, res: any) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(res)
-          }
-        })
-      } catch (err) {
-        reject(err)
-      }
-    })
+import { query, exec } from './database'
 
 const getMigrationVersion = (filename: string) =>
   parseInt(filename.split('-')[0]!)
@@ -58,16 +41,16 @@ const migrate = async () => {
 
   for (const migration of applicableMigrations) {
     logger.info('Running migration ', migration)
-    await query(sql`BEGIN`)
+    await exec(`BEGIN`)
     try {
       const { up } = await import(`../migrations/${migration}`)
       await up()
       await query(
         sql`UPDATE version SET version = ${getMigrationVersion(migration)}`
       )
-      await query(sql`COMMIT`)
+      await exec(`COMMIT`)
     } catch (err) {
-      await query(sql`ROLLBACK`)
+      await exec(`ROLLBACK`)
       logger.error('Failed to run migration ', migration)
       logger.error(err)
       return

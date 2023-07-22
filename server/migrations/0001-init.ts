@@ -1,8 +1,7 @@
-import sql from 'sql-template-strings'
-import { query } from '../src/database'
+import { exec } from '../src/database'
 
 export const up = async () => {
-  await query(sql`
+  await exec(`
     CREATE TABLE users (
       id TEXT NOT NULL PRIMARY KEY,
       username TEXT NOT NULL,
@@ -36,9 +35,7 @@ export const up = async () => {
 }
 
 export const down = async ()=> {
-  await query(sql`
-  
-  SELECT 1;
-  
+  await exec(`
+    SELECT 1;
   `)
 }
