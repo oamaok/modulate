@@ -1,4 +1,4 @@
-import { h, Fragment, useEffect } from 'kaiku'
+import { useEffect } from 'kaiku'
 import Header from '../header/Header'
 import css from './App.css'
 import UserBar from '../user-bar/UserBar'
@@ -10,6 +10,7 @@ import * as api from '../../api'
 import { joinRoom } from '../../rooms'
 import Performance from '../performance/Performance'
 import ContextMenu from '../context-menu/ContextMenu'
+import LoginForm from '../login-form/LoginForm'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -22,6 +23,7 @@ const loadSaveState = async () => {
 }
 
 const initialize = async () => {
+  state.overlay = 'none'
   await initializeEngine()
 
   switch (state.route.name) {
@@ -51,14 +53,31 @@ const initialize = async () => {
 
 const InitModal = () => {
   return (
-    <div className={css('overlay')}>
-      <div className={css('init-modal')}>
-        Please adjust your audio levels before continuing. This application is
-        capable of producing ear-busting sonic experiences.
-        <button onClick={initialize}>I'm ready!</button>
-      </div>
+    <div className={css('init-modal')}>
+      Please adjust your audio levels before continuing. This application is
+      capable of producing ear-busting sonic experiences.
+      <button onClick={initialize}>I'm ready!</button>
     </div>
   )
+}
+
+const Overlay = () => {
+  switch (state.overlay) {
+    case 'none':
+      return null
+    case 'init':
+      return (
+        <div className={css('overlay')}>
+          <InitModal />
+        </div>
+      )
+    case 'login':
+      return (
+        <div className={css('overlay')}>
+          <LoginForm />
+        </div>
+      )
+  }
 }
 
 const App = () => {
@@ -90,7 +109,7 @@ const App = () => {
       <UserBar />
       <Hint />
       <ContextMenu />
-      {state.initialized ? null : <InitModal />}
+      <Overlay />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { h, useEffect } from 'kaiku'
+import { useEffect } from 'kaiku'
 import state, {
   getCableConnectionCandidate,
   getSocketPosition,

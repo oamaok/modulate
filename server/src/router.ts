@@ -375,7 +375,7 @@ const router = (): RouterChain => {
       header: res.setHeader.bind(res),
     }
 
-    let matchingRoutes: RouteMatch[] = []
+    const matchingRoutes: RouteMatch[] = []
 
     for (let i = 0; i < routes.length; i++) {
       const route = routes[i] as Route

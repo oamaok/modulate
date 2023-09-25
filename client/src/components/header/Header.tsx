@@ -1,4 +1,4 @@
-import { h, useState, Fragment } from 'kaiku'
+import { useState } from 'kaiku'
 import state, { patch } from '../../state'
 import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
 import css from './Header.css'
@@ -64,31 +64,11 @@ const Header = () => {
   return (
     <MenuBar top left>
       <h2 className={css('brand')}>modulate</h2>
-      <button
-        onClick={() => {
-          headerState.isMenuOpen = !headerState.isMenuOpen
-        }}
-        className={css('menu-button')}
-      >
-        Patch
-      </button>
-      <VerticalDivider />
       <div className={css('patch-name')}>
         <i>
           <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
         </i>
       </div>
-
-      {state.patchMetadata.id !== null && state.user ? (
-        <>
-          <VerticalDivider />
-          <button onClick={() => createRoom(state.patchMetadata.id!)}>
-            Create room
-          </button>
-        </>
-      ) : null}
-
-      {headerState.isMenuOpen ? <Menu /> : null}
     </MenuBar>
   )
 }

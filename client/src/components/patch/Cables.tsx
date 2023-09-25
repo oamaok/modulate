@@ -1,4 +1,4 @@
-import { h, Fragment, useState, useEffect, useRef, unwrap } from 'kaiku'
+import { useState, useEffect, useRef, unwrap } from 'kaiku'
 import state, { viewport, patch } from '../../state'
 import { Vec2 } from '@modulate/common/types'
 

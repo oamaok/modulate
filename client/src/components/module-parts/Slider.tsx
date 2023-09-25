@@ -1,4 +1,4 @@
-import { h, useState, useEffect } from 'kaiku'
+import { useState, useEffect } from 'kaiku'
 import state, {
   displayHint,
   getKnobValue,

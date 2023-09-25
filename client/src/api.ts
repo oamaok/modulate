@@ -2,6 +2,7 @@ import * as auth from './auth'
 import {
   Patch,
   PatchMetadata,
+  User,
   UserLogin,
   UserRegistration,
 } from '@modulate/common/types'
@@ -36,7 +37,7 @@ const request = (
     headers: {
       Accept: 'application/json',
       Authorization: token ? `Bearer ${token}` : '',
-      ...(isFormData && typeof body !== undefined
+      ...(isFormData && typeof body !== 'undefined'
         ? {}
         : {
             'Content-Type': 'application/json',
@@ -72,13 +73,17 @@ export const getCredentialsAvailability = ({
   return get('/api/user/availability', { params: { username, email } })
 }
 
-export const register = (registration: UserRegistration) => {
+export const register = (
+  registration: UserRegistration
+): Promise<{ user: User; token: string } | { error: string }> => {
   return post('/api/user', {
     body: registration,
   })
 }
 
-export const login = (userLogin: UserLogin) => {
+export const login = (
+  userLogin: UserLogin
+): Promise<{ user: User; token: string } | { error: string }> => {
   return post('/api/user/login', {
     body: userLogin,
   })

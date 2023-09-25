@@ -1,4 +1,4 @@
-import { h, useState, useEffect, FC } from 'kaiku'
+import { useState, useEffect, FC } from 'kaiku'
 import state, { getModulePosition } from '../../state'
 import { Id, Vec2 } from '@modulate/common/types'
 import css from './Module.css'

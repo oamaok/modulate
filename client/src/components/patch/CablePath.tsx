@@ -1,4 +1,4 @@
-import { h, Fragment, useState } from 'kaiku'
+import { useState } from 'kaiku'
 import { Vec2 } from '@modulate/common/types'
 
 type Props = {

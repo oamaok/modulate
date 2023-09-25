@@ -85,9 +85,6 @@ const buildClient = async () => {
       entryPoints: [entry],
       bundle: true,
       outdir: buildDir,
-      incremental: true,
-      jsxFactory: 'h',
-      jsxFragment: 'Fragment',
       minify: isProduction,
       define: {
         'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
@@ -199,7 +196,6 @@ const buildWorklets = async () => {
         entryPoints: [path.join(__dirname, `./worklets/src/${entry}.ts`)],
         bundle: true,
         write: false,
-        incremental: true,
         minify: isProduction,
         define: {
           Response: 'undefined',

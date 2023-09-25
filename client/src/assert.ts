@@ -2,7 +2,7 @@ function __assert(
   condition: boolean | undefined | object | null,
   message?: string
 ): asserts condition {
-  if (!Boolean(condition)) {
+  if (!condition) {
     throw new Error(message ?? 'assertation failed')
   }
 }

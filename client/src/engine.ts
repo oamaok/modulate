@@ -175,6 +175,11 @@ export const getAnalyser = () => {
   return engine.analyser
 }
 
+export const getGain = () => {
+  assert(engine)
+  return engine.globalGain
+}
+
 let workerPositionBuf: BigUint64Array | null = null
 export const getWorkerPosition = () => {
   assert(engine)

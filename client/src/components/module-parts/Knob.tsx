@@ -1,4 +1,4 @@
-import { h, useState, useEffect } from 'kaiku'
+import { useState, useEffect } from 'kaiku'
 import state, {
   displayHint,
   getKnobValue,
@@ -51,6 +51,7 @@ type CommonProps = {
   moduleId: string
   id: string
   label?: string
+  hideLabel?: boolean
 }
 
 type Props = CommonProps &
@@ -207,6 +208,7 @@ const getHintText = (props: Props): string => {
 
 const Knob = (props: Props) => {
   const value = getValue(props)
+  const { hideLabel = false } = props
 
   const knobState = useState<{
     position: number
@@ -290,7 +292,9 @@ const Knob = (props: Props) => {
           transform: `rotate(${knobState.position * 300 - 60}deg)`,
         }}
       ></div>
-      <div className={css('name')}>{props.label || props.id}</div>
+      {props.label && !hideLabel ? (
+        <div className={css('name')}>{props.label}</div>
+      ) : null}
     </div>
   )
 }

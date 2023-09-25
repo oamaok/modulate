@@ -1,4 +1,4 @@
-import { h, Component, useEffect } from 'kaiku'
+import { Component, useEffect } from 'kaiku'
 import * as util from '@modulate/common/util'
 import { NoteName, Note } from '@modulate/common/types'
 import { Sequencer } from '@modulate/worklets/src/modules'

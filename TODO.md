@@ -53,7 +53,7 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 # Testing
 
-- [ ] Add API testing
+- [x] Add API testing
 
 # UI/UX
 

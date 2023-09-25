@@ -1,4 +1,3 @@
-import { h, useEffect } from 'kaiku'
 import { getSocketPosition } from '../../state'
 import { Socket } from '@modulate/common/types'
 import CablePath from './CablePath'

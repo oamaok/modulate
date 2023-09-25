@@ -1,4 +1,4 @@
-import { h, Fragment, render, useEffect } from 'kaiku'
+import { render } from 'kaiku'
 import state, { deleteModule } from './state'
 import * as api from './api'
 import * as auth from './auth'

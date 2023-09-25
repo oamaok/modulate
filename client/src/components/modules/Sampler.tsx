@@ -1,6 +1,5 @@
-import { h, Component, useRef, useEffect } from 'kaiku'
+import { Component, useRef, useEffect } from 'kaiku'
 import * as engine from '../../engine'
-import * as api from '../../api'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
@@ -9,12 +8,7 @@ import { connectKnobToParam } from '../../modules'
 import { Sampler } from '@modulate/worklets/src/modules'
 import assert from '../../assert'
 import css from './Sampler.css'
-import {
-  getKnobValue,
-  getModuleKnobs,
-  getModuleState,
-  setModuleState,
-} from '../../state'
+import { getKnobValue, getModuleState, setModuleState } from '../../state'
 import SampleBrowser from '../sample-browser/SampleBrowser'
 
 type Props = {
@@ -209,7 +203,6 @@ class SamplerNode extends Component<Props> {
               max={2}
               initial={1}
             />
-
             <Knob
               moduleId={id}
               id="start"

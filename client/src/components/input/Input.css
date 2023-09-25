@@ -1,0 +1,42 @@
+.input {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.input label {
+  text-transform: uppercase;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.input input {
+  margin-bottom: 2px;
+}
+
+.error {
+  position: absolute;
+  left: -8px;
+  top: 16px;
+  transform: translate(-100%, 0);
+  background: #e80051;
+  padding: 4px 8px;
+  border-radius: 2px;
+}
+
+.error::before {
+  content: ' ';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #e80051;
+  right: 0;
+  top: 50%;
+  transform: translate(50%, -50%) rotate(45deg);
+}
+
+.description {
+  color: #ccc;
+  font-size: 12px;
+}

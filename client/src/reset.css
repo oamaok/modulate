@@ -29,11 +29,6 @@
   text-shadow: 0 1px 0px #000;
 }
 
-button {
-  cursor: pointer;
-  text-decoration: underline;
-}
-
 body,
 html {
   overflow: hidden;
@@ -44,14 +39,16 @@ html {
 
 textarea,
 input[type='text'],
+input[type='email'],
 input[type='password'] {
   background: var(--background);
   border-radius: 2px;
-  padding: 2px 4px;
+  padding: 8px;
   text-transform: none;
-  margin-top: -2px;
-  margin-bottom: -2px;
+  box-shadow: var(--inset-box-shadow);
+}
 
-  box-shadow: inset var(--box-shadow);
-  transform-origin: bottom left;
+button,
+input[type='button'] {
+  cursor: pointer;
 }

@@ -1,4 +1,4 @@
-import { h, Component, useEffect } from 'kaiku'
+import { Component, useEffect } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'

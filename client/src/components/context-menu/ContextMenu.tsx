@@ -1,4 +1,4 @@
-import { h, Fragment, useState, useEffect, useRef } from 'kaiku'
+import { useEffect, useRef } from 'kaiku'
 import css from './ContextMenu.css'
 import state, { addModule } from '../../state'
 import * as moduleMap from '../../moduleMap'

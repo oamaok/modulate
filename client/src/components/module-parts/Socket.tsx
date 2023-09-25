@@ -1,7 +1,6 @@
-import { h, Fragment, useEffect, useRef, useState } from 'kaiku'
+import { useEffect, useRef, useState } from 'kaiku'
 import {
   getSocket,
-  getSocketPosition,
   plugActiveCable,
   registerSocket,
   setSocketPosition,

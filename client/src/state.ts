@@ -35,6 +35,8 @@ const state = createState<State>({
   },
   activeModule: null,
 
+  overlay: 'init',
+
   patchMetadata: {
     id: null,
     author: null,
@@ -141,6 +143,10 @@ window.addEventListener('resize', () => {
   viewport.width = window.innerWidth
   viewport.height = window.innerHeight
 })
+
+export const closeOverlay = () => {
+  state.overlay = 'none'
+}
 
 export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   const { currentId, modules, knobs, cables } = savedPatch

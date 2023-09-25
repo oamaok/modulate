@@ -45,6 +45,8 @@ const ensureDirectoryExists = async (dir: string) => {
   }
 }
 
+const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+
 const server = http.createServer(
   router()
     .get(
@@ -87,6 +89,33 @@ const server = http.createServer(
         res.status(400)
         res.json({ error: 'cannot create an user while logged in' })
         res.end()
+        return
+      }
+
+      const { username, password, email } = req.body
+
+      if (username.length < 3 || username.length > 24) {
+        badRequest(res)
+        return
+      }
+
+      if (password.length < 8 || username.length > 64) {
+        badRequest(res)
+        return
+      }
+
+      if (!email.match(EMAIL_REGEX)) {
+        badRequest(res)
+        return
+      }
+
+      if (!(await db.isEmailAvailable(email))) {
+        badRequest(res)
+        return
+      }
+
+      if (!(await db.isUsernameAvailable(email))) {
+        badRequest(res)
         return
       }
 

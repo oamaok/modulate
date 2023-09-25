@@ -31,7 +31,7 @@
   "devDependencies": {
     "chokidar": "^3.5.2",
     "cssnano": "^5.0.8",
-    "esbuild": "^0.13.2",
+    "esbuild": "^0.18.17",
     "postcss": "^8.3.9",
     "postcss-modules": "^4.2.2",
     "prettier": "^2.4.1",

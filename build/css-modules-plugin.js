@@ -63,15 +63,21 @@ const CssModulesPlugin = () => ({
     build.onEnd(async () => {
       const bundlePath = resolve(build.initialOptions.outdir, 'index.css')
 
-      const { css } = await postcss([cssnano({ preset: 'default' })]).process(
-        Object.keys(cssContent)
-          .sort()
-          .reverse()
-          .map((key) => cssContent[key])
-          .join('\n')
-      )
+      const rawCss = Object.keys(cssContent)
+        .sort()
+        .reverse()
+        .map((key) => cssContent[key])
+        .join('\n')
 
-      await fs.writeFile(bundlePath, css)
+      if (process.env.NODE_ENV === 'production') {
+        const { css } = await postcss([cssnano({ preset: 'default' })]).process(
+          rawCss
+        )
+
+        await fs.writeFile(bundlePath, css)
+      } else {
+        await fs.writeFile(bundlePath, rawCss)
+      }
     })
   },
 })

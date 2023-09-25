@@ -1,4 +1,3 @@
-import { h, Fragment } from 'kaiku'
 import css from './Keyboard.css'
 
 const WHITE_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
