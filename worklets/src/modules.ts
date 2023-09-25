@@ -89,7 +89,15 @@ export type Sequencer = {
 export type ADSR = {
   name: 'ADSR'
   inputs: ['gate']
-  parameters: ['attack', 'decay', 'sustain', 'release']
+  parameters: [
+    'attack',
+    'decay',
+    'sustain',
+    'release',
+    'attackTension',
+    'decayTension',
+    'releaseTension'
+  ]
   outputs: ['envelope']
 }
 
