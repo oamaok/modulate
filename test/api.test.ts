@@ -49,7 +49,7 @@ const get = async (path: string, authorization?: string) => {
 }
 
 const TEST_USERNAME = 'test'
-const TEST_PASSWORD = 'test'
+const TEST_PASSWORD = 'password'
 const TEST_EMAIL = 'test@example.com'
 
 const createTestAccount = () => {
