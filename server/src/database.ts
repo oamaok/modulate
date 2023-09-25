@@ -146,12 +146,36 @@ export const getLatestPatchVersion = async (
   }
 }
 
-export const getPatchVersion = (patchId: string, version: number) => {
-  return query(sql`
-    SELECT id, patch, name version, createdAt
+export const getPatchVersion = async (patchId: string, version: number) => {
+  const [patch] = await query<{
+    id: string
+    patch: string
+    name: string
+    authorId: string
+    authorName: string
+    version: number
+  }>(sql`
+    SELECT patches.id AS id, patch, name, users.id AS authorId, users.username AS authorName, version
     FROM patches
+    JOIN users ON users.id = patches.authorId
     WHERE id = ${patchId} AND version = ${version}
+    ORDER BY version DESC
+    LIMIT 1
   `)
+
+  if (!patch) return null
+
+  return {
+    metadata: {
+      id: patch.id,
+      name: patch.name,
+      author: {
+        id: patch.authorId,
+        username: patch.authorName,
+      },
+    },
+    patch: JSON.parse(patch.patch),
+  }
 }
 export const saveNewPatch = async (
   userId: string,

@@ -23,6 +23,12 @@ const badRequest = (res: Response, reason = '') => {
   res.end()
 }
 
+const notFound = (res: Response) => {
+  res.status(404)
+  res.json({ error: 'not found' })
+  res.end()
+}
+
 const serverError = (res: Response) => {
   res.status(500)
   res.json({ error: 'server error' })
@@ -166,6 +172,11 @@ const server = http.createServer(
 
       const patch = await db.getLatestPatchVersion(patchId)
 
+      if (!patch) {
+        notFound(res)
+        return
+      }
+
       res.json(patch)
       res.end()
     })
@@ -178,6 +189,11 @@ const server = http.createServer(
       }
 
       const patch = await db.getPatchVersion(patchId, parseInt(version))
+
+      if (!patch) {
+        notFound(res)
+        return
+      }
 
       res.json(patch)
       res.end()
@@ -278,9 +294,7 @@ const server = http.createServer(
 
       const metadata = await db.getSampleMetadataById(id)
       if (!metadata) {
-        res.status(404)
-        res.json({ error: 'not found' })
-        res.end()
+        notFound(res)
         return
       }
 
