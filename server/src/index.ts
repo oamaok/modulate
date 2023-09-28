@@ -181,14 +181,14 @@ const server = http.createServer(
       res.end()
     })
     .get('/api/patch/:id/:version', async (req, res) => {
-      const { patchId, version } = req.parameters
+      const { id, version } = req.parameters
 
-      if (!patchId || !version) {
+      if (!id || !version) {
         badRequest(res)
         return
       }
 
-      const patch = await db.getPatchVersion(patchId, parseInt(version))
+      const patch = await db.getPatchVersion(id, parseInt(version))
 
       if (!patch) {
         notFound(res)
