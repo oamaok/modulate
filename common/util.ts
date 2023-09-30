@@ -80,3 +80,13 @@ export const deepEqual = (a: any, b: any): boolean => {
 }
 
 export const origin = (): Vec2 => ({ x: 0, y: 0 })
+
+export const intersperse = <A, B>(arr: A[], b: B) => {
+  const ret: (A | B)[] = []
+  for (const a of arr) {
+    ret.push(a)
+    ret.push(b)
+  }
+  ret.pop()
+  return ret
+}

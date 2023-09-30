@@ -486,6 +486,7 @@ const router = (): RouterChain => {
           await route.callback(baseRequest, response)
         } catch (err) {
           logger.error(err)
+          console.error(err)
           response.status(500)
           response.json({ error: 'internal server errror' })
           response.end()
@@ -514,6 +515,7 @@ const router = (): RouterChain => {
           await route.callback({ ...baseRequest, body }, response)
         } catch (err) {
           logger.error(err)
+          console.error(err)
           response.status(500)
           response.json({ error: 'internal server errror' })
           response.end()

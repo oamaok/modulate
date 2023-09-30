@@ -1,73 +1,106 @@
-import { useState } from 'kaiku'
-import state, { patch } from '../../state'
-import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
-import css from './Header.css'
+import state, { openOverlay, resetPatch } from '../../state'
 import * as api from '../../api'
-import { createRoom } from '../../rooms'
+import MenuBar from '../menu-bar/MenuBar'
+import css from './Header.css'
+import { intersperse } from '@modulate/common/util'
+import SaveDialog from '../save-dialog/SaveDialog'
 
-const Menu = () => {
-  const savePatch = async () => {
-    const res = await api.savePatch(state.patchMetadata, patch)
-
-    history.pushState({}, '', `/patch/${res.id}`)
-  }
-
-  const isOwnPatch =
-    state.route.name === 'index' ||
-    (state.user && state.user.id === state.patchMetadata.author?.id)
-
-  return (
-    <div className={css('menu')}>
-      {isOwnPatch ? (
-        <div className={css('patch-settings')}>
-          <h3>Patch details</h3>
-          <div className={css('name')}>
-            <label for="patch-name">Name</label>
-            <input
-              id="patch-name"
-              type="text"
-              value={state.patchMetadata.name}
-              onInput={(evt: any) => {
-                state.patchMetadata.name = evt.target.value
-              }}
-            />
-          </div>
-          <div className={css('description')}>
-            <label for="patch-description">Description</label>
-            <textarea id="patch-description" />
-          </div>
-          <div className={css('is-public')}>
-            <label for="patch-is-public">Public</label>
-            <input id="patch-is-public" type="checkbox" />
-          </div>
-          <button className={css('item')} onClick={savePatch}>
-            Save patch
-          </button>
-        </div>
-      ) : null}
-      {/*
-      <div className={css('item')}>New patch</div>
-      <div className={css('item')}>My patches</div>
-      <div className={css('item')}>Browse all patches</div>
-      */}
-    </div>
-  )
+type MenuIconProps = {
+  icon: string
+  label: string
+  onClick: () => void
 }
 
-const Header = () => {
-  const headerState = useState({ isMenuOpen: false })
-  const openMenu = () => {}
+const MenuIcon = ({ icon, label, onClick }: MenuIconProps) => (
+  <button className={css('menu-icon')} onClick={onClick}>
+    <span className="material-symbols-outlined">{icon}</span>
+    <div className={css('label')}>{label}</div>
+  </button>
+)
 
+const Header = () => {
   const patchAuthor =
     state.patchMetadata.author?.username ?? state.user?.username ?? 'anonymous'
+
+  const isSavedPatch = state.patchMetadata.id !== null
+  const isOwnPatch =
+    !isSavedPatch || state.patchMetadata.author?.id === state.user?.id
+
+  const menuItems = [
+    {
+      icon: 'add',
+      label: 'New patch',
+      action: async () => {
+        if (await SaveDialog.open()) {
+          await resetPatch()
+        }
+      },
+      enabled: true,
+    },
+    {
+      icon: 'settings',
+      label: 'Patch settings',
+      action: () => openOverlay('patch-settings'),
+      enabled: isOwnPatch,
+    },
+    {
+      icon: 'save',
+      label: 'Save patch',
+      action: async () => {
+        const res = await api.savePatch(state.patchMetadata, state.patch)
+        state.patchMetadata.id = res.id
+        history.pushState({}, '', `/patch/${res.id}`)
+      },
+      enabled: isOwnPatch,
+    },
+    /*
+    {
+      icon: 'publish',
+      label: 'Publish patch',
+      action: () => {},
+      enabled: isOwnPatch,
+    },
+    */
+    {
+      icon: 'fork_right',
+      label: 'Fork this patch',
+      action: () => {},
+      enabled: !isOwnPatch,
+    },
+    {
+      icon: 'view_list',
+      label: 'Browse patches',
+      action: () => openOverlay('patch-browser'),
+      enabled: true,
+    },
+    {
+      icon: 'group',
+      label: 'Create multiplayer room',
+      action: () => {},
+      enabled: isSavedPatch,
+    },
+  ]
 
   return (
     <MenuBar top left>
       <h2 className={css('brand')}>modulate</h2>
       <div className={css('patch-name')}>
-        <i>
-          <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
-        </i>
+        <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
+      </div>
+      <div className={css('actions')}>
+        <div className={css('separator')} />
+        {intersperse(
+          menuItems
+            .filter((item) => item.enabled)
+            .map((item) => (
+              <MenuIcon
+                icon={item.icon}
+                label={item.label}
+                onClick={item.action}
+              />
+            )),
+          <div className={css('separator')} />
+        )}
       </div>
     </MenuBar>
   )

@@ -1,0 +1,36 @@
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9001;
+  display: flex;
+  justify-content: center;
+}
+
+.modal {
+  background-color: var(--secondary);
+  padding: 32px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--box-shadow);
+  position: relative;
+  margin: auto;
+}
+
+.close-button {
+  text-decoration: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 32px;
+  width: 32px;
+  background: var(--primary);
+  border-top-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  font-size: 24px;
+  cursor: pointer;
+}

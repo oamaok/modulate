@@ -1,5 +1,5 @@
 import { useEffect } from 'kaiku'
-import state, { getModuleKnobs } from '../../state'
+import state, { getModuleKnobs, openOverlay } from '../../state'
 import * as api from '../../api'
 import * as auth from '../../auth'
 import * as engine from '../../engine'
@@ -59,7 +59,7 @@ const UserBar = () => {
           type="button"
           className={css('login-button')}
           onClick={() => {
-            state.overlay = 'login'
+            openOverlay('login')
           }}
         >
           Login

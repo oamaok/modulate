@@ -5,6 +5,7 @@ import { closeOverlay } from '../../state'
 import css from './LoginForm.css'
 import assert from '../../assert'
 import Input from '../input/Input'
+import Overlay from '../overlay/Overlay'
 
 const LoginForm = () => {
   const state = useState<{ loading: boolean; error: null | string }>({
@@ -177,7 +178,7 @@ const Form = () => {
   })
 
   return (
-    <div className={css('login-form')}>
+    <Overlay className={css('login-form')}>
       <button className={css('close-button')} onClick={closeOverlay}>
         ×
       </button>
@@ -195,7 +196,7 @@ const Form = () => {
           {state.form === 'login' ? 'Create an account' : 'Login'}
         </button>
       </div>
-    </div>
+    </Overlay>
   )
 }
 

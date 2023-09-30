@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Gemunu+Libre:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gemunu+Libre:wght@400&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap');
 
 :root {
   --primary: #e85d00;
@@ -35,6 +35,16 @@ html {
   width: 100vw;
   height: 100vh;
   position: relative;
+}
+
+h2 {
+  font-size: 24px;
+}
+
+hr {
+  border-top: 1px solid #888;
+  border-bottom: 1px solid #222;
+  margin: 24px 0;
 }
 
 textarea,

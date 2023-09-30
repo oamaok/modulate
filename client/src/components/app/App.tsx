@@ -5,12 +5,16 @@ import UserBar from '../user-bar/UserBar'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
 import { initializeEngine } from '../../engine'
-import state, { loadPatch, patch } from '../../state'
+import state, { closeOverlay, loadPatch, patch } from '../../state'
 import * as api from '../../api'
 import { joinRoom } from '../../rooms'
 import Performance from '../performance/Performance'
 import ContextMenu from '../context-menu/ContextMenu'
 import LoginForm from '../login-form/LoginForm'
+import PatchBrowser from '../patch-browser/PatchBrowser'
+import PatchSettings from '../patch-settings/PatchSettings'
+import SaveDialog from '../save-dialog/SaveDialog'
+import Overlay from '../overlay/Overlay'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -23,7 +27,7 @@ const loadSaveState = async () => {
 }
 
 const initialize = async () => {
-  state.overlay = 'none'
+  closeOverlay()
   await initializeEngine()
 
   switch (state.route.name) {
@@ -53,31 +57,12 @@ const initialize = async () => {
 
 const InitModal = () => {
   return (
-    <div className={css('init-modal')}>
+    <Overlay className={css('init-modal')} showCloseButton={false}>
       Please adjust your audio levels before continuing. This application is
       capable of producing ear-busting sonic experiences.
       <button onClick={initialize}>I'm ready!</button>
-    </div>
+    </Overlay>
   )
-}
-
-const Overlay = () => {
-  switch (state.overlay) {
-    case 'none':
-      return null
-    case 'init':
-      return (
-        <div className={css('overlay')}>
-          <InitModal />
-        </div>
-      )
-    case 'login':
-      return (
-        <div className={css('overlay')}>
-          <LoginForm />
-        </div>
-      )
-  }
 }
 
 const App = () => {
@@ -93,6 +78,14 @@ const App = () => {
     )
   })
 
+  const OverlayComponent = {
+    none: null,
+    init: InitModal,
+    login: LoginForm,
+    'patch-browser': PatchBrowser,
+    'patch-settings': PatchSettings,
+  }[state.overlay]
+
   return (
     <div
       className={css('app')}
@@ -103,13 +96,15 @@ const App = () => {
           )}px`,
       }}
     >
+      <Header />
       {state.initialized ? <Performance /> : null}
       <Patch />
       <Header />
       <UserBar />
       <Hint />
       <ContextMenu />
-      <Overlay />
+      {OverlayComponent ? <OverlayComponent /> : null}
+      <SaveDialog />
     </div>
   )
 }

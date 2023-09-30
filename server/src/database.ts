@@ -112,6 +112,23 @@ export const getUserPatches = (userId: string) => {
   `)
 }
 
+// TODO: Currently there is no public flag in the db, so return just all patches
+// TODO: Add pagination
+export const getPublicPatches = () => {
+  return query<{
+    id: string
+    authorName: string
+    authorId: string
+    name: string
+    createdAt: number
+  }>(sql`
+    SELECT patches.id AS id, patch, name, users.id AS authorId, users.username AS authorName, version
+    FROM patches
+    JOIN users ON users.id = patches.authorId
+    ORDER BY version DESC
+  `)
+}
+
 export const getLatestPatchVersion = async (
   patchId: string
 ): Promise<{ patch: Patch; metadata: PatchMetadata } | null> => {
@@ -202,8 +219,7 @@ export const savePatchVersion = async (
   const [latestVersion] = await query<{ version: number }>(sql`
     SELECT version FROM patches WHERE id = ${metadata.id} ORDER BY version DESC LIMIT 1
   `)
-
-  const nextVersion = latestVersion?.version ?? 0 + 1
+  const nextVersion = (latestVersion?.version ?? 0) + 1
 
   await query(sql`
     INSERT INTO patches (id, version, name, authorId, createdAt, patch)

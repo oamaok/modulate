@@ -34,7 +34,12 @@ type Room = {
 
 export type SocketWithPosition = Socket & { pos: Vec2 }
 
-export type Overlay = 'none' | 'init' | 'login'
+export type Overlay =
+  | 'none'
+  | 'init'
+  | 'login'
+  | 'patch-browser'
+  | 'patch-settings'
 
 export type State = {
   initialized: boolean

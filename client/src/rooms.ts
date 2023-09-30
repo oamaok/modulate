@@ -357,8 +357,6 @@ useEffect(() => {
       const cable = state.patch.cables.find((cable) => cable.id === cableId)
       assert(cable)
 
-      console.log(cable.id)
-
       dispatchPatchEvent({
         type: 'connect-cable',
         cable,

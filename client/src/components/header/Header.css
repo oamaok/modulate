@@ -58,3 +58,46 @@
 .menu .item:last-child {
   margin-bottom: 0;
 }
+
+.menu-icon {
+  height: 24px;
+  width: 24px;
+  position: relative;
+}
+
+.actions {
+  height: 36px;
+  margin: -10px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.separator {
+  height: 100%;
+  border-right: 1px solid #888;
+  border-left: 1px solid #222;
+}
+
+.menu-icon .label {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  padding: 2px 4px;
+  border-radius: 2px;
+  text-shadow: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+  background: var(--on-background);
+  color: var(--background);
+
+  transition: opacity 0.1s ease-out;
+}
+
+.menu-icon:hover .label {
+  opacity: 1;
+  transition: none;
+}

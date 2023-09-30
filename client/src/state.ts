@@ -1,5 +1,5 @@
 import { createState } from 'kaiku'
-import { State } from './types'
+import { Overlay, State } from './types'
 import {
   Cable,
   Socket,
@@ -148,6 +148,10 @@ export const closeOverlay = () => {
   state.overlay = 'none'
 }
 
+export const openOverlay = (overlay: Overlay) => {
+  state.overlay = overlay
+}
+
 export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   const { currentId, modules, knobs, cables } = savedPatch
   state.patchMetadata = metadata
@@ -163,6 +167,22 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
 
   patch.cables = cables
   state.initialized = true
+}
+
+export const resetPatch = async () => {
+  state.activeModule = null
+
+  for (const module in state.patch.modules) {
+    await deleteModule(module)
+  }
+
+  state.patchMetadata = {
+    id: null,
+    author: null,
+    name: 'untitled',
+  }
+
+  history.pushState({}, '', `/`)
 }
 
 export const addModule = async (

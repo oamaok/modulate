@@ -93,6 +93,22 @@ export const getLatestPatchVersion = (patchId: string) => {
   return get(`/api/patch/${patchId}/latest`)
 }
 
+export const getMyPatches = () => {
+  return get('/api/my/patches')
+}
+
+export const getPublicPatches = (): Promise<
+  {
+    id: string
+    authorName: string
+    authorId: string
+    name: string
+    createdAt: number
+  }[]
+> => {
+  return get('/api/patches')
+}
+
 export const getRoomUsingPatch = (patchId: string) => {
   return get(`/api/room/${patchId}`)
 }

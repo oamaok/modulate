@@ -149,6 +149,18 @@ const server = http.createServer(
       res.json({ user, token: auth.createToken(user) })
       res.end()
     })
+    .get('/api/my/patches', async (req, res) => {
+      const { authorization } = req
+      if (!authorization) {
+        unauthorized(res)
+        return
+      }
+
+      const patches = await db.getUserPatches(authorization.id)
+
+      res.json(patches)
+      res.end()
+    })
     .get('/api/user/:userId/patches', async (req, res) => {
       const { userId } = req.parameters
 
@@ -160,6 +172,10 @@ const server = http.createServer(
       const patches = await db.getUserPatches(userId)
 
       res.json(patches)
+      res.end()
+    })
+    .get('/api/patches', async (req, res) => {
+      res.json(await db.getPublicPatches())
       res.end()
     })
     .get('/api/patch/:patchId/latest', async (req, res) => {
@@ -197,6 +213,25 @@ const server = http.createServer(
 
       res.json(patch)
       res.end()
+    })
+    .get('/api/patch/:patchId/fork', async (req, res) => {
+      const { authorization } = req
+      if (!authorization) {
+        unauthorized(res)
+        return
+      }
+
+      const { patchId } = req.parameters
+
+      const latestVersion = await db.getLatestPatchVersion(patchId)
+
+      if (!latestVersion) {
+        badRequest(res)
+        return
+      }
+
+      // TODO: Implement forking
+      badRequest(res)
     })
     .post(
       '/api/patch',

@@ -1,0 +1,27 @@
+.save-dialog {
+  width: 300px;
+}
+
+.options {
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.options button {
+  padding: 4px 8px;
+  border-radius: 2px;
+  box-shadow: var(--box-shadow);
+}
+
+.discard {
+  background-color: #777;
+}
+
+.cancel {
+  background-color: #777;
+}
+
+.save {
+  background-color: var(--primary-variant2);
+}

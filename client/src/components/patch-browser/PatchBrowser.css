@@ -1,0 +1,32 @@
+.patch-browser {
+  width: 800px;
+  height: 60%;
+}
+
+.tabs {
+  display: flex;
+  gap: 24px;
+}
+
+.tab {
+  font-size: 24px;
+  color: #ccc;
+}
+
+.tab.selected {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.patches {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.patch {
+  border-radius: 2px;
+  padding: 8px;
+  background: var(--secondary);
+  box-shadow: var(--box-shadow);
+}

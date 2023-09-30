@@ -3057,10 +3057,10 @@ jws@^3.2.2:
     jwa "^1.4.1"
     safe-buffer "^5.0.1"
 
-kaiku@^1.21.5:
-  version "1.21.5"
-  resolved "https://registry.yarnpkg.com/kaiku/-/kaiku-1.21.5.tgz#4f9026897140c67cbf6c46745d85b4ebba209671"
-  integrity sha512-24zG8h6nnzhApemWDJWtYS0EivUXDaRyCykUS5yuQDwsnLnuTv8a1jYnUEL+CvMONQpkjL7wSvBjda6RjqeUxQ==
+kaiku@^1.21.6:
+  version "1.21.6"
+  resolved "https://registry.yarnpkg.com/kaiku/-/kaiku-1.21.6.tgz#99ddd8b2096ccc8045d26ab407f55cf0ec779a74"
+  integrity sha512-jj0c9gdfoBukvFswfFO24h7aY2LZmsNr7NcSB8slI5X+n3YT5CnH/osdygMevp6NMT1yy6oUpha4Ry1yogt75g==
 
 kleur@^3.0.3:
   version "3.0.3"
