@@ -1,35 +1,44 @@
 import { Note, Vec2 } from '@modulate/common/types'
 
-export type AudioOut = {
-  name: 'AudioOut'
-  inputs: ['input']
-  parameters: ['volume']
-  outputs: []
+type ModuleTypeOf<Module, Messages = never, Events = never> = Module & {
+  events: Events
+  messages: Messages
 }
 
-export type Oscillator = {
-  name: 'Oscillator'
-  inputs: ['sync']
-  parameters: ['cv', 'fm', 'pw', 'fine']
-  outputs: ['sin', 'tri', 'saw', 'sqr']
-}
+export const AudioOut = {
+  name: 'AudioOut',
+  inputs: ['input'],
+  parameters: ['volume'],
+  outputs: [],
+} as const
+export type AudioOut = ModuleTypeOf<typeof AudioOut>
 
-export type LFO = {
-  name: 'LFO'
-  inputs: ['sync']
-  parameters: ['cv', 'pw', 'amount']
-  outputs: ['sin', 'tri', 'saw', 'sqr']
-}
+export const Oscillator = {
+  name: 'Oscillator',
+  inputs: ['sync'],
+  parameters: ['cv', 'fm', 'pw', 'fine'],
+  outputs: ['sin', 'tri', 'saw', 'sqr'],
+} as const
+export type Oscillator = ModuleTypeOf<typeof Oscillator>
 
-export type BiquadFilter = {
-  name: 'BiquadFilter'
-  inputs: ['input']
-  parameters: ['frequency', 'resonance']
-  outputs: ['lowpass', 'highpass']
-}
+export const LFO = {
+  name: 'LFO',
+  inputs: ['sync'],
+  parameters: ['cv', 'pw', 'amount'],
+  outputs: ['sin', 'tri', 'saw', 'sqr'],
+} as const
+export type LFO = ModuleTypeOf<typeof LFO>
 
-export type Mixer = {
-  name: 'Mixer'
+export const BiquadFilter = {
+  name: 'BiquadFilter',
+  inputs: ['input'],
+  parameters: ['frequency', 'resonance'],
+  outputs: ['lowpass', 'highpass'],
+} as const
+export type BiquadFilter = ModuleTypeOf<typeof BiquadFilter>
+
+export const Mixer = {
+  name: 'Mixer',
   inputs: [
     'input0',
     'input1',
@@ -38,8 +47,8 @@ export type Mixer = {
     'input4',
     'input5',
     'input6',
-    'input7'
-  ]
+    'input7',
+  ],
   parameters: [
     'level0',
     'level1',
@@ -48,47 +57,51 @@ export type Mixer = {
     'level4',
     'level5',
     'level6',
-    'level7'
-  ]
-  outputs: ['output']
-}
+    'level7',
+  ],
+  outputs: ['output'],
+} as const
+export type Mixer = ModuleTypeOf<typeof Mixer>
 
-export type Gain = {
-  name: 'Gain'
-  inputs: ['input']
-  parameters: ['gain']
-  outputs: ['output']
-}
+export const Gain = {
+  name: 'Gain',
+  inputs: ['input'],
+  parameters: ['gain'],
+  outputs: ['output'],
+} as const
+export type Gain = ModuleTypeOf<typeof Gain>
 
-export type Limiter = {
-  name: 'Limiter'
-  inputs: ['input']
-  parameters: ['threshold']
-  outputs: ['output']
-}
+export const Limiter = {
+  name: 'Limiter',
+  inputs: ['input'],
+  parameters: ['threshold'],
+  outputs: ['output'],
+} as const
+export type Limiter = ModuleTypeOf<typeof Limiter>
 
-export type PowShaper = {
-  name: 'PowShaper'
-  inputs: ['input']
-  parameters: ['exponent', 'gain', 'preGain']
-  outputs: ['output']
-}
+export const PowShaper = {
+  name: 'PowShaper',
+  inputs: ['input'],
+  parameters: ['exponent', 'gain', 'preGain'],
+  outputs: ['output'],
+} as const
+export type PowShaper = ModuleTypeOf<typeof PowShaper>
 
-export type Sequencer = {
-  name: 'Sequencer'
-  inputs: ['gate']
-  parameters: ['length', 'glide']
-  outputs: ['cv', 'gate']
-  // Set sequencer notes
-  messages: { type: 'SequencerSetNotes'; notes: Note[] }
+export const Sequencer = {
+  name: 'Sequencer',
+  inputs: ['gate'],
+  parameters: ['length', 'glide'],
+  outputs: ['cv', 'gate'],
+} as const
+export type Sequencer = ModuleTypeOf<
+  typeof Sequencer,
+  { type: 'SequencerSetNotes'; notes: Note[] },
+  { type: 'SequencerAdvance'; position: number }
+>
 
-  // Sequencer advance
-  events: { type: 'SequencerAdvance'; position: number }
-}
-
-export type ADSR = {
-  name: 'ADSR'
-  inputs: ['gate']
+export const ADSR = {
+  name: 'ADSR',
+  inputs: ['gate'],
   parameters: [
     'attack',
     'decay',
@@ -96,28 +109,31 @@ export type ADSR = {
     'release',
     'attackTension',
     'decayTension',
-    'releaseTension'
-  ]
-  outputs: ['envelope']
-}
+    'releaseTension',
+  ],
+  outputs: ['envelope'],
+} as const
+export type ADSR = ModuleTypeOf<typeof ADSR>
 
-export type Delay = {
-  name: 'Delay'
-  inputs: ['input']
-  parameters: ['time', 'feedback', 'wet', 'dry']
-  outputs: ['output']
-}
+export const Delay = {
+  name: 'Delay',
+  inputs: ['input'],
+  parameters: ['time', 'feedback', 'wet', 'dry'],
+  outputs: ['output'],
+} as const
+export type Delay = ModuleTypeOf<typeof Delay>
 
-export type Reverb = {
-  name: 'Reverb'
-  inputs: ['input']
-  parameters: ['delay', 'decay', 'diffuse', 'wet', 'dry']
-  outputs: ['output']
-}
+export const Reverb = {
+  name: 'Reverb',
+  inputs: ['input'],
+  parameters: ['delay', 'decay', 'diffuse', 'wet', 'dry'],
+  outputs: ['output'],
+} as const
+export type Reverb = ModuleTypeOf<typeof Reverb>
 
-export type Clock = {
-  name: 'Clock'
-  inputs: []
+export const Clock = {
+  name: 'Clock',
+  inputs: [],
   parameters: [
     'tempo',
     'ratio0',
@@ -128,47 +144,74 @@ export type Clock = {
     'pw2',
     'swing0',
     'swing1',
-    'swing2'
-  ]
-  outputs: ['pulse0', 'pulse1', 'pulse2']
+    'swing2',
+  ],
+  outputs: ['pulse0', 'pulse1', 'pulse2'],
+} as const
 
-  messages:
-    | { type: 'ClockReset' }
-    | { type: 'ClockSetRunning'; running: boolean }
-}
+export type Clock = ModuleTypeOf<
+  typeof Clock,
+  { type: 'ClockReset' } | { type: 'ClockSetRunning'; running: boolean }
+>
 
-export type MIDI = {
-  name: 'MIDI'
-  inputs: []
-  parameters: []
-  outputs: ['cv', 'velocity', 'gate']
-  messages: { type: 'MidiMessage'; message: number }
-}
+export const MIDI = {
+  name: 'MIDI',
+  inputs: [],
+  parameters: [],
+  outputs: ['cv', 'velocity', 'gate'],
+} as const
+export type MIDI = ModuleTypeOf<
+  typeof MIDI,
+  { type: 'MidiMessage'; message: number }
+>
 
-export type BouncyBoi = {
-  name: 'BouncyBoi'
-  inputs: []
-  parameters: ['speed', 'gravity']
-  outputs: ['trig0', 'trig1', 'trig2', 'vel0', 'vel1', 'vel2']
-
-  events: {
+export const BouncyBoi = {
+  name: 'BouncyBoi',
+  inputs: [],
+  parameters: ['speed', 'gravity'],
+  outputs: ['trig0', 'trig1', 'trig2', 'vel0', 'vel1', 'vel2'],
+} as const
+export type BouncyBoi = ModuleTypeOf<
+  typeof BouncyBoi,
+  never,
+  {
     type: 'BouncyBoiUpdate'
     balls: { pos: Vec2; vel: Vec2 }[]
     phase: number
   }
-}
+>
 
-export type Sampler = {
-  name: 'Sampler'
-  inputs: ['gate']
-  parameters: ['speed', 'start', 'length']
-  outputs: ['out']
+export const Sampler = {
+  name: 'Sampler',
+  inputs: ['gate'],
+  parameters: ['speed', 'start', 'length'],
+  outputs: ['out'],
+} as const
+export type Sampler = ModuleTypeOf<
+  typeof Sampler,
+  { type: 'SamplerAllocate'; size: number },
+  | { type: 'SamplerAllocateSuccess'; ptr: number }
+  | { type: 'SamplerPlayheadPtr'; ptr: number }
+>
 
-  messages: { type: 'SamplerAllocate'; size: number }
-  events:
-    | { type: 'SamplerAllocateSuccess'; ptr: number }
-    | { type: 'SamplerPlayheadPtr'; ptr: number }
-}
+export const modules = {
+  AudioOut,
+  Oscillator,
+  BiquadFilter,
+  Mixer,
+  Gain,
+  Limiter,
+  PowShaper,
+  Sequencer,
+  ADSR,
+  Delay,
+  Reverb,
+  Clock,
+  MIDI,
+  BouncyBoi,
+  LFO,
+  Sampler,
+} as const
 
 export type Module =
   | AudioOut

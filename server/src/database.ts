@@ -109,6 +109,7 @@ export const getUserPatches = (userId: string) => {
     SELECT id, name, version, createdAt
     FROM patches
     WHERE authorId = ${userId}
+    ORDER BY version DESC
   `)
 }
 

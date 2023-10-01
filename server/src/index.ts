@@ -3,6 +3,7 @@ import * as path from 'path'
 import * as http from 'http'
 import * as t from 'io-ts'
 import * as db from './database'
+import * as typeValidators from '@modulate/common/type-validators'
 import * as validators from '@modulate/common/validators'
 import * as auth from './authorization'
 import * as logger from './logger'
@@ -17,7 +18,7 @@ const unauthorized = (res: Response) => {
   res.end()
 }
 
-const badRequest = (res: Response, reason = '') => {
+const badRequest = (res: Response, reason: any = undefined) => {
   res.status(400)
   res.json({ error: 'bad request', reason })
   res.end()
@@ -89,7 +90,7 @@ const server = http.createServer(
       })
       res.end()
     })
-    .post('/api/user', validators.UserRegistration, async (req, res) => {
+    .post('/api/user', typeValidators.UserRegistration, async (req, res) => {
       const { authorization } = req
       if (authorization) {
         res.status(400)
@@ -130,7 +131,7 @@ const server = http.createServer(
       res.json({ user, token: auth.createToken(user) })
       res.end()
     })
-    .post('/api/user/login', validators.UserLogin, async (req, res) => {
+    .post('/api/user/login', typeValidators.UserLogin, async (req, res) => {
       const { authorization } = req
       if (authorization) {
         res.status(400)
@@ -235,7 +236,10 @@ const server = http.createServer(
     })
     .post(
       '/api/patch',
-      t.type({ metadata: validators.PatchMetadata, patch: validators.Patch }),
+      t.type({
+        metadata: typeValidators.PatchMetadata,
+        patch: typeValidators.Patch,
+      }),
       async (req, res) => {
         const { authorization } = req
         if (!authorization) {
@@ -244,6 +248,13 @@ const server = http.createServer(
         }
 
         const { patch, metadata } = req.body
+
+        const { valid, errors } = validators.validatePatch(patch)
+
+        if (!valid) {
+          badRequest(res, errors)
+          return
+        }
 
         if (!metadata.id) {
           res.json(await db.saveNewPatch(authorization.id, metadata, patch))
