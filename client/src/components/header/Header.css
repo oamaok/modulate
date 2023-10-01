@@ -1,5 +1,4 @@
 .brand {
-  margin: -10px 0 -10px -10px;
   padding: 10px;
   background-color: var(--primary);
   border-top-left-radius: 5px;
@@ -63,6 +62,8 @@
   height: 24px;
   width: 24px;
   position: relative;
+  color: #777;
+  cursor: not-allowed;
 }
 
 .actions {
@@ -72,6 +73,7 @@
   flex-direction: row;
   align-items: center;
   gap: 8px;
+  padding-right: 10px;
 }
 
 .separator {
@@ -95,6 +97,11 @@
   color: var(--background);
 
   transition: opacity 0.1s ease-out;
+}
+
+.menu-icon.enabled {
+  color: #fff;
+  cursor: pointer;
 }
 
 .menu-icon:hover .label {

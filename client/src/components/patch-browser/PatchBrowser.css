@@ -24,9 +24,42 @@
   gap: 12px;
 }
 
-.patch {
+.patches .patch {
   border-radius: 2px;
   padding: 8px;
   background: var(--secondary);
   box-shadow: var(--box-shadow);
+}
+
+.own-patches .patch {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-bottom: 1px solid #777;
+  padding: 8px;
+}
+
+.own-patches .patch .load {
+  height: 24px;
+  width: 24px;
+  background-color: var(--primary);
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+
+.own-patches .patch.version {
+  padding-left: 32px;
+}
+
+.own-patches .patch .name {
+  width: 200px;
+}
+
+.own-patches .patch .version {
+  width: 200px;
+}
+
+.own-patches .patch .date {
+  width: 200px;
 }

@@ -55,6 +55,15 @@ const initialize = async () => {
   }
 }
 
+const initOnEnter = (evt: KeyboardEvent) => {
+  if (evt.key === 'Enter') {
+    initialize()
+    document.removeEventListener('keydown', initOnEnter)
+  }
+}
+
+document.addEventListener('keydown', initOnEnter)
+
 const InitModal = () => {
   return (
     <Overlay className={css('init-modal')} showCloseButton={false}>

@@ -1,8 +1,23 @@
 import { immutable, useEffect, useState } from 'kaiku'
-import { loadPatch } from '../../state'
+import { closeOverlay, loadPatch, resetPatch } from '../../state'
 import * as api from '../../api'
 import css from './PatchBrowser.css'
 import Overlay from '../overlay/Overlay'
+import { groupBy } from '@modulate/common/util'
+import assert from '../../assert'
+
+const fetchAndLoadPatch = async (patchId: string) => {
+  const patchData = await api.getLatestPatchVersion(patchId)
+  await resetPatch()
+  history.pushState({}, '', `/patch/${patchData.metadata.id}`)
+  loadPatch(patchData.metadata, patchData.patch)
+  closeOverlay()
+}
+
+const formatPatchDate = (time: number) => {
+  const date = new Date(time)
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
+}
 
 const YourPatches = () => {
   const state = useState<{
@@ -10,10 +25,12 @@ const YourPatches = () => {
       id: string
       name: string
       version: number
-      createdAt: string
+      createdAt: number
     }[]
+    expandedPatches: string[]
   }>({
     patches: [],
+    expandedPatches: [],
   })
 
   useEffect(() => {
@@ -22,14 +39,58 @@ const YourPatches = () => {
     })
   })
 
+  const togglePatchExpansion = (patchId: string) => {
+    const isExpanded = state.expandedPatches.includes(patchId)
+    if (isExpanded) {
+      state.expandedPatches = state.expandedPatches.filter(
+        (id) => patchId !== id
+      )
+    } else {
+      state.expandedPatches.push(patchId)
+    }
+  }
+
+  const groupedPatches = groupBy(state.patches, (patch) => patch.id)
+
   return (
-    <div>
-      {state.patches.map((patch) => (
-        <div>
-          name: {patch.name}
-          id: {patch.id}
-        </div>
-      ))}
+    <div className={css('own-patches')}>
+      {groupedPatches.map(([patchId, patches]) => {
+        const isExpanded = state.expandedPatches.includes(patchId)
+        const [firstPatch, ...rest] = patches
+        assert(firstPatch)
+
+        return (
+          <div
+            className={css('group')}
+            onClick={() => togglePatchExpansion(patchId)}
+          >
+            <div className={css('patch')}>
+              <button className={css('load')} onClick={() => fetchAndLoadPatch(patchId)}><span className="material-symbols-outlined">play_arrow</span></button>
+              <div className={css('name')}>{firstPatch.name}</div>
+              <div className={css('version')}>
+                Version #{firstPatch.version}
+              </div>
+              <div className={css('date')}>
+                {formatPatchDate(firstPatch.createdAt)}
+              </div>
+            </div>
+            {isExpanded
+              ? rest.map((patch) => (
+                  <div className={css('patch', 'version')}>
+                  <button className={css('load')}><span className="material-symbols-outlined">play_arrow</span></button>
+                    <div className={css('name')}>{patch.name}</div>
+                    <div className={css('version')}>
+                      Version #{patch.version}
+                    </div>
+                    <div className={css('date')}>
+                      {formatPatchDate(patch.createdAt)}
+                    </div>
+                  </div>
+                ))
+              : null}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -53,17 +114,10 @@ const PublicPatches = () => {
     })
   })
 
-  const fetchAndLoadPatch = async (patchId: string) => {
-    const patchData = await api.getLatestPatchVersion(patchId)
-
-    loadPatch(patchData.metadata, patchData.patch)
-  }
-
   return (
     <div className={css('patches')}>
       {state.patches.map((patch) => (
         <button
-          id={patch.id}
           className={css('patch')}
           onClick={() => fetchAndLoadPatch(patch.id)}
         >
@@ -79,7 +133,7 @@ const PatchBrowser = () => {
   const state = useState<{
     tab: 'yours' | 'public'
   }>({
-    tab: 'public',
+    tab: 'yours',
   })
 
   const SelectedTab = {

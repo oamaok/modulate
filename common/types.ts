@@ -13,7 +13,7 @@ import {
   PatchEvent,
   OutputSocket,
   InputSocket,
-} from './validators'
+} from './type-validators'
 import { Module } from '@modulate/worklets/src/modules'
 
 export type IndexOf<

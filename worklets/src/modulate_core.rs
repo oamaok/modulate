@@ -373,10 +373,10 @@ fn tension_interp(start: f32, end: f32, tension: f32, t: f32) -> f32 {
     + (end - start)
       * if tension > 0.0 {
         let exp = 1.0 + tension * 2.0;
-        1.0 - f32::powf(1.0 - f32::powf(t, exp), 1.0 / exp)
+        1.0 - f32::powf(1.0 - f32::powf(t.clamp(0.0, 1.0), exp), 1.0 / exp)
       } else {
         let exp = 1.0 - tension * 2.0;
-        f32::powf(1.0 - f32::powf(1.0 - t, exp), 1.0 / exp)
+        f32::powf(1.0 - f32::powf(1.0 - t.clamp(0.0, 1.0), exp), 1.0 / exp)
       }
 }
 
@@ -437,7 +437,7 @@ impl ADSRCurve {
 
         let decay_time = self.decay_time * SAMPLE_RATE_F32;
 
-        if self.time < decay_time + attack_time {
+        if self.time - attack_time < decay_time {
           break 'l tension_interp(
             1.0,
             self.sustain_level,

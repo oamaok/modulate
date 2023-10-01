@@ -158,6 +158,7 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   patch.knobs = knobs
   patch.currentId = currentId
   patch.modules = modules
+  patch.cables = cables
 
   await new Promise(requestAnimationFrame)
 
@@ -165,7 +166,6 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
     await engine.connectCable(cable)
   }
 
-  patch.cables = cables
   state.initialized = true
 }
 

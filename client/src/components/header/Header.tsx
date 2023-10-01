@@ -8,11 +8,17 @@ import SaveDialog from '../save-dialog/SaveDialog'
 type MenuIconProps = {
   icon: string
   label: string
+  enabled: boolean
   onClick: () => void
 }
 
-const MenuIcon = ({ icon, label, onClick }: MenuIconProps) => (
-  <button className={css('menu-icon')} onClick={onClick}>
+const noop = () => {}
+
+const MenuIcon = ({ icon, label, onClick, enabled }: MenuIconProps) => (
+  <button
+    className={css('menu-icon', { enabled })}
+    onClick={enabled ? onClick : noop}
+  >
     <span className="material-symbols-outlined">{icon}</span>
     <div className={css('label')}>{label}</div>
   </button>
@@ -22,11 +28,19 @@ const Header = () => {
   const patchAuthor =
     state.patchMetadata.author?.username ?? state.user?.username ?? 'anonymous'
 
+  const isLoggedIn = state.user !== null
   const isSavedPatch = state.patchMetadata.id !== null
   const isOwnPatch =
-    !isSavedPatch || state.patchMetadata.author?.id === state.user?.id
+    isLoggedIn &&
+    (!isSavedPatch || state.patchMetadata.author?.id === state.user?.id)
 
   const menuItems = [
+    {
+      icon: 'view_list',
+      label: 'Browse patches',
+      action: () => openOverlay('patch-browser'),
+      enabled: true,
+    },
     {
       icon: 'add',
       label: 'New patch',
@@ -65,19 +79,13 @@ const Header = () => {
       icon: 'fork_right',
       label: 'Fork this patch',
       action: () => {},
-      enabled: !isOwnPatch,
-    },
-    {
-      icon: 'view_list',
-      label: 'Browse patches',
-      action: () => openOverlay('patch-browser'),
-      enabled: true,
+      enabled: isLoggedIn && !isOwnPatch,
     },
     {
       icon: 'group',
       label: 'Create multiplayer room',
       action: () => {},
-      enabled: isSavedPatch,
+      enabled: isLoggedIn && isSavedPatch,
     },
   ]
 
@@ -85,20 +93,21 @@ const Header = () => {
     <MenuBar top left>
       <h2 className={css('brand')}>modulate</h2>
       <div className={css('patch-name')}>
-        <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
+        <span>
+          <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
+        </span>
       </div>
       <div className={css('actions')}>
         <div className={css('separator')} />
         {intersperse(
-          menuItems
-            .filter((item) => item.enabled)
-            .map((item) => (
-              <MenuIcon
-                icon={item.icon}
-                label={item.label}
-                onClick={item.action}
-              />
-            )),
+          menuItems.map((item) => (
+            <MenuIcon
+              icon={item.icon}
+              label={item.label}
+              enabled={item.enabled}
+              onClick={item.action}
+            />
+          )),
           <div className={css('separator')} />
         )}
       </div>

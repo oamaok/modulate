@@ -19,8 +19,8 @@ type InitOptions = {
 
 let engine: Engine | null = null
 
-const eventSubscriptions: Record<number, (event: ModuleEvent<Module>) => void> =
-  {}
+const eventSubscriptions: Map<number, (event: ModuleEvent<Module>) => void> =
+  new Map()
 
 const DEFAULT_OPTIONS: InitOptions = {
   spawnAudioWorklet: true,
@@ -58,7 +58,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     data: msg,
   }: MessageEvent<EngineResponse<EngineMessageType> | EngineEvent>) => {
     if (msg.type === 'moduleEvent') {
-      const callback = eventSubscriptions[msg.moduleHandle]
+      const callback = eventSubscriptions.get(msg.moduleHandle)
       if (!callback) {
         console.warn('unhandled module message, ', msg)
         return
@@ -211,13 +211,13 @@ export const getWorkerTimers = () => {
   )
 }
 
-const moduleHandles: Record<string, Promise<number>> = {}
-const cableHandles: Record<string, number> = {}
+const moduleHandles: Map<string, Promise<number>> = new Map()
+const cableHandles: Map<string, number> = new Map()
 
 export const getModuleHandle = async (
   moduleId: string
 ): Promise<number | null> => {
-  const handle = moduleHandles[moduleId]
+  const handle = moduleHandles.get(moduleId)
   if (typeof handle === 'undefined') return null
   return handle
 }
@@ -225,27 +225,29 @@ export const getModuleHandle = async (
 export const createModule = async (moduleId: string, name: ModuleName) => {
   assert(engine)
   assert(
-    !(moduleId in moduleHandles),
+    !moduleHandles.has(moduleId),
     `createModule: module with the id "${moduleId}" already exists`
   )
 
-  moduleHandles[moduleId] = engine
-    .createModule({ name })
-    .then(({ moduleHandle }) => moduleHandle)
+  moduleHandles.set(
+    moduleId,
+    engine.createModule({ name }).then(({ moduleHandle }) => moduleHandle)
+  )
 }
 
 export const deleteModule = async (moduleId: string) => {
-  const moduleHandle = await moduleHandles[moduleId]
+  const moduleHandle = await moduleHandles.get(moduleId)
   assert(typeof moduleHandle !== 'undefined')
   assert(engine)
   await engine.deleteModule({ moduleHandle })
-  delete eventSubscriptions[moduleHandle]
+  eventSubscriptions.delete(moduleHandle)
+  moduleHandles.delete(moduleId)
 }
 
 export const connectCable = async (cable: Cable) => {
   assert(engine)
   assert(
-    !(cable.id in cableHandles),
+    !cableHandles.has(cable.id),
     `connectCable: cable with the id "${cable.id}" already exists`
   )
   let connectionHandle: number
@@ -282,16 +284,16 @@ export const connectCable = async (cable: Cable) => {
     }
   }
 
-  cableHandles[cable.id] = connectionHandle
+  cableHandles.set(cable.id, connectionHandle)
 }
 
 export const disconnectCable = async (cable: Pick<Cable, 'id'>) => {
   assert(engine)
-  const connectionHandle = cableHandles[cable.id]
+  const connectionHandle = cableHandles.get(cable.id)
   assert(typeof connectionHandle !== 'undefined')
   await engine.removeConnection({ connectionId: connectionHandle })
 
-  delete cableHandles[cable.id]
+  cableHandles.delete(cable.id)
 }
 
 export const setParameterValue = async (
@@ -323,7 +325,14 @@ export const onModuleEvent = async <M extends Module>(
   assert(engine)
   const moduleHandle = await getModuleHandle(moduleId)
   assert(moduleHandle !== null)
-  eventSubscriptions[moduleHandle] = callback as (
-    event: ModuleEvent<Module>
-  ) => void
+  eventSubscriptions.set(
+    moduleHandle,
+    callback as (event: ModuleEvent<Module>) => void
+  )
+}
+
+export const setGlobalVolume = (value: number) => {
+  const audioContext = getAudioContext()
+  const gain = getGain().gain
+  gain.setTargetAtTime(value, audioContext.currentTime, 0.01)
 }

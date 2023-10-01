@@ -8,7 +8,7 @@ type OverlayProps = {
 }
 
 const Overlay: FC<OverlayProps> = ({
-  className,
+  className = '',
   showCloseButton = true,
   children,
 }) => {

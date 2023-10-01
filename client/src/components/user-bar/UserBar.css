@@ -1,3 +1,7 @@
+.user-bar {
+  padding: 5px 10px;
+}
+
 .global-volume {
   display: flex;
   flex-direction: row;
@@ -12,4 +16,7 @@
   border-radius: 2px;
   background-color: var(--primary);
   box-shadow: var(--box-shadow);
+  text-shadow: none;
+  color: #fff;
+  font-weight: bold;
 }

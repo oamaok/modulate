@@ -90,3 +90,21 @@ export const intersperse = <A, B>(arr: A[], b: B) => {
   ret.pop()
   return ret
 }
+
+export const groupBy = <T, F extends (item: T) => any>(
+  arr: T[],
+  discriminator: F
+): [ReturnType<F>, T[]][] => {
+  const ret: Map<ReturnType<F>, T[]> = new Map()
+
+  for (const item of arr) {
+    const groupKey = discriminator(item)
+    const group = ret.get(groupKey) ?? []
+    if (group.length === 0) {
+      ret.set(groupKey, group)
+    }
+    group.push(item)
+  }
+
+  return Array.from(ret.entries())
+}

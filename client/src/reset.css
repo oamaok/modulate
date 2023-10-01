@@ -24,7 +24,6 @@
   background: none;
   font-size: 16px;
   box-sizing: border-box;
-  color: var(--on-background);
   font-family: 'Gemunu Libre', sans-serif;
   text-shadow: 0 1px 0px #000;
 }
@@ -35,6 +34,7 @@ html {
   width: 100vw;
   height: 100vh;
   position: relative;
+  color: var(--on-background);
 }
 
 h2 {
@@ -56,9 +56,11 @@ input[type='password'] {
   padding: 8px;
   text-transform: none;
   box-shadow: var(--inset-box-shadow);
+  color: var(--on-background);
 }
 
 button,
 input[type='button'] {
   cursor: pointer;
+  color: var(--on-background);
 }
