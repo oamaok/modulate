@@ -65,7 +65,12 @@ const YourPatches = () => {
             onClick={() => togglePatchExpansion(patchId)}
           >
             <div className={css('patch')}>
-              <button className={css('load')} onClick={() => fetchAndLoadPatch(patchId)}><span className="material-symbols-outlined">play_arrow</span></button>
+              <button
+                className={css('load')}
+                onClick={() => fetchAndLoadPatch(patchId)}
+              >
+                <span className="material-symbols-outlined">play_arrow</span>
+              </button>
               <div className={css('name')}>{firstPatch.name}</div>
               <div className={css('version')}>
                 Version #{firstPatch.version}
@@ -77,7 +82,11 @@ const YourPatches = () => {
             {isExpanded
               ? rest.map((patch) => (
                   <div className={css('patch', 'version')}>
-                  <button className={css('load')}><span className="material-symbols-outlined">play_arrow</span></button>
+                    <button className={css('load')}>
+                      <span className="material-symbols-outlined">
+                        play_arrow
+                      </span>
+                    </button>
                     <div className={css('name')}>{patch.name}</div>
                     <div className={css('version')}>
                       Version #{patch.version}

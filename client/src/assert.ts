@@ -7,7 +7,6 @@ function __assert(
   }
 }
 
-const assert: typeof __assert =
-  process.env.NODE_ENV !== 'production' ? __assert : () => {}
+const assert: typeof __assert = __DEBUG__ ? __assert : () => {}
 
 export default assert

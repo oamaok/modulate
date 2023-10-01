@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import * as crypto from 'crypto'
 import * as http from 'http'
 import * as validators from '@modulate/common/type-validators'
 import * as logger from './logger'

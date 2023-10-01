@@ -4,6 +4,7 @@ import MenuBar from '../menu-bar/MenuBar'
 import css from './Header.css'
 import { intersperse } from '@modulate/common/util'
 import SaveDialog from '../save-dialog/SaveDialog'
+import { createRoom } from '../../rooms'
 
 type MenuIconProps = {
   icon: string
@@ -84,7 +85,7 @@ const Header = () => {
     {
       icon: 'group',
       label: 'Create multiplayer room',
-      action: () => {},
+      action: () => createRoom(state.patchMetadata.id!),
       enabled: isLoggedIn && isSavedPatch,
     },
   ]
