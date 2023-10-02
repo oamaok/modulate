@@ -87,8 +87,7 @@ const buildClient = async () => {
       outdir: buildDir,
       minify: isProduction,
       define: {
-        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
-        __DEBUG__: `"${isProduction ? 'false' : 'true'}"`,
+        __DEBUG__: isProduction ? 'false' : 'true',
       },
 
       plugins: [CssModulesPlugin()],
