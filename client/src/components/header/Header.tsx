@@ -1,10 +1,16 @@
-import state, { openOverlay, resetPatch } from '../../state'
+import state, {
+  canUserSavePatch,
+  isOwnPatch,
+  openOverlay,
+  resetPatch,
+} from '../../state'
 import * as api from '../../api'
 import MenuBar from '../menu-bar/MenuBar'
 import css from './Header.css'
 import { intersperse } from '@modulate/common/util'
 import SaveDialog from '../save-dialog/SaveDialog'
 import { createRoom } from '../../rooms'
+import testAttributes from '../../test-attributes'
 
 type MenuIconProps = {
   icon: string
@@ -17,6 +23,7 @@ const noop = () => {}
 
 const MenuIcon = ({ icon, label, onClick, enabled }: MenuIconProps) => (
   <button
+    {...testAttributes({ icon, label })}
     className={css('menu-icon', { enabled })}
     onClick={enabled ? onClick : noop}
   >
@@ -31,9 +38,6 @@ const Header = () => {
 
   const isLoggedIn = state.user !== null
   const isSavedPatch = state.patchMetadata.id !== null
-  const isOwnPatch =
-    isLoggedIn &&
-    (!isSavedPatch || state.patchMetadata.author?.id === state.user?.id)
 
   const menuItems = [
     {
@@ -46,7 +50,7 @@ const Header = () => {
       icon: 'add',
       label: 'New patch',
       action: async () => {
-        if (await SaveDialog.open()) {
+        if (!canUserSavePatch() || (await SaveDialog.open())) {
           await resetPatch()
         }
       },
@@ -56,7 +60,7 @@ const Header = () => {
       icon: 'settings',
       label: 'Patch settings',
       action: () => openOverlay('patch-settings'),
-      enabled: isOwnPatch,
+      enabled: isOwnPatch(),
     },
     {
       icon: 'save',
@@ -66,7 +70,7 @@ const Header = () => {
         state.patchMetadata.id = res.id
         history.pushState({}, '', `/patch/${res.id}`)
       },
-      enabled: isOwnPatch,
+      enabled: isOwnPatch(),
     },
     /*
     {
@@ -80,7 +84,7 @@ const Header = () => {
       icon: 'fork_right',
       label: 'Fork this patch',
       action: () => {},
-      enabled: isLoggedIn && !isOwnPatch,
+      enabled: isLoggedIn && !isOwnPatch(),
     },
     {
       icon: 'group',

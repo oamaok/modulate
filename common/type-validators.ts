@@ -45,7 +45,6 @@ export const PatchMetadata = t.type({
 })
 
 export const Patch = t.type({
-  currentId: t.number,
   modules: t.record(t.string, Module),
   knobs: t.record(t.string, t.record(t.string, t.number)),
   cables: t.array(Cable),

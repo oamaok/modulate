@@ -14,6 +14,7 @@
   background: url(/assets/knob.svg);
   background-size: contain;
   position: relative;
+  cursor: grab;
 }
 
 .knob::before {

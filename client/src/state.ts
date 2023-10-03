@@ -43,7 +43,6 @@ const state = createState<State>({
     name: 'untitled',
   },
   patch: {
-    currentId: 0,
     modules: {},
     knobs: {},
     cables: [],
@@ -153,10 +152,9 @@ export const openOverlay = (overlay: Overlay) => {
 }
 
 export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
-  const { currentId, modules, knobs, cables } = savedPatch
+  const { modules, knobs, cables } = savedPatch
   state.patchMetadata = metadata
   patch.knobs = knobs
-  patch.currentId = currentId
   patch.modules = modules
   patch.cables = cables
 
@@ -198,6 +196,14 @@ export const addModule = async (
     state: null,
   }
 }
+
+export const isOwnPatch = () => {
+  if (!state.user) return false
+  if (!state.patchMetadata.author) return true
+  return state.patchMetadata.author.id === state.user.id
+}
+
+export const canUserSavePatch = isOwnPatch
 
 export const displayHint = (content: string, position: Vec2) => {
   state.hint.visible = true

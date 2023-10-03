@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'kaiku'
 import css from './ContextMenu.css'
 import state, { addModule } from '../../state'
 import * as moduleMap from '../../moduleMap'
+import testAttributes from '../../test-attributes'
 
 type Props = {}
 
@@ -58,6 +59,7 @@ const ContextMenu = ({}: Props) => {
   return (
     <div
       ref={menuRef}
+      {...testAttributes({ id: 'context-menu' })}
       className={() => css('context-menu', { open: state.contextMenu.open })}
       style={{
         transform: getContextMenuTransform,
@@ -67,6 +69,7 @@ const ContextMenu = ({}: Props) => {
       <div className={css('items')}>
         {modules.map((moduleName) => (
           <button
+            {...testAttributes({ id: 'add-module', 'module-name': moduleName })}
             className={css('item')}
             onClick={() => onModuleClick(moduleName)}
           >

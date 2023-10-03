@@ -5,7 +5,6 @@
     "name": "New Patch"
   },
   "patch": {
-    "currentId": 0,
     "modules": {
       "e3b4d035-2f17-4bd0-bed7-fe5da037395b": {
         "name": "AudioOut",

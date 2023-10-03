@@ -9,6 +9,7 @@ import { IndexOf, Vec2 } from '@modulate/common/types'
 import css from './Socket.css'
 import assert from '../../assert'
 import { Module } from '@modulate/worklets/src/modules'
+import testAttributes from '../../test-attributes'
 
 const getSocketOffset = (
   element: HTMLElement,
@@ -81,7 +82,14 @@ const Socket = <
   })
 
   return (
-    <div className={css(['socket-wrapper', `socket-${type}`])}>
+    <div
+      className={css(['socket-wrapper', `socket-${type}`])}
+      {...testAttributes({
+        'module-id': moduleId,
+        type,
+        index,
+      })}
+    >
       <div ref={ref} className={css('socket')} onMouseDown={onMouseDown} />
       <div className={css('socket-name')}>{label}</div>
     </div>

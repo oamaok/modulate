@@ -3,6 +3,7 @@ import state, { getModulePosition } from '../../state'
 import { Id, Vec2 } from '@modulate/common/types'
 import css from './Module.css'
 import assert from '../../assert'
+import testAttributes from '../../test-attributes'
 
 type Props = {
   id: Id
@@ -59,6 +60,11 @@ const Module: FC<Props> = ({
 
   return (
     <div
+      {...testAttributes({
+        id: 'module',
+        name,
+        'module-id': id,
+      })}
       data-id="module"
       onMouseDown={() => (state.activeModule = id)}
       className={() =>
@@ -76,7 +82,11 @@ const Module: FC<Props> = ({
           )}px)`,
       }}
     >
-      <div className={css('module-name')} onMouseDown={onDragStart}>
+      <div
+        className={css('module-name')}
+        onMouseDown={onDragStart}
+        {...testAttributes({ id: 'module-header' })}
+      >
         {name}
       </div>
       <div className={css('module-body')}>{children}</div>

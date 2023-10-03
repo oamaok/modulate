@@ -67,8 +67,8 @@ const Cables = () => {
             `translate(${state.viewOffset.x} ${state.viewOffset.y})`
           }
         >
-          {patch.cables.map(({ id, from, to }) => (
-            <Cable key={id} from={from} to={to} />
+          {patch.cables.map((cable) => (
+            <Cable key={cable.id} cable={cable} />
           ))}
           <ActiveCable />
         </g>

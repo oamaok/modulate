@@ -9,7 +9,6 @@ import { PatchEvent } from '@modulate/common/types'
 import * as engine from './engine'
 
 let previousPatch: Patch = {
-  currentId: 0,
   modules: {},
   knobs: {},
   cables: [],
