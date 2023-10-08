@@ -25,7 +25,7 @@ class OscillatorNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Oscillator">
+      <Module id={id} type="Oscillator">
         <Knob
           moduleId={id}
           id="cv"

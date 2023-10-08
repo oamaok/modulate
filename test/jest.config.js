@@ -10,4 +10,5 @@ module.exports = {
   ...tsPreset,
   ...puppeteerPreset,
   testTimeout: 10000,
+  modulePathIgnorePatterns: ['e2e/'],
 }

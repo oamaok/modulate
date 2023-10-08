@@ -177,7 +177,7 @@ class SamplerNode extends Component<Props> {
     const samplerState = getModuleState<SamplerState>(id)
 
     return (
-      <Module id={id} name="Sampler" height={260} width={400}>
+      <Module id={id} type="Sampler" height={260} width={400}>
         <div className={css('sampler')}>
           <div className={css('canvases')}>
             <canvas ref={this.waveformCanvasRef} width="300" height="100" />

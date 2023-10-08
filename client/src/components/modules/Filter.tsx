@@ -22,7 +22,7 @@ class BiquadFilterNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Filter" width={180}>
+      <Module id={id} type="BiquadFilter" name="Filter" width={180}>
         <Knob
           moduleId={id}
           id="frequency"

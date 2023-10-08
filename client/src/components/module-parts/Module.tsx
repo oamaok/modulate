@@ -4,16 +4,19 @@ import { Id, Vec2 } from '@modulate/common/types'
 import css from './Module.css'
 import assert from '../../assert'
 import testAttributes from '../../test-attributes'
+import { ModuleName } from '@modulate/worklets/src/modules'
 
 type Props = {
   id: Id
-  name: string
+  type: ModuleName
+  name?: string
   height?: number
   width?: number
 }
 
 const Module: FC<Props> = ({
   id,
+  type,
   name,
   children,
   height = 100,
@@ -62,7 +65,7 @@ const Module: FC<Props> = ({
     <div
       {...testAttributes({
         id: 'module',
-        name,
+        type,
         'module-id': id,
       })}
       data-id="module"
@@ -87,7 +90,7 @@ const Module: FC<Props> = ({
         onMouseDown={onDragStart}
         {...testAttributes({ id: 'module-header' })}
       >
-        {name}
+        {name ?? type}
       </div>
       <div className={css('module-body')}>{children}</div>
     </div>

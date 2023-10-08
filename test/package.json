@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "test": "jest --runInBand",
+    "e2e": "playwright test",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "author": "Teemu Pääkkönen",
@@ -18,5 +19,9 @@
     "node-fetch": "2",
     "puppeteer": "^20.7.4",
     "ts-jest": "^29.1.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.38.1",
+    "@types/node": "^20.8.2"
   }
 }

@@ -23,6 +23,7 @@ const Cable = ({ cable }: Props) => {
       onBlur={() => {
         // TODO: Utility box
       }}
+      {...(__DEBUG__ ? { cable } : undefined)}
     />
   )
 }

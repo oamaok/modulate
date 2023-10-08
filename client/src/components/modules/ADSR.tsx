@@ -253,7 +253,7 @@ class ADSRNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="ADSR" width={250} height={200}>
+      <Module id={id} type="ADSR" width={250} height={200}>
         <div className={css('adsr')}>
           <div className={css('curve')}>
             <canvas

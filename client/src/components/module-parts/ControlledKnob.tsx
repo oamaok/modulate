@@ -3,6 +3,7 @@ import state, { displayHint, hideHint, setHintContent } from '../../state'
 import { Vec2 } from '@modulate/common/types'
 import css from './Knob.css'
 import assert from '../../assert'
+import testAttributes from '../../test-attributes'
 
 type PercentageKnob = {
   type: 'percentage'
@@ -53,6 +54,10 @@ type CommonProps = {
   hideLabel?: boolean
   value?: number
   onChange: (value: number) => void
+
+  // Used for tests
+  id?: string
+  moduleId?: string
 }
 
 type ControlledKnobProps = CommonProps & KnobsProps
@@ -266,6 +271,12 @@ const ControlledKnob = (props: ControlledKnobProps) => {
         style={{
           transform: `rotate(${knobState.position * 300 - 60}deg)`,
         }}
+        {...testAttributes({
+          id: 'knob',
+          'knob-id': props.id,
+          'module-id': props.moduleId,
+          value: getValue(props).toFixed(4),
+        })}
       ></div>
       {props.label && !hideLabel ? (
         <div className={css('name')}>{props.label}</div>

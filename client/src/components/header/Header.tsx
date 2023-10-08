@@ -13,6 +13,7 @@ import { createRoom } from '../../rooms'
 import testAttributes from '../../test-attributes'
 
 type MenuIconProps = {
+  id: string
   icon: string
   label: string
   enabled: boolean
@@ -21,9 +22,9 @@ type MenuIconProps = {
 
 const noop = () => {}
 
-const MenuIcon = ({ icon, label, onClick, enabled }: MenuIconProps) => (
+const MenuIcon = ({ id, icon, label, onClick, enabled }: MenuIconProps) => (
   <button
-    {...testAttributes({ icon, label })}
+    {...testAttributes({ id: 'menu-item', 'item-id': id, icon, label })}
     className={css('menu-icon', { enabled })}
     onClick={enabled ? onClick : noop}
   >
@@ -41,12 +42,14 @@ const Header = () => {
 
   const menuItems = [
     {
+      id: 'patch-browser',
       icon: 'view_list',
       label: 'Browse patches',
       action: () => openOverlay('patch-browser'),
       enabled: true,
     },
     {
+      id: 'new-patch',
       icon: 'add',
       label: 'New patch',
       action: async () => {
@@ -57,12 +60,14 @@ const Header = () => {
       enabled: true,
     },
     {
+      id: 'settings',
       icon: 'settings',
       label: 'Patch settings',
       action: () => openOverlay('patch-settings'),
       enabled: isOwnPatch(),
     },
     {
+      id: 'save-patch',
       icon: 'save',
       label: 'Save patch',
       action: async () => {
@@ -81,12 +86,14 @@ const Header = () => {
     },
     */
     {
+      id: 'fork-patch',
       icon: 'fork_right',
       label: 'Fork this patch',
       action: () => {},
       enabled: isLoggedIn && !isOwnPatch(),
     },
     {
+      id: 'create-room',
       icon: 'group',
       label: 'Create multiplayer room',
       action: () => createRoom(state.patchMetadata.id!),
@@ -107,6 +114,7 @@ const Header = () => {
         {intersperse(
           menuItems.map((item) => (
             <MenuIcon
+              id={item.id}
               icon={item.icon}
               label={item.label}
               enabled={item.enabled}

@@ -7,6 +7,7 @@ import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
 import css from './UserBar.css'
 import Knob from '../module-parts/Knob'
 import ControlledKnob from '../module-parts/ControlledKnob'
+import testAttributes from '../../test-attributes'
 
 const getVolumeIcon = (level: number) => {
   if (level > 0.66) return 'volume_up'
@@ -59,6 +60,7 @@ const UserBar = () => {
       {state.user ? (
         <>
           <button
+            {...testAttributes({ id: 'logout' })}
             type="button"
             className={css('login-button')}
             onClick={auth.reset}
@@ -68,6 +70,7 @@ const UserBar = () => {
         </>
       ) : (
         <button
+          {...testAttributes({ id: 'login' })}
           type="button"
           className={css('login-button')}
           onClick={() => {

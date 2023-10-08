@@ -3,7 +3,11 @@ import { ClientMessage, Patch, ServerMessage } from '@modulate/common/types'
 import { validatePatch } from '@modulate/common/validators'
 import * as util from '@modulate/common/util'
 import * as api from './api'
-import state, { loadPatch, addConnectionBetweenSockets } from './state'
+import state, {
+  loadPatch,
+  addConnectionBetweenSockets,
+  resetPatch,
+} from './state'
 import assert from './assert'
 import { PatchEvent } from '@modulate/common/types'
 import * as engine from './engine'
@@ -33,6 +37,7 @@ const flushMessageQueue = () => {
 }
 
 export const createRoom = async (patchId: string) => {
+  await resetPatch()
   const { roomId } = await api.getRoomUsingPatch(patchId)
   history.pushState({}, '', `/room/${roomId}`)
   joinRoom(roomId)

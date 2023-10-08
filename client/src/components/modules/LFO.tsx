@@ -25,7 +25,7 @@ class LFONode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="LFO" width={200}>
+      <Module id={id} type="LFO" width={200}>
         <Knob
           moduleId={id}
           id="freq"

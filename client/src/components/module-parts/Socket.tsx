@@ -85,12 +85,19 @@ const Socket = <
     <div
       className={css(['socket-wrapper', `socket-${type}`])}
       {...testAttributes({
+        id: 'socket-wrapper',
         'module-id': moduleId,
         type,
-        index,
+        index: (index as number).toString(),
+        label,
       })}
     >
-      <div ref={ref} className={css('socket')} onMouseDown={onMouseDown} />
+      <div
+        ref={ref}
+        className={css('socket')}
+        onMouseDown={onMouseDown}
+        {...testAttributes({ id: 'socket' })}
+      />
       <div className={css('socket-name')}>{label}</div>
     </div>
   )

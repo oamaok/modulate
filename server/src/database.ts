@@ -15,7 +15,13 @@ import {
 let database = new (sqlite.verbose().Database)(config.databaseFile)
 
 export const resetDatabase = async () => {
-  await fs.rm(config.databaseFile)
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error('Resetting the database is only allowed for tests')
+  }
+
+  if (config.databaseFile !== ':memory:') {
+    await fs.rm(config.databaseFile)
+  }
   database = new (sqlite.verbose().Database)(config.databaseFile)
 }
 
@@ -97,6 +103,15 @@ export const loginUser = async ({
     id: user.id,
     username: user.username,
   }
+}
+
+export const findUserByEmail = async (email: string) => {
+  const [user] = await query<User>(sql`
+    SELECT id, username FROM users WHERE email = ${email}
+  `)
+  if (!user) return null
+
+  return user
 }
 
 export const getUserPatches = (userId: string) => {
@@ -200,7 +215,17 @@ export const saveNewPatch = async (
   metadata: PatchMetadata,
   patch: Patch
 ) => {
-  const patchId = crypto.randomUUID()
+  let patchId: string
+  if (typeof process.env.E2E !== 'undefined') {
+    patchId = metadata.id ?? crypto.randomUUID()
+  } else {
+    if (metadata.id) {
+      throw new Error(
+        'saveNewPatch: passing metadata.id is only allowed for E2E tests'
+      )
+    }
+    patchId = crypto.randomUUID()
+  }
 
   const res = await query(sql`
     INSERT INTO patches (id, name, authorId, createdAt, patch)

@@ -20,7 +20,7 @@ class GainNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Gain">
+      <Module id={id} type="Gain">
         <Knob
           moduleId={id}
           id="gain"

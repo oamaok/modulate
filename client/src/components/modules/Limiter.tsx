@@ -20,7 +20,7 @@ class LimiterNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Limiter">
+      <Module id={id} type="Limiter">
         <Knob moduleId={id} id="THRES" type="percentage" initial={0.4} />
         <ModuleInputs>
           <Socket<Limiter, 'parameter', 'threshold'>

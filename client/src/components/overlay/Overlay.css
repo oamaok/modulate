@@ -33,4 +33,7 @@
   border-bottom-left-radius: 4px;
   font-size: 24px;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

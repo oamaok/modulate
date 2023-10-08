@@ -5,6 +5,7 @@ import { Vec2 } from '@modulate/common/types'
 import ActiveCable from './ActiveCable'
 import Cable from './Cable'
 import css from './Cables.css'
+import testAttributes from '../../test-attributes'
 
 const Cables = () => {
   const patchState = useState<{
@@ -57,6 +58,7 @@ const Cables = () => {
   return (
     <div className={css('cables')}>
       <svg
+        {...testAttributes({ id: 'cables' })}
         viewBox={`0 0 ${viewport.width} ${viewport.height}`}
         onMouseDown={onDragStart}
         onContextMenu={onContextMenu}

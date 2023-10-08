@@ -9,6 +9,7 @@ const CssModulesPlugin = require('./build/css-modules-plugin')
 
 const isProduction = process.env.NODE_ENV === 'production'
 const isTest = process.env.NODE_ENV === 'test'
+const watch = process.env.WATCH === 'true'
 
 const debounce = (fn) => {
   let timeout = null
@@ -268,7 +269,7 @@ const buildWorklets = async () => {
     }
   }
 
-  if (process.env.NODE_ENV !== 'development') {
+  if (!watch || process.env.NODE_ENV !== 'development') {
     process.exit(0)
   }
 

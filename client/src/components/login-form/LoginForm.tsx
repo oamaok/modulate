@@ -6,6 +6,7 @@ import css from './LoginForm.css'
 import assert from '../../assert'
 import Input from '../input/Input'
 import Overlay from '../overlay/Overlay'
+import testAttributes from '../../test-attributes'
 
 const LoginForm = () => {
   const state = useState<{ loading: boolean; error: null | string }>({
@@ -44,7 +45,13 @@ const LoginForm = () => {
           onLogin()
         }}
       >
-        <Input label="email" type="email" required inputRef={emailRef} />
+        <Input
+          label="email"
+          type="email"
+          required
+          inputRef={emailRef}
+          {...testAttributes({ id: 'email' })}
+        />
 
         <Input
           label="password"
@@ -55,8 +62,11 @@ const LoginForm = () => {
           required
           error={state.error}
           disabled={state.loading}
+          {...testAttributes({ id: 'password' })}
         />
-        <button type="submit">Login</button>
+        <button type="submit" {...testAttributes({ id: 'login-button' })}>
+          Login
+        </button>
       </form>
     </>
   )
@@ -146,6 +156,7 @@ const CreateAccountForm = () => {
           required
           inputRef={usernameRef}
           onInput={resetValidity}
+          {...testAttributes({ id: 'username' })}
         />
 
         <Input
@@ -154,6 +165,7 @@ const CreateAccountForm = () => {
           required
           inputRef={emailRef}
           onInput={resetValidity}
+          {...testAttributes({ id: 'email' })}
         />
 
         <Input
@@ -165,8 +177,14 @@ const CreateAccountForm = () => {
           maxlength="64"
           disabled={state.loading}
           onInput={resetValidity}
+          {...testAttributes({ id: 'password' })}
         />
-        <button type="submit">Create account</button>
+        <button
+          type="submit"
+          {...testAttributes({ id: 'create-account-button' })}
+        >
+          Create account
+        </button>
       </form>
     </>
   )
@@ -185,6 +203,7 @@ const Form = () => {
       {state.form === 'login' ? <LoginForm /> : <CreateAccountForm />}
       <div className={css('alt-actions')}>
         <button
+          {...testAttributes({ id: state.form + '-link' })}
           onClick={() => {
             if (state.form === 'login') {
               state.form = 'create-account'

@@ -17,8 +17,12 @@ const Overlay: FC<OverlayProps> = ({
     <div className={css('overlay')} {...testAttributes({ id: 'overlay' })}>
       <div className={[css('modal'), className]}>
         {showCloseButton ? (
-          <button className={css('close-button')} onClick={closeOverlay}>
-            ×
+          <button
+            className={css('close-button')}
+            onClick={closeOverlay}
+            {...testAttributes({ id: 'close-modal' })}
+          >
+            <span className="material-symbols-outlined">close</span>
           </button>
         ) : null}
         {children}

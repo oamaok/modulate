@@ -25,7 +25,7 @@ class ReverbNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Reverb" width={250} height={120}>
+      <Module id={id} type="Reverb" width={250} height={120}>
         <Knob
           moduleId={id}
           id="delay"

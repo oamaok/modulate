@@ -1,4 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Gemunu+Libre:wght@400&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap');
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  src: url('/assets/fonts/MaterialSymbols.woff2') format('woff');
+}
+
+@font-face {
+  font-family: 'Gemunu Libre';
+  font-style: normal;
+  src: url('/assets/fonts/GemunuLibreRegular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Gemunu Libre';
+  font-weight: bold;
+  font-style: normal;
+  src: url('/assets/fonts/GemunuLibreBold.ttf') format('truetype');
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px; /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
 
 :root {
   --primary: #e85d00;

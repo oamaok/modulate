@@ -11,6 +11,7 @@ import config from './config'
 import router, { serverStatic, Response } from './router'
 import migrate from './migrate'
 import rooms, { createRoomUsingPatch } from './rooms'
+import loadTestData from './test/load-test-data'
 
 const unauthorized = (res: Response) => {
   res.status(401)
@@ -367,6 +368,19 @@ const server = http.createServer(
       res.end()
       return
     })
+    .get('/api/test/reset-dataset', async (req, res) => {
+      if (typeof process.env.E2E === 'undefined') {
+        notFound(res)
+        return
+      }
+
+      await db.resetDatabase()
+      await migrate()
+      await loadTestData()
+
+      res.status(200)
+      res.end()
+    })
 )
 
 rooms(server)
@@ -375,6 +389,10 @@ if (require.main === module) {
   ;(async () => {
     await migrate()
     await ensureDirectoryExists(config.sampleDirectory)
+
+    if (process.env.E2E) {
+      await loadTestData()
+    }
 
     server.listen(8888)
     logger.info('Listening to :8888')

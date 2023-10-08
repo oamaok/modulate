@@ -36,7 +36,9 @@ const CssModulesPlugin = () => ({
           },
           generateScopedName(name) {
             if (!classNames[filePath][name]) {
-              if (process.env.NODE_ENV === 'production') {
+              if (filePath.endsWith('reset.css')) {
+                classNames[filePath][name] = name
+              } else if (process.env.NODE_ENV === 'production') {
                 classNames[filePath][name] = nextName()
               } else {
                 const moduleName = filePath.split('/').pop().split('.')[0]

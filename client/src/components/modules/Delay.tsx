@@ -24,7 +24,7 @@ class DelayNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Delay">
+      <Module id={id} type="Delay">
         <Knob
           moduleId={id}
           id="delayTime"

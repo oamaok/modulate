@@ -35,7 +35,7 @@ class MIDINode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="MIDI" width={50}>
+      <Module id={id} type="MIDI" width={50}>
         <ModuleInputs></ModuleInputs>
         <ModuleOutputs>
           <Socket<MIDI, 'output', 'cv'>

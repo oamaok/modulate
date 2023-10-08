@@ -350,6 +350,7 @@ export const getCableConnectionCandidate = (): Socket | null => {
   const { activeCable } = state
   if (!activeCable) return null
 
+  // TODO: Manually iterate over sockets instead of calling the costly `getSockets`
   const targetSockets = getSockets().filter(({ socket }) =>
     canSocketsConnect(activeCable.draggingFrom, socket)
   )
