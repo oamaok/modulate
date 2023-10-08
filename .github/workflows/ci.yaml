@@ -49,5 +49,7 @@ jobs:
           curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Install packages
         run: yarn install
+      - name: Install playwright
+        run: yarn playwright install
       - name: Test
         run: yarn e2e
