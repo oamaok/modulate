@@ -50,4 +50,4 @@ jobs:
       - name: Install packages
         run: yarn install
       - name: Test
-        run: yarn test
+        run: yarn e2e
