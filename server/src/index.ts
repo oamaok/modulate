@@ -13,6 +13,8 @@ import migrate from './migrate'
 import rooms, { createRoomUsingPatch } from './rooms'
 import loadTestData from './test/load-test-data'
 
+console.log(process.env.NODE_ENV)
+
 const unauthorized = (res: Response) => {
   res.status(401)
   res.json({ error: 'unauthorized' })

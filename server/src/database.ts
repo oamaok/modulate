@@ -12,10 +12,12 @@ import {
   UserRegistration,
 } from '@modulate/common/types'
 
+const isTestEnv = process.env.NODE_ENV === 'test'
+
 let database = new (sqlite.verbose().Database)(config.databaseFile)
 
 export const resetDatabase = async () => {
-  if (process.env.NODE_ENV !== 'test') {
+  if (!isTestEnv) {
     throw new Error('Resetting the database is only allowed for tests')
   }
 
@@ -216,12 +218,12 @@ export const saveNewPatch = async (
   patch: Patch
 ) => {
   let patchId: string
-  if (typeof process.env.E2E !== 'undefined') {
+  if (isTestEnv) {
     patchId = metadata.id ?? crypto.randomUUID()
   } else {
     if (metadata.id) {
       throw new Error(
-        'saveNewPatch: passing metadata.id is only allowed for E2E tests'
+        'saveNewPatch: passing metadata.id is only allowed for tests'
       )
     }
     patchId = crypto.randomUUID()

@@ -7,9 +7,9 @@
   "scripts": {
     "build": "NODE_ENV=production node build.js",
     "build:rust": "yarn build --rust",
-    "start:client": "WATCH=true NODE_ENV=development node build.js",
-    "start:server": "NODE_ENV=development ts-node-dev --respawn --transpile-only ./server/src/index.ts",
-    "test": "NODE_ENV=test node build.js && yarn workspace @modulate/test test",
+    "start:client": "NODE_ENV=development node build.js --watch",
+    "start:server": "ts-node-dev --respawn --transpile-only ./server/src/index.ts",
+    "test": "NODE_ENV=test node build.js --engine-test && yarn workspace @modulate/test test",
     "e2e": "NODE_ENV=test node build.js && yarn workspace @modulate/test e2e",
     "add-migration": "node server/scripts/add-migration",
     "run-migrations": "node server/scripts/run-migrations",
