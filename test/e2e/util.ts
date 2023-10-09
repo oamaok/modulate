@@ -93,7 +93,7 @@ export const tweakKnob = async (
   knob: Locator,
   pxAmount: number
 ) => {
-  expect(await knob.count()).toEqual(1)
+  await expect(knob).toHaveCount(1)
   const knobBox = (await knob.boundingBox())!
   expect(knobBox).toBeDefined()
 
@@ -109,7 +109,7 @@ export const tweakKnob = async (
 }
 
 export const getKnobValue = async (knob: Locator) => {
-  expect(await knob.count()).toEqual(1)
+  await expect(knob).toHaveCount(1)
   const value = await knob.getAttribute('data-test-value')
   expect(value).toBeDefined()
   return parseFloat(value!)

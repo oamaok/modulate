@@ -8,9 +8,9 @@ const cp = require('child_process')
 const CssModulesPlugin = require('./build/css-modules-plugin')
 
 const isProduction = process.env.NODE_ENV === 'production'
-const isEngineTest = process.argv.some(arg => arg === '--engine-test')
-const watch = process.argv.some(arg => arg === '--watch')
-const buildRustOnly = process.argv.some(arg => arg === '--rust')
+const isEngineTest = process.argv.some((arg) => arg === '--engine-test')
+const watch = process.argv.some((arg) => arg === '--watch')
+const buildRustOnly = process.argv.some((arg) => arg === '--rust')
 
 const debounce = (fn) => {
   let timeout = null
@@ -280,7 +280,10 @@ const buildWorklets = async () => {
       ignoreInitial: true,
       ignored: /wasm\.ts/,
     })
-    .on('all', debounce(() => buildWorklets.catch(console.error)))
+    .on(
+      'all',
+      debounce(() => buildWorklets.catch(console.error))
+    )
 
   chokidar
     .watch(['./worklets/src/**/*.rs'], {
@@ -297,5 +300,8 @@ const buildWorklets = async () => {
       persistent: true,
       ignoreInitial: true,
     })
-    .on('all', debounce(() => buildClient.catch(console.error)))
+    .on(
+      'all',
+      debounce(() => buildClient.catch(console.error))
+    )
 })()

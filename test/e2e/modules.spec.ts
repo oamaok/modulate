@@ -66,7 +66,7 @@ test('can connect two modules', async ({ page }) => {
     toType: 'input',
   })
 
-  expect(await cable.count()).toEqual(1)
+  await expect(cable).toHaveCount(1)
 })
 
 test('can connect/disconnect any module output to/from any module input/parameter', async ({
@@ -232,7 +232,7 @@ test('can delete modules', async ({ page }) => {
 
   await deleteModule(page, gainModule)
 
-  expect(await gainModule.count()).toEqual(0)
+  await expect(gainModule).toHaveCount(0)
 })
 
 test('can delete connected modules', async ({ page }) => {
@@ -247,10 +247,10 @@ test('can delete connected modules', async ({ page }) => {
 
   await deleteModule(page, gainModule)
 
-  expect(await gainModule.count()).toEqual(0)
+  await expect(gainModule).toHaveCount(0)
 
-  const cablePath = await page.locator('path')
-  expect(await cablePath.count()).toEqual(0)
+  const cablePath = page.locator('path')
+  await expect(cablePath).toHaveCount(0)
 })
 
 test('can disconnect modules', async ({ page }) => {
@@ -275,5 +275,5 @@ test('can disconnect modules', async ({ page }) => {
     toIndex: 0,
     toType: 'input',
   })
-  expect(await cable.count()).toEqual(0)
+  await expect(cable).toHaveCount(0)
 })
