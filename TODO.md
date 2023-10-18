@@ -1,5 +1,3 @@
-# TODO
-
 # Modules
 
 ## Oscillator
@@ -51,7 +49,27 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 - [ ] Initial implementation
 
+## Gate Sequencer
+
+- [ ] Initial implementation
+
+## "Analog" sequencer
+
+- [ ] Initial implementation
+
+## Distortion
+
+- [ ] Initial implementation
+
 # Testing
+
+- [ ] Add API testing
+
+# Ring Mod
+
+- [ ] Add API testing
+
+# Bit crusher
 
 - [ ] Add API testing
 
