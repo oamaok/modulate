@@ -83,6 +83,9 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 - [ ] Implement a minimap
 - [ ] Color coding for modules
 
+- [ ] Multiselect modules
+- [ ] Copy modules with ctrl+drag
+- [ ] 
 # Misc
 
 - [ ] Move onDragStart handler from `Cables.tsx` to a more suitable component, maybe a completely separate component for handling clicks to the background
