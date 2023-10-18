@@ -61,18 +61,18 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 - [ ] Initial implementation
 
+## Ring Mod
+
+- [ ] Add API testing
+
+## Bit crusher
+
+- [ ] Add API testing
+
 # Testing
 
 - [ ] Add API testing
-
-# Ring Mod
-
-- [ ] Add API testing
-
-# Bit crusher
-
-- [ ] Add API testing
-
+- [ ] 
 # UI/UX
 
 - [ ] Hotkey configuration?
