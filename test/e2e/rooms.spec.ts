@@ -4,7 +4,6 @@ import {
   connectSockets,
   getCable,
   getCableDetails,
-  getCableSelector,
   getKnobValue,
   getModuleById,
   getModuleId,

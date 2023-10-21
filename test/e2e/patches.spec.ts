@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { getByTestId, getCableDetails, getModuleId, init } from './util'
+import {
+  getByTestId,
+  getCable,
+  getCableDetails,
+  getModuleId,
+  init,
+  mapLocator,
+} from './util'
 
 const SAMPLE_PATCH_ID = '9982d3c7-8ffd-43a7-8431-53d6a31de913'
 
@@ -7,15 +14,9 @@ test('can load patch by loading patch link', async ({ page, request }) => {
   await init(page, `/patch/${SAMPLE_PATCH_ID}`)
 
   const modules = await page.locator('[data-test-id="module"]')
-  const moduleCount = await modules.count()
+  await expect(modules).toHaveCount(8)
 
-  expect(moduleCount).toEqual(8)
-
-  const ids: string[] = []
-  for (let i = 0; i < moduleCount; i++) {
-    const id = await getModuleId(modules.nth(i))
-    ids.push(id)
-  }
+  const ids = await mapLocator(modules, getModuleId)
 
   expect(ids).toEqual([
     '836172b4-7a64-4091-b3ad-0b5aeab52b0c',
@@ -28,13 +29,8 @@ test('can load patch by loading patch link', async ({ page, request }) => {
     'b506702c-e6a1-47ab-81e3-870c49b7b846',
   ])
 
-  const cableDetails: any[] = []
   const cables = await getByTestId(page, 'cable')
-  const cableCount = await cables.count()
-
-  for (let i = 0; i < cableCount; i++) {
-    cableDetails.push(await getCableDetails(cables.nth(i)))
-  }
+  const cableDetails = await mapLocator(cables, getCableDetails)
 
   expect(cableDetails).toEqual([
     {
@@ -110,4 +106,8 @@ test('can load patch by loading patch link', async ({ page, request }) => {
       toType: 'input',
     },
   ])
+})
+
+test('can load patch using the patch browser', async ({ page }) => {
+  await init(page)
 })

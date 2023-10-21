@@ -197,9 +197,6 @@ const Form = () => {
 
   return (
     <Overlay className={css('login-form')}>
-      <button className={css('close-button')} onClick={closeOverlay}>
-        ×
-      </button>
       {state.form === 'login' ? <LoginForm /> : <CreateAccountForm />}
       <div className={css('alt-actions')}>
         <button

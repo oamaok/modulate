@@ -8,6 +8,7 @@ import css from './UserBar.css'
 import Knob from '../module-parts/Knob'
 import ControlledKnob from '../module-parts/ControlledKnob'
 import testAttributes from '../../test-attributes'
+import Icon from '../icon/Icon'
 
 const getVolumeIcon = (level: number) => {
   if (level > 0.66) return 'volume_up'
@@ -33,9 +34,7 @@ const GlobalVolume = () => {
 
   return (
     <div className={css('global-volume')}>
-      <div className="material-symbols-outlined">
-        {getVolumeIcon(volumeState.level)}
-      </div>
+      <Icon name={getVolumeIcon(volumeState.level)} />
       <ControlledKnob
         label="Global volume"
         hideLabel

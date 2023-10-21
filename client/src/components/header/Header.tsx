@@ -11,6 +11,7 @@ import { intersperse } from '@modulate/common/util'
 import SaveDialog from '../save-dialog/SaveDialog'
 import { createRoom } from '../../rooms'
 import testAttributes from '../../test-attributes'
+import Icon from '../icon/Icon'
 
 type MenuIconProps = {
   id: string
@@ -28,7 +29,7 @@ const MenuIcon = ({ id, icon, label, onClick, enabled }: MenuIconProps) => (
     className={css('menu-icon', { enabled })}
     onClick={enabled ? onClick : noop}
   >
-    <span className="material-symbols-outlined">{icon}</span>
+    <Icon name={icon} />
     <div className={css('label')}>{label}</div>
   </button>
 )

@@ -5,6 +5,7 @@ import css from './PatchBrowser.css'
 import Overlay from '../overlay/Overlay'
 import { groupBy } from '@modulate/common/util'
 import assert from '../../assert'
+import Icon from '../icon/Icon'
 
 const fetchAndLoadPatch = async (patchId: string) => {
   const patchData = await api.getLatestPatchVersion(patchId)
@@ -60,17 +61,13 @@ const YourPatches = () => {
         assert(firstPatch)
 
         return (
-          <div
-            className={css('group')}
-            onClick={() => togglePatchExpansion(patchId)}
-          >
+          <div className={css('group')}>
             <div className={css('patch')}>
-              <button
-                className={css('load')}
-                onClick={() => fetchAndLoadPatch(patchId)}
-              >
-                <span className="material-symbols-outlined">play_arrow</span>
-              </button>
+              {rest.length !== 0 ? (
+                <button onClick={() => togglePatchExpansion(patchId)}>
+                  <Icon name={isExpanded ? 'expand_more' : 'chevron_right'} />
+                </button>
+              ) : null}
               <div className={css('name')}>{firstPatch.name}</div>
               <div className={css('version')}>
                 Version #{firstPatch.version}
@@ -78,15 +75,16 @@ const YourPatches = () => {
               <div className={css('date')}>
                 {formatPatchDate(firstPatch.createdAt)}
               </div>
+              <button
+                className={css('load')}
+                onClick={() => fetchAndLoadPatch(patchId)}
+              ><span>Load</span>
+                <Icon name="play_arrow" />
+              </button>
             </div>
             {isExpanded
               ? rest.map((patch) => (
                   <div className={css('patch', 'version')}>
-                    <button className={css('load')}>
-                      <span className="material-symbols-outlined">
-                        play_arrow
-                      </span>
-                    </button>
                     <div className={css('name')}>{patch.name}</div>
                     <div className={css('version')}>
                       Version #{patch.version}
@@ -94,6 +92,12 @@ const YourPatches = () => {
                     <div className={css('date')}>
                       {formatPatchDate(patch.createdAt)}
                     </div>
+              <button
+                className={css('load')}
+                onClick={() => fetchAndLoadPatch(patchId)}
+              ><span>Load</span>
+                <Icon name="play_arrow" />
+              </button>
                   </div>
                 ))
               : null}

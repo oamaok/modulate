@@ -25,6 +25,18 @@ export const resetDatabase = async (request: APIRequestContext) => {
   }
 }
 
+export const mapLocator = async <T>(
+  locator: Locator,
+  mapper: (l: Locator) => T | Promise<T>
+): Promise<T[]> => {
+  const count = await locator.count()
+  const ret: T[] = []
+  for (let i = 0; i < count; i++) {
+    ret.push(await mapper(locator.nth(i)))
+  }
+  return ret
+}
+
 export const spawnModule = async (
   page: Page,
   name: ModuleName,

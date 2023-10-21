@@ -282,7 +282,7 @@ const buildWorklets = async () => {
     })
     .on(
       'all',
-      debounce(() => buildWorklets.catch(console.error))
+      debounce(() => buildWorklets().catch(console.error))
     )
 
   chokidar
@@ -302,6 +302,6 @@ const buildWorklets = async () => {
     })
     .on(
       'all',
-      debounce(() => buildClient.catch(console.error))
+      debounce(() => buildClient().catch(() => {}))
     )
 })()

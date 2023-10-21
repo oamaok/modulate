@@ -2,6 +2,7 @@ import css from './Overlay.css'
 import { closeOverlay } from '../../state'
 import { FC } from 'kaiku'
 import testAttributes from '../../test-attributes'
+import Icon from '../icon/Icon'
 
 type OverlayProps = {
   className?: string
@@ -22,7 +23,7 @@ const Overlay: FC<OverlayProps> = ({
             onClick={closeOverlay}
             {...testAttributes({ id: 'close-modal' })}
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         ) : null}
         {children}

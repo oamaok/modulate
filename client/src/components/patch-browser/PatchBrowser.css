@@ -31,6 +31,7 @@
   box-shadow: var(--box-shadow);
 }
 
+
 .own-patches .patch {
   display: flex;
   flex-direction: row;
@@ -38,10 +39,15 @@
   border-bottom: 1px solid #777;
   padding: 8px;
 }
+.own-patches .patch:hover {
+  background: #555;
+}
 
 .own-patches .patch .load {
   height: 24px;
-  width: 24px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
   background-color: var(--primary);
   border-radius: 2px;
   margin-right: 8px;
