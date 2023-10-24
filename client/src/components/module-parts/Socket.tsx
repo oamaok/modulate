@@ -96,12 +96,9 @@ const Socket = <
         className={css('drag-start-area')}
         onMouseDown={startCable}
         onTouchStart={startCable}
-      />
-      <div
-        ref={ref}
-        className={css('socket')}
         {...testAttributes({ id: 'socket' })}
       />
+      <div ref={ref} className={css('socket')} />
       <div className={css('socket-name')}>{label}</div>
     </div>
   )
