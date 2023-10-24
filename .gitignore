@@ -6,3 +6,4 @@ worklets/pkg
 test-results/
 playwright-report/
 playwright/.cache/
+server/certs

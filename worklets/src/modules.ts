@@ -235,5 +235,5 @@ export type ModuleName = Module['name']
 
 export type EventTypes<
   M extends Extract<Module, { events: any }>,
-  T extends M['events']['type']
+  T extends M['events']['type'],
 > = Extract<M['events'], { type: T }>

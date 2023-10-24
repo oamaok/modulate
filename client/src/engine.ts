@@ -97,11 +97,20 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     (req: Omit<EngineRequest<T>, 'id' | 'type'>) =>
       sendMessage<T>({ type, ...req } as Omit<EngineRequest<T>, 'id'>)
 
-  const memory = new WebAssembly.Memory({
-    initial: 32,
-    maximum: 16384,
-    shared: true,
-  })
+  let memory: WebAssembly.Memory | null = null
+
+  for (let maximum = 0x4000; maximum > 128; maximum >>= 1) {
+    try {
+      memory = new WebAssembly.Memory({
+        initial: 32,
+        maximum,
+        shared: true,
+      })
+      break
+    } catch (err) {}
+  }
+
+  assert(memory)
 
   const { pointers } = await createEngineMethod('init')({
     memory,
@@ -140,6 +149,12 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
       })
     })
   )
+
+  window.addEventListener('beforeunload', () => {
+    for (const worker of workers) {
+      worker.terminate()
+    }
+  })
 
   if (options.spawnAudioWorklet) {
     await audioContext.audioWorklet.addModule(toDataUrl(audioWorkletScript))

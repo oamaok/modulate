@@ -31,7 +31,6 @@
   box-shadow: var(--box-shadow);
 }
 
-
 .own-patches .patch {
   display: flex;
   flex-direction: row;

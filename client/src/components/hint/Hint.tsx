@@ -1,4 +1,3 @@
-import { h } from 'kaiku'
 import state from '../../state'
 import css from './Hint.css'
 

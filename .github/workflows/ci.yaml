@@ -53,3 +53,21 @@ jobs:
         run: yarn playwright install
       - name: Test
         run: yarn e2e
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        run: yarn install
+      - name: Lint
+        run: yarn lint:eslint
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        run: yarn install
+      - name: Lint
+        run: yarn lint:rustfmt

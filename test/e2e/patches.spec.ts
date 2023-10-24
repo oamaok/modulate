@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test'
 import {
   getByTestId,
-  getCable,
   getCableDetails,
   getModuleId,
   init,
@@ -10,7 +9,7 @@ import {
 
 const SAMPLE_PATCH_ID = '9982d3c7-8ffd-43a7-8431-53d6a31de913'
 
-test('can load patch by loading patch link', async ({ page, request }) => {
+test('can load patch by loading patch link', async ({ page }) => {
   await init(page, `/patch/${SAMPLE_PATCH_ID}`)
 
   const modules = await page.locator('[data-test-id="module"]')

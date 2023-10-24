@@ -17,6 +17,10 @@
 
 - [ ] Invert signal toggle
 
+## BouncyBoi
+
+- [ ] Trigger pulse width
+
 ## Sampler
 
 - [ ] Loop option

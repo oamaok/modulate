@@ -25,7 +25,8 @@ const loadSaveState = async () => {
       await loadPatch(savedPatch.metadata, savedPatch.patch)
     } catch (err) {
       localStorage.removeItem('savestate')
-      resetPatch()
+      await resetPatch()
+      state.initialized = true
     }
   } else {
     state.initialized = true

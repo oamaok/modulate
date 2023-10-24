@@ -1,6 +1,8 @@
+import * as fsSync from 'fs'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as http from 'http'
+import * as https from 'https'
 import * as t from 'io-ts'
 import * as db from './database'
 import * as typeValidators from '@modulate/common/type-validators'
@@ -55,7 +57,18 @@ const ensureDirectoryExists = async (dir: string) => {
 
 const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
 
-const server = http.createServer(
+const createServer = config.enableTLS
+  ? (router: http.RequestListener) =>
+      https.createServer(
+        {
+          key: fsSync.readFileSync(path.join(__dirname, '../certs/key.pem')),
+          cert: fsSync.readFileSync(path.join(__dirname, '../certs/cert.pem')),
+        },
+        router
+      )
+  : http.createServer
+
+const server = createServer(
   router()
     .get(
       '/*',
@@ -381,6 +394,17 @@ const server = http.createServer(
       res.status(200)
       res.end()
     })
+    .post('/api/client-error', t.any, (req, res) => {
+      if (process.env.NODE_ENV !== 'development') {
+        notFound(res)
+        return
+      }
+
+      console.error(JSON.parse(req.body))
+
+      res.json({})
+      res.end()
+    })
 )
 
 rooms(server)
@@ -394,8 +418,9 @@ if (require.main === module) {
       await loadTestData()
     }
 
-    server.listen(8888)
-    logger.info('Listening to :8888')
+    server.listen(config.port, () => {
+      logger.info(`Listening to :${config.port}`)
+    })
   })()
 }
 

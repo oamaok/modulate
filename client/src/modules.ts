@@ -6,7 +6,7 @@ import { IndexOf } from '@modulate/common/types'
 
 export const connectKnobToParam = <
   M extends Module,
-  N extends M['parameters'][number]
+  N extends M['parameters'][number],
 >(
   moduleId: string,
   knob: string,

@@ -4,6 +4,7 @@ import { Vec2 } from '@modulate/common/types'
 import css from './Knob.css'
 import assert from '../../assert'
 import testAttributes from '../../test-attributes'
+import useDrag from '../../hooks'
 
 type PercentageKnob = {
   type: 'percentage'
@@ -183,9 +184,9 @@ const getHintText = (props: ControlledKnobProps): string => {
     }
 
     case 'option': {
-      return `${props.label}: ${
-        props.options.find(({ value }) => knobValue == value)?.label
-      }`
+      return `${props.label}: ${props.options.find(
+        ({ value }) => knobValue == value
+      )?.label}`
     }
   }
 }
@@ -241,33 +242,23 @@ const ControlledKnob = (props: ControlledKnobProps) => {
     }
   })
 
+  const dragTargetRef = useDrag({
+    onMove: ({ dy }) => {
+      const multiplier = state.keyboard.modifiers.shift ? 1 / 3000 : 1 / 300
+      knobState.position += dy * multiplier
+      knobState.position = Math.max(0, Math.min(1, knobState.position))
+
+      const newValue = getNormalizedKnobValue(knobState.position, props)
+      props.onChange(newValue)
+      setHintContent(getHintText({ ...props, value: newValue }))
+    },
+  })
+
   return (
     <div className={css('wrapper')}>
       <div
         className={css('knob')}
-        onMouseMove={() => {
-          // Dirty hack to not replace another knob's hint if user sweeps
-          // over another knob while tweaking the value
-          const isContentSame = getHintText(props) === state.hint.content
-          const isHintVisible = state.hint.visible
-          const updateHint = isContentSame || !isHintVisible
-
-          if (!knobState.dragPosition && updateHint) {
-            displayHint(getHintText(props), state.cursor)
-          }
-        }}
-        onMouseOut={() => {
-          // Dirty hack to not replace another knob's hint if user sweeps
-          // over another knob while tweaking the value
-          const isContentSame = getHintText(props) === state.hint.content
-          const isHintVisible = state.hint.visible
-          const updateHint = isContentSame || !isHintVisible
-
-          if (!knobState.dragPosition && updateHint) {
-            hideHint()
-          }
-        }}
-        onMouseDown={onDragStart}
+        ref={dragTargetRef}
         style={{
           transform: `rotate(${knobState.position * 300 - 60}deg)`,
         }}

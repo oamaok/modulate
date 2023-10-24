@@ -1,4 +1,4 @@
-import { FC, h } from 'kaiku'
+import { FC } from 'kaiku'
 import css from './MenuBar.css'
 
 type Props = {

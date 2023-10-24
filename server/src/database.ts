@@ -229,11 +229,11 @@ export const saveNewPatch = async (
     patchId = crypto.randomUUID()
   }
 
-  const res = await query(sql`
+  await query(sql`
     INSERT INTO patches (id, name, authorId, createdAt, patch)
     VALUES (${patchId}, ${
-    metadata.name
-  }, ${userId}, ${Date.now()}, ${JSON.stringify(patch)})
+      metadata.name
+    }, ${userId}, ${Date.now()}, ${JSON.stringify(patch)})
   `)
 
   return { id: patchId, version: 0 }

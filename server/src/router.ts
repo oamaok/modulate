@@ -134,18 +134,6 @@ enum MultipartParserState {
   DONE,
 }
 
-type MultipartBodyPart =
-  | {
-      type: 'string'
-      name: string
-      value: string
-    }
-  | {
-      type: 'buffer'
-      name: string
-      value: Buffer
-    }
-
 const getPartType = (headers: Record<string, string>) => {
   const contentType = headers['content-type']
 
@@ -311,7 +299,7 @@ const parseRequestBody = async (req: http.IncomingMessage) => {
     return parseMultipartBody(req)
   }
 
-  return await new Promise<string>((resolve, reject) => {
+  return await new Promise<string>((resolve) => {
     let body = ''
     req.on('data', (chunk) => {
       body += chunk

@@ -1,3 +1,4 @@
+import assert from './assert'
 import * as auth from './auth'
 import {
   Patch,
@@ -124,3 +125,10 @@ export const saveSample = (
 }
 
 export const getSamples = () => get('/api/samples')
+
+export const sendError = (err: any) => {
+  assert(__DEBUG__)
+  post('/api/client-error', {
+    body: JSON.stringify(err, Object.getOwnPropertyNames(err)),
+  })
+}

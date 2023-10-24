@@ -49,9 +49,10 @@ body,
 html {
   overflow: hidden;
   width: 100vw;
-  height: 100vh;
   position: relative;
+  overscroll-behavior: none;
   color: var(--on-background);
+  background: #000;
 }
 
 h2 {

@@ -1,4 +1,3 @@
-import { h } from 'kaiku'
 import css from './Toggle.css'
 
 type Props = {

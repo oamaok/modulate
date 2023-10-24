@@ -36,7 +36,7 @@ const getSocketOffset = (
 type Props<
   M extends Module,
   T extends 'input' | 'output' | 'parameter',
-  N extends M[`${T}s`][number]
+  N extends M[`${T}s`][number],
 > = {
   type: T
   index: IndexOf<M[`${T}s`], N>
@@ -47,7 +47,7 @@ type Props<
 const Socket = <
   M extends Module,
   T extends 'input' | 'output' | 'parameter',
-  N extends M[`${T}s`][number]
+  N extends M[`${T}s`][number],
 >(
   props: Props<M, T, N>
 ) => {
@@ -55,7 +55,7 @@ const Socket = <
   const ref = useRef<HTMLDivElement>()
   const socketState = useState<{ positionSet: boolean }>({ positionSet: false })
 
-  const onMouseDown = (evt: MouseEvent) => {
+  const startCable = (evt: MouseEvent) => {
     evt.preventDefault()
     plugActiveCable({ moduleId, index, type })
   }
@@ -93,9 +93,13 @@ const Socket = <
       })}
     >
       <div
+        className={css('drag-start-area')}
+        onMouseDown={startCable}
+        onTouchStart={startCable}
+      />
+      <div
         ref={ref}
         className={css('socket')}
-        onMouseDown={onMouseDown}
         {...testAttributes({ id: 'socket' })}
       />
       <div className={css('socket-name')}>{label}</div>

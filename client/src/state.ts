@@ -83,6 +83,14 @@ document.documentElement.addEventListener('mousemove', (evt) => {
   cursorAnimationFrame = requestAnimationFrame(updateCursor)
 })
 
+document.documentElement.addEventListener('touchmove', (evt) => {
+  evt.preventDefault()
+  latestCursorPos.x = evt.touches[0]!.pageX
+  latestCursorPos.y = evt.touches[0]!.pageY
+  cancelAnimationFrame(cursorAnimationFrame)
+  cursorAnimationFrame = requestAnimationFrame(updateCursor)
+})
+
 document.addEventListener('keydown', (evt) => {
   switch (evt.key) {
     case 'Control': {
@@ -199,6 +207,7 @@ export const addModule = async (
 
 export const isOwnPatch = () => {
   if (!state.user) return false
+  console.log(state.patchMetadata)
   if (!state.patchMetadata.author) return true
   return state.patchMetadata.author.id === state.user.id
 }

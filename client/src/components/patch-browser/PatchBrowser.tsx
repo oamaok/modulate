@@ -78,7 +78,8 @@ const YourPatches = () => {
               <button
                 className={css('load')}
                 onClick={() => fetchAndLoadPatch(patchId)}
-              ><span>Load</span>
+              >
+                <span>Load</span>
                 <Icon name="play_arrow" />
               </button>
             </div>
@@ -92,12 +93,13 @@ const YourPatches = () => {
                     <div className={css('date')}>
                       {formatPatchDate(patch.createdAt)}
                     </div>
-              <button
-                className={css('load')}
-                onClick={() => fetchAndLoadPatch(patchId)}
-              ><span>Load</span>
-                <Icon name="play_arrow" />
-              </button>
+                    <button
+                      className={css('load')}
+                      onClick={() => fetchAndLoadPatch(patchId)}
+                    >
+                      <span>Load</span>
+                      <Icon name="play_arrow" />
+                    </button>
                   </div>
                 ))
               : null}

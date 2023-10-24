@@ -1,10 +1,5 @@
-import { useState, useRef } from 'kaiku'
-import * as api from '../../api'
-import * as auth from '../../auth'
-import state, { closeOverlay } from '../../state'
+import state from '../../state'
 import css from './PatchSettings.css'
-import assert from '../../assert'
-import Input from '../input/Input'
 import Overlay from '../overlay/Overlay'
 
 const PatchSettings = () => {

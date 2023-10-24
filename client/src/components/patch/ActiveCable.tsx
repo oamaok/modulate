@@ -11,9 +11,11 @@ const ActiveCable = () => {
   useEffect(() => {
     if (state.activeCable) {
       document.addEventListener('mouseup', releaseActiveCable)
+      document.addEventListener('touchend', releaseActiveCable)
 
       return () => {
         document.removeEventListener('mouseup', releaseActiveCable)
+        document.addEventListener('touchend', releaseActiveCable)
       }
     }
   })
