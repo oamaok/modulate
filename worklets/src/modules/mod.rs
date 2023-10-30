@@ -14,3 +14,4 @@ pub mod pow_shaper;
 pub mod reverb;
 pub mod sampler;
 pub mod sequencer;
+pub mod virtual_controller;

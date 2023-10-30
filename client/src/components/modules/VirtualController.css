@@ -1,0 +1,34 @@
+.virtual-controller {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.knobs {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 200px;
+  gap: 12px;
+}
+
+.pads {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 200px;
+  gap: 12px;
+}
+
+.pad {
+  height: 80px;
+  width: 80px;
+  border-radius: 4px;
+  background-color: #555;
+  box-shadow: var(--box-shadow);
+}
+
+.pad:active {
+  background-color: #5880a7;
+}

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'kaiku'
-import state, { displayHint, hideHint, setHintContent } from '../../state'
+import { useState } from 'kaiku'
+import state, { setHintContent } from '../../state'
 import { Vec2 } from '@modulate/common/types'
 import css from './Knob.css'
 import assert from '../../assert'
@@ -51,6 +51,7 @@ export type KnobsProps =
   | LinearKnob
 
 type CommonProps = {
+  size: 's' | 'm' | 'l'
   label?: string
   hideLabel?: boolean
   value?: number
@@ -207,41 +208,6 @@ const ControlledKnob = (props: ControlledKnobProps) => {
     knobState.position = externallyUpdatedPosition
   }
 
-  const onDragStart = () => {
-    knobState.dragPosition = { x: state.cursor.x, y: state.cursor.y }
-    displayHint(getHintText(props), state.cursor)
-  }
-
-  const onDragEnd = () => {
-    knobState.dragPosition = null
-    hideHint()
-  }
-
-  useEffect(() => {
-    document.addEventListener('mouseup', onDragEnd)
-    document.addEventListener('blur', onDragEnd)
-
-    return () => {
-      document.removeEventListener('mouseup', onDragEnd)
-      document.removeEventListener('blur', onDragEnd)
-    }
-  })
-
-  useEffect(() => {
-    if (knobState.dragPosition) {
-      const multiplier = state.keyboard.modifiers.shift ? 1 / 3000 : 1 / 300
-      knobState.position -=
-        (state.cursor.y - knobState.dragPosition.y) * multiplier
-      knobState.position = Math.max(0, Math.min(1, knobState.position))
-
-      knobState.dragPosition.x = state.cursor.x
-      knobState.dragPosition.y = state.cursor.y
-      const newValue = getNormalizedKnobValue(knobState.position, props)
-      props.onChange(newValue)
-      setHintContent(getHintText({ ...props, value: newValue }))
-    }
-  })
-
   const dragTargetRef = useDrag({
     onMove: ({ dy }) => {
       const multiplier = state.keyboard.modifiers.shift ? 1 / 3000 : 1 / 300
@@ -255,7 +221,7 @@ const ControlledKnob = (props: ControlledKnobProps) => {
   })
 
   return (
-    <div className={css('wrapper')}>
+    <div className={css('wrapper', props.size)}>
       <div
         className={css('knob')}
         ref={dragTargetRef}

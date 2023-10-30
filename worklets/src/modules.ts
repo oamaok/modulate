@@ -194,6 +194,32 @@ export type Sampler = ModuleTypeOf<
   | { type: 'SamplerPlayheadPtr'; ptr: number }
 >
 
+export const VirtualController = {
+  name: 'VirtualController',
+  inputs: [],
+  parameters: ['knobA', 'knobB', 'knobC', 'knobD'],
+  outputs: [
+    'keyboardFirstCv',
+    'keyboardFirstGate',
+    'keyboardSecondCv',
+    'keyboardSecondGate',
+    'padA',
+    'padB',
+    'padC',
+    'padD',
+    'knobA',
+    'knobB',
+    'knobC',
+    'knobD',
+  ],
+} as const
+
+export type VirtualController = ModuleTypeOf<
+  typeof VirtualController,
+  never,
+  { type: 'VirtualControllerPointers'; pressed_keys: number; pads: number }
+>
+
 export const modules = {
   AudioOut,
   Oscillator,
@@ -211,6 +237,7 @@ export const modules = {
   BouncyBoi,
   LFO,
   Sampler,
+  VirtualController,
 } as const
 
 export type Module =
@@ -230,6 +257,7 @@ export type Module =
   | BouncyBoi
   | LFO
   | Sampler
+  | VirtualController
 
 export type ModuleName = Module['name']
 

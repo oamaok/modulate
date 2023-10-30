@@ -3,6 +3,7 @@ import { getKnobValue, setKnobValue } from '../../state'
 import ControlledKnob, { KnobsProps } from './ControlledKnob'
 
 type Props = KnobsProps & {
+  size?: 's' | 'm' | 'l'
   label?: string
   hideLabel?: boolean
   initial: number
@@ -46,6 +47,7 @@ const Knob = (props: Props) => {
 
   return (
     <ControlledKnob
+      size={props.size ?? 's'}
       {...props}
       value={value}
       onChange={(value) => setKnobValue(props.moduleId, props.id, value)}

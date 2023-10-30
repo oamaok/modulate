@@ -60,7 +60,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     if (msg.type === 'moduleEvent') {
       const callback = eventSubscriptions.get(msg.moduleHandle)
       if (!callback) {
-        console.warn('unhandled module message, ', msg)
+        console.error('unhandled module message, ', msg)
         return
       }
       callback(msg.message)
@@ -350,4 +350,9 @@ export const setGlobalVolume = (value: number) => {
   const audioContext = getAudioContext()
   const gain = getGain().gain
   gain.setTargetAtTime(value, audioContext.currentTime, 0.01)
+}
+
+export const getMemorySlice = (address: number, length: number) => {
+  assert(engine)
+  return new Float32Array(engine.memory.buffer, address, length)
 }
