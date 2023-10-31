@@ -34,6 +34,7 @@ const GlobalVolume = () => {
     <div className={css('global-volume')}>
       <Icon name={getVolumeIcon(volumeState.level)} />
       <ControlledKnob
+        size="s"
         label="Global volume"
         hideLabel
         type="percentage"
