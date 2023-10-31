@@ -1,6 +1,5 @@
 import { useState } from 'kaiku'
-import state, { setHintContent } from '../../state'
-import { Vec2 } from '@modulate/common/types'
+import state, { displayHint, hideHint, setHintContent } from '../../state'
 import css from './Knob.css'
 import assert from '../../assert'
 import testAttributes from '../../test-attributes'
@@ -197,18 +196,23 @@ const ControlledKnob = (props: ControlledKnobProps) => {
 
   const knobState = useState<{
     position: number
-    dragPosition: null | Vec2
+    isDragging: boolean
   }>({
     position: props.initial,
-    dragPosition: null,
+    isDragging: false,
   })
 
-  if (!knobState.dragPosition) {
+  if (!knobState.isDragging) {
     const externallyUpdatedPosition = normalizeValue(getValue(props), props)
     knobState.position = externallyUpdatedPosition
   }
 
   const dragTargetRef = useDrag({
+    onStart: (pos) => {
+      knobState.isDragging = true
+      displayHint(getHintText({ ...props, value: getValue(props) }), pos)
+    },
+
     onMove: ({ dy }) => {
       const multiplier = state.keyboard.modifiers.shift ? 1 / 3000 : 1 / 300
       knobState.position += dy * multiplier
@@ -217,6 +221,11 @@ const ControlledKnob = (props: ControlledKnobProps) => {
       const newValue = getNormalizedKnobValue(knobState.position, props)
       props.onChange(newValue)
       setHintContent(getHintText({ ...props, value: newValue }))
+    },
+
+    onEnd: () => {
+      knobState.isDragging = false
+      hideHint()
     },
   })
 
