@@ -20,6 +20,7 @@
 ## BouncyBoi
 
 - [ ] Trigger pulse width
+- [ ] Use direct memory access instead of events for rendering
 
 ## Sampler
 

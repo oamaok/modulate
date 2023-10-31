@@ -5,7 +5,7 @@ module.exports = {
   apps: [
     {
       name: 'modulate-server',
-      script: 'yarn',
+      script: 'npm',
       args: 'ts-node ./server/src/index.ts',
       env_production: {
         NODE_ENV: 'production',

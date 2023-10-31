@@ -31,7 +31,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'cd .. && yarn start:server',
+    command: 'cd .. && npm run start:server',
     env: {
       E2E: 'true',
       NODE_ENV: 'test',

@@ -7,7 +7,7 @@ rm -rf build
 git clone https://github.com/oamaok/modulate.git build
 
 cd build
-yarn install
+npm install
 cp -R ~/dist/dist ./dist
 
 cd ~

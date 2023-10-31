@@ -124,11 +124,11 @@ class VirtualControllerModule extends Component<Props> {
                 key={pad}
                 type="button"
                 className={css('pad')}
-                onTouchStart={(evt) => {
+                onTouchStart={(evt: TouchEvent) => {
                   evt.preventDefault()
                   this.onPadPress(pad)
                 }}
-                onTouchEnd={(evt) => {
+                onTouchEnd={(evt: TouchEvent) => {
                   evt.preventDefault()
                   this.onPadRelease(pad)
                 }}
