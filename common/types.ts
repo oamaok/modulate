@@ -13,16 +13,16 @@ import {
   PatchEvent,
   OutputSocket,
   InputSocket,
-} from './validators'
+} from './type-validators'
 import { Module } from '@modulate/worklets/src/modules'
 
 export type IndexOf<
   Arr extends readonly any[] | any[],
   Elem extends Arr[number],
-  Acc extends number[] = []
+  Acc extends number[] = [],
 > = Arr[0] extends Elem
   ? Acc['length']
-  : Arr extends [infer _, ...infer Rest] | readonly [infer _, ...infer Rest]
+  : Arr extends [any, ...infer Rest] | readonly [any, ...infer Rest]
   ? IndexOf<Rest, Elem, [...Acc, 0]>
   : never
 
@@ -201,3 +201,10 @@ export type EngineResponse<T extends EngineMessageType> = {
   type: T
   id: number
 } & Extract<EngineMessage, { type: T }>['res']
+
+export type Rect = {
+  x: number
+  y: number
+  width: number
+  height: number
+}

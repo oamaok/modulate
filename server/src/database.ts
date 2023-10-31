@@ -12,10 +12,18 @@ import {
   UserRegistration,
 } from '@modulate/common/types'
 
+const isTestEnv = process.env.NODE_ENV === 'test'
+
 let database = new (sqlite.verbose().Database)(config.databaseFile)
 
 export const resetDatabase = async () => {
-  await fs.rm(config.databaseFile)
+  if (!isTestEnv) {
+    throw new Error('Resetting the database is only allowed for tests')
+  }
+
+  if (config.databaseFile !== ':memory:') {
+    await fs.rm(config.databaseFile)
+  }
   database = new (sqlite.verbose().Database)(config.databaseFile)
 }
 
@@ -99,6 +107,15 @@ export const loginUser = async ({
   }
 }
 
+export const findUserByEmail = async (email: string) => {
+  const [user] = await query<User>(sql`
+    SELECT id, username FROM users WHERE email = ${email}
+  `)
+  if (!user) return null
+
+  return user
+}
+
 export const getUserPatches = (userId: string) => {
   return query<{
     id: string
@@ -109,6 +126,24 @@ export const getUserPatches = (userId: string) => {
     SELECT id, name, version, createdAt
     FROM patches
     WHERE authorId = ${userId}
+    ORDER BY version DESC
+  `)
+}
+
+// TODO: Currently there is no public flag in the db, so return just all patches
+// TODO: Add pagination
+export const getPublicPatches = () => {
+  return query<{
+    id: string
+    authorName: string
+    authorId: string
+    name: string
+    createdAt: number
+  }>(sql`
+    SELECT patches.id AS id, patch, name, users.id AS authorId, users.username AS authorName, version
+    FROM patches
+    JOIN users ON users.id = patches.authorId
+    ORDER BY version DESC
   `)
 }
 
@@ -146,25 +181,59 @@ export const getLatestPatchVersion = async (
   }
 }
 
-export const getPatchVersion = (patchId: string, version: number) => {
-  return query(sql`
-    SELECT id, patch, name version, createdAt
+export const getPatchVersion = async (patchId: string, version: number) => {
+  const [patch] = await query<{
+    id: string
+    patch: string
+    name: string
+    authorId: string
+    authorName: string
+    version: number
+  }>(sql`
+    SELECT patches.id AS id, patch, name, users.id AS authorId, users.username AS authorName, version
     FROM patches
+    JOIN users ON users.id = patches.authorId
     WHERE id = ${patchId} AND version = ${version}
+    ORDER BY version DESC
+    LIMIT 1
   `)
+
+  if (!patch) return null
+
+  return {
+    metadata: {
+      id: patch.id,
+      name: patch.name,
+      author: {
+        id: patch.authorId,
+        username: patch.authorName,
+      },
+    },
+    patch: JSON.parse(patch.patch),
+  }
 }
 export const saveNewPatch = async (
   userId: string,
   metadata: PatchMetadata,
   patch: Patch
 ) => {
-  const patchId = crypto.randomUUID()
+  let patchId: string
+  if (isTestEnv) {
+    patchId = metadata.id ?? crypto.randomUUID()
+  } else {
+    if (metadata.id) {
+      throw new Error(
+        'saveNewPatch: passing metadata.id is only allowed for tests'
+      )
+    }
+    patchId = crypto.randomUUID()
+  }
 
-  const res = await query(sql`
+  await query(sql`
     INSERT INTO patches (id, name, authorId, createdAt, patch)
     VALUES (${patchId}, ${
-    metadata.name
-  }, ${userId}, ${Date.now()}, ${JSON.stringify(patch)})
+      metadata.name
+    }, ${userId}, ${Date.now()}, ${JSON.stringify(patch)})
   `)
 
   return { id: patchId, version: 0 }
@@ -178,8 +247,7 @@ export const savePatchVersion = async (
   const [latestVersion] = await query<{ version: number }>(sql`
     SELECT version FROM patches WHERE id = ${metadata.id} ORDER BY version DESC LIMIT 1
   `)
-
-  const nextVersion = latestVersion?.version ?? 0 + 1
+  const nextVersion = (latestVersion?.version ?? 0) + 1
 
   await query(sql`
     INSERT INTO patches (id, version, name, authorId, createdAt, patch)

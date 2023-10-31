@@ -5,25 +5,52 @@
   width: 28px;
 }
 
+.wrapper.s {
+  width: 28px;
+}
+
+.wrapper.m {
+  width: 48px;
+}
+
+.wrapper.l {
+  width: 80px;
+}
+
 .knob {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  padding: 7px;
   /* background: var(--background); */
   background: url(/assets/knob.svg);
   background-size: contain;
   position: relative;
+  cursor: grab;
+}
+
+.s .knob {
+  width: 28px;
+  height: 28px;
+}
+
+.m .knob {
+  width: 48px;
+  height: 48px;
+}
+
+.l .knob {
+  width: 80px;
+  height: 80px;
 }
 
 .knob::before {
   content: ' ';
   display: block;
   position: absolute;
-  width: 14px;
-  height: 4px;
+  width: 50%;
+  height: 14%;
   background: var(--on-secondary);
-  top: 12px;
+  top: 43%;
   left: 2px;
   border-radius: 2px;
 }
@@ -32,8 +59,10 @@
   content: ' ';
   display: block;
   position: absolute;
-  width: 14px;
-  height: 14px;
+  top: 25%;
+  left: 25%;
+  width: 50%;
+  height: 50%;
   border-radius: 50%;
   box-shadow: 0 0 7px #000;
   background: var(--on-background);

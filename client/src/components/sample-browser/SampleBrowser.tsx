@@ -1,4 +1,4 @@
-import { h, useEffect, useRef, useState } from 'kaiku'
+import { useEffect, useRef, useState } from 'kaiku'
 import state from '../../state'
 import * as api from '../../api'
 import * as engine from '../../engine'

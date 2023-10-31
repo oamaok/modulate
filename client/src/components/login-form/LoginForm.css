@@ -1,0 +1,32 @@
+.login-form {
+  width: 300px;
+}
+
+.header {
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form label {
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.form button {
+  padding: 4px 8px;
+  border-radius: 2px;
+  background-color: var(--primary);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.alt-actions button {
+  text-decoration: underline;
+  cursor: pointer;
+}

@@ -1,134 +1,109 @@
-import * as t from 'io-ts'
+import { Cable, Patch } from './types'
+import { modules } from '@modulate/worklets/src/modules'
 
-const nullable = <T extends t.Any>(x: T) => t.union([x, t.null])
+const getModuleTypeByName = (name: string) => {
+  const module = modules[name as keyof typeof modules] as
+    | (typeof modules)[keyof typeof modules]
+    | undefined
+  return module ?? null
+}
 
-export const Vec2 = t.type({
-  x: t.number,
-  y: t.number,
-})
+const isSameConnection = <C extends Cable['from'] | Cable['to']>(
+  a: C,
+  b: C
+): boolean => {
+  return a.index === b.index && a.moduleId === b.moduleId && a.type === b.type
+}
 
-export const InputSocket = t.type({
-  type: t.union([t.literal('input'), t.literal('parameter')]),
-  index: t.number,
-  moduleId: t.string,
-})
+export const validatePatch = (patch: Patch) => {
+  const errors: string[] = []
 
-export const OutputSocket = t.type({
-  type: t.literal('output'),
-  index: t.number,
-  moduleId: t.string,
-})
+  for (const moduleId in patch.modules) {
+    const module = patch.modules[moduleId]!
 
-export const Socket = t.union([InputSocket, OutputSocket])
+    const moduleType = getModuleTypeByName(module.name)
+    if (!moduleType) {
+      errors.push(`module ${moduleId}: invalid module name (${module.name})`)
+    }
+  }
 
-export const Cable = t.type({
-  id: t.string,
-  from: OutputSocket,
-  to: InputSocket,
-})
+  const cableIds: Set<string> = new Set()
 
-export const Module = t.type({
-  name: t.string,
-  position: Vec2,
-  state: nullable(t.UnknownRecord),
-})
+  for (const cable of patch.cables) {
+    if (cableIds.has(cable.id)) {
+      errors.push(`cable: duplicate cable id (${cable.id})`)
+    }
 
-export const User = t.type({
-  id: t.string,
-  username: t.string,
-})
+    for (const otherCable of patch.cables) {
+      if (cable === otherCable) continue
+      if (
+        isSameConnection(cable.from, otherCable.from) &&
+        isSameConnection(cable.to, otherCable.to)
+      ) {
+        errors.push(
+          `cable ${cable.id}: other cable shares identical connection (${otherCable.id})`
+        )
+        continue
+      }
+      if (isSameConnection(cable.to, otherCable.to)) {
+        errors.push(
+          `cable ${cable.id}: other cable is connected to the same input (${otherCable.id})`
+        )
+        continue
+      }
+    }
 
-export const PatchMetadata = t.type({
-  id: nullable(t.string),
-  name: t.string,
-  author: nullable(User),
-})
+    const fromModule = patch.modules[cable.from.moduleId]
 
-export const Patch = t.type({
-  currentId: t.number,
-  modules: t.record(t.string, Module),
-  knobs: t.record(t.string, t.record(t.string, t.number)),
-  cables: t.array(Cable),
-})
+    if (!fromModule) {
+      errors.push(
+        `cable ${cable.id}: 'from' module does not exist in patch (${cable.from.moduleId})`
+      )
+    } else {
+      const fromModuleType = getModuleTypeByName(fromModule.name)
+      if (fromModuleType) {
+        if (fromModuleType.outputs.length <= cable.from.index) {
+          errors.push(
+            `cable ${cable.id}: 'from' index (${cable.from.index}) is outside of module output range (${fromModule.name})`
+          )
+        }
+      }
+    }
 
-export const UserRegistration = t.type({
-  username: t.string,
-  password: t.string,
-  email: t.string,
-})
+    const toModule = patch.modules[cable.to.moduleId]
 
-export const UserLogin = t.type({
-  email: t.string,
-  password: t.string,
-})
+    if (!toModule) {
+      errors.push(
+        `cable ${cable.id}: 'to' module does not exist in patch (${cable.to.moduleId})`
+      )
+    } else {
+      const toModuleType = getModuleTypeByName(toModule.name)
+      if (toModuleType) {
+        if (cable.to.type === 'input') {
+          if (toModuleType.inputs.length <= cable.to.index) {
+            errors.push(
+              `cable ${cable.id}: 'to' index (${cable.to.index}) is outside of module input range (${toModule.name})`
+            )
+          }
+        }
 
-export const JoinRoomMessage = t.type({
-  type: t.literal('join-room'),
-})
+        if (cable.to.type === 'parameter') {
+          if (toModuleType.parameters.length <= cable.to.index) {
+            errors.push(
+              `cable ${cable.id}: 'to' index (${cable.to.index}) is outside of module parameter range (${toModule.name})`
+            )
+          }
+        }
+      }
+    }
+  }
 
-export const CursorMoveMessage = t.type({
-  type: t.literal('cursor-move'),
-  position: Vec2,
-})
+  for (const moduleId in patch.knobs) {
+    const moduleForKnob = patch.modules[moduleId]
+    if (!moduleForKnob) {
+      errors.push(`knob: knob settings for unknown module found (${moduleId})`)
+    }
+  }
 
-export const CreateModuleEvent = t.type({
-  type: t.literal('create-module'),
-  moduleId: t.string,
-  name: t.string,
-  position: Vec2,
-})
-
-export const DeleteModuleEvent = t.type({
-  type: t.literal('delete-module'),
-  moduleId: t.string,
-})
-
-export const ChangeModuleStateEvent = t.type({
-  type: t.literal('change-module-state'),
-  moduleId: t.string,
-  state: t.UnknownRecord,
-})
-
-export const ChangeModulePositionEvent = t.type({
-  type: t.literal('change-module-position'),
-  moduleId: t.string,
-  position: Vec2,
-})
-
-export const TweakKnobEvent = t.type({
-  type: t.literal('tweak-knob'),
-  moduleId: t.string,
-  knob: t.string,
-  value: t.number,
-})
-
-export const ConnectCableEvent = t.type({
-  type: t.literal('connect-cable'),
-  cable: Cable,
-})
-
-export const DisconnectCableEvent = t.type({
-  type: t.literal('disconnect-cable'),
-  cableId: t.string,
-})
-
-export const PatchEvent = t.union([
-  CreateModuleEvent,
-  DeleteModuleEvent,
-  ChangeModuleStateEvent,
-  ChangeModulePositionEvent,
-  TweakKnobEvent,
-  ConnectCableEvent,
-  DisconnectCableEvent,
-])
-
-export const PatchUpdateMessage = t.type({
-  type: t.literal('patch-update'),
-  events: t.array(PatchEvent),
-})
-
-export const ClientMessage = t.union([
-  JoinRoomMessage,
-  CursorMoveMessage,
-  PatchUpdateMessage,
-])
+  return { valid: errors.length === 0, errors }
+}

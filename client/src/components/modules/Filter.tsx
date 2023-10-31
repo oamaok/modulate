@@ -1,4 +1,4 @@
-import { h, Component } from 'kaiku'
+import { Component } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -22,7 +22,7 @@ class BiquadFilterNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Filter" width={180}>
+      <Module id={id} type="BiquadFilter" name="Filter" width={180}>
         <Knob
           moduleId={id}
           id="frequency"

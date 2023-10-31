@@ -1,4 +1,4 @@
-import { h, Component } from 'kaiku'
+import { Component } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -25,7 +25,7 @@ class LFONode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="LFO" width={200}>
+      <Module id={id} type="LFO" width={200}>
         <Knob
           moduleId={id}
           id="freq"

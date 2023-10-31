@@ -1,4 +1,4 @@
-import { h, Component, useEffect } from 'kaiku'
+import { Component, useEffect } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -81,7 +81,7 @@ class ClockNode extends Component<Props> {
   render({ id }: Props) {
     const moduleState = getModuleState<ClockState>(id)
     return (
-      <Module id={id} name="Clock" height={260}>
+      <Module id={id} type="Clock" height={260}>
         <div className={css('controls')}>
           <Toggle
             active={moduleState.isRunning}

@@ -8,7 +8,9 @@ const cp = require('child_process')
 const CssModulesPlugin = require('./build/css-modules-plugin')
 
 const isProduction = process.env.NODE_ENV === 'production'
-const isTest = process.env.NODE_ENV === 'test'
+const isEngineTest = process.argv.some((arg) => arg === '--engine-test')
+const watch = process.argv.some((arg) => arg === '--watch')
+const buildRustOnly = process.argv.some((arg) => arg === '--rust')
 
 const debounce = (fn) => {
   let timeout = null
@@ -74,8 +76,8 @@ const replaceWithoutSpecialReplacements = (string, pattern, replacement) => {
 const buildClient = async () => {
   console.time('Build client')
 
-  const entry = isTest
-    ? path.join(__dirname, './client/src/test-index.ts')
+  const entry = isEngineTest
+    ? path.join(__dirname, './client/src/engine-test-index.ts')
     : path.join(__dirname, './client/src/index.tsx')
 
   const buildDir = await fs.mkdtemp(path.join(os.tmpdir(), 'modulate-'))
@@ -85,12 +87,9 @@ const buildClient = async () => {
       entryPoints: [entry],
       bundle: true,
       outdir: buildDir,
-      incremental: true,
-      jsxFactory: 'h',
-      jsxFragment: 'Fragment',
       minify: isProduction,
       define: {
-        'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+        __DEBUG__: isProduction ? 'false' : 'true',
       },
 
       plugins: [CssModulesPlugin()],
@@ -103,7 +102,7 @@ const buildClient = async () => {
 
   const scriptsPath = path.join(
     buildDir,
-    isTest ? './test-index.js' : './index.js'
+    isEngineTest ? './engine-test-index.js' : './index.js'
   )
 
   if (isProduction) {
@@ -199,7 +198,6 @@ const buildWorklets = async () => {
         entryPoints: [path.join(__dirname, `./worklets/src/${entry}.ts`)],
         bundle: true,
         write: false,
-        incremental: true,
         minify: isProduction,
         define: {
           Response: 'undefined',
@@ -259,7 +257,7 @@ const buildWorklets = async () => {
   try {
     await buildRust()
 
-    if (process.argv[2] === '--rust') {
+    if (buildRustOnly) {
       process.exit(0)
     }
 
@@ -267,12 +265,12 @@ const buildWorklets = async () => {
     await Promise.all([buildWorklets(), buildClient()])
   } catch (err) {
     console.error(err)
-    if (process.env.NODE_ENV !== 'development') {
+    if (!watch) {
       process.exit(1)
     }
   }
 
-  if (process.env.NODE_ENV !== 'development') {
+  if (!watch) {
     process.exit(0)
   }
 
@@ -282,7 +280,10 @@ const buildWorklets = async () => {
       ignoreInitial: true,
       ignored: /wasm\.ts/,
     })
-    .on('all', debounce(buildWorklets))
+    .on(
+      'all',
+      debounce(() => buildWorklets().catch(console.error))
+    )
 
   chokidar
     .watch(['./worklets/src/**/*.rs'], {
@@ -299,5 +300,8 @@ const buildWorklets = async () => {
       persistent: true,
       ignoreInitial: true,
     })
-    .on('all', debounce(buildClient))
+    .on(
+      'all',
+      debounce(() => buildClient().catch(() => {}))
+    )
 })()

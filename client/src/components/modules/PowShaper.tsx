@@ -1,4 +1,4 @@
-import { h, Component } from 'kaiku'
+import { Component } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -24,7 +24,7 @@ class PowShaperNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="PowShaper">
+      <Module id={id} type="PowShaper" name="Pow Shaper">
         <Knob
           moduleId={id}
           id="exponent"
@@ -32,7 +32,7 @@ class PowShaperNode extends Component<Props> {
           type="linear"
           min={0.01}
           max={2}
-          initial={2}
+          initial={1}
         />
         <Knob
           moduleId={id}

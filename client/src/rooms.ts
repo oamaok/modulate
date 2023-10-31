@@ -1,14 +1,14 @@
 import { useEffect } from 'kaiku'
 import { ClientMessage, Patch, ServerMessage } from '@modulate/common/types'
+import { validatePatch } from '@modulate/common/validators'
 import * as util from '@modulate/common/util'
 import * as api from './api'
-import state, { loadPatch, addConnectionBetweenSockets } from './state'
+import state, { loadPatch, resetPatch } from './state'
 import assert from './assert'
 import { PatchEvent } from '@modulate/common/types'
 import * as engine from './engine'
 
 let previousPatch: Patch = {
-  currentId: 0,
   modules: {},
   knobs: {},
   cables: [],
@@ -33,6 +33,7 @@ const flushMessageQueue = () => {
 }
 
 export const createRoom = async (patchId: string) => {
+  await resetPatch()
   const { roomId } = await api.getRoomUsingPatch(patchId)
   history.pushState({}, '', `/room/${roomId}`)
   joinRoom(roomId)
@@ -92,14 +93,16 @@ export const joinRoom = (roomId: string) => {
               )
 
               for (const cable of cablesToDisconnect) {
-                addConnectionBetweenSockets(cable.from, cable.to)
+                engine.disconnectCable(cable)
               }
+
+              engine.deleteModule(event.moduleId)
 
               delete state.sockets[event.moduleId]
               break
             }
             case 'connect-cable': {
-              addConnectionBetweenSockets(event.cable.from, event.cable.to)
+              engine.connectCable(event.cable)
               break
             }
             case 'disconnect-cable': {
@@ -121,6 +124,17 @@ export const joinRoom = (roomId: string) => {
                   position: event.position,
                   state: null,
                 }
+
+                if (__DEBUG__) {
+                  const { valid, errors } = validatePatch(patch)
+                  if (!valid) {
+                    connection!.close()
+                    throw new Error(
+                      `create-module event:\n${errors.join('\n')}`
+                    )
+                  }
+                }
+
                 break
               }
               case 'delete-module': {
@@ -133,35 +147,98 @@ export const joinRoom = (roomId: string) => {
 
                 delete patch.knobs[event.moduleId]
                 delete patch.modules[event.moduleId]
+
+                if (__DEBUG__) {
+                  const { valid, errors } = validatePatch(patch)
+                  if (!valid) {
+                    connection!.close()
+                    throw new Error(
+                      `create-module event:\n${errors.join('\n')}`
+                    )
+                  }
+                }
                 break
               }
               case 'change-module-position': {
                 patch.modules[event.moduleId]!.position = { ...event.position }
+
+                if (__DEBUG__) {
+                  const { valid, errors } = validatePatch(patch)
+                  if (!valid) {
+                    connection!.close()
+                    throw new Error(
+                      `change-module-position event:\n${errors.join('\n')}`
+                    )
+                  }
+                }
                 break
               }
               case 'change-module-state': {
                 patch.modules[event.moduleId]!.state = util.cloneObject(
                   event.state
                 )
+
+                if (__DEBUG__) {
+                  const { valid, errors } = validatePatch(patch)
+                  if (!valid) {
+                    connection!.close()
+                    throw new Error(
+                      `change-module-state event:\n${errors.join('\n')}`
+                    )
+                  }
+                }
                 break
               }
 
               case 'tweak-knob': {
                 patch.knobs[event.moduleId]![event.knob] = event.value
+
+                if (__DEBUG__) {
+                  const { valid, errors } = validatePatch(patch)
+                  if (!valid) {
+                    connection!.close()
+                    throw new Error(`tweak-knob event:\n${errors.join('\n')}`)
+                  }
+                }
                 break
               }
               case 'connect-cable': {
                 patch.cables.push(util.cloneObject(event.cable))
+
+                if (__DEBUG__) {
+                  const { valid, errors } = validatePatch(patch)
+                  if (!valid) {
+                    connection!.close()
+                    throw new Error(
+                      `connect-cable event:\n${errors.join('\n')}`
+                    )
+                  }
+                }
                 break
               }
               case 'disconnect-cable': {
                 patch.cables = patch.cables.filter(
                   (cable) => cable.id !== event.cableId
                 )
+
+                if (__DEBUG__) {
+                  const { valid, errors } = validatePatch(patch)
+                  if (!valid) {
+                    connection!.close()
+                    throw new Error(
+                      `disconnect-cable event:\n${errors.join('\n')}`
+                    )
+                  }
+                }
                 break
               }
             }
           }
+
+          assert(
+            util.deepEqual(state.patch, previousPatch),
+            'Patches should be equal'
+          )
         }
       }
     }
@@ -253,7 +330,9 @@ useEffect(() => {
     assert(module)
 
     const previousPatchModule = previousPatch.modules[moduleId]
-    assert(previousPatchModule)
+    if (!previousPatchModule) {
+      continue
+    }
 
     if (!util.deepEqual(module.state, previousPatchModule.state)) {
       const newState = util.cloneObject(module.state!)
@@ -356,8 +435,6 @@ useEffect(() => {
     if (!previousCableIds.has(cableId)) {
       const cable = state.patch.cables.find((cable) => cable.id === cableId)
       assert(cable)
-
-      console.log(cable.id)
 
       dispatchPatchEvent({
         type: 'connect-cable',

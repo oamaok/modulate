@@ -1,16 +1,17 @@
 .menu-bar {
   background-color: var(--secondary);
-  padding: 10px;
   border-radius: 4px;
   display: flex;
   flex-direction: row;
   position: absolute;
   box-shadow: var(--box-shadow);
   z-index: 20;
+  align-items: center;
+  gap: 8px;
 }
 
 .vertical-divider {
-  height: 16px;
-  border-right: 2px solid var(--secondary-variant);
-  margin: 0 10px;
+  border-right: 1px solid #888;
+  border-left: 1px solid #222;
+  height: 36px;
 }

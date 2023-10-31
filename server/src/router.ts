@@ -11,30 +11,45 @@ type RouterChain = ((
   req: http.IncomingMessage,
   res: http.ServerResponse
 ) => void) & {
-  get(path: string, callback: GetCallback): RouterChain
-  post<T extends t.Any>(
-    path: string,
+  get<Route extends string>(
+    path: Route,
+    callback: GetCallback<Route>
+  ): RouterChain
+  post<Route extends string, T extends t.Any>(
+    path: Route,
     validator: T,
-    callback: PostCallback<T>
+    callback: PostCallback<Route, T>
   ): RouterChain
 }
 
-type BaseRequest = {
+type StripSlash<S> = S extends `/${infer R}` ? R : S
+type ParamOf<S> = StripSlash<S> extends `:${infer P}` ? P : never
+
+type RouteParamNames<Route extends string> =
+  Route extends `${infer Segment}/${infer Rest}`
+    ? ParamOf<Segment> | RouteParamNames<Rest>
+    : ParamOf<Route>
+
+type RouteParams<Route extends string> = RouteParamNames<Route> extends string
+  ? { [x in RouteParamNames<Route>]: string }
+  : {}
+
+type BaseRequest<Route extends string> = {
   url: URL
   authorization: User | null
   wildcardMatch: string
-  parameters: Record<string, string>
+  parameters: RouteParams<Route>
   query: Record<string, string>
   headers: http.IncomingHttpHeaders
 }
 
-type GetRequest = BaseRequest
+type GetRequest<Route extends string> = BaseRequest<Route>
 
-type PostRequest<T extends t.Any> = BaseRequest & {
+type PostRequest<Route extends string, T extends t.Any> = BaseRequest<Route> & {
   body: t.TypeOf<T>
 }
 
-type Request = GetRequest | PostRequest<any>
+type Request<Route extends string> = GetRequest<Route> | PostRequest<Route, any>
 
 export type Response = {
   status(code: number): void
@@ -44,39 +59,42 @@ export type Response = {
   end(): void
 }
 
-type GetCallback = (request: GetRequest, response: Response) => void
-type PostCallback<T extends t.Any> = (
-  request: PostRequest<T>,
+type GetCallback<Route extends string> = (
+  request: GetRequest<Route>,
+  response: Response
+) => void
+type PostCallback<Route extends string, T extends t.Any> = (
+  request: PostRequest<Route, T>,
   response: Response
 ) => void | Promise<void>
-
-type Callback = (request: Request, response: Response) => void | Promise<void>
 
 type Segment =
   | { type: 'exact'; name: string }
   | { type: 'parameter'; name: string }
   | { type: 'wildcard' }
 
-type PostRoute<T extends t.Any = t.Any> = {
+type PostRoute<Route extends string, T extends t.Any = t.Any> = {
   method: 'POST'
   validator: T
   segments: Segment[]
-  callback: PostCallback<T>
+  callback: PostCallback<Route, T>
 }
 
-type GetRoute = {
+type GetRoute<Route extends string> = {
   method: 'GET'
   segments: Segment[]
-  callback: Callback
+  callback: GetCallback<Route>
 }
 
-type RouteMatch = {
-  route: Route
-  parameters: Record<string, string>
+type RouteMatch<R extends string> = {
+  route: Route<R>
+  parameters: RouteParams<R>
   wildcardMatch: string
 }
 
-export const serverStatic = (staticPath: string): GetCallback => {
+export const serverStatic = <Route extends string>(
+  staticPath: Route
+): GetCallback<Route> => {
   return async (req, res) => {
     const isDirectory = (await stat(staticPath)).isDirectory()
 
@@ -106,7 +124,7 @@ export const serverStatic = (staticPath: string): GetCallback => {
   }
 }
 
-type Route = PostRoute | GetRoute
+type Route<R extends string> = PostRoute<R> | GetRoute<R>
 
 enum MultipartParserState {
   INIT,
@@ -115,18 +133,6 @@ enum MultipartParserState {
   READ_BOUNDARY,
   DONE,
 }
-
-type MultipartBodyPart =
-  | {
-      type: 'string'
-      name: string
-      value: string
-    }
-  | {
-      type: 'buffer'
-      name: string
-      value: Buffer
-    }
 
 const getPartType = (headers: Record<string, string>) => {
   const contentType = headers['content-type']
@@ -293,7 +299,7 @@ const parseRequestBody = async (req: http.IncomingMessage) => {
     return parseMultipartBody(req)
   }
 
-  return await new Promise<string>((resolve, reject) => {
+  return await new Promise<string>((resolve) => {
     let body = ''
     req.on('data', (chunk) => {
       body += chunk
@@ -337,7 +343,10 @@ const pathToSegments = (path: string): Segment[] =>
   })
 
 const router = (): RouterChain => {
-  const routes: Route[] = []
+  const routes: { GET: GetRoute<any>[]; POST: PostRoute<any, any>[] } = {
+    GET: [],
+    POST: [],
+  }
 
   const chain: RouterChain = async (
     req: http.IncomingMessage,
@@ -375,14 +384,19 @@ const router = (): RouterChain => {
       header: res.setHeader.bind(res),
     }
 
-    let matchingRoutes: RouteMatch[] = []
+    const matchingRoutes: RouteMatch<any>[] = []
 
-    for (let i = 0; i < routes.length; i++) {
-      const route = routes[i] as Route
+    if (req.method !== 'GET' && req.method !== 'POST') {
+      response.status(400)
+      response.send('unsupported method')
+      response.end()
+      return
+    }
 
-      if (route.method !== req.method) {
-        continue
-      }
+    const routesForMethod = routes[req.method]
+
+    for (let i = 0; i < routesForMethod.length; i++) {
+      const route = routesForMethod[i]!
 
       let match = true
       let wildcardMatch = ''
@@ -433,10 +447,10 @@ const router = (): RouterChain => {
     matchingRoutes.sort(
       (a, b) => b.route.segments.length - a.route.segments.length
     )
-    const match = matchingRoutes[0] as RouteMatch
+    const match = matchingRoutes[0] as RouteMatch<any>
     const route = match.route
 
-    let authorization: Request['authorization'] = null
+    let authorization: Request<any>['authorization'] = null
 
     if (req.headers.authorization) {
       const [type, token] = req.headers.authorization.split(' ')
@@ -445,7 +459,7 @@ const router = (): RouterChain => {
       }
     }
 
-    const baseRequest: BaseRequest = {
+    const baseRequest: BaseRequest<any> = {
       wildcardMatch: match.wildcardMatch,
       url,
       query: parseQuery(url.search),
@@ -460,6 +474,7 @@ const router = (): RouterChain => {
           await route.callback(baseRequest, response)
         } catch (err) {
           logger.error(err)
+          console.error(err)
           response.status(500)
           response.json({ error: 'internal server errror' })
           response.end()
@@ -488,6 +503,7 @@ const router = (): RouterChain => {
           await route.callback({ ...baseRequest, body }, response)
         } catch (err) {
           logger.error(err)
+          console.error(err)
           response.status(500)
           response.json({ error: 'internal server errror' })
           response.end()
@@ -497,24 +513,27 @@ const router = (): RouterChain => {
     }
   }
 
-  chain.get = (path, callback) => {
-    routes.push({
+  chain.get = <Route extends string>(
+    path: Route,
+    callback: GetCallback<Route>
+  ) => {
+    routes.GET.push({
       method: 'GET',
-      callback,
+      callback: callback,
       segments: pathToSegments(path),
     })
     return chain
   }
 
-  chain.post = <T extends t.Any>(
-    path: string,
+  chain.post = <Route extends string, T extends t.Any>(
+    path: Route,
     validator: T,
-    callback: PostCallback<T>
+    callback: PostCallback<Route, T>
   ) => {
-    routes.push({
+    routes.POST.push({
       method: 'POST',
       validator,
-      callback: callback as PostCallback<t.Any>,
+      callback,
       segments: pathToSegments(path),
     })
     return chain

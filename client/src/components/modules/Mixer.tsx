@@ -1,4 +1,4 @@
-import { h, Component } from 'kaiku'
+import { Component } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -30,7 +30,7 @@ class MixerNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Mixer" width={140} height={200}>
+      <Module id={id} type="Mixer" width={140} height={200}>
         <div className={css('mixer')}>
           <Slider
             moduleId={id}

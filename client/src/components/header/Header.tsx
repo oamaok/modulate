@@ -1,94 +1,130 @@
-import { h, useState, Fragment } from 'kaiku'
-import state, { patch } from '../../state'
-import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
-import css from './Header.css'
+import state, {
+  canUserSavePatch,
+  isOwnPatch,
+  openOverlay,
+  resetPatch,
+} from '../../state'
 import * as api from '../../api'
+import MenuBar from '../menu-bar/MenuBar'
+import css from './Header.css'
+import { intersperse } from '@modulate/common/util'
+import SaveDialog from '../save-dialog/SaveDialog'
 import { createRoom } from '../../rooms'
+import testAttributes from '../../test-attributes'
+import Icon from '../icon/Icon'
 
-const Menu = () => {
-  const savePatch = async () => {
-    const res = await api.savePatch(state.patchMetadata, patch)
-
-    history.pushState({}, '', `/patch/${res.id}`)
-  }
-
-  const isOwnPatch =
-    state.route.name === 'index' ||
-    (state.user && state.user.id === state.patchMetadata.author?.id)
-
-  return (
-    <div className={css('menu')}>
-      {isOwnPatch ? (
-        <div className={css('patch-settings')}>
-          <h3>Patch details</h3>
-          <div className={css('name')}>
-            <label for="patch-name">Name</label>
-            <input
-              id="patch-name"
-              type="text"
-              value={state.patchMetadata.name}
-              onInput={(evt: any) => {
-                state.patchMetadata.name = evt.target.value
-              }}
-            />
-          </div>
-          <div className={css('description')}>
-            <label for="patch-description">Description</label>
-            <textarea id="patch-description" />
-          </div>
-          <div className={css('is-public')}>
-            <label for="patch-is-public">Public</label>
-            <input id="patch-is-public" type="checkbox" />
-          </div>
-          <button className={css('item')} onClick={savePatch}>
-            Save patch
-          </button>
-        </div>
-      ) : null}
-      {/*
-      <div className={css('item')}>New patch</div>
-      <div className={css('item')}>My patches</div>
-      <div className={css('item')}>Browse all patches</div>
-      */}
-    </div>
-  )
+type MenuIconProps = {
+  id: string
+  icon: string
+  label: string
+  enabled: boolean
+  onClick: () => void
 }
 
-const Header = () => {
-  const headerState = useState({ isMenuOpen: false })
-  const openMenu = () => {}
+const noop = () => {}
 
+const MenuIcon = ({ id, icon, label, onClick, enabled }: MenuIconProps) => (
+  <button
+    {...testAttributes({ id: 'menu-item', 'item-id': id, icon, label })}
+    className={css('menu-icon', { enabled })}
+    onClick={enabled ? onClick : noop}
+  >
+    <Icon name={icon} />
+    <div className={css('label')}>{label}</div>
+  </button>
+)
+
+const Header = () => {
   const patchAuthor =
     state.patchMetadata.author?.username ?? state.user?.username ?? 'anonymous'
+
+  const isLoggedIn = state.user !== null
+  const isSavedPatch = state.patchMetadata.id !== null
+
+  const menuItems = [
+    {
+      id: 'patch-browser',
+      icon: 'view_list',
+      label: 'Browse patches',
+      action: () => openOverlay('patch-browser'),
+      enabled: true,
+    },
+    {
+      id: 'new-patch',
+      icon: 'add',
+      label: 'New patch',
+      action: async () => {
+        if (!canUserSavePatch() || (await SaveDialog.open())) {
+          await resetPatch()
+        }
+      },
+      enabled: true,
+    },
+    {
+      id: 'settings',
+      icon: 'settings',
+      label: 'Patch settings',
+      action: () => openOverlay('patch-settings'),
+      enabled: isOwnPatch(),
+    },
+    {
+      id: 'save-patch',
+      icon: 'save',
+      label: 'Save patch',
+      action: async () => {
+        const res = await api.savePatch(state.patchMetadata, state.patch)
+        state.patchMetadata.id = res.id
+        history.pushState({}, '', `/patch/${res.id}`)
+      },
+      enabled: isOwnPatch(),
+    },
+    /*
+    {
+      icon: 'publish',
+      label: 'Publish patch',
+      action: () => {},
+      enabled: isOwnPatch,
+    },
+    */
+    {
+      id: 'fork-patch',
+      icon: 'fork_right',
+      label: 'Fork this patch',
+      action: () => {},
+      enabled: isLoggedIn && !isOwnPatch(),
+    },
+    {
+      id: 'create-room',
+      icon: 'group',
+      label: 'Create multiplayer room',
+      action: () => createRoom(state.patchMetadata.id!),
+      enabled: isLoggedIn && isSavedPatch,
+    },
+  ]
 
   return (
     <MenuBar top left>
       <h2 className={css('brand')}>modulate</h2>
-      <button
-        onClick={() => {
-          headerState.isMenuOpen = !headerState.isMenuOpen
-        }}
-        className={css('menu-button')}
-      >
-        Patch
-      </button>
-      <VerticalDivider />
       <div className={css('patch-name')}>
-        <i>
+        <span>
           <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
-        </i>
+        </span>
       </div>
-
-      {state.patchMetadata.id !== null && state.user ? (
-        <>
-          <VerticalDivider />
-          <button onClick={() => createRoom(state.patchMetadata.id!)}>
-            Create room
-          </button>
-        </>
-      ) : null}
-
-      {headerState.isMenuOpen ? <Menu /> : null}
+      <div className={css('actions')}>
+        <div className={css('separator')} />
+        {intersperse(
+          menuItems.map((item) => (
+            <MenuIcon
+              id={item.id}
+              icon={item.icon}
+              label={item.label}
+              enabled={item.enabled}
+              onClick={item.action}
+            />
+          )),
+          <div className={css('separator')} />
+        )}
+      </div>
     </MenuBar>
   )
 }

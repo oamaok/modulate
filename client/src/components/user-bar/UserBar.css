@@ -1,58 +1,22 @@
-.login,
-.sign-up {
-  right: 0;
-  top: 48px;
-  width: 300px;
-  background-color: var(--secondary);
-  padding: 10px;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  box-shadow: var(--box-shadow);
+.user-bar {
+  padding: 5px 10px;
 }
 
-.login button,
-.sign-up button {
-  background-color: var(--secondary-variant);
-  border-radius: 2px;
-  padding: 0 2px;
-}
-
-.error {
-  margin-bottom: 10px;
-  color: red;
-}
-
-.login::after,
-.sign-up::after {
-  content: ' ';
-  width: 10px;
-  height: 10px;
-  background-color: var(--secondary);
-  right: 25px;
-  top: -5px;
-  position: absolute;
-  transform: rotate(45deg);
-}
-
-.sign-up::after {
-  right: 90px;
-}
-
-.field {
-  width: 100%;
+.global-volume {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  text-transform: uppercase;
 }
 
-.field input {
-  width: 70%;
-}
-
-.loading {
-  opacity: 0.5;
-  pointer-events: none;
+.login-button {
+  padding: 4px 8px;
+  border-radius: 2px;
+  background-color: var(--primary);
+  box-shadow: var(--box-shadow);
+  text-shadow: none;
+  color: #fff;
+  font-weight: bold;
 }

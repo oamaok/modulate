@@ -1,4 +1,4 @@
-import { FC, h } from 'kaiku'
+import { FC } from 'kaiku'
 import css from './ModuleSockets.css'
 
 export const ModuleOutputs: FC<{}> = ({ children }) => {

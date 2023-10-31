@@ -3,7 +3,7 @@ type ClassNames = string | { [key: string]: any } | ClassNames[]
 const classNames = (nameMap: Record<string, string>) => {
   const stringifyClassNames = (...args: ClassNames[]): string => {
     let className = ''
-    for (let names of args) {
+    for (const names of args) {
       if (typeof names === 'string') {
         className += (nameMap[names] ?? names) + ' '
         continue

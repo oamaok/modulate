@@ -1,4 +1,4 @@
-import { h, Component } from 'kaiku'
+import { Component } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -35,7 +35,7 @@ class MIDINode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="MIDI" width={50}>
+      <Module id={id} type="MIDI" width={50}>
         <ModuleInputs></ModuleInputs>
         <ModuleOutputs>
           <Socket<MIDI, 'output', 'cv'>

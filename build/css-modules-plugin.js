@@ -36,7 +36,9 @@ const CssModulesPlugin = () => ({
           },
           generateScopedName(name) {
             if (!classNames[filePath][name]) {
-              if (process.env.NODE_ENV === 'production') {
+              if (filePath.endsWith('reset.css')) {
+                classNames[filePath][name] = name
+              } else if (process.env.NODE_ENV === 'production') {
                 classNames[filePath][name] = nextName()
               } else {
                 const moduleName = filePath.split('/').pop().split('.')[0]
@@ -63,15 +65,21 @@ const CssModulesPlugin = () => ({
     build.onEnd(async () => {
       const bundlePath = resolve(build.initialOptions.outdir, 'index.css')
 
-      const { css } = await postcss([cssnano({ preset: 'default' })]).process(
-        Object.keys(cssContent)
-          .sort()
-          .reverse()
-          .map((key) => cssContent[key])
-          .join('\n')
-      )
+      const rawCss = Object.keys(cssContent)
+        .sort()
+        .reverse()
+        .map((key) => cssContent[key])
+        .join('\n')
 
-      await fs.writeFile(bundlePath, css)
+      if (process.env.NODE_ENV === 'production') {
+        const { css } = await postcss([cssnano({ preset: 'default' })]).process(
+          rawCss
+        )
+
+        await fs.writeFile(bundlePath, css)
+      } else {
+        await fs.writeFile(bundlePath, rawCss)
+      }
     })
   },
 })

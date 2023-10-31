@@ -49,7 +49,7 @@ const get = async (path: string, authorization?: string) => {
 }
 
 const TEST_USERNAME = 'test'
-const TEST_PASSWORD = 'test'
+const TEST_PASSWORD = 'password'
 const TEST_EMAIL = 'test@example.com'
 
 const createTestAccount = () => {
@@ -106,6 +106,11 @@ describe('API', () => {
     expect(res.version).toEqual(0)
   })
 
+  it('should not be able to save a patch while not logged in', async () => {
+    const [res, code] = await post('/api/patch', fixtures.newPatch)
+    expect(code).toEqual(401)
+  })
+
   it('should reject invalid patch', async () => {
     const [{ token }] = await createTestAccount()
 
@@ -137,6 +142,12 @@ describe('API', () => {
       token
     )
     expect(code).toEqual(400)
+  })
+
+  it('should fail to get patch that does not exist', async () => {
+    const [res, code] = await get(`/api/patch/does-not-exist/latest`)
+
+    expect(code).toEqual(404)
   })
 
   it('should be able to get patch after saving', async () => {

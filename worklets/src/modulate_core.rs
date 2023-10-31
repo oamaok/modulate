@@ -1,9 +1,17 @@
 use std::ops::{Deref, DerefMut};
 use std::ops::{Index, IndexMut};
+use wasm_bindgen::prelude::*;
 
 pub const SAMPLE_RATE: usize = 44100;
+pub const SAMPLE_RATE_F32: f32 = SAMPLE_RATE as f32;
 pub const QUANTUM_SIZE: usize = 128;
 pub const INV_SAMPLE_RATE: f32 = 1.0 / SAMPLE_RATE as f32;
+
+#[wasm_bindgen]
+extern "C" {
+  #[wasm_bindgen(js_namespace = console)]
+  pub fn log(s: &str);
+}
 
 #[derive(Clone, Copy)]
 pub struct AudioBuffer([f32; QUANTUM_SIZE]);
@@ -317,6 +325,14 @@ impl Edge {
   pub fn is_edge(&self) -> bool {
     self == &Edge::Rose || self == &Edge::Fell
   }
+
+  pub fn is_high(&self) -> bool {
+    self == &Edge::Rose || self == &Edge::High
+  }
+
+  pub fn is_low(&self) -> bool {
+    self == &Edge::Fell || self == &Edge::Low
+  }
 }
 
 pub struct EdgeDetector {
@@ -356,5 +372,106 @@ impl EdgeDetector {
     self.previous_sample = sample;
 
     edge
+  }
+}
+
+fn tension_interp(start: f32, end: f32, tension: f32, t: f32) -> f32 {
+  start
+    + (end - start)
+      * if tension > 0.0 {
+        let exp = 1.0 + tension * 2.0;
+        1.0 - f32::powf(1.0 - f32::powf(t.clamp(0.0, 1.0), exp), 1.0 / exp)
+      } else {
+        let exp = 1.0 - tension * 2.0;
+        f32::powf(1.0 - f32::powf(1.0 - t.clamp(0.0, 1.0), exp), 1.0 / exp)
+      }
+}
+
+pub struct ADSRCurve {
+  edge_detector: EdgeDetector,
+  level: f32,
+  release_level: f32,
+  time: f32,
+
+  pub attack_time: f32,
+  pub attack_tension: f32,
+  pub decay_time: f32,
+  pub decay_tension: f32,
+  pub sustain_level: f32,
+  pub release_time: f32,
+  pub release_tension: f32,
+}
+
+impl Default for ADSRCurve {
+  fn default() -> Self {
+    ADSRCurve {
+      edge_detector: EdgeDetector::default(),
+      level: 0.0,
+      release_level: 0.0,
+      time: 0.0,
+      attack_time: 0.0,
+      attack_tension: 0.0,
+      decay_time: 0.0,
+      decay_tension: 0.0,
+      sustain_level: 0.0,
+      release_time: 0.0,
+      release_tension: 0.0,
+    }
+  }
+}
+
+impl ADSRCurve {
+  pub fn step(&mut self, sample: f32) -> f32 {
+    let edge = self.edge_detector.step(sample);
+
+    if edge.is_edge() {
+      self.time = 0.0;
+      self.release_level = self.level;
+    }
+
+    self.level = 'l: {
+      if edge.is_high() {
+        let attack_time = self.attack_time * SAMPLE_RATE_F32;
+
+        if self.time < attack_time {
+          break 'l tension_interp(
+            self.release_level,
+            1.0,
+            self.attack_tension,
+            self.time / attack_time,
+          );
+        }
+
+        let decay_time = self.decay_time * SAMPLE_RATE_F32;
+
+        if self.time - attack_time < decay_time {
+          break 'l tension_interp(
+            1.0,
+            self.sustain_level,
+            self.decay_tension,
+            (self.time - attack_time) / decay_time,
+          );
+        }
+
+        self.sustain_level
+      } else {
+        let release_time = self.release_time * SAMPLE_RATE_F32;
+
+        if self.time < release_time {
+          break 'l tension_interp(
+            self.release_level,
+            0.0,
+            self.release_tension,
+            self.time / release_time,
+          );
+        }
+
+        0.0
+      }
+    };
+
+    self.time = self.time + 1.0;
+
+    self.level
   }
 }

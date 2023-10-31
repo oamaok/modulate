@@ -1,0 +1,41 @@
+.adsr {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px 0;
+  align-items: center;
+}
+
+.curve {
+  background: #000;
+  position: relative;
+  height: 66px;
+  width: 176px;
+  border-radius: 4px;
+  border-left: 1px solid #555;
+  border-right: 1px solid #555;
+  border-top: 2px solid #666;
+  overflow: hidden;
+}
+
+.knobs {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.separator {
+  border-right: 1px solid #888;
+  border-left: 1px solid #222;
+}
+
+.knob-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.label {
+  font-size: 12px;
+}

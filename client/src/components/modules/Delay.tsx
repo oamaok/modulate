@@ -1,4 +1,4 @@
-import { h, Component } from 'kaiku'
+import { Component } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -24,7 +24,7 @@ class DelayNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Delay">
+      <Module id={id} type="Delay">
         <Knob
           moduleId={id}
           id="delayTime"
@@ -32,7 +32,7 @@ class DelayNode extends Component<Props> {
           type="exponential"
           exponent={2}
           unit="s"
-          min={0.01}
+          min={0.001}
           max={2}
           initial={0.5}
         />

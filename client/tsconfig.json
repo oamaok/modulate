@@ -13,7 +13,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "kaiku",
     "moduleResolution": "node",
-    "lib": ["DOM", "ESNext"],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "target": "ESNext",
     "resolveJsonModule": true
   }

@@ -1,5 +1,22 @@
 #![feature(stdsimd)]
 use core::arch::wasm32::memory_atomic_wait64;
+use modules::adsr::ADSR;
+use modules::audio_out::AudioOut;
+use modules::biquad_filter::BiquadFilter;
+use modules::bouncy_boi::BouncyBoi;
+use modules::clock::Clock;
+use modules::delay::Delay;
+use modules::gain::Gain;
+use modules::lfo::LFO;
+use modules::limiter::Limiter;
+use modules::midi::MIDI;
+use modules::mixer::Mixer;
+use modules::oscillator::Oscillator;
+use modules::pow_shaper::PowShaper;
+use modules::reverb::Reverb;
+use modules::sampler::Sampler;
+use modules::sequencer::Sequencer;
+use modules::virtual_controller::VirtualController;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::ops::{Index, IndexMut};
@@ -13,20 +30,9 @@ pub mod modules;
 pub mod rw_lock;
 pub mod vec;
 
-use modules::{
-  adsr, audio_out, biquad_filter, bouncy_boi, clock, delay, gain, lfo, limiter, midi, mixer,
-  oscillator, pow_shaper, reverb, sampler, sequencer,
-};
-
 #[wasm_bindgen(inline_js = "export function now() { return performance.now() }")]
 extern "C" {
   fn now() -> f64;
-}
-
-#[wasm_bindgen]
-extern "C" {
-  #[wasm_bindgen(js_namespace = console)]
-  fn log(s: &str);
 }
 
 #[wasm_bindgen]
@@ -315,65 +321,58 @@ impl ModulateEngine {
 
     match module_name {
       "AudioOut" => {
-        self
-          .modules
-          .insert(id, Box::new(audio_out::AudioOut::new()));
+        self.modules.insert(id, Box::new(AudioOut::new()));
         self.worker_context.audio_outputs.insert(id);
       }
       "Oscillator" => {
-        self
-          .modules
-          .insert(id, Box::new(oscillator::Oscillator::new()));
+        self.modules.insert(id, Box::new(Oscillator::new()));
       }
       "LFO" => {
-        self.modules.insert(id, Box::new(lfo::LFO::new()));
+        self.modules.insert(id, Box::new(LFO::new()));
       }
       "BiquadFilter" => {
-        self
-          .modules
-          .insert(id, Box::new(biquad_filter::BiquadFilter::new()));
+        self.modules.insert(id, Box::new(BiquadFilter::new()));
       }
       "Mixer" => {
-        self.modules.insert(id, Box::new(mixer::Mixer::new()));
+        self.modules.insert(id, Box::new(Mixer::new()));
       }
       "Gain" => {
-        self.modules.insert(id, Box::new(gain::Gain::new()));
+        self.modules.insert(id, Box::new(Gain::new()));
       }
       "Limiter" => {
-        self.modules.insert(id, Box::new(limiter::Limiter::new()));
+        self.modules.insert(id, Box::new(Limiter::new()));
       }
       "PowShaper" => {
-        self
-          .modules
-          .insert(id, Box::new(pow_shaper::PowShaper::new()));
+        self.modules.insert(id, Box::new(PowShaper::new()));
       }
       "Sequencer" => {
-        self
-          .modules
-          .insert(id, Box::new(sequencer::Sequencer::new()));
+        self.modules.insert(id, Box::new(Sequencer::new()));
       }
       "ADSR" => {
-        self.modules.insert(id, Box::new(adsr::ADSR::new()));
+        self.modules.insert(id, Box::new(ADSR::new()));
       }
       "Reverb" => {
-        self.modules.insert(id, Box::new(reverb::Reverb::new()));
+        self.modules.insert(id, Box::new(Reverb::new()));
       }
       "Delay" => {
-        self.modules.insert(id, Box::new(delay::Delay::new()));
+        self.modules.insert(id, Box::new(Delay::new()));
       }
       "Clock" => {
-        self.modules.insert(id, Box::new(clock::Clock::new()));
+        self.modules.insert(id, Box::new(Clock::new()));
       }
       "MIDI" => {
-        self.modules.insert(id, Box::new(midi::MIDI::new()));
+        self.modules.insert(id, Box::new(MIDI::new()));
       }
       "BouncyBoi" => {
-        self
-          .modules
-          .insert(id, Box::new(bouncy_boi::BouncyBoi::new()));
+        self.modules.insert(id, Box::new(BouncyBoi::new()));
       }
       "Sampler" => {
-        self.modules.insert(id, Box::new(sampler::Sampler::new()));
+        self.modules.insert(id, Box::new(Sampler::new()));
+      }
+      "VirtualController" => {
+        let mut module = Box::new(VirtualController::new());
+        module.init();
+        self.modules.insert(id, module);
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }

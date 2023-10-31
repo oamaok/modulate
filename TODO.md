@@ -15,6 +15,11 @@
 
 - [ ] Invert signal toggle
 
+## BouncyBoi
+
+- [ ] Trigger pulse width
+- [ ] Use direct memory access instead of events for rendering
+
 ## Sampler
 
 - [ ] Loop option
@@ -63,7 +68,7 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 ## Ring Mod
 
-- [ ] Add API testing
+- [x] Add API testing
 
 ## Bit crusher
 

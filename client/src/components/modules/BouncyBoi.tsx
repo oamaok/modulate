@@ -1,4 +1,4 @@
-import { h, Component } from 'kaiku'
+import { Component } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -11,6 +11,9 @@ import { BouncyBoi, EventTypes } from '@modulate/worklets/src/modules'
 type Props = {
   id: string
 }
+
+const BALL_BORDER_COLORS = ['#c8e800', '#00abe8', '#db00e8']
+const BALL_FILL_COLORS = ['#6c7d00', '#006b91', '#76007d']
 
 class BouncyBoiNode extends Component<Props> {
   constructor(props: Props) {
@@ -46,10 +49,13 @@ class BouncyBoiNode extends Component<Props> {
     context.fillStyle = '#000'
     context.fillRect(0, 0, 300, 300)
 
-    context.strokeStyle = '#e85d00'
     context.lineWidth = 2
 
-    for (const ball of state.balls) {
+    for (let i = 0; i < state.balls.length; i++) {
+      const ball = state.balls[i]!
+      context.strokeStyle = BALL_BORDER_COLORS[i]!
+      context.fillStyle = BALL_FILL_COLORS[i]!
+
       context.beginPath()
       context.arc(
         ball.pos.x * 0.5 + 75,
@@ -58,8 +64,10 @@ class BouncyBoiNode extends Component<Props> {
         0,
         Math.PI * 2
       )
+      context.fill()
       context.stroke()
     }
+    context.strokeStyle = '#e85d00'
 
     for (let i = 0; i < 5; i++) {
       const from = {
@@ -80,7 +88,13 @@ class BouncyBoiNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Bouncy Boi" height={260} width={240}>
+      <Module
+        id={id}
+        type="BouncyBoi"
+        name="Bouncy Boi"
+        height={260}
+        width={240}
+      >
         <div className={css('bouncy-boi')}>
           <div className={css('controls')}>
             <Knob
@@ -108,19 +122,19 @@ class BouncyBoiNode extends Component<Props> {
           <Socket<BouncyBoi, 'output', 'trig0'>
             moduleId={id}
             type="output"
-            label="TRIG"
+            label="YLW"
             index={0}
           />
           <Socket<BouncyBoi, 'output', 'trig1'>
             moduleId={id}
             type="output"
-            label="TRIG"
+            label="BLUE"
             index={1}
           />
           <Socket<BouncyBoi, 'output', 'trig2'>
             moduleId={id}
             type="output"
-            label="TRIG"
+            label="PRPL"
             index={2}
           />
         </ModuleOutputs>

@@ -1,7 +1,7 @@
 import * as crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
 import * as fs from 'fs'
-import * as validators from '@modulate/common/validators'
+import * as validators from '@modulate/common/type-validators'
 import config from './config'
 import { User } from '@modulate/common/types'
 

@@ -43,3 +43,18 @@
 .socket-parameter .socket-name {
   margin-left: 2px;
 }
+
+.drag-start-area {
+  width: 32px;
+  height: 20px;
+  position: absolute;
+}
+
+.socket-parameter .drag-start-area,
+.socket-input .drag-start-area {
+  left: -12px;
+}
+
+.socket-output .drag-start-area {
+  right: -12px;
+}

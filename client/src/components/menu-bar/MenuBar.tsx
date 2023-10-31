@@ -1,4 +1,4 @@
-import { FC, h } from 'kaiku'
+import { FC } from 'kaiku'
 import css from './MenuBar.css'
 
 type Props = {
@@ -6,12 +6,20 @@ type Props = {
   right?: true
   bottom?: true
   top?: true
+  className?: string
 }
 
-const MenuBar: FC<Props> = ({ children, left, right, bottom, top }) => {
+const MenuBar: FC<Props> = ({
+  children,
+  className = '',
+  left,
+  right,
+  bottom,
+  top,
+}) => {
   return (
     <div
-      className={css('menu-bar')}
+      className={[css('menu-bar'), className]}
       style={{
         left: left && '10px',
         right: right && '10px',

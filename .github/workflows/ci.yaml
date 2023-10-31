@@ -18,11 +18,11 @@ jobs:
           rustup component add rust-src --toolchain nightly-2023-06-15-x86_64-unknown-linux-gnu
           curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Install packages
-        run: yarn install
+        run: npm install
       - name: Build rust
-        run: yarn build --rust
+        run: npm run build --rust
       - name: Typecheck
-        run: yarn typecheck
+        run: npm run typecheck
   test:
     runs-on: ubuntu-latest
     steps:
@@ -34,6 +34,40 @@ jobs:
           rustup component add rust-src --toolchain nightly-2023-06-15-x86_64-unknown-linux-gnu
           curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Install packages
-        run: yarn install
+        run: npm install
       - name: Test
-        run: yarn test
+        run: npm run test
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install wasm-pack
+        run: |
+          rustup toolchain install nightly-2023-06-15-x86_64-unknown-linux-gnu
+          rustup component add rust-src --toolchain nightly-2023-06-15-x86_64-unknown-linux-gnu
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install packages
+        run: npm install
+      - name: Install playwright
+        run: npx playwright install
+      - name: Test
+        run: npm run e2e
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        run: npm install
+      - name: Lint
+        run: npm run lint:eslint
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        run: npm install
+      - name: Lint
+        run: npm run lint:rustfmt

@@ -1,4 +1,4 @@
-import { Vec2 } from './types'
+import { Rect, Vec2 } from './types'
 
 export const splitEvery = <T>(arr: T[], num: number): T[][] => {
   const res: T[][] = []
@@ -80,3 +80,40 @@ export const deepEqual = (a: any, b: any): boolean => {
 }
 
 export const origin = (): Vec2 => ({ x: 0, y: 0 })
+
+export const isPointInsideRect = (point: Vec2, rect: Rect) => {
+  return (
+    point.x > rect.x &&
+    point.x < rect.x + rect.width &&
+    point.y > rect.y &&
+    point.y < rect.y + rect.height
+  )
+}
+
+export const intersperse = <A, B>(arr: A[], b: B) => {
+  const ret: (A | B)[] = []
+  for (const a of arr) {
+    ret.push(a)
+    ret.push(b)
+  }
+  ret.pop()
+  return ret
+}
+
+export const groupBy = <T, F extends (item: T) => any>(
+  arr: T[],
+  discriminator: F
+): [ReturnType<F>, T[]][] => {
+  const ret: Map<ReturnType<F>, T[]> = new Map()
+
+  for (const item of arr) {
+    const groupKey = discriminator(item)
+    const group = ret.get(groupKey) ?? []
+    if (group.length === 0) {
+      ret.set(groupKey, group)
+    }
+    group.push(item)
+  }
+
+  return Array.from(ret.entries())
+}

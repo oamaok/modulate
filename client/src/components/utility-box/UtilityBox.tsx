@@ -1,4 +1,4 @@
-import { h, Component, useEffect } from 'kaiku'
+import { Component } from 'kaiku'
 import { getKnobValue } from '../../state'
 import Knob from '../module-parts/Knob'
 import css from './UtilityBox.css'

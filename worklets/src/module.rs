@@ -21,6 +21,8 @@ pub enum ModuleEvent {
   BouncyBoiUpdate { balls: [Ball; 3], phase: f32 },
   SamplerAllocateSuccess { ptr: usize },
   SamplerPlayheadPtr { ptr: usize },
+  VirtualControllerInit {},
+  VirtualControllerPointers { pressed_keys: usize, pads: usize },
 }
 
 #[derive(Serialize)]

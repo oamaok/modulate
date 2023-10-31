@@ -1,66 +1,47 @@
-import { h, useState, useEffect, FC } from 'kaiku'
+import { FC } from 'kaiku'
 import state, { getModulePosition } from '../../state'
-import { Id, Vec2 } from '@modulate/common/types'
+import { Id } from '@modulate/common/types'
 import css from './Module.css'
-import assert from '../../assert'
+import testAttributes from '../../test-attributes'
+import { ModuleName } from '@modulate/worklets/src/modules'
+import useDrag from '../../hooks'
 
 type Props = {
   id: Id
-  name: string
+  type: ModuleName
+  name?: string
   height?: number
   width?: number
 }
 
 const Module: FC<Props> = ({
   id,
+  type,
   name,
   children,
   height = 100,
   width = 200,
 }) => {
-  const moduleState = useState<{
-    dragPosition: null | Vec2
-  }>({
-    dragPosition: null,
-  })
-
-  const onDragStart = () => {
-    moduleState.dragPosition = { x: state.cursor.x, y: state.cursor.y }
-  }
-
-  const onDragEnd = () => {
-    moduleState.dragPosition = null
-  }
-
-  useEffect(() => {
-    document.addEventListener('mouseup', onDragEnd)
-    document.addEventListener('blur', onDragEnd)
-
-    return () => {
-      document.removeEventListener('mouseup', onDragEnd)
-      document.removeEventListener('blur', onDragEnd)
-    }
-  })
-
-  useEffect(() => {
-    if (moduleState.dragPosition) {
-      const module = state.patch.modules[id]
-      assert(module)
-
-      const modulePosition = module.position
-      modulePosition.x += state.cursor.x - moduleState.dragPosition.x
-      modulePosition.y += state.cursor.y - moduleState.dragPosition.y
-      moduleState.dragPosition.x = state.cursor.x
-      moduleState.dragPosition.y = state.cursor.y
-    }
+  const dragTargetRef = useDrag({
+    relativeToViewOffset: true,
+    onMove: ({ dx, dy }) => {
+      modulePosition.x -= dx
+      modulePosition.y -= dy
+    },
   })
 
   const modulePosition = getModulePosition(id)
 
   return (
     <div
+      {...testAttributes({
+        id: 'module',
+        type,
+        'module-id': id,
+      })}
       data-id="module"
       onMouseDown={() => (state.activeModule = id)}
+      onTouchStart={() => (state.activeModule = id)}
       className={() =>
         css('module', {
           active: state.activeModule === id,
@@ -76,8 +57,12 @@ const Module: FC<Props> = ({
           )}px)`,
       }}
     >
-      <div className={css('module-name')} onMouseDown={onDragStart}>
-        {name}
+      <div
+        className={css('module-name')}
+        ref={dragTargetRef}
+        {...testAttributes({ id: 'module-header' })}
+      >
+        {name ?? type}
       </div>
       <div className={css('module-body')}>{children}</div>
     </div>

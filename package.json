@@ -6,15 +6,18 @@
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production node build.js",
-    "build:rust": "yarn build --rust",
-    "start:client": "NODE_ENV=development node build.js",
-    "start:server": "NODE_ENV=development ts-node-dev --respawn --transpile-only ./server/src/index.ts",
-    "test": "NODE_ENV=test node build.js && yarn workspace @modulate/test test",
+    "build:rust": "npm run build --rust",
+    "start:client": "NODE_ENV=development node build.js --watch",
+    "start:server": "ts-node-dev --respawn --transpile-only ./server/src/index.ts",
+    "test": "NODE_ENV=test node build.js --engine-test && npm run test --workspace=test",
+    "e2e": "NODE_ENV=test node build.js && npm run e2e --workspace=test",
     "add-migration": "node server/scripts/add-migration",
     "run-migrations": "node server/scripts/run-migrations",
     "prettier": "prettier --write .",
-    "typecheck": "yarn workspaces run typecheck",
-    "rustfmt": "rustfmt worklets/**/*.rs"
+    "typecheck": "npm run typecheck --workspaces",
+    "rustfmt": "rustfmt worklets/**/*.rs",
+    "lint:eslint": "eslint . --ext=.ts,.tsx,.js",
+    "lint:rustfmt": "eslint . --ext=.ts,.tsx,.js"
   },
   "workspaces": [
     "client",
@@ -26,15 +29,19 @@
   "author": "Teemu Pääkkönen",
   "license": "UNLICENSED",
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "eslint": "^8.52.0",
+    "eslint-plugin-prettier": "^5.0.1",
     "typescript": "^4.4.3"
   },
   "devDependencies": {
     "chokidar": "^3.5.2",
     "cssnano": "^5.0.8",
-    "esbuild": "^0.13.2",
+    "esbuild": "^0.18.17",
     "postcss": "^8.3.9",
     "postcss-modules": "^4.2.2",
-    "prettier": "^2.4.1",
+    "prettier": "^3.0.3",
     "terser": "^5.17.6",
     "ts-node-dev": "^1.1.8"
   }

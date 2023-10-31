@@ -1,4 +1,4 @@
-import { h, Component, useEffect } from 'kaiku'
+import { Component, useEffect } from 'kaiku'
 import * as util from '@modulate/common/util'
 import { NoteName, Note } from '@modulate/common/types'
 import { Sequencer } from '@modulate/worklets/src/modules'
@@ -77,7 +77,7 @@ class SequencerNode extends Component<
     const sequenceLength = getKnobValue(id, 'sequenceLength') ?? 32
 
     return (
-      <Module id={id} name="Sequencer" width={340} height={200}>
+      <Module id={id} type="Sequencer" width={340} height={200}>
         <div className={css('sequencer')}>
           <div className={css('steps')}>
             {groupedNotes.map((groups) => (
@@ -127,7 +127,7 @@ class SequencerNode extends Component<
               step={1}
               min={1}
               max={32}
-              initial={32}
+              initial={16}
               label="LEN"
             />
             <Knob
@@ -173,17 +173,17 @@ class SequencerNode extends Component<
           />
         </ModuleInputs>
         <ModuleOutputs>
-          <Socket<Sequencer, 'output', 'cv'>
-            moduleId={id}
-            type="output"
-            label="CV"
-            index={0}
-          />
           <Socket<Sequencer, 'output', 'gate'>
             moduleId={id}
             type="output"
             label="GATE"
             index={1}
+          />
+          <Socket<Sequencer, 'output', 'cv'>
+            moduleId={id}
+            type="output"
+            label="CV"
+            index={0}
           />
         </ModuleOutputs>
       </Module>

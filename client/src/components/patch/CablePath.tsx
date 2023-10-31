@@ -1,5 +1,6 @@
-import { h, Fragment, useState } from 'kaiku'
-import { Vec2 } from '@modulate/common/types'
+import { useState } from 'kaiku'
+import { Cable, Vec2 } from '@modulate/common/types'
+import testAttributes from '../../test-attributes'
 
 type Props = {
   from: Vec2
@@ -7,9 +8,18 @@ type Props = {
   isActive?: boolean
   onHover?: () => void
   onBlur?: () => void
+
+  cable?: Cable
 }
 
-const CablePath = ({ from, to, onHover, onBlur, isActive = false }: Props) => {
+const CablePath = ({
+  from,
+  to,
+  onHover,
+  onBlur,
+  cable,
+  isActive = false,
+}: Props) => {
   const state = useState({ hover: false })
   const controlPointOffsetY =
     Math.sqrt(Math.max(100 - Math.abs(from.y - to.y), 0)) *
@@ -22,6 +32,15 @@ const CablePath = ({ from, to, onHover, onBlur, isActive = false }: Props) => {
   return (
     <>
       <path
+        {...testAttributes({
+          id: 'cable',
+          'cable-id': cable?.id,
+          'from-module-id': cable?.from.moduleId,
+          'from-index': cable?.from.index.toString(),
+          'to-module-id': cable?.to.moduleId,
+          'to-type': cable?.to.type,
+          'to-index': cable?.to.index.toString(),
+        })}
         d={`
         M ${from.x} ${from.y}
         C ${from.x + controlPointOffsetX} ${from.y + controlPointOffsetY}

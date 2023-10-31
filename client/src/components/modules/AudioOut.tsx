@@ -1,4 +1,4 @@
-import { h, Component } from 'kaiku'
+import { Component } from 'kaiku'
 import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
@@ -20,7 +20,7 @@ class AudioOutNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} name="Audio Out" width={100}>
+      <Module id={id} type="AudioOut" name="Audio Out" width={100}>
         <Knob
           moduleId={id}
           type="percentage"

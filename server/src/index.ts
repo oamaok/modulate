@@ -1,8 +1,11 @@
+import * as fsSync from 'fs'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as http from 'http'
+import * as https from 'https'
 import * as t from 'io-ts'
 import * as db from './database'
+import * as typeValidators from '@modulate/common/type-validators'
 import * as validators from '@modulate/common/validators'
 import * as auth from './authorization'
 import * as logger from './logger'
@@ -10,6 +13,7 @@ import config from './config'
 import router, { serverStatic, Response } from './router'
 import migrate from './migrate'
 import rooms, { createRoomUsingPatch } from './rooms'
+import loadTestData from './test/load-test-data'
 
 const unauthorized = (res: Response) => {
   res.status(401)
@@ -17,9 +21,15 @@ const unauthorized = (res: Response) => {
   res.end()
 }
 
-const badRequest = (res: Response, reason = '') => {
+const badRequest = (res: Response, reason: any = undefined) => {
   res.status(400)
   res.json({ error: 'bad request', reason })
+  res.end()
+}
+
+const notFound = (res: Response) => {
+  res.status(404)
+  res.json({ error: 'not found' })
   res.end()
 }
 
@@ -45,7 +55,20 @@ const ensureDirectoryExists = async (dir: string) => {
   }
 }
 
-const server = http.createServer(
+const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+
+const createServer = config.enableTLS
+  ? (router: http.RequestListener) =>
+      https.createServer(
+        {
+          key: fsSync.readFileSync(path.join(__dirname, '../certs/key.pem')),
+          cert: fsSync.readFileSync(path.join(__dirname, '../certs/cert.pem')),
+        },
+        router
+      )
+  : http.createServer
+
+const server = createServer(
   router()
     .get(
       '/*',
@@ -81,7 +104,7 @@ const server = http.createServer(
       })
       res.end()
     })
-    .post('/api/user', validators.UserRegistration, async (req, res) => {
+    .post('/api/user', typeValidators.UserRegistration, async (req, res) => {
       const { authorization } = req
       if (authorization) {
         res.status(400)
@@ -90,12 +113,39 @@ const server = http.createServer(
         return
       }
 
+      const { username, password, email } = req.body
+
+      if (username.length < 3 || username.length > 24) {
+        badRequest(res)
+        return
+      }
+
+      if (password.length < 8 || username.length > 64) {
+        badRequest(res)
+        return
+      }
+
+      if (!email.match(EMAIL_REGEX)) {
+        badRequest(res)
+        return
+      }
+
+      if (!(await db.isEmailAvailable(email))) {
+        badRequest(res)
+        return
+      }
+
+      if (!(await db.isUsernameAvailable(email))) {
+        badRequest(res)
+        return
+      }
+
       const user = await db.createUser(req.body)
 
       res.json({ user, token: auth.createToken(user) })
       res.end()
     })
-    .post('/api/user/login', validators.UserLogin, async (req, res) => {
+    .post('/api/user/login', typeValidators.UserLogin, async (req, res) => {
       const { authorization } = req
       if (authorization) {
         res.status(400)
@@ -114,6 +164,18 @@ const server = http.createServer(
       res.json({ user, token: auth.createToken(user) })
       res.end()
     })
+    .get('/api/my/patches', async (req, res) => {
+      const { authorization } = req
+      if (!authorization) {
+        unauthorized(res)
+        return
+      }
+
+      const patches = await db.getUserPatches(authorization.id)
+
+      res.json(patches)
+      res.end()
+    })
     .get('/api/user/:userId/patches', async (req, res) => {
       const { userId } = req.parameters
 
@@ -127,6 +189,10 @@ const server = http.createServer(
       res.json(patches)
       res.end()
     })
+    .get('/api/patches', async (req, res) => {
+      res.json(await db.getPublicPatches())
+      res.end()
+    })
     .get('/api/patch/:patchId/latest', async (req, res) => {
       const { patchId } = req.parameters
 
@@ -137,25 +203,57 @@ const server = http.createServer(
 
       const patch = await db.getLatestPatchVersion(patchId)
 
+      if (!patch) {
+        notFound(res)
+        return
+      }
+
       res.json(patch)
       res.end()
     })
     .get('/api/patch/:id/:version', async (req, res) => {
-      const { patchId, version } = req.parameters
+      const { id, version } = req.parameters
 
-      if (!patchId || !version) {
+      if (!id || !version) {
         badRequest(res)
         return
       }
 
-      const patch = await db.getPatchVersion(patchId, parseInt(version))
+      const patch = await db.getPatchVersion(id, parseInt(version))
+
+      if (!patch) {
+        notFound(res)
+        return
+      }
 
       res.json(patch)
       res.end()
     })
+    .get('/api/patch/:patchId/fork', async (req, res) => {
+      const { authorization } = req
+      if (!authorization) {
+        unauthorized(res)
+        return
+      }
+
+      const { patchId } = req.parameters
+
+      const latestVersion = await db.getLatestPatchVersion(patchId)
+
+      if (!latestVersion) {
+        badRequest(res)
+        return
+      }
+
+      // TODO: Implement forking
+      badRequest(res)
+    })
     .post(
       '/api/patch',
-      t.type({ metadata: validators.PatchMetadata, patch: validators.Patch }),
+      t.type({
+        metadata: typeValidators.PatchMetadata,
+        patch: typeValidators.Patch,
+      }),
       async (req, res) => {
         const { authorization } = req
         if (!authorization) {
@@ -164,6 +262,13 @@ const server = http.createServer(
         }
 
         const { patch, metadata } = req.body
+
+        const { valid, errors } = validators.validatePatch(patch)
+
+        if (!valid) {
+          badRequest(res, errors)
+          return
+        }
 
         if (!metadata.id) {
           res.json(await db.saveNewPatch(authorization.id, metadata, patch))
@@ -249,9 +354,7 @@ const server = http.createServer(
 
       const metadata = await db.getSampleMetadataById(id)
       if (!metadata) {
-        res.status(404)
-        res.json({ error: 'not found' })
-        res.end()
+        notFound(res)
         return
       }
 
@@ -278,6 +381,30 @@ const server = http.createServer(
       res.end()
       return
     })
+    .get('/api/test/reset-dataset', async (req, res) => {
+      if (typeof process.env.E2E === 'undefined') {
+        notFound(res)
+        return
+      }
+
+      await db.resetDatabase()
+      await migrate()
+      await loadTestData()
+
+      res.status(200)
+      res.end()
+    })
+    .post('/api/client-error', t.any, (req, res) => {
+      if (process.env.NODE_ENV !== 'development') {
+        notFound(res)
+        return
+      }
+
+      console.error(JSON.parse(req.body))
+
+      res.json({})
+      res.end()
+    })
 )
 
 rooms(server)
@@ -287,8 +414,13 @@ if (require.main === module) {
     await migrate()
     await ensureDirectoryExists(config.sampleDirectory)
 
-    server.listen(8888)
-    logger.info('Listening to :8888')
+    if (process.env.E2E) {
+      await loadTestData()
+    }
+
+    server.listen(config.port, () => {
+      logger.info(`Listening to :${config.port}`)
+    })
   })()
 }
 

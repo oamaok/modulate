@@ -6,56 +6,29 @@ pub struct ADSR {
   gate_input: modulate_core::AudioInput,
   output: modulate_core::AudioOutput,
 
-  attack: modulate_core::AudioParam,
-  decay: modulate_core::AudioParam,
-  sustain: modulate_core::AudioParam,
-  release: modulate_core::AudioParam,
+  attack_time: modulate_core::AudioParam,
+  attack_tension: modulate_core::AudioParam,
+  decay_time: modulate_core::AudioParam,
+  decay_tension: modulate_core::AudioParam,
+  sustain_level: modulate_core::AudioParam,
+  release_time: modulate_core::AudioParam,
+  release_tension: modulate_core::AudioParam,
 
-  edge_detector: modulate_core::EdgeDetector,
-  time: f32,
-  release_level: f32,
-  level: f32,
+  adsr: modulate_core::ADSRCurve,
 }
 
 impl module::Module for ADSR {
   fn process(&mut self, quantum: u64) {
     for sample in 0..modulate_core::QUANTUM_SIZE {
-      let edge = self.edge_detector.step(self.gate_input.at(sample));
+      self.adsr.attack_time = self.attack_time.at(sample, quantum);
+      self.adsr.attack_tension = self.attack_tension.at(sample, quantum);
+      self.adsr.decay_time = self.decay_time.at(sample, quantum);
+      self.adsr.decay_tension = self.decay_tension.at(sample, quantum);
+      self.adsr.sustain_level = self.sustain_level.at(sample, quantum);
+      self.adsr.release_time = self.release_time.at(sample, quantum);
+      self.adsr.release_tension = self.release_tension.at(sample, quantum);
 
-      if edge.is_edge() {
-        self.release_level = self.level;
-        self.time = 0.0;
-      }
-
-      if edge == modulate_core::Edge::High {
-        let attack = self.attack.at(sample, quantum);
-        let decay = self.decay.at(sample, quantum);
-        let sustain = self.sustain.at(sample, quantum);
-
-        let attack_time = self.time * modulate_core::INV_SAMPLE_RATE / attack;
-        let decay_time = (self.time - attack * modulate_core::SAMPLE_RATE as f32)
-          * modulate_core::INV_SAMPLE_RATE
-          / decay;
-
-        if attack_time < 1.0 {
-          self.level = modulate_core::lerp(self.release_level, 1.0, attack_time);
-        } else if decay_time < 1.0 {
-          self.level = modulate_core::lerp(1.0, sustain, decay_time);
-        } else {
-          self.level = sustain;
-        }
-      } else {
-        let release_time =
-          self.time * modulate_core::INV_SAMPLE_RATE / self.release.at(sample, quantum);
-        if release_time < 1.0 {
-          self.level = modulate_core::lerp(self.release_level, 0.0, release_time)
-        } else {
-          self.level = 0.0
-        }
-      }
-
-      self.output[sample] = self.level;
-      self.time += 1.0;
+      self.output[sample] = self.adsr.step(self.gate_input.at(sample));
     }
   }
 
@@ -65,10 +38,13 @@ impl module::Module for ADSR {
 
   fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
     vec![
-      &mut self.attack,
-      &mut self.decay,
-      &mut self.sustain,
-      &mut self.release,
+      &mut self.attack_time,
+      &mut self.decay_time,
+      &mut self.sustain_level,
+      &mut self.release_time,
+      &mut self.attack_tension,
+      &mut self.decay_tension,
+      &mut self.release_tension,
     ]
   }
 

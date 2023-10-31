@@ -1,17 +1,15 @@
-import { h, useEffect } from 'kaiku'
 import { getSocketPosition } from '../../state'
-import { Socket } from '@modulate/common/types'
+import { Cable } from '@modulate/common/types'
 import CablePath from './CablePath'
 
 type Props = {
   key: any
-  from: Socket
-  to: Socket
+  cable: Cable
 }
 
-const Cable = ({ from, to }: Props) => {
-  const fromPos = getSocketPosition(from)
-  const toPos = getSocketPosition(to)
+const Cable = ({ cable }: Props) => {
+  const fromPos = getSocketPosition(cable.from)
+  const toPos = getSocketPosition(cable.to)
 
   if (!fromPos || !toPos) return null
 
@@ -25,6 +23,7 @@ const Cable = ({ from, to }: Props) => {
       onBlur={() => {
         // TODO: Utility box
       }}
+      {...(__DEBUG__ ? { cable } : undefined)}
     />
   )
 }

@@ -34,6 +34,13 @@ type Room = {
 
 export type SocketWithPosition = Socket & { pos: Vec2 }
 
+export type Overlay =
+  | 'none'
+  | 'init'
+  | 'login'
+  | 'patch-browser'
+  | 'patch-settings'
+
 export type State = {
   initialized: boolean
   room: Room | null
@@ -57,6 +64,8 @@ export type State = {
       shift: boolean
     }
   }
+
+  overlay: Overlay
 
   sockets: Record<string, { socket: Socket; pos: Vec2 }[]>
   viewOffset: Vec2

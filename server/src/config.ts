@@ -1,6 +1,8 @@
 import * as path from 'path'
 
 const config = {
+  port: parseInt(process.env.SERVER_PORT ?? '') || 8888,
+  enableTLS: process.env.ENABLE_TLS === 'true',
   databaseFile:
     process.env.DATABASE_FILE ??
     path.resolve(__dirname, '../../data', 'database.sqlite3'),

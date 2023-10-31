@@ -1,5 +1,5 @@
 import { createState } from 'kaiku'
-import { State } from './types'
+import { Overlay, State } from './types'
 import {
   Cable,
   Socket,
@@ -35,13 +35,14 @@ const state = createState<State>({
   },
   activeModule: null,
 
+  overlay: 'init',
+
   patchMetadata: {
     id: null,
     author: null,
     name: 'untitled',
   },
   patch: {
-    currentId: 0,
     modules: {},
     knobs: {},
     cables: [],
@@ -78,6 +79,14 @@ document.documentElement.addEventListener('mousemove', (evt) => {
   evt.preventDefault()
   latestCursorPos.x = evt.pageX
   latestCursorPos.y = evt.pageY
+  cancelAnimationFrame(cursorAnimationFrame)
+  cursorAnimationFrame = requestAnimationFrame(updateCursor)
+})
+
+document.documentElement.addEventListener('touchmove', (evt) => {
+  evt.preventDefault()
+  latestCursorPos.x = evt.touches[0]!.pageX
+  latestCursorPos.y = evt.touches[0]!.pageY
   cancelAnimationFrame(cursorAnimationFrame)
   cursorAnimationFrame = requestAnimationFrame(updateCursor)
 })
@@ -142,12 +151,20 @@ window.addEventListener('resize', () => {
   viewport.height = window.innerHeight
 })
 
+export const closeOverlay = () => {
+  state.overlay = 'none'
+}
+
+export const openOverlay = (overlay: Overlay) => {
+  state.overlay = overlay
+}
+
 export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
-  const { currentId, modules, knobs, cables } = savedPatch
+  const { modules, knobs, cables } = savedPatch
   state.patchMetadata = metadata
   patch.knobs = knobs
-  patch.currentId = currentId
   patch.modules = modules
+  patch.cables = cables
 
   await new Promise(requestAnimationFrame)
 
@@ -155,8 +172,23 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
     await engine.connectCable(cable)
   }
 
-  patch.cables = cables
   state.initialized = true
+}
+
+export const resetPatch = async () => {
+  state.activeModule = null
+
+  for (const module in state.patch.modules) {
+    await deleteModule(module)
+  }
+
+  state.patchMetadata = {
+    id: null,
+    author: null,
+    name: 'untitled',
+  }
+
+  history.pushState({}, '', `/`)
 }
 
 export const addModule = async (
@@ -172,6 +204,15 @@ export const addModule = async (
     state: null,
   }
 }
+
+export const isOwnPatch = () => {
+  if (!state.user) return false
+  console.log(state.patchMetadata)
+  if (!state.patchMetadata.author) return true
+  return state.patchMetadata.author.id === state.user.id
+}
+
+export const canUserSavePatch = isOwnPatch
 
 export const displayHint = (content: string, position: Vec2) => {
   state.hint.visible = true
@@ -318,6 +359,7 @@ export const getCableConnectionCandidate = (): Socket | null => {
   const { activeCable } = state
   if (!activeCable) return null
 
+  // TODO: Manually iterate over sockets instead of calling the costly `getSockets`
   const targetSockets = getSockets().filter(({ socket }) =>
     canSocketsConnect(activeCable.draggingFrom, socket)
   )

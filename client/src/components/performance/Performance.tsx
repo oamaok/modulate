@@ -1,4 +1,4 @@
-import { h, useState, useRef, useEffect } from 'kaiku'
+import { useRef, useEffect } from 'kaiku'
 import * as engine from '../../engine'
 import css from './Performance.css'
 

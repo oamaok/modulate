@@ -8,7 +8,8 @@
   width: 20px;
   margin: 0 1px;
   height: 0;
-  border-bottom: 2px solid var(--background);
+  border-bottom: 1px solid #222;
+  border-top: 1px solid #888;
   position: relative;
   top: 14px;
 }

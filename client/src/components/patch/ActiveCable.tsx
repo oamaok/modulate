@@ -1,4 +1,4 @@
-import { h, useEffect } from 'kaiku'
+import { useEffect } from 'kaiku'
 import state, {
   getCableConnectionCandidate,
   getSocketPosition,
@@ -11,9 +11,11 @@ const ActiveCable = () => {
   useEffect(() => {
     if (state.activeCable) {
       document.addEventListener('mouseup', releaseActiveCable)
+      document.addEventListener('touchend', releaseActiveCable)
 
       return () => {
         document.removeEventListener('mouseup', releaseActiveCable)
+        document.addEventListener('touchend', releaseActiveCable)
       }
     }
   })
