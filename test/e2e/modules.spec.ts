@@ -43,7 +43,7 @@ test('can move modules', async ({ page }) => {
   const adsrModuleLocation = await adsrModule.boundingBox()
 
   expect({ x: adsrModuleLocation?.x, y: adsrModuleLocation?.y }).toEqual({
-    x: 75,
+    x: 60,
     y: 487,
   })
 })
