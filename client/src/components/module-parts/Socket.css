@@ -1,5 +1,4 @@
 .socket {
-  cursor: pointer;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -48,6 +47,7 @@
   width: 32px;
   height: 20px;
   position: absolute;
+  cursor: pointer;
 }
 
 .socket-parameter .drag-start-area,

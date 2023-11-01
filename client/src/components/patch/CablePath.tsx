@@ -8,6 +8,7 @@ type Props = {
   isActive?: boolean
   onHover?: () => void
   onBlur?: () => void
+  onDoubleClick?: (evt: MouseEvent) => void
 
   cable?: Cable
 }
@@ -17,6 +18,7 @@ const CablePath = ({
   to,
   onHover,
   onBlur,
+  onDoubleClick,
   cable,
   isActive = false,
 }: Props) => {
@@ -67,6 +69,7 @@ const CablePath = ({
           ${from.x + controlPointOffsetX} ${from.y + controlPointOffsetY}
           ${from.x} ${from.y}
       `}
+        onDblClick={onDoubleClick}
         onMouseOver={() => {
           state.hover = true
           onHover?.()

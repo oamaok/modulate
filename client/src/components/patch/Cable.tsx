@@ -1,4 +1,4 @@
-import { getSocketPosition } from '../../state'
+import { disconnectCable, getSocketPosition } from '../../state'
 import { Cable } from '@modulate/common/types'
 import CablePath from './CablePath'
 
@@ -17,6 +17,11 @@ const Cable = ({ cable }: Props) => {
     <CablePath
       from={fromPos}
       to={toPos}
+      onDoubleClick={(evt: MouseEvent) => {
+        // Prevent context menu from popping up by stopping propagation
+        evt.stopPropagation()
+        disconnectCable(cable)
+      }}
       onHover={() => {
         // TODO: Utility box
       }}

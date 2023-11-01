@@ -329,22 +329,31 @@ export const setKnobValue = (moduleId: Id, name: string, value: number) => {
 const cableConnectsToSocket = (cable: Cable, socket: Socket): boolean =>
   isSameSocket(cable.from, socket) || isSameSocket(cable.to, socket)
 
-export const plugActiveCable = (socket: Socket) => {
-  const previousCable = patch.cables.find((cable) =>
-    cableConnectsToSocket(cable, socket)
-  )
+export const disconnectCable = (cable: Cable) => {
+  engine.disconnectCable(cable)
+  patch.cables = patch.cables.filter(({ id }) => id !== cable.id)
+}
 
-  if (previousCable) {
-    engine.disconnectCable(previousCable)
-    patch.cables = patch.cables.filter((cable) => cable.id !== previousCable.id)
-    state.activeCable = {
-      draggingFrom:
-        socket.type === 'output' ? previousCable.to : previousCable.from,
+export const plugActiveCable = (socket: Socket) => {
+  // For inputs and parameters, grab the existing cable if it exists.
+  // For outputs, split the cable.
+  if (socket.type !== 'output') {
+    const previousCable: Cable | undefined = patch.cables.find((cable) =>
+      cableConnectsToSocket(cable, socket)
+    )
+
+    if (previousCable) {
+      disconnectCable(previousCable)
+      state.activeCable = {
+        draggingFrom: previousCable.from,
+      }
     }
-  } else {
-    state.activeCable = {
-      draggingFrom: socket,
-    }
+
+    return
+  }
+
+  state.activeCable = {
+    draggingFrom: socket,
   }
 }
 
