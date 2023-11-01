@@ -192,7 +192,7 @@ export type BouncyBoi = ModuleTypeOf<
 export const Sampler = {
   name: 'Sampler',
   inputs: ['gate'],
-  parameters: ['speed', 'start', 'length'],
+  parameters: ['speed', 'start', 'length', 'level'],
   outputs: ['out'],
 } as const
 export type Sampler = ModuleTypeOf<

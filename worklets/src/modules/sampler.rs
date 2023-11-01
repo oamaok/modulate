@@ -10,6 +10,7 @@ pub struct Sampler {
   speed: AudioParam,
   start: AudioParam,
   length: AudioParam,
+  level: AudioParam,
   output: AudioOutput,
   pos: f64,
   sample: Option<Box<[f32]>>,
@@ -43,7 +44,7 @@ impl Module for Sampler {
           0.0
         };
         let t = f64::fract(self.pos);
-        self.output[sample] = lerp(a, b, t as f32);
+        self.output[sample] = lerp(a, b, t as f32) * self.level.at(sample, quantum);
       }
 
       self.pos += self.speed.at(sample, quantum) as f64;
@@ -59,7 +60,12 @@ impl Module for Sampler {
   }
 
   fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
-    vec![&mut self.speed, &mut self.start, &mut self.length]
+    vec![
+      &mut self.speed,
+      &mut self.start,
+      &mut self.length,
+      &mut self.level,
+    ]
   }
 
   fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
@@ -100,6 +106,7 @@ impl Sampler {
       speed: AudioParam::default(),
       start: AudioParam::default(),
       length: AudioParam::default(),
+      level: AudioParam::default(),
       output: AudioOutput::default(),
       pos: 0.0,
       sample: None,

@@ -32,6 +32,7 @@ class SamplerNode extends Component<Props> {
     connectKnobToParam<Sampler, 'speed'>(props.id, 'speed', 0)
     connectKnobToParam<Sampler, 'start'>(props.id, 'start', 1)
     connectKnobToParam<Sampler, 'length'>(props.id, 'length', 2)
+    connectKnobToParam<Sampler, 'level'>(props.id, 'level', 3)
 
     this.drawSettingsAndPlayhead()
 
@@ -220,7 +221,17 @@ class SamplerNode extends Component<Props> {
               type="linear"
               min={0}
               max={1}
-              initial={0}
+              initial={1}
+            />
+
+            <Knob
+              moduleId={id}
+              id="level"
+              label="LEVEL"
+              type="linear"
+              min={-2}
+              max={2}
+              initial={1}
             />
           </div>
         </div>
