@@ -21,11 +21,12 @@ class OscillatorNode extends Component<Props> {
     connectKnobToParam<Oscillator, 'fm'>(props.id, 'fm', 1)
     connectKnobToParam<Oscillator, 'fine'>(props.id, 'fine', 3)
     connectKnobToParam<Oscillator, 'pw'>(props.id, 'pw', 2)
+    connectKnobToParam<Oscillator, 'level'>(props.id, 'level', 4)
   }
 
   render({ id }: Props) {
     return (
-      <Module id={id} type="Oscillator">
+      <Module id={id} type="Oscillator" width={260}>
         <Knob
           moduleId={id}
           id="cv"
@@ -59,6 +60,15 @@ class OscillatorNode extends Component<Props> {
           label="PW"
           type="percentage"
           initial={0.5}
+        />
+        <Knob
+          moduleId={id}
+          id="level"
+          label="LVL"
+          type="linear"
+          min={-2}
+          max={2}
+          initial={1}
         />
 
         <ModuleInputs>

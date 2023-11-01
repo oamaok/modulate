@@ -14,6 +14,7 @@ pub struct Oscillator {
   fm_param: modulate_core::AudioParam,
   pw_param: modulate_core::AudioParam,
   fine_param: modulate_core::AudioParam,
+  level: modulate_core::AudioParam,
 
   phase: f32,
 }
@@ -42,11 +43,13 @@ impl module::Module for Oscillator {
       self.saw_output[sample] = 0.;
       self.sqr_output[sample] = 0.;
 
+      let level_factor = self.level.at(sample, quantum) / OSCILLATOR_OVERSAMPLE as f32;
+
       for _ in 0..OSCILLATOR_OVERSAMPLE {
-        self.sin_output[sample] += self.sin() / OSCILLATOR_OVERSAMPLE as f32;
-        self.tri_output[sample] += self.tri() / OSCILLATOR_OVERSAMPLE as f32;
-        self.saw_output[sample] += self.saw() / OSCILLATOR_OVERSAMPLE as f32;
-        self.sqr_output[sample] += self.sqr(pw) / OSCILLATOR_OVERSAMPLE as f32;
+        self.sin_output[sample] += self.sin() * level_factor;
+        self.tri_output[sample] += self.tri() * level_factor;
+        self.saw_output[sample] += self.saw() * level_factor;
+        self.sqr_output[sample] += self.sqr(pw) * level_factor;
 
         self.phase += freq / modulate_core::SAMPLE_RATE as f32 / OSCILLATOR_OVERSAMPLE as f32;
         if self.phase > 1.0 {
@@ -66,6 +69,7 @@ impl module::Module for Oscillator {
       &mut self.fm_param,
       &mut self.pw_param,
       &mut self.fine_param,
+      &mut self.level,
     ]
   }
 
@@ -96,6 +100,7 @@ impl Oscillator {
       ),
       pw_param: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
       fine_param: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
+      level: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
 
       phase: 0.0,
     }

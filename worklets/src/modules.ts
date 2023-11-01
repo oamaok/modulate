@@ -16,7 +16,7 @@ export type AudioOut = ModuleTypeOf<typeof AudioOut>
 export const Oscillator = {
   name: 'Oscillator',
   inputs: ['sync'],
-  parameters: ['cv', 'fm', 'pw', 'fine'],
+  parameters: ['cv', 'fm', 'pw', 'fine', 'level'],
   outputs: ['sin', 'tri', 'saw', 'sqr'],
 } as const
 export type Oscillator = ModuleTypeOf<typeof Oscillator>
