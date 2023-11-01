@@ -35,6 +35,7 @@ describe('Engine', () => {
       await engine.createModule('osc', 'Oscillator')
 
       await engine.setParameterValue('out', 0, 0.5)
+      await engine.setParameterValue('osc', 4, 1)
 
       await engine.connectCable({
         id: 'cable',
@@ -82,6 +83,7 @@ describe('Engine', () => {
 
       for (const osc of oscillators) {
         await engine.createModule(osc, 'Oscillator')
+        await engine.setParameterValue(osc, 4, 1)
       }
 
       await engine.connectCable({
@@ -147,6 +149,7 @@ describe('Engine', () => {
 
       for (const osc of oscillators) {
         await engine.createModule(osc, 'Oscillator')
+        await engine.setParameterValue(osc, 4, 1)
       }
 
       await engine.connectCable({
