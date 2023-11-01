@@ -23,7 +23,7 @@ impl Module for Sampler {
       self.output[sample] = 0.0;
 
       let Some(audio_sample) = &self.sample else {
-        continue
+        continue;
       };
 
       let ipos = self.pos as usize;
