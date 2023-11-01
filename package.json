@@ -17,7 +17,7 @@
     "typecheck": "npm run typecheck --workspaces",
     "rustfmt": "rustfmt worklets/**/*.rs",
     "lint:eslint": "eslint . --ext=.ts,.tsx,.js",
-    "lint:rustfmt": "eslint . --ext=.ts,.tsx,.js"
+    "lint:rustfmt": "rustfmt worklets/**/*.rs --check"
   },
   "workspaces": [
     "client",
