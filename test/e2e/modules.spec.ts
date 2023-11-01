@@ -83,9 +83,12 @@ test('can connect/disconnect any module output to/from any module input/paramete
     }
 
     const fromModule = await spawnModule(page, fromModuleName, {
-      x: 200,
-      y: 200,
+      x: 100,
+      y: 100,
     })
+
+    const fromModuleBounds = await fromModule.boundingBox()
+    expect(fromModuleBounds).toBeDefined()
 
     for (toModuleName in modules) {
       if (
@@ -95,7 +98,10 @@ test('can connect/disconnect any module output to/from any module input/paramete
         continue
       }
 
-      const toModule = await spawnModule(page, toModuleName, { x: 700, y: 200 })
+      const toModule = await spawnModule(page, toModuleName, {
+        x: 150 + fromModuleBounds!.width,
+        y: 100,
+      })
 
       for (
         let outputIndex = 0;

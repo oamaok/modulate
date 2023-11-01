@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
+
   pull_request:
     branches: ['*']
 
@@ -8,6 +11,7 @@ on:
 
 jobs:
   typecheck:
+    name: "Typecheck"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,6 +28,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
   test:
+    name: "Test: engine"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,6 +43,7 @@ jobs:
       - name: Test
         run: npm run test
   e2e:
+    name: "Test: e2e"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -54,6 +60,7 @@ jobs:
       - name: Test
         run: npm run e2e
   eslint:
+    name: "Lint: eslint"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -63,6 +70,7 @@ jobs:
       - name: Lint
         run: npm run lint:eslint
   rustfmt:
+    name: "Lint: rustfmt"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -71,3 +79,37 @@ jobs:
         run: npm install
       - name: Lint
         run: npm run lint:rustfmt
+
+  deploy:
+    name: Deploy
+    needs: [typecheck, test, e2e, eslint, rustfmt]
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install wasm-pack
+        run: |
+          rustup toolchain install nightly-2023-06-15-x86_64-unknown-linux-gnu
+          rustup component add rust-src --toolchain nightly-2023-06-15-x86_64-unknown-linux-gnu
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install packages
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Copy dist directory to remote host
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          source: './dist/*'
+          target: '~/dist/'
+          rm: true
+      - name: Deploy
+        run: |
+          TEMP=$(mktemp)
+          echo "${{ secrets.SSH_KEY }}" > $TEMP
+          ssh -o 'StrictHostKeyChecking no' -i $TEMP ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p${{ secrets.SSH_PORT }} 'bash -s' < scripts/deploy.sh
+          rm -f $TEMP
