@@ -103,7 +103,7 @@ impl AudioParam {
     self.target_set_at_quantum = target_set_at_quantum;
   }
 
-  pub fn at(&self, sample: usize, quantum: u64) -> f32 {
+  pub fn at_mod_amt(&self, sample: usize, quantum: u64, amt: f32) -> f32 {
     let dq = quantum - self.target_set_at_quantum;
     let ds = dq * 128 + sample as u64;
     let t = ds as f32 / PARAMETER_SMOOTHING_TIME;
@@ -114,9 +114,13 @@ impl AudioParam {
     };
 
     match self.modulation_type {
-      AudioParamModulationType::Additive => value + self.modulation.at(sample),
+      AudioParamModulationType::Additive => value + self.modulation.at(sample) * amt,
       AudioParamModulationType::Multiplicative => value * self.modulation.at(sample),
     }
+  }
+
+  pub fn at(&self, sample: usize, quantum: u64) -> f32 {
+    self.at_mod_amt(sample, quantum, 1.0)
   }
 }
 

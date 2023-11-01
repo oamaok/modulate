@@ -32,7 +32,14 @@ export type LFO = ModuleTypeOf<typeof LFO>
 export const BiquadFilter = {
   name: 'BiquadFilter',
   inputs: ['input'],
-  parameters: ['frequency', 'resonance'],
+  parameters: [
+    'frequency',
+    'resonance',
+    'lowpassLevel',
+    'highpassLevel',
+    'freqModAmount',
+    'resoModAmount',
+  ],
   outputs: ['lowpass', 'highpass'],
 } as const
 export type BiquadFilter = ModuleTypeOf<typeof BiquadFilter>

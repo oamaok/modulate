@@ -1,0 +1,17 @@
+.knobs {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.separator {
+  border-right: 1px solid #888;
+  border-left: 1px solid #222;
+}
+
+.knob-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
