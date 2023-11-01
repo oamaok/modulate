@@ -110,6 +110,7 @@ export const ADSR = {
     'attackTension',
     'decayTension',
     'releaseTension',
+    'amount',
   ],
   outputs: ['envelope'],
 } as const

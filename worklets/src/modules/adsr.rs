@@ -13,6 +13,7 @@ pub struct ADSR {
   sustain_level: modulate_core::AudioParam,
   release_time: modulate_core::AudioParam,
   release_tension: modulate_core::AudioParam,
+  amount: modulate_core::AudioParam,
 
   adsr: modulate_core::ADSRCurve,
 }
@@ -28,7 +29,8 @@ impl module::Module for ADSR {
       self.adsr.release_time = self.release_time.at(sample, quantum);
       self.adsr.release_tension = self.release_tension.at(sample, quantum);
 
-      self.output[sample] = self.adsr.step(self.gate_input.at(sample));
+      self.output[sample] =
+        self.adsr.step(self.gate_input.at(sample)) * self.amount.at(sample, quantum);
     }
   }
 
@@ -45,6 +47,7 @@ impl module::Module for ADSR {
       &mut self.attack_tension,
       &mut self.decay_tension,
       &mut self.release_tension,
+      &mut self.amount,
     ]
   }
 

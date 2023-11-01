@@ -32,7 +32,7 @@ const tensionInterp = (
   return start + (end - start) * c
 }
 
-const CURVE_WIDTH = 160
+const CURVE_WIDTH = 190
 const CURVE_HEIGHT = 50
 const CURVE_PADDING = 8
 
@@ -51,6 +51,7 @@ class ADSRNode extends Component<Props> {
     connectKnobToParam<ADSR, 'attackTension'>(props.id, 'attackTension', 4)
     connectKnobToParam<ADSR, 'decayTension'>(props.id, 'decayTension', 5)
     connectKnobToParam<ADSR, 'releaseTension'>(props.id, 'releaseTension', 6)
+    connectKnobToParam<ADSR, 'amount'>(props.id, 'amount', 7)
 
     useEffect(() => {
       const knobs = getModuleKnobs(props.id)
@@ -253,7 +254,7 @@ class ADSRNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} type="ADSR" width={250} height={200}>
+      <Module id={id} type="ADSR" width={280} height={200}>
         <div className={css('adsr')}>
           <div className={css('curve')}>
             <canvas
@@ -356,6 +357,20 @@ class ADSRNode extends Component<Props> {
                 min={-1}
                 max={1}
                 initial={0}
+              />
+            </div>
+            <div className={css('separator')} />
+            <div className={css('knob-group')}>
+              <div className={css('label')}>AMT</div>
+              <Knob
+                moduleId={id}
+                type="linear"
+                id="amount"
+                label="Amount"
+                hideLabel
+                min={-5}
+                max={5}
+                initial={1}
               />
             </div>
           </div>
