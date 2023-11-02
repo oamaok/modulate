@@ -1,6 +1,15 @@
+import * as path from 'path'
+import * as dotenv from 'dotenv'
+
+dotenv.config({
+  path:
+    process.env.NODE_ENV !== 'production'
+      ? path.join(__dirname, '../.env.development')
+      : undefined,
+})
+
 import * as fsSync from 'fs'
 import * as fs from 'fs/promises'
-import * as path from 'path'
 import * as http from 'http'
 import * as https from 'https'
 import * as t from 'io-ts'

@@ -1,0 +1,9 @@
+node_modules
+dist
+data/
+worklets/target
+worklets/pkg
+test-results/
+playwright-report/
+playwright/.cache/
+server/certs
