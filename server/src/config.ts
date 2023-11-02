@@ -1,10 +1,8 @@
 import * as assert from 'assert'
 
 assert.ok(process.env.JWT_KEY, 'Environment variable JWT_KEY must be set!')
-assert.ok(
-  process.env.SERVER_PORT,
-  'Environment variable SERVER_PORT must be set!'
-)
+assert.ok(process.env.PORT, 'Environment variable PORT must be set!')
+assert.ok(process.env.HOST, 'Environment variable HOST must be set!')
 assert.ok(
   process.env.DATABASE_FILE,
   'Environment variable DATABASE_FILE must be set!'
@@ -15,7 +13,8 @@ assert.ok(
 )
 
 const config = {
-  port: parseInt(process.env.SERVER_PORT),
+  port: parseInt(process.env.PORT),
+  host: process.env.HOST,
   enableTLS: process.env.ENABLE_TLS === 'true',
   databaseFile: process.env.DATABASE_FILE,
   jwtKey: process.env.JWT_KEY,

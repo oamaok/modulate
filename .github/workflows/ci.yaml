@@ -14,7 +14,7 @@ on:
 
 jobs:
   typecheck:
-    name: "Typecheck"
+    name: 'Typecheck'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,7 +32,7 @@ jobs:
         run: npm run typecheck
 
   test:
-    name: "Test: engine"
+    name: 'Test: engine'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,7 +48,7 @@ jobs:
         run: npm run test
 
   e2e:
-    name: "Test: e2e"
+    name: 'Test: e2e'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -66,7 +66,7 @@ jobs:
         run: npm run e2e
 
   eslint:
-    name: "Lint: eslint"
+    name: 'Lint: eslint'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -77,10 +77,21 @@ jobs:
         run: npm run lint:eslint
 
   rustfmt:
-    name: "Lint: rustfmt"
+    name: 'Lint: rustfmt'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Lint
         run: npm run lint:rustfmt
+  deploy:
+    name: Deploy
+    needs: [typecheck, test, e2e, eslint, rustfmt]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Render
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}

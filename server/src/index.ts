@@ -427,8 +427,8 @@ if (require.main === module) {
       await loadTestData()
     }
 
-    server.listen(config.port, () => {
-      logger.info(`Listening to :${config.port}`)
+    server.listen(config.port, config.host, () => {
+      logger.info(`Listening to ${config.host}:${config.port}`)
     })
   })()
 }
