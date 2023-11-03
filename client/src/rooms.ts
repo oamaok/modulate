@@ -160,7 +160,8 @@ export const joinRoom = (roomId: string) => {
                 break
               }
               case 'change-module-position': {
-                patch.modules[event.moduleId]!.position = { ...event.position }
+                patch.modules[event.moduleId]!.position.x = event.position.x
+                patch.modules[event.moduleId]!.position.y = event.position.y
 
                 if (__DEBUG__) {
                   const { valid, errors } = validatePatch(patch)

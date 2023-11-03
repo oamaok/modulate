@@ -37,7 +37,6 @@ export default defineConfig({
       NODE_ENV: 'test',
       DATABASE_FILE: ':memory:',
     },
-    stdout: 'pipe',
     url: 'http://localhost:8888',
     reuseExistingServer: false,
   },

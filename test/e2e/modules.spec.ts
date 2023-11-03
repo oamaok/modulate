@@ -137,7 +137,10 @@ test('can connect/disconnect any module output to/from any module input/paramete
             toType: 'input',
           })
 
-          expect(await cable.count()).toEqual(1)
+          expect(
+            await cable.count(),
+            `Should be able to connect cable from ${fromModuleName}:${modules[fromModuleName].outputs[outputIndex]} to input ${toModuleName}:${modules[toModuleName].inputs[inputIndex]}`
+          ).toEqual(1)
 
           // Disconnect cable
           await toSocket.hover()
@@ -145,7 +148,10 @@ test('can connect/disconnect any module output to/from any module input/paramete
           await page.mouse.move(100, 100)
           await page.mouse.up()
 
-          expect(await cable.count()).toEqual(0)
+          expect(
+            await cable.count(),
+            `Should be able to disconnect cable from ${fromModuleName}:${modules[fromModuleName].outputs[outputIndex]} to input ${toModuleName}:${modules[toModuleName].inputs[inputIndex]}`
+          ).toEqual(0)
         }
 
       for (
@@ -186,7 +192,10 @@ test('can connect/disconnect any module output to/from any module input/paramete
             toType: 'parameter',
           })
 
-          expect(await cable.count()).toEqual(1)
+          expect(
+            await cable.count(),
+            `Should be able to connect cable from ${fromModuleName}:${modules[fromModuleName].outputs[outputIndex]} to parameter ${toModuleName}:${modules[toModuleName].parameters[paramIndex]}`
+          ).toEqual(1)
 
           // Disconnect cable
           await toSocket.hover()
@@ -194,7 +203,10 @@ test('can connect/disconnect any module output to/from any module input/paramete
           await page.mouse.move(100, 100)
           await page.mouse.up()
 
-          expect(await cable.count()).toEqual(0)
+          expect(
+            await cable.count(),
+            `Should be able to disconnect cable from ${fromModuleName}:${modules[fromModuleName].outputs[outputIndex]} to parameter ${toModuleName}:${modules[toModuleName].parameters[paramIndex]}`
+          ).toEqual(0)
         }
 
       await deleteModule(page, toModule)
