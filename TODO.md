@@ -24,13 +24,17 @@
 
 - [ ] Loop option
 - [ ] Built-in volume ADSR envelope
-- [ ] Gain knob
+- [x] Gain knob
 
 ## ADSR
 
-- [ ] Visualizer
-- [ ] Make into generic component maybe?
-- [ ] Gain knob
+- [x] Visualizer
+- [x] Make into generic component maybe?
+- [x] Gain knob
+
+## Sequencer
+
+- [ ] Use direct memory access
 
 ## Voltage quantizer
 
@@ -68,21 +72,25 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 ## Ring Mod
 
-- [x] Add API testing
+- [ ] Initial implementation
 
 ## Bit crusher
 
-- [ ] Add API testing
+- [ ] Initial implementation
+
+## Virtual controller
+
+- [x] Initial implementation
+- [ ] Add scale selector
 
 # Testing
 
-- [ ] Add API testing
-- [ ]
+- [x] Add API testing
 
 # UI/UX
 
 - [ ] Hotkey configuration?
-- [ ] Global volume control
+- [x] Global volume control
 - [x] Right click menu for adding modules
 - [ ] Select module on spawn
 - [ ] Jump back to middle/audio-out
@@ -95,4 +103,5 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 # Misc
 
+- [ ] Use floating div instead of background position for parallax effect
 - [ ] Move onDragStart handler from `Cables.tsx` to a more suitable component, maybe a completely separate component for handling clicks to the background
