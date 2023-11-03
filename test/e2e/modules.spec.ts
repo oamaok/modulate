@@ -48,7 +48,7 @@ test('can move modules', async ({ page }) => {
   })
 })
 
-test('can connect two modules', async ({ page }) => {
+test('can connect two modules starting from output', async ({ page }) => {
   const gainModule = await spawnModule(page, 'Gain', { x: 200, y: 200 })
   const audioOutModule = await spawnModule(page, 'AudioOut', { x: 500, y: 200 })
 
@@ -56,6 +56,27 @@ test('can connect two modules', async ({ page }) => {
     page,
     getModuleSocket(gainModule, 'output', 0),
     getModuleSocket(audioOutModule, 'input', 0)
+  )
+
+  const cable = await getCable(page, {
+    from: gainModule,
+    fromIndex: 0,
+    to: audioOutModule,
+    toIndex: 0,
+    toType: 'input',
+  })
+
+  await expect(cable).toHaveCount(1)
+})
+
+test('can connect two modules starting from input', async ({ page }) => {
+  const gainModule = await spawnModule(page, 'Gain', { x: 200, y: 200 })
+  const audioOutModule = await spawnModule(page, 'AudioOut', { x: 500, y: 200 })
+
+  await connectSockets(
+    page,
+    getModuleSocket(audioOutModule, 'input', 0),
+    getModuleSocket(gainModule, 'output', 0)
   )
 
   const cable = await getCable(page, {

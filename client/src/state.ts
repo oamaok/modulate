@@ -347,9 +347,8 @@ export const plugActiveCable = (socket: Socket) => {
       state.activeCable = {
         draggingFrom: previousCable.from,
       }
+      return
     }
-
-    return
   }
 
   state.activeCable = {
