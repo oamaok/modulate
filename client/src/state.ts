@@ -14,6 +14,7 @@ import * as engine from './engine'
 import { parseRoute } from './routes'
 import assert from './assert'
 import { origin } from '@modulate/common/util'
+import { ModuleName } from '@modulate/worklets/src/modules'
 
 const state = createState<State>({
   initialized: false,
@@ -192,7 +193,7 @@ export const resetPatch = async () => {
 }
 
 export const addModule = async (
-  name: string,
+  name: ModuleName,
   pos: Vec2 = {
     x: -state.viewOffset.x + window.innerWidth / 2,
     y: -state.viewOffset.y + window.innerHeight / 2,
@@ -207,7 +208,6 @@ export const addModule = async (
 
 export const isOwnPatch = () => {
   if (!state.user) return false
-  console.log(state.patchMetadata)
   if (!state.patchMetadata.author) return true
   return state.patchMetadata.author.id === state.user.id
 }

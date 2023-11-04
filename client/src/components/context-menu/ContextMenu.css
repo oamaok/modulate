@@ -20,7 +20,7 @@
 
 .group {
   width: 100%;
-  padding: 5px 10px;
+  padding: 4px 8px;
   background-color: var(--secondary);
   color: #fff;
   margin-bottom: 4px;
@@ -29,7 +29,19 @@
 }
 
 .items {
-  padding: 6px 10px;
+  padding: 4px 8px;
+}
+
+.category {
+  margin-bottom: 4px;
+}
+
+.label {
+  text-shadow: none;
+  color: var(--background);
+  margin-bottom: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
 }
 
 .item {
@@ -42,6 +54,7 @@
   margin-right: 4px;
   margin-bottom: 4px;
   flex-grow: 0;
+  font-weight: bold;
 }
 
 .item:hover {

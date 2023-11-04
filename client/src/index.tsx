@@ -1,4 +1,4 @@
-import { render } from 'kaiku'
+import { render, useEffect } from 'kaiku'
 import state, { deleteModule } from './state'
 import * as api from './api'
 import * as auth from './auth'
@@ -28,8 +28,10 @@ document.addEventListener('gesturestart', (evt) => {
   evt.preventDefault()
 })
 
-document.body.style.height = `${window.innerHeight}px`
-document.documentElement.style.height = `${window.innerHeight}px`
+useEffect(() => {
+  document.body.style.height = `${state.viewport.height}px`
+  document.documentElement.style.height = `${state.viewport.height}px`
+})
 
 document.addEventListener('keydown', (evt) => {
   switch (evt.code) {

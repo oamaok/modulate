@@ -7,13 +7,17 @@ import { ModuleOutputs } from '../module-parts/ModuleSockets'
 import { connectKnobToParam } from '../../modules'
 import css from './BouncyBoi.css'
 import { BouncyBoi, EventTypes } from '@modulate/worklets/src/modules'
+import moduleConfig from '../../module-config'
+import { darkenColor } from '../../colors'
 
 type Props = {
   id: string
 }
 
 const BALL_BORDER_COLORS = ['#c8e800', '#00abe8', '#db00e8']
-const BALL_FILL_COLORS = ['#6c7d00', '#006b91', '#76007d']
+const BALL_FILL_COLORS = BALL_BORDER_COLORS.map((color) =>
+  darkenColor(color, 0.7)
+)
 
 class BouncyBoiNode extends Component<Props> {
   constructor(props: Props) {
@@ -67,7 +71,7 @@ class BouncyBoiNode extends Component<Props> {
       context.fill()
       context.stroke()
     }
-    context.strokeStyle = '#e85d00'
+    context.strokeStyle = moduleConfig.BouncyBoi.colors.primary
 
     for (let i = 0; i < 5; i++) {
       const from = {

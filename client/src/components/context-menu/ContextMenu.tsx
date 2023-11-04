@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'kaiku'
 import css from './ContextMenu.css'
 import state, { addModule } from '../../state'
-import * as moduleMap from '../../moduleMap'
+import moduleConfig, { Config, categoryLabel } from '../../module-config'
 import testAttributes from '../../test-attributes'
+import { groupBy } from '@modulate/common/util'
+import { ModuleName } from '@modulate/worklets/src/modules'
 
 type Props = {}
 
@@ -10,9 +12,8 @@ const CONTEXT_MENU_DISABLE_DISTANCE = 50 // px
 
 const ContextMenu = ({}: Props) => {
   const menuRef = useRef<HTMLDivElement>()
-  const modules = Object.keys(moduleMap).sort()
 
-  const onModuleClick = (moduleName: string) => {
+  const onModuleClick = (moduleName: ModuleName) => {
     addModule(moduleName, {
       x: state.contextMenu.position.x - state.viewOffset.x,
       y: state.contextMenu.position.y - state.viewOffset.y,
@@ -56,6 +57,11 @@ const ContextMenu = ({}: Props) => {
     return `translate(${x}px, ${y}px)`
   }
 
+  const moduleCategories = groupBy(
+    Object.entries(moduleConfig) as [ModuleName, Config[ModuleName]][],
+    ([, config]) => config.category
+  )
+
   return (
     <div
       ref={menuRef}
@@ -67,14 +73,22 @@ const ContextMenu = ({}: Props) => {
     >
       <div className={css('group')}>Add a module</div>
       <div className={css('items')}>
-        {modules.map((moduleName) => (
-          <button
-            {...testAttributes({ id: 'add-module', 'module-name': moduleName })}
-            className={css('item')}
-            onClick={() => onModuleClick(moduleName)}
-          >
-            {moduleName}
-          </button>
+        {moduleCategories.map(([category, modules]) => (
+          <div className={css('category')}>
+            <div className={css('label')}>{categoryLabel[category]}</div>
+            {modules.map(([moduleName]) => (
+              <button
+                {...testAttributes({
+                  id: 'add-module',
+                  'module-name': moduleName,
+                })}
+                className={css('item')}
+                onClick={() => onModuleClick(moduleName)}
+              >
+                {moduleName}
+              </button>
+            ))}
+          </div>
         ))}
       </div>
     </div>

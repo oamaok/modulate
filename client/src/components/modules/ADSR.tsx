@@ -9,6 +9,7 @@ import { ADSR } from '@modulate/worklets/src/modules'
 import { getModuleKnobs } from '../../state'
 import assert from '../../assert'
 import css from './ADSR.css'
+import moduleConfig from '../../module-config'
 
 type Props = {
   id: string
@@ -119,8 +120,8 @@ class ADSRNode extends Component<Props> {
       attack + decay + release + SUSTAIN_LENGTH
     )
 
-    context.strokeStyle = '#e85d00'
-    context.fillStyle = '#4b1e00'
+    context.strokeStyle = moduleConfig.ADSR.colors.primary
+    context.fillStyle = moduleConfig.ADSR.colors.darker
     context.lineWidth = 2
 
     context.translate(CURVE_PADDING, CURVE_PADDING)

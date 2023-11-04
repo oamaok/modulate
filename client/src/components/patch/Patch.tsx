@@ -1,5 +1,5 @@
 import state from '../../state'
-import * as moduleMap from '../../moduleMap'
+import * as moduleMap from '../../module-map'
 import Cables from './Cables'
 
 import css from './Patch.css'
