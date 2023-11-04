@@ -16,6 +16,7 @@ import PatchSettings from '../patch-settings/PatchSettings'
 import SaveDialog from '../save-dialog/SaveDialog'
 import Overlay from '../overlay/Overlay'
 import testAttributes from '../../test-attributes'
+import MiniMap from '../mini-map/MiniMap'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -125,6 +126,7 @@ const App = () => {
     >
       <Header />
       {state.initialized ? <Performance /> : null}
+      {state.initialized ? <MiniMap /> : null}
       <Patch />
       <UserBar />
       <Hint />

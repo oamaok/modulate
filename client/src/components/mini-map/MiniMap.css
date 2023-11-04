@@ -1,0 +1,9 @@
+.minimap {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 20;
+  border-radius: 4px;
+  box-shadow: var(--box-shadow);
+  background: #000;
+}

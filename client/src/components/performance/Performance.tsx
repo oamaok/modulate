@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'kaiku'
 import * as engine from '../../engine'
 import css from './Performance.css'
+import assert from '../../assert'
 
 const Performance = () => {
   const canvasRef = useRef<HTMLCanvasElement>()
@@ -12,7 +13,8 @@ const Performance = () => {
       if (!canvas) return
       const width = canvas.width
       const height = canvas.height
-      const context = canvas.getContext('2d', { willReadFrequently: true })!
+      const context = canvas.getContext('2d', { willReadFrequently: true })
+      assert(context)
 
       const timers = engine.getWorkerTimers()
       let total = 0
