@@ -163,8 +163,10 @@ document.addEventListener('mousedown', onMouseDown)
 document.addEventListener('mousemove', onMouseMove)
 document.addEventListener('mouseup', onMouseUp)
 
-const useDrag = (handlers: TargetHandlers) => {
-  const ref = useRef<HTMLElement>()
+const useDrag = <T extends HTMLElement = HTMLElement>(
+  handlers: TargetHandlers
+) => {
+  const ref = useRef<T>()
 
   useEffect(() => {
     const target = ref.current
