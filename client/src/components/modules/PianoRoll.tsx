@@ -99,7 +99,7 @@ class PianoRollModule extends Component<Props, State> {
     const context = canvas.getContext('2d')
     assert(context)
 
-    context.fillStyle = '#111'
+    context.fillStyle = '#000'
     context.fillRect(0, 0, width, height)
 
     const { notes } = getModuleState<PianoRollState>(this.props.id)
@@ -131,7 +131,7 @@ class PianoRollModule extends Component<Props, State> {
       context.fillRect(x, y, w, h)
     }
 
-    context.fillStyle = moduleConfig.PianoRoll.colors.dark
+    context.fillStyle = moduleConfig.PianoRoll.colors.primary
     context.fillRect(this.state.position * timeScale, 0, 2, height)
   }
 

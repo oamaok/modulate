@@ -26,6 +26,21 @@ const BAR_LENGTH = 2 * 2 * 3 * 4 * 5
 
 const A4_OFFSET = 50
 
+const NOTE_NAMES = [
+  'A',
+  'A#',
+  'B',
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+]
+
 type Props = {
   moduleId: string
 }
@@ -119,19 +134,9 @@ class PianoRollEditor extends Component<Props, State> {
       ref: this.canvasRef,
       mouseButton: 1,
       onMove: ({ dx, dy }) => {
-        const canvas = this.canvasRef.current
-        assert(canvas)
-
-        const wrapper = canvas.parentElement
-        assert(wrapper)
-
-        const { height } = wrapper.getBoundingClientRect()
-        this.state.offset.x = Math.max(this.state.offset.x + dx, 0)
-        this.state.offset.y = clamp(
-          this.state.offset.y + dy,
-          0,
-          PIANO_ROLL_HEIGHT - height
-        )
+        this.state.offset.x += dx
+        this.state.offset.y += dy
+        this.clampOffset()
       },
     })
 
@@ -139,6 +144,22 @@ class PianoRollEditor extends Component<Props, State> {
       if (!this.canvasRef.current) return
       this.renderPianoRoll()
     })
+  }
+
+  clampOffset = () => {
+    const canvas = this.canvasRef.current
+    assert(canvas)
+
+    const wrapper = canvas.parentElement
+    assert(wrapper)
+
+    const { height } = wrapper.getBoundingClientRect()
+    this.state.offset.x = Math.max(this.state.offset.x, 0)
+    this.state.offset.y = clamp(
+      this.state.offset.y,
+      0,
+      PIANO_ROLL_HEIGHT - height
+    )
   }
 
   getPitchAndPosition = (x: number, y: number) => {
@@ -210,6 +231,8 @@ class PianoRollEditor extends Component<Props, State> {
 
     {
       // Render notes
+      context.font = 'bold 12px "Gemunu Libre"'
+
       for (let i = 0; i < moduleState.notes.length; i++) {
         const note = moduleState.notes[i]!
         const x = (note.start / BAR_LENGTH) * BAR_WIDTH
@@ -221,6 +244,16 @@ class PianoRollEditor extends Component<Props, State> {
         context.strokeStyle =
           this.state.selectedNote === i ? '#ffff00' : '#155c00'
         context.strokeRect(x, y, width, NOTE_HEIGHT)
+        context.fillStyle = '#111'
+        context.fillStyle = '#165901'
+        context.fillText(
+          NOTE_NAMES[
+            (A4_OFFSET + note.pitch - 2 + NOTE_NAMES.length * 10) %
+              NOTE_NAMES.length
+          ]!,
+          x + 2,
+          y + 12
+        )
       }
     }
 
@@ -273,6 +306,13 @@ class PianoRollEditor extends Component<Props, State> {
     )
   }
 
+  handleWheel = (evt: WheelEvent) => {
+    evt.stopPropagation()
+    this.state.offset.x += evt.deltaX
+    this.state.offset.y += evt.deltaY
+    this.clampOffset()
+  }
+
   render() {
     return (
       <div className={css('wrapper')}>
@@ -284,7 +324,11 @@ class PianoRollEditor extends Component<Props, State> {
           >
             close
           </button>
-          <div className={css('editor')} onDblClick={this.handleDblClick}>
+          <div
+            className={css('editor')}
+            onDblClick={this.handleDblClick}
+            onWheel={this.handleWheel}
+          >
             <canvas ref={this.canvasRef} />
           </div>
         </div>

@@ -16,7 +16,7 @@ const categoryColors: { [key in ModuleCategory]: string } = {
   [ModuleCategory.UTILITY]: '#e85d00',
   [ModuleCategory.GENERATOR]: '#759b1a',
   [ModuleCategory.PULSE_GENERATOR]: '#ab3838',
-  [ModuleCategory.SEQUENCER]: '#0088e8',
+  [ModuleCategory.SEQUENCER]: '#192e75',
   [ModuleCategory.FILTER]: '#5900e8',
   [ModuleCategory.DELAY_REVERB]: '#e800b6',
   [ModuleCategory.DYNAMICS]: '#438187',
