@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::{
-  modulate_core::{AudioInput, AudioOutput, AudioParam, INV_SAMPLE_RATE, QUANTUM_SIZE, log},
+  modulate_core::{log, AudioInput, AudioOutput, AudioParam, INV_SAMPLE_RATE, QUANTUM_SIZE},
   module::{Module, ModuleEvent, ModuleMessage, PianoRollNote},
 };
 
