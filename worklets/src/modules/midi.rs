@@ -1,5 +1,7 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{AudioOutput, QUANTUM_SIZE},
+  module::{Module, ModuleMessage},
+};
 
 const MIDI_NOTE_OFF: u32 = 0b1000;
 const MIDI_NOTE_ON: u32 = 0b1001;
@@ -10,16 +12,16 @@ const MIDI_NOTE_ON: u32 = 0b1001;
 // const MIDI_PITCH_BEND_CHANGE: u32 = 0b1110;
 
 pub struct MIDI {
-  cv_output: modulate_core::AudioOutput,
-  velocity_output: modulate_core::AudioOutput,
-  gate_output: modulate_core::AudioOutput,
+  cv_output: AudioOutput,
+  velocity_output: AudioOutput,
+  gate_output: AudioOutput,
 
   current_cv: f32,
 
   note_velocities: [u8; 128],
 }
 
-impl module::Module for MIDI {
+impl Module for MIDI {
   fn process(&mut self, _quantum: u64) {
     let mut velocity = 0.0;
 
@@ -33,16 +35,16 @@ impl module::Module for MIDI {
       }
     }
 
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       self.cv_output[sample] = self.current_cv;
       self.velocity_output[sample] = velocity;
       self.gate_output[sample] = if velocity == 0.0 { 0.0 } else { 1.0 };
     }
   }
 
-  fn on_message(&mut self, message: module::ModuleMessage) {
+  fn on_message(&mut self, message: ModuleMessage) {
     match message {
-      module::ModuleMessage::MidiMessage { message } => {
+      ModuleMessage::MidiMessage { message } => {
         let message_type = (message >> 4) & 0b0000_1111;
 
         match message_type {
@@ -66,7 +68,7 @@ impl module::Module for MIDI {
     }
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![
       &mut self.cv_output,
       &mut self.velocity_output,
@@ -77,9 +79,9 @@ impl module::Module for MIDI {
 impl MIDI {
   pub fn new() -> MIDI {
     MIDI {
-      cv_output: modulate_core::AudioOutput::default(),
-      velocity_output: modulate_core::AudioOutput::default(),
-      gate_output: modulate_core::AudioOutput::default(),
+      cv_output: AudioOutput::default(),
+      velocity_output: AudioOutput::default(),
+      gate_output: AudioOutput::default(),
 
       current_cv: 0.0,
 

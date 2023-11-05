@@ -1,30 +1,31 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{AudioOutput, AudioParam, QUANTUM_SIZE, SAMPLE_RATE},
+  module::{Module, ModuleMessage},
+};
 
 #[derive(Default)]
 pub struct Clock {
-  outputs: [modulate_core::AudioOutput; 3],
+  outputs: [AudioOutput; 3],
 
-  tempo: modulate_core::AudioParam,
-  ratios: [modulate_core::AudioParam; 3],
-  pulse_widths: [modulate_core::AudioParam; 3],
-  swing_ratios: [modulate_core::AudioParam; 3],
+  tempo: AudioParam,
+  ratios: [AudioParam; 3],
+  pulse_widths: [AudioParam; 3],
+  swing_ratios: [AudioParam; 3],
 
   is_running: bool,
   cycle_positions: [usize; 3],
 }
 
-impl module::Module for Clock {
+impl Module for Clock {
   fn process(&mut self, quantum: u64) {
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       for output in 0..3 {
         if !self.is_running {
           self.outputs[output][sample] = 0.0;
           continue;
         }
 
-        let samples_per_beat = 60.0 / self.tempo.at(sample, quantum)
-          * modulate_core::SAMPLE_RATE as f32
+        let samples_per_beat = 60.0 / self.tempo.at(sample, quantum) * SAMPLE_RATE as f32
           / self.ratios[output].at(sample, quantum);
 
         let odd_end = samples_per_beat * self.pulse_widths[output].at(sample, quantum);
@@ -47,19 +48,19 @@ impl module::Module for Clock {
     }
   }
 
-  fn on_message(&mut self, message: module::ModuleMessage) {
+  fn on_message(&mut self, message: ModuleMessage) {
     match message {
-      module::ModuleMessage::ClockReset => {
+      ModuleMessage::ClockReset => {
         for output in 0..3 {
           self.cycle_positions[output] = 0;
         }
       }
-      module::ModuleMessage::ClockSetRunning { running } => self.is_running = running,
+      ModuleMessage::ClockSetRunning { running } => self.is_running = running,
       _ => panic!("clock: received unhandled message"),
     }
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     let mut params = vec![&mut self.tempo];
 
     for ratio in self.ratios.iter_mut() {
@@ -77,7 +78,7 @@ impl module::Module for Clock {
     params
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     self.outputs.iter_mut().map(|out| out).collect()
   }
 }

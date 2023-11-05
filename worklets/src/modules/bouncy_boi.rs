@@ -1,6 +1,8 @@
-use super::super::modulate_core;
-use super::super::module;
-use super::super::vec;
+use crate::{
+  modulate_core::{AudioOutput, AudioParam, QUANTUM_SIZE},
+  module::{Ball, Module, ModuleEvent},
+  vec::Vec2,
+};
 
 #[derive(Default)]
 struct Rng {
@@ -24,26 +26,26 @@ impl Rng {
 }
 
 pub struct BouncyBoi {
-  balls: [module::Ball; 3],
-  trigger_outputs: [modulate_core::AudioOutput; 3],
+  balls: [Ball; 3],
+  trigger_outputs: [AudioOutput; 3],
   trigger_timers: [u32; 3],
-  velocity_outputs: [modulate_core::AudioOutput; 3],
+  velocity_outputs: [AudioOutput; 3],
 
-  speed: modulate_core::AudioParam,
-  gravity: modulate_core::AudioParam,
+  speed: AudioParam,
+  gravity: AudioParam,
 
   phase: f32,
   cycle_count: usize,
-  events: Vec<module::ModuleEvent>,
+  events: Vec<ModuleEvent>,
 }
 
 #[derive(Copy, Clone, Default)]
 struct Wall {
-  from: vec::Vec2,
-  to: vec::Vec2,
+  from: Vec2,
+  to: Vec2,
 }
 
-impl module::Module for BouncyBoi {
+impl Module for BouncyBoi {
   fn process(&mut self, quantum: u64) {
     let mut walls: [Wall; 5] = [Wall::default(); 5];
 
@@ -76,7 +78,7 @@ impl module::Module for BouncyBoi {
 
       for wall in walls.iter() {
         let e = wall.to - wall.from;
-        let n = vec::Vec2 { x: e.y, y: -e.x }.normalize();
+        let n = Vec2 { x: e.y, y: -e.x }.normalize();
         let d = ball.pos - wall.from;
         let distance = n.dot(d);
 
@@ -92,7 +94,7 @@ impl module::Module for BouncyBoi {
       }
     }
 
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       for i in 0..3 {
         if sample != 0 {
           self.velocity_outputs[i][sample] = self.velocity_outputs[i].previous()[0];
@@ -110,22 +112,22 @@ impl module::Module for BouncyBoi {
     // Each cycle is about 2.9ms, five cycles is a bit over 60hz
     if self.cycle_count >= 5 {
       self.cycle_count = 0;
-      self.events.push(module::ModuleEvent::BouncyBoiUpdate {
+      self.events.push(ModuleEvent::BouncyBoiUpdate {
         balls: self.balls,
         phase: self.phase,
       })
     }
   }
 
-  fn pop_event(&mut self) -> Option<module::ModuleEvent> {
+  fn pop_event(&mut self) -> Option<ModuleEvent> {
     self.events.pop()
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![&mut self.speed, &mut self.gravity]
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     let mut outputs = vec![];
 
     for trigger_output in self.trigger_outputs.iter_mut() {
@@ -143,25 +145,21 @@ impl module::Module for BouncyBoi {
 impl BouncyBoi {
   pub fn new() -> BouncyBoi {
     let mut boi = BouncyBoi {
-      balls: [
-        module::Ball::default(),
-        module::Ball::default(),
-        module::Ball::default(),
-      ],
+      balls: [Ball::default(), Ball::default(), Ball::default()],
       trigger_outputs: [
-        modulate_core::AudioOutput::default(),
-        modulate_core::AudioOutput::default(),
-        modulate_core::AudioOutput::default(),
+        AudioOutput::default(),
+        AudioOutput::default(),
+        AudioOutput::default(),
       ],
       trigger_timers: [0, 0, 0],
       velocity_outputs: [
-        modulate_core::AudioOutput::default(),
-        modulate_core::AudioOutput::default(),
-        modulate_core::AudioOutput::default(),
+        AudioOutput::default(),
+        AudioOutput::default(),
+        AudioOutput::default(),
       ],
 
-      speed: modulate_core::AudioParam::default(),
-      gravity: modulate_core::AudioParam::default(),
+      speed: AudioParam::default(),
+      gravity: AudioParam::default(),
 
       phase: 0.0,
       cycle_count: 0,

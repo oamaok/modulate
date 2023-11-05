@@ -1,16 +1,18 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{AudioInput, AudioOutput, AudioParam, QUANTUM_SIZE},
+  module::Module,
+};
 
 #[derive(Default)]
 pub struct Mixer {
-  inputs: [modulate_core::AudioInput; 8],
-  params: [modulate_core::AudioParam; 8],
-  output: modulate_core::AudioOutput,
+  inputs: [AudioInput; 8],
+  params: [AudioParam; 8],
+  output: AudioOutput,
 }
 
-impl module::Module for Mixer {
+impl Module for Mixer {
   fn process(&mut self, quantum: u64) {
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       let v = self
         .inputs
         .iter()
@@ -21,15 +23,15 @@ impl module::Module for Mixer {
     }
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![&mut self.output]
   }
 
-  fn get_inputs(&mut self) -> Vec<&mut modulate_core::AudioInput> {
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
     self.inputs.iter_mut().collect()
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     self.params.iter_mut().collect()
   }
 }

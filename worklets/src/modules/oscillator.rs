@@ -1,32 +1,37 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{
+    exp_curve, AudioInput, AudioOutput, AudioParam, AudioParamModulationType, Edge, EdgeDetector,
+    QUANTUM_SIZE, SAMPLE_RATE,
+  },
+  module::Module,
+};
 
 pub struct Oscillator {
-  sync_input: modulate_core::AudioInput,
-  sync_edge_detector: modulate_core::EdgeDetector,
+  sync_input: AudioInput,
+  sync_edge_detector: EdgeDetector,
 
-  sin_output: modulate_core::AudioOutput,
-  tri_output: modulate_core::AudioOutput,
-  saw_output: modulate_core::AudioOutput,
-  sqr_output: modulate_core::AudioOutput,
+  sin_output: AudioOutput,
+  tri_output: AudioOutput,
+  saw_output: AudioOutput,
+  sqr_output: AudioOutput,
 
-  cv_param: modulate_core::AudioParam,
-  fm_param: modulate_core::AudioParam,
-  pw_param: modulate_core::AudioParam,
-  fine_param: modulate_core::AudioParam,
-  level: modulate_core::AudioParam,
+  cv_param: AudioParam,
+  fm_param: AudioParam,
+  pw_param: AudioParam,
+  fine_param: AudioParam,
+  level: AudioParam,
 
   phase: f32,
 }
 
 const OSCILLATOR_OVERSAMPLE: usize = 8;
 
-impl module::Module for Oscillator {
+impl Module for Oscillator {
   fn process(&mut self, quantum: u64) {
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       let edge = self.sync_edge_detector.step(self.sync_input.at(sample));
 
-      if edge == modulate_core::Edge::Rose {
+      if edge == Edge::Rose {
         self.phase = 0.5;
       }
 
@@ -51,7 +56,7 @@ impl module::Module for Oscillator {
         self.saw_output[sample] += self.saw() * level_factor;
         self.sqr_output[sample] += self.sqr(pw) * level_factor;
 
-        self.phase += freq / modulate_core::SAMPLE_RATE as f32 / OSCILLATOR_OVERSAMPLE as f32;
+        self.phase += freq / SAMPLE_RATE as f32 / OSCILLATOR_OVERSAMPLE as f32;
         if self.phase > 1.0 {
           self.phase -= 1.0;
         }
@@ -59,11 +64,11 @@ impl module::Module for Oscillator {
     }
   }
 
-  fn get_inputs(&mut self) -> Vec<&mut modulate_core::AudioInput> {
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
     vec![&mut self.sync_input]
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![
       &mut self.cv_param,
       &mut self.fm_param,
@@ -73,7 +78,7 @@ impl module::Module for Oscillator {
     ]
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![
       &mut self.sin_output,
       &mut self.tri_output,
@@ -86,21 +91,19 @@ impl module::Module for Oscillator {
 impl Oscillator {
   pub fn new() -> Oscillator {
     Oscillator {
-      sync_input: modulate_core::AudioInput::default(),
-      sync_edge_detector: modulate_core::EdgeDetector::new(0.0),
+      sync_input: AudioInput::default(),
+      sync_edge_detector: EdgeDetector::new(0.0),
 
-      sin_output: modulate_core::AudioOutput::default(),
-      tri_output: modulate_core::AudioOutput::default(),
-      saw_output: modulate_core::AudioOutput::default(),
-      sqr_output: modulate_core::AudioOutput::default(),
+      sin_output: AudioOutput::default(),
+      tri_output: AudioOutput::default(),
+      saw_output: AudioOutput::default(),
+      sqr_output: AudioOutput::default(),
 
-      cv_param: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
-      fm_param: modulate_core::AudioParam::new(
-        modulate_core::AudioParamModulationType::Multiplicative,
-      ),
-      pw_param: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
-      fine_param: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
-      level: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
+      cv_param: AudioParam::new(AudioParamModulationType::Additive),
+      fm_param: AudioParam::new(AudioParamModulationType::Multiplicative),
+      pw_param: AudioParam::new(AudioParamModulationType::Additive),
+      fine_param: AudioParam::new(AudioParamModulationType::Additive),
+      level: AudioParam::new(AudioParamModulationType::Additive),
 
       phase: 0.0,
     }
@@ -119,12 +122,12 @@ impl Oscillator {
     let half_x = x >= 0.5;
     x *= 2.0;
     x -= f32::trunc(x);
-    modulate_core::exp_curve(x) * if half_x { 1. } else { -1. }
+    exp_curve(x) * if half_x { 1. } else { -1. }
   }
 
   fn saw(&self) -> f32 {
     let x = self.phase + 0.5;
-    modulate_core::exp_curve(x - f32::trunc(x))
+    exp_curve(x - f32::trunc(x))
   }
 
   fn sqr(&self, pw: f32) -> f32 {

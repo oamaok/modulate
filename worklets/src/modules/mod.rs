@@ -10,6 +10,7 @@ pub mod limiter;
 pub mod midi;
 pub mod mixer;
 pub mod oscillator;
+pub mod piano_roll;
 pub mod pow_shaper;
 pub mod reverb;
 pub mod sampler;

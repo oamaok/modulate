@@ -1,26 +1,28 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{ADSRCurve, AudioInput, AudioOutput, AudioParam, QUANTUM_SIZE},
+  module::Module,
+};
 
 #[derive(Default)]
 pub struct ADSR {
-  gate_input: modulate_core::AudioInput,
-  output: modulate_core::AudioOutput,
+  gate_input: AudioInput,
+  output: AudioOutput,
 
-  attack_time: modulate_core::AudioParam,
-  attack_tension: modulate_core::AudioParam,
-  decay_time: modulate_core::AudioParam,
-  decay_tension: modulate_core::AudioParam,
-  sustain_level: modulate_core::AudioParam,
-  release_time: modulate_core::AudioParam,
-  release_tension: modulate_core::AudioParam,
-  amount: modulate_core::AudioParam,
+  attack_time: AudioParam,
+  attack_tension: AudioParam,
+  decay_time: AudioParam,
+  decay_tension: AudioParam,
+  sustain_level: AudioParam,
+  release_time: AudioParam,
+  release_tension: AudioParam,
+  amount: AudioParam,
 
-  adsr: modulate_core::ADSRCurve,
+  adsr: ADSRCurve,
 }
 
-impl module::Module for ADSR {
+impl Module for ADSR {
   fn process(&mut self, quantum: u64) {
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       self.adsr.attack_time = self.attack_time.at(sample, quantum);
       self.adsr.attack_tension = self.attack_tension.at(sample, quantum);
       self.adsr.decay_time = self.decay_time.at(sample, quantum);
@@ -34,11 +36,11 @@ impl module::Module for ADSR {
     }
   }
 
-  fn get_inputs(&mut self) -> Vec<&mut modulate_core::AudioInput> {
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
     vec![&mut self.gate_input]
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![
       &mut self.attack_time,
       &mut self.decay_time,
@@ -51,7 +53,7 @@ impl module::Module for ADSR {
     ]
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![&mut self.output]
   }
 }

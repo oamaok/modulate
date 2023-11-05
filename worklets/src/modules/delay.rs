@@ -1,25 +1,27 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{AudioInput, AudioOutput, AudioParam, RingBuffer, QUANTUM_SIZE, SAMPLE_RATE},
+  module::Module,
+};
 
 pub struct Delay {
-  input: modulate_core::AudioInput,
-  output: modulate_core::AudioOutput,
+  input: AudioInput,
+  output: AudioOutput,
 
-  time: modulate_core::AudioParam,
-  feedback: modulate_core::AudioParam,
-  wet: modulate_core::AudioParam,
-  dry: modulate_core::AudioParam,
+  time: AudioParam,
+  feedback: AudioParam,
+  wet: AudioParam,
+  dry: AudioParam,
 
-  buffer: modulate_core::RingBuffer,
+  buffer: RingBuffer,
 }
 
-impl module::Module for Delay {
+impl Module for Delay {
   fn process(&mut self, quantum: u64) {
     self
       .buffer
-      .resize((self.time.at(0, quantum) * modulate_core::SAMPLE_RATE as f32) as usize);
+      .resize((self.time.at(0, quantum) * SAMPLE_RATE as f32) as usize);
 
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       let input = self.input.at(sample);
       let wet = self.buffer.head();
       self
@@ -30,15 +32,15 @@ impl module::Module for Delay {
     }
   }
 
-  fn get_inputs(&mut self) -> Vec<&mut modulate_core::AudioInput> {
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
     vec![&mut self.input]
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![&mut self.output]
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![
       &mut self.time,
       &mut self.feedback,
@@ -51,15 +53,15 @@ impl module::Module for Delay {
 impl Delay {
   pub fn new() -> Delay {
     Delay {
-      input: modulate_core::AudioInput::default(),
-      output: modulate_core::AudioOutput::default(),
+      input: AudioInput::default(),
+      output: AudioOutput::default(),
 
-      time: modulate_core::AudioParam::default(),
-      feedback: modulate_core::AudioParam::default(),
-      wet: modulate_core::AudioParam::default(),
-      dry: modulate_core::AudioParam::default(),
+      time: AudioParam::default(),
+      feedback: AudioParam::default(),
+      wet: AudioParam::default(),
+      dry: AudioParam::default(),
 
-      buffer: modulate_core::RingBuffer::new(10000),
+      buffer: RingBuffer::new(10000),
     }
   }
 }

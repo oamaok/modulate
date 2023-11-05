@@ -1,17 +1,21 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{
+    AudioInput, AudioOutput, AudioParam, AudioParamModulationType, RingBuffer, QUANTUM_SIZE,
+  },
+  module::Module,
+};
 
 pub struct Limiter {
-  input: modulate_core::AudioInput,
-  output: modulate_core::AudioOutput,
-  threshold: modulate_core::AudioParam,
+  input: AudioInput,
+  output: AudioOutput,
+  threshold: AudioParam,
 
-  buffer: modulate_core::RingBuffer,
+  buffer: RingBuffer,
 }
 
-impl module::Module for Limiter {
+impl Module for Limiter {
   fn process(&mut self, quantum: u64) {
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       let rms = self.buffer.rms();
       let threshold = self.threshold.at(sample, quantum);
       let ratio = if rms > threshold {
@@ -24,15 +28,15 @@ impl module::Module for Limiter {
     }
   }
 
-  fn get_inputs(&mut self) -> Vec<&mut modulate_core::AudioInput> {
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
     vec![&mut self.input]
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![&mut self.threshold]
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![&mut self.output]
   }
 }
@@ -40,11 +44,11 @@ impl module::Module for Limiter {
 impl Limiter {
   pub fn new() -> Limiter {
     Limiter {
-      input: modulate_core::AudioInput::default(),
-      output: modulate_core::AudioOutput::default(),
-      threshold: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
+      input: AudioInput::default(),
+      output: AudioOutput::default(),
+      threshold: AudioParam::new(AudioParamModulationType::Additive),
 
-      buffer: modulate_core::RingBuffer::new(500),
+      buffer: RingBuffer::new(500),
     }
   }
 }

@@ -1,36 +1,38 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{AudioInput, AudioOutput, AudioParam, INV_SAMPLE_RATE, QUANTUM_SIZE},
+  module::Module,
+};
 
 #[derive(Default)]
 pub struct BiquadFilter {
-  input: modulate_core::AudioInput,
+  input: AudioInput,
 
-  frequency: modulate_core::AudioParam,
-  q: modulate_core::AudioParam,
-  lowpass_level: modulate_core::AudioParam,
-  highpass_level: modulate_core::AudioParam,
+  frequency: AudioParam,
+  q: AudioParam,
+  lowpass_level: AudioParam,
+  highpass_level: AudioParam,
 
-  freq_mod_amount: modulate_core::AudioParam,
-  q_mod_amount: modulate_core::AudioParam,
+  freq_mod_amount: AudioParam,
+  q_mod_amount: AudioParam,
 
-  lowpass_output: modulate_core::AudioOutput,
-  highpass_output: modulate_core::AudioOutput,
+  lowpass_output: AudioOutput,
+  highpass_output: AudioOutput,
 
   input_buffer: [f32; 2],
   lowpass_buffer: [f32; 2],
   highpass_buffer: [f32; 2],
 }
 
-impl module::Module for BiquadFilter {
+impl Module for BiquadFilter {
   fn process(&mut self, quantum: u64) {
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       let voltage = 5.0
         + self
           .frequency
           .at_mod_amt(sample, quantum, self.freq_mod_amount.at(sample, quantum));
       let freq = 13.75 * f32::powf(2.0, voltage);
 
-      let omega = std::f32::consts::PI * 2.0 * freq * modulate_core::INV_SAMPLE_RATE;
+      let omega = std::f32::consts::PI * 2.0 * freq * INV_SAMPLE_RATE;
       let (sin_omega, cos_omega) = f32::sin_cos(omega);
       let alpha = sin_omega
         / 2.0
@@ -87,7 +89,7 @@ impl module::Module for BiquadFilter {
     }
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![
       &mut self.frequency,
       &mut self.q,
@@ -98,11 +100,11 @@ impl module::Module for BiquadFilter {
     ]
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![&mut self.lowpass_output, &mut self.highpass_output]
   }
 
-  fn get_inputs(&mut self) -> Vec<&mut modulate_core::AudioInput> {
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
     vec![&mut self.input]
   }
 }

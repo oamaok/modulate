@@ -1,28 +1,30 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{AudioInput, AudioOutput, AudioParam, AudioParamModulationType, QUANTUM_SIZE},
+  module::Module,
+};
 
 pub struct Gain {
-  input: modulate_core::AudioInput,
-  output: modulate_core::AudioOutput,
-  gain: modulate_core::AudioParam,
+  input: AudioInput,
+  output: AudioOutput,
+  gain: AudioParam,
 }
 
-impl module::Module for Gain {
+impl Module for Gain {
   fn process(&mut self, quantum: u64) {
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       self.output[sample] = self.input.at(sample) * self.gain.at(sample, quantum)
     }
   }
 
-  fn get_inputs(&mut self) -> Vec<&mut modulate_core::AudioInput> {
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
     vec![&mut self.input]
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![&mut self.gain]
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![&mut self.output]
   }
 }
@@ -30,9 +32,9 @@ impl module::Module for Gain {
 impl Gain {
   pub fn new() -> Gain {
     Gain {
-      input: modulate_core::AudioInput::default(),
-      output: modulate_core::AudioOutput::default(),
-      gain: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
+      input: AudioInput::default(),
+      output: AudioOutput::default(),
+      gain: AudioParam::new(AudioParamModulationType::Additive),
     }
   }
 }

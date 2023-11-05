@@ -1,41 +1,40 @@
-use super::super::modulate_core;
-use super::super::module;
-use std::cmp::Ordering;
+use crate::{
+  modulate_core::{AudioOutput, AudioParam, QUANTUM_SIZE},
+  module::{Module, ModuleEvent},
+};
 
-const OCTAVES: usize = 4;
-const NUM_KEYS: usize = 12 * OCTAVES;
 const NUM_PADS: usize = 4;
 
 pub struct VirtualController {
   pressed_keys: [(f32, f32); 2],
   pads: [f32; NUM_PADS],
 
-  knob_a_param: modulate_core::AudioParam,
-  knob_b_param: modulate_core::AudioParam,
-  knob_c_param: modulate_core::AudioParam,
-  knob_d_param: modulate_core::AudioParam,
+  knob_a_param: AudioParam,
+  knob_b_param: AudioParam,
+  knob_c_param: AudioParam,
+  knob_d_param: AudioParam,
 
-  keyboard_first_cv_output: modulate_core::AudioOutput,
-  keyboard_first_gate_output: modulate_core::AudioOutput,
-  keyboard_second_cv_output: modulate_core::AudioOutput,
-  keyboard_second_gate_output: modulate_core::AudioOutput,
+  keyboard_first_cv_output: AudioOutput,
+  keyboard_first_gate_output: AudioOutput,
+  keyboard_second_cv_output: AudioOutput,
+  keyboard_second_gate_output: AudioOutput,
 
-  pad_a_output: modulate_core::AudioOutput,
-  pad_b_output: modulate_core::AudioOutput,
-  pad_c_output: modulate_core::AudioOutput,
-  pad_d_output: modulate_core::AudioOutput,
+  pad_a_output: AudioOutput,
+  pad_b_output: AudioOutput,
+  pad_c_output: AudioOutput,
+  pad_d_output: AudioOutput,
 
-  knob_a_output: modulate_core::AudioOutput,
-  knob_b_output: modulate_core::AudioOutput,
-  knob_c_output: modulate_core::AudioOutput,
-  knob_d_output: modulate_core::AudioOutput,
+  knob_a_output: AudioOutput,
+  knob_b_output: AudioOutput,
+  knob_c_output: AudioOutput,
+  knob_d_output: AudioOutput,
 
-  events: Vec<module::ModuleEvent>,
+  events: Vec<ModuleEvent>,
 }
 
-impl module::Module for VirtualController {
+impl Module for VirtualController {
   fn process(&mut self, quantum: u64) {
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       self.pad_a_output[sample] = self.pads[0];
       self.pad_b_output[sample] = self.pads[1];
       self.pad_c_output[sample] = self.pads[2];
@@ -54,7 +53,7 @@ impl module::Module for VirtualController {
     }
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![
       &mut self.knob_a_param,
       &mut self.knob_b_param,
@@ -63,7 +62,7 @@ impl module::Module for VirtualController {
     ]
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![
       &mut self.keyboard_first_cv_output,
       &mut self.keyboard_first_gate_output,
@@ -80,7 +79,7 @@ impl module::Module for VirtualController {
     ]
   }
 
-  fn pop_event(&mut self) -> Option<module::ModuleEvent> {
+  fn pop_event(&mut self) -> Option<ModuleEvent> {
     self.events.pop()
   }
 }
@@ -88,7 +87,7 @@ impl module::Module for VirtualController {
 impl VirtualController {
   pub fn init(&mut self) {
     self.events.push({
-      module::ModuleEvent::VirtualControllerPointers {
+      ModuleEvent::VirtualControllerPointers {
         pressed_keys: self.pressed_keys.as_ptr() as usize,
         pads: self.pads.as_ptr() as usize,
       }
@@ -99,22 +98,22 @@ impl VirtualController {
     VirtualController {
       pressed_keys: [(0.0, 0.0); 2],
       pads: [0.0; NUM_PADS],
-      knob_a_param: modulate_core::AudioParam::default(),
-      knob_b_param: modulate_core::AudioParam::default(),
-      knob_c_param: modulate_core::AudioParam::default(),
-      knob_d_param: modulate_core::AudioParam::default(),
-      keyboard_first_cv_output: modulate_core::AudioOutput::default(),
-      keyboard_first_gate_output: modulate_core::AudioOutput::default(),
-      keyboard_second_cv_output: modulate_core::AudioOutput::default(),
-      keyboard_second_gate_output: modulate_core::AudioOutput::default(),
-      pad_a_output: modulate_core::AudioOutput::default(),
-      pad_b_output: modulate_core::AudioOutput::default(),
-      pad_c_output: modulate_core::AudioOutput::default(),
-      pad_d_output: modulate_core::AudioOutput::default(),
-      knob_a_output: modulate_core::AudioOutput::default(),
-      knob_b_output: modulate_core::AudioOutput::default(),
-      knob_c_output: modulate_core::AudioOutput::default(),
-      knob_d_output: modulate_core::AudioOutput::default(),
+      knob_a_param: AudioParam::default(),
+      knob_b_param: AudioParam::default(),
+      knob_c_param: AudioParam::default(),
+      knob_d_param: AudioParam::default(),
+      keyboard_first_cv_output: AudioOutput::default(),
+      keyboard_first_gate_output: AudioOutput::default(),
+      keyboard_second_cv_output: AudioOutput::default(),
+      keyboard_second_gate_output: AudioOutput::default(),
+      pad_a_output: AudioOutput::default(),
+      pad_b_output: AudioOutput::default(),
+      pad_c_output: AudioOutput::default(),
+      pad_d_output: AudioOutput::default(),
+      knob_a_output: AudioOutput::default(),
+      knob_b_output: AudioOutput::default(),
+      knob_c_output: AudioOutput::default(),
+      knob_d_output: AudioOutput::default(),
       events: vec![],
     }
   }

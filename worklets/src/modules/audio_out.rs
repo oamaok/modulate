@@ -1,28 +1,30 @@
-use super::super::modulate_core;
-use super::super::module;
+use crate::{
+  modulate_core::{AudioInput, AudioOutput, AudioParam, AudioParamModulationType, QUANTUM_SIZE},
+  module::Module,
+};
 
 pub struct AudioOut {
-  input: modulate_core::AudioInput,
-  volume: modulate_core::AudioParam,
-  output: modulate_core::AudioOutput,
+  input: AudioInput,
+  volume: AudioParam,
+  output: AudioOutput,
 }
 
-impl module::Module for AudioOut {
+impl Module for AudioOut {
   fn process(&mut self, quantum: u64) {
-    for sample in 0..modulate_core::QUANTUM_SIZE {
+    for sample in 0..QUANTUM_SIZE {
       self.output[sample] = self.input.at(sample) * self.volume.at(sample, quantum)
     }
   }
 
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![&mut self.volume]
   }
 
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![&mut self.output]
   }
 
-  fn get_inputs(&mut self) -> Vec<&mut modulate_core::AudioInput> {
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
     vec![&mut self.input]
   }
 }
@@ -30,9 +32,9 @@ impl module::Module for AudioOut {
 impl AudioOut {
   pub fn new() -> AudioOut {
     AudioOut {
-      input: modulate_core::AudioInput::default(),
-      volume: modulate_core::AudioParam::new(modulate_core::AudioParamModulationType::Additive),
-      output: modulate_core::AudioOutput::default(),
+      input: AudioInput::default(),
+      volume: AudioParam::new(AudioParamModulationType::Additive),
+      output: AudioOutput::default(),
     }
   }
 }
