@@ -9,6 +9,9 @@ import useDrag from '../../hooks'
 const WIDTH = 200
 const HEIGHT = 120
 
+const MINIMUM_WIDTH = 3000
+const MINIMUM_HEIGHT = (MINIMUM_WIDTH * HEIGHT) / WIDTH
+
 const PADDING = 200
 
 type AABB = {
@@ -20,10 +23,10 @@ type AABB = {
 
 const getPatchBoundingBox = (): AABB => {
   const patchBoundingBox: AABB = {
-    minX: Infinity,
-    minY: Infinity,
-    maxX: -Infinity,
-    maxY: -Infinity,
+    minX: -MINIMUM_WIDTH / 2,
+    minY: -MINIMUM_HEIGHT / 2,
+    maxX: MINIMUM_WIDTH / 2,
+    maxY: MINIMUM_HEIGHT / 2,
   }
 
   for (const moduleId in state.patch.modules) {
@@ -120,7 +123,6 @@ const MiniMap = () => {
     {
       const x = -state.viewOffset.x
       const y = -state.viewOffset.y
-
       const w = patchBoundingBox.maxX - x
       const h = patchBoundingBox.minY - y
       context.fillRect(x, y, w, h)
@@ -128,7 +130,6 @@ const MiniMap = () => {
     {
       const x = -state.viewOffset.x + state.viewport.width
       const y = -state.viewOffset.y
-
       const w = patchBoundingBox.maxX - x
       const h = patchBoundingBox.maxY - y
       context.fillRect(x, y, w, h)
@@ -136,7 +137,6 @@ const MiniMap = () => {
     {
       const x = -state.viewOffset.x + state.viewport.width
       const y = -state.viewOffset.y + state.viewport.height
-
       const w = patchBoundingBox.minX - x
       const h = patchBoundingBox.maxY - y
       context.fillRect(x, y, w, h)
@@ -144,7 +144,6 @@ const MiniMap = () => {
     {
       const x = -state.viewOffset.x
       const y = -state.viewOffset.y + state.viewport.height
-
       const w = patchBoundingBox.minX - x
       const h = patchBoundingBox.minY - y
       context.fillRect(x, y, w, h)
