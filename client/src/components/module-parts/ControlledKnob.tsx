@@ -1,4 +1,4 @@
-import { useState } from 'kaiku'
+import { useRef, useState } from 'kaiku'
 import state, { displayHint, hideHint, setHintContent } from '../../state'
 import css from './Knob.css'
 import assert from '../../assert'
@@ -194,6 +194,8 @@ const getHintText = (props: ControlledKnobProps): string => {
 const ControlledKnob = (props: ControlledKnobProps) => {
   const { hideLabel = false } = props
 
+  const knobRef = useRef<HTMLDivElement>()
+
   const knobState = useState<{
     position: number
     isDragging: boolean
@@ -207,7 +209,8 @@ const ControlledKnob = (props: ControlledKnobProps) => {
     knobState.position = externallyUpdatedPosition
   }
 
-  const dragTargetRef = useDrag({
+  useDrag({
+    ref: knobRef,
     onStart(pos) {
       knobState.isDragging = true
       displayHint(getHintText({ ...props, value: getValue(props) }), pos)
@@ -233,7 +236,7 @@ const ControlledKnob = (props: ControlledKnobProps) => {
     <div className={css('wrapper', props.size)}>
       <div
         className={css('knob')}
-        ref={dragTargetRef}
+        ref={knobRef}
         style={{
           transform: `rotate(${knobState.position * 300 - 60}deg)`,
         }}

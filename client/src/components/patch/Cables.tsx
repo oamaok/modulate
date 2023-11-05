@@ -5,8 +5,11 @@ import Cable from './Cable'
 import css from './Cables.css'
 import testAttributes from '../../test-attributes'
 import { useDrag } from '../../hooks'
+import { useRef } from 'kaiku'
 
 const Cables = () => {
+  const svgRef = useRef<SVGElement>()
+
   const onContextMenu = (evt: MouseEvent) => {
     evt.preventDefault()
     state.contextMenu.open = true
@@ -16,7 +19,8 @@ const Cables = () => {
     }
   }
 
-  const dragTargetRef = useDrag({
+  useDrag({
+    ref: svgRef,
     onStart() {
       state.contextMenu.open = false
     },
@@ -33,7 +37,7 @@ const Cables = () => {
         viewBox={`0 0 ${viewport.width} ${viewport.height}`}
         onContextMenu={onContextMenu}
         onDblClick={onContextMenu}
-        ref={dragTargetRef}
+        ref={svgRef}
       >
         <g
           transform={() =>

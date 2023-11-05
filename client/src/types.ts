@@ -79,6 +79,8 @@ export type State = {
     open: boolean
     position: Vec2
   }
+
+  activePianoRollModuleId: string | null
 }
 
 export type Engine = {

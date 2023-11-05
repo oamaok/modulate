@@ -2,7 +2,12 @@ import { unwrap, useEffect, useRef } from 'kaiku'
 import assert from './assert'
 import state from './state'
 
-type MoveHandler = (evt: { dx: number; dy: number }) => void
+type MoveHandler = (evt: {
+  relativeX: number
+  relativeY: number
+  dx: number
+  dy: number
+}) => void
 type StartHandler = (evt: {
   x: number
   y: number
@@ -12,6 +17,8 @@ type StartHandler = (evt: {
 type EndHandler = (evt: { x: number; y: number }) => void
 
 type TargetHandlers = {
+  ref: ReturnType<typeof useRef<Element>>
+  mouseButton?: number
   relativeToViewOffset?: boolean
   onStart?: StartHandler
   onMove: MoveHandler
@@ -26,15 +33,17 @@ type TrackedTouch = {
   y: number
 }
 
-const targetHandlers: Map<HTMLElement, TargetHandlers> = new Map()
+const targetHandlers: Map<HTMLElement, TargetHandlers[]> = new Map()
 
 const trackedTouches: Map<Touch['identifier'], TrackedTouch> = new Map()
 
 let trackedDrag: {
   target: HTMLElement
-  handlers: TargetHandlers
+  handlers: TargetHandlers[]
   viewOffsetX: number
   viewOffsetY: number
+  startX: number
+  startY: number
   x: number
   y: number
 } | null = null
@@ -54,12 +63,14 @@ const onTouchStart = (evt: TouchEvent) => {
           y: touch.clientY,
         })
         const { x, y } = target.getBoundingClientRect()
-        handlers.onStart?.({
-          x: touch.clientX,
-          y: touch.clientY,
-          relativeX: touch.clientX - x,
-          relativeY: touch.clientY - y,
-        })
+        for (const handler of handlers) {
+          handler.onStart?.({
+            x: touch.clientX,
+            y: touch.clientY,
+            relativeX: touch.clientX - x,
+            relativeY: touch.clientY - y,
+          })
+        }
       }
     }
   } while ((target = target.parentElement))
@@ -73,7 +84,9 @@ const onTouchMove = (evt: TouchEvent) => {
     if (trackedTouch) {
       const handlers = targetHandlers.get(trackedTouch.target)
       assert(handlers)
-      touches.push([touch, trackedTouch, handlers])
+      for (const handler of handlers) {
+        touches.push([touch, trackedTouch, handler])
+      }
     }
   }
 
@@ -95,9 +108,13 @@ const onTouchMove = (evt: TouchEvent) => {
 
     if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) continue
 
+    const { x, y } = trackedTouch.target.getBoundingClientRect()
+
     handlers.onMove({
       dx,
       dy,
+      relativeX: touch.clientX - x,
+      relativeY: touch.clientY - y,
     })
 
     trackedTouch.x = touch.clientX
@@ -119,7 +136,12 @@ const onTouchEnd = (evt: TouchEvent) => {
     if (!isPresent) {
       const handlers = targetHandlers.get(trackedTouch.target)
       assert(handlers)
-      handlers.onEnd?.({ x: trackedTouch.x, y: trackedTouch.y })
+      for (const handler of handlers) {
+        handler.onEnd?.({
+          x: trackedTouch.x,
+          y: trackedTouch.y,
+        })
+      }
       trackedTouches.delete(id)
     }
   }
@@ -135,21 +157,33 @@ const onMouseDown = (evt: MouseEvent) => {
   do {
     const handlers = targetHandlers.get(target)
     if (handlers) {
-      trackedDrag = {
-        x: evt.clientX,
-        y: evt.clientY,
-        viewOffsetX: state.viewOffset.x,
-        viewOffsetY: state.viewOffset.y,
-        target,
-        handlers,
+      for (const handler of handlers) {
+        let button = handler.mouseButton ?? 0
+        if (evt.button !== button) continue
+
+        if (trackedDrag) {
+          trackedDrag.handlers.push(handler)
+        } else {
+          trackedDrag = {
+            x: evt.clientX,
+            y: evt.clientY,
+            startX: evt.clientX,
+            startY: evt.clientY,
+            viewOffsetX: state.viewOffset.x,
+            viewOffsetY: state.viewOffset.y,
+            target,
+            handlers: [handler],
+          }
+        }
+
+        const { x, y } = target.getBoundingClientRect()
+        handler.onStart?.({
+          x: evt.clientX,
+          y: evt.clientY,
+          relativeX: evt.clientX - x,
+          relativeY: evt.clientY - y,
+        })
       }
-      const { x, y } = target.getBoundingClientRect()
-      handlers.onStart?.({
-        x: evt.clientX,
-        y: evt.clientY,
-        relativeX: evt.clientX - x,
-        relativeY: evt.clientY - y,
-      })
     }
   } while ((target = target.parentElement))
 }
@@ -159,10 +193,15 @@ const onMouseMove = (evt: MouseEvent) => {
     let dx = trackedDrag.x - evt.clientX
     let dy = trackedDrag.y - evt.clientY
 
-    trackedDrag.handlers.onMove({
-      dx,
-      dy,
-    })
+    const { x, y } = trackedDrag.target.getBoundingClientRect()
+    for (const handler of trackedDrag.handlers) {
+      handler.onMove({
+        dx,
+        dy,
+        relativeX: evt.clientX - x,
+        relativeY: evt.clientY - y,
+      })
+    }
 
     trackedDrag.x = evt.clientX
     trackedDrag.y = evt.clientY
@@ -171,7 +210,12 @@ const onMouseMove = (evt: MouseEvent) => {
 
 const onMouseUp = (evt: MouseEvent) => {
   if (trackedDrag) {
-    trackedDrag.handlers.onEnd?.({ x: evt.clientX, y: evt.clientY })
+    for (const handler of trackedDrag.handlers) {
+      handler.onEnd?.({
+        x: evt.clientX,
+        y: evt.clientY,
+      })
+    }
   }
   trackedDrag = null
 }
@@ -180,20 +224,16 @@ document.addEventListener('mousedown', onMouseDown)
 document.addEventListener('mousemove', onMouseMove)
 document.addEventListener('mouseup', onMouseUp)
 
-export const useDrag = <T extends HTMLElement = HTMLElement>(
-  handlers: TargetHandlers
-) => {
-  const ref = useRef<T>()
-
+export const useDrag = (handlers: TargetHandlers) => {
   useEffect(() => {
-    const target = ref.current
-    if (target) {
-      targetHandlers.set(unwrap(target as any), handlers)
+    if (handlers.ref.current) {
+      const target = unwrap(handlers.ref.current as any)
+      let existingHandlers = targetHandlers.get(target) ?? []
+      existingHandlers.push(handlers)
+      targetHandlers.set(target, existingHandlers)
       return () => {
         targetHandlers.delete(unwrap(target as any))
       }
     }
   })
-
-  return ref
 }

@@ -1,0 +1,24 @@
+.wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 24px;
+  z-index: 100000;
+}
+
+.piano-roll-editor {
+  background: var(--background);
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  box-shadow: var(--box-shadow);
+  padding: 24px;
+}
+
+.editor {
+  width: 100%;
+  height: 100%;
+}

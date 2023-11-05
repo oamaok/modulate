@@ -117,3 +117,6 @@ export const groupBy = <T, F extends (item: T) => any>(
 
   return Array.from(ret.entries())
 }
+
+export const clamp = (x: number, min: number, max: number) =>
+  Math.min(Math.max(x, min), max)

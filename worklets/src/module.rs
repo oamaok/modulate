@@ -21,8 +21,8 @@ pub enum ModuleEvent {
   BouncyBoiUpdate { balls: [Ball; 3], phase: f32 },
   SamplerAllocateSuccess { ptr: usize },
   SamplerPlayheadPtr { ptr: usize },
-  VirtualControllerInit {},
   VirtualControllerPointers { pressed_keys: usize, pads: usize },
+  PianoRollPointers { position: usize },
 }
 
 #[derive(Serialize)]
@@ -40,6 +40,13 @@ pub struct NamedNote {
 }
 
 #[derive(Deserialize)]
+pub struct PianoRollNote {
+  pub pitch: f32,
+  pub start: f32,
+  pub length: f32,
+}
+
+#[derive(Deserialize)]
 #[serde(tag = "type")]
 pub enum ModuleMessage {
   SequencerSetNotes { notes: Vec<NamedNote> },
@@ -50,6 +57,8 @@ pub enum ModuleMessage {
   MidiMessage { message: u32 },
 
   SamplerAllocate { size: usize },
+
+  PianoRollSetNotes { notes: Vec<PianoRollNote> },
 }
 
 pub trait Module {

@@ -230,11 +230,18 @@ export type VirtualController = ModuleTypeOf<
 
 export const PianoRoll = {
   name: 'PianoRoll',
-  inputs: [],
-  parameters: [],
-  outputs: [],
+  inputs: ['externalClock'],
+  parameters: ['length', 'speed'],
+  outputs: ['cv', 'gate'],
 } as const
-export type PianoRoll = ModuleTypeOf<typeof PianoRoll>
+export type PianoRoll = ModuleTypeOf<
+  typeof PianoRoll,
+  {
+    type: 'PianoRollSetNotes'
+    notes: { pitch: number; start: number; length: number }[]
+  },
+  { type: 'PianoRollPointers'; position: number }
+>
 
 export const modules = {
   AudioOut,

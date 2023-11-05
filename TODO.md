@@ -35,6 +35,13 @@
 ## Sequencer
 
 - [ ] Use direct memory access
+- [ ] Reset input
+- [ ] Reset button
+
+## Clock
+
+- [ ] Tempo input
+- [ ] Reset input
 
 ## Voltage quantizer
 
@@ -82,6 +89,10 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 - [x] Initial implementation
 - [ ] Add scale selector
+
+## Piano roll
+
+- [x] Initial implementation
 
 # Testing
 

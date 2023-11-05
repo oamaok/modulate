@@ -12,6 +12,7 @@ use modules::limiter::Limiter;
 use modules::midi::MIDI;
 use modules::mixer::Mixer;
 use modules::oscillator::Oscillator;
+use modules::piano_roll::PianoRoll;
 use modules::pow_shaper::PowShaper;
 use modules::reverb::Reverb;
 use modules::sampler::Sampler;
@@ -371,6 +372,11 @@ impl ModulateEngine {
       }
       "VirtualController" => {
         let mut module = Box::new(VirtualController::new());
+        module.init();
+        self.modules.insert(id, module);
+      }
+      "PianoRoll" => {
+        let mut module = Box::new(PianoRoll::new());
         module.init();
         self.modules.insert(id, module);
       }

@@ -166,7 +166,7 @@ export default createConfig({
   },
   PianoRoll: {
     category: ModuleCategory.SEQUENCER,
-    width: 800,
-    height: 450,
+    width: 440,
+    height: 200,
   },
 })

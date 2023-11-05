@@ -17,6 +17,7 @@ import SaveDialog from '../save-dialog/SaveDialog'
 import Overlay from '../overlay/Overlay'
 import testAttributes from '../../test-attributes'
 import MiniMap from '../mini-map/MiniMap'
+import PianoRollEditor from '../piano-roll-editor/PianoRollEditor'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -133,6 +134,9 @@ const App = () => {
       <ContextMenu />
       {OverlayComponent ? <OverlayComponent /> : null}
       <SaveDialog />
+      {state.activePianoRollModuleId !== null ? (
+        <PianoRollEditor moduleId={state.activePianoRollModuleId} />
+      ) : null}
     </div>
   )
 }

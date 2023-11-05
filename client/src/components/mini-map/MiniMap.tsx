@@ -1,4 +1,4 @@
-import { useEffect } from 'kaiku'
+import { useEffect, useRef } from 'kaiku'
 import state from '../../state'
 import moduleConfig from '../../module-config'
 import css from './MiniMap.css'
@@ -78,7 +78,10 @@ const getPatchBoundingBox = (): AABB => {
 }
 
 const MiniMap = () => {
-  const canvasRef = useDrag<HTMLCanvasElement>({
+  const canvasRef = useRef<HTMLCanvasElement>()
+
+  useDrag({
+    ref: canvasRef,
     onStart({ relativeX, relativeY }) {
       const patchBoundingBox = getPatchBoundingBox()
       const scale = patchBoundingBox.width / MINIMAP_WIDTH

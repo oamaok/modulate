@@ -1,4 +1,4 @@
-import { FC } from 'kaiku'
+import { FC, useRef } from 'kaiku'
 import state, { getModulePosition } from '../../state'
 import { Id } from '@modulate/common/types'
 import css from './Module.css'
@@ -14,7 +14,9 @@ type Props = {
 }
 
 const Module: FC<Props> = ({ id, type, name, children }) => {
-  const dragTargetRef = useDrag({
+  const headerRef = useRef<HTMLDivElement>()
+  useDrag({
+    ref: headerRef,
     relativeToViewOffset: true,
     onMove({ dx, dy }) {
       modulePosition.x -= dx
@@ -55,7 +57,7 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
         style={{
           background: config.colors.primary,
         }}
-        ref={dragTargetRef}
+        ref={headerRef}
         {...testAttributes({ id: 'module-header' })}
       >
         {name ?? type}
