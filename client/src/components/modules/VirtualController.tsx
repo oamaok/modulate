@@ -76,13 +76,7 @@ class VirtualControllerModule extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module
-        id={id}
-        type="VirtualController"
-        name="Virtual Controller"
-        width={800}
-        height={450}
-      >
+      <Module id={id} type="VirtualController" name="Virtual Controller">
         <div className={css('virtual-controller')}>
           <div className={css('knobs')}>
             <Knob

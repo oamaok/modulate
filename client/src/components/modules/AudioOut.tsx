@@ -20,7 +20,7 @@ class AudioOutNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} type="AudioOut" name="Audio Out" width={100}>
+      <Module id={id} type="AudioOut" name="Audio Out">
         <Knob
           moduleId={id}
           type="percentage"

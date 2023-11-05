@@ -30,7 +30,7 @@ class MixerNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module id={id} type="Mixer" width={140} height={200}>
+      <Module id={id} type="Mixer">
         <div className={css('mixer')}>
           <Slider
             moduleId={id}

@@ -228,6 +228,14 @@ export type VirtualController = ModuleTypeOf<
   { type: 'VirtualControllerPointers'; pressed_keys: number; pads: number }
 >
 
+export const PianoRoll = {
+  name: 'PianoRoll',
+  inputs: [],
+  parameters: [],
+  outputs: [],
+} as const
+export type PianoRoll = ModuleTypeOf<typeof PianoRoll>
+
 export const modules = {
   AudioOut,
   Oscillator,
@@ -246,6 +254,7 @@ export const modules = {
   LFO,
   Sampler,
   VirtualController,
+  PianoRoll,
 } as const
 
 export type Module =
@@ -266,6 +275,7 @@ export type Module =
   | LFO
   | Sampler
   | VirtualController
+  | PianoRoll
 
 export type ModuleName = Module['name']
 

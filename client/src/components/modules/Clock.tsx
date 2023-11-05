@@ -81,7 +81,7 @@ class ClockNode extends Component<Props> {
   render({ id }: Props) {
     const moduleState = getModuleState<ClockState>(id)
     return (
-      <Module id={id} type="Clock" height={260}>
+      <Module id={id} type="Clock">
         <div className={css('controls')}>
           <Toggle
             active={moduleState.isRunning}

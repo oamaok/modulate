@@ -77,7 +77,7 @@ class SequencerNode extends Component<
     const sequenceLength = getKnobValue(id, 'sequenceLength') ?? 32
 
     return (
-      <Module id={id} type="Sequencer" width={340} height={200}>
+      <Module id={id} type="Sequencer">
         <div className={css('sequencer')}>
           <div className={css('steps')}>
             {groupedNotes.map((groups) => (

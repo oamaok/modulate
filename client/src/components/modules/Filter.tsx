@@ -43,13 +43,7 @@ class BiquadFilterNode extends Component<Props> {
 
   render({ id }: Props) {
     return (
-      <Module
-        id={id}
-        type="BiquadFilter"
-        name="Filter"
-        width={220}
-        height={130}
-      >
+      <Module id={id} type="BiquadFilter" name="Filter">
         <div className={css('knobs')}>
           <div className={css('knob-group')}>
             <Knob

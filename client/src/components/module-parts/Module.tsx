@@ -11,18 +11,9 @@ type Props = {
   id: Id
   type: ModuleName
   name?: string
-  height?: number
-  width?: number
 }
 
-const Module: FC<Props> = ({
-  id,
-  type,
-  name,
-  children,
-  height = 100,
-  width = 200,
-}) => {
+const Module: FC<Props> = ({ id, type, name, children }) => {
   const dragTargetRef = useDrag({
     relativeToViewOffset: true,
     onMove({ dx, dy }) {
@@ -32,6 +23,7 @@ const Module: FC<Props> = ({
   })
 
   const modulePosition = getModulePosition(id)
+  const config = moduleConfig[type]
 
   return (
     <div
@@ -50,8 +42,8 @@ const Module: FC<Props> = ({
       }
       style={{
         zIndex: () => (state.activeModule === id ? 10 : 1),
-        width: width + 'px',
-        height: height + 'px',
+        width: config.width + 'px',
+        height: config.height + 'px',
         transform: () =>
           `translate(${Math.round(modulePosition.x)}px, ${Math.round(
             modulePosition.y
@@ -61,7 +53,7 @@ const Module: FC<Props> = ({
       <div
         className={css('module-name')}
         style={{
-          background: moduleConfig[type].colors.primary,
+          background: config.colors.primary,
         }}
         ref={dragTargetRef}
         {...testAttributes({ id: 'module-header' })}
