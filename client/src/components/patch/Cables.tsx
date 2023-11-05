@@ -4,7 +4,7 @@ import ActiveCable from './ActiveCable'
 import Cable from './Cable'
 import css from './Cables.css'
 import testAttributes from '../../test-attributes'
-import useDrag from '../../hooks'
+import { useDrag } from '../../hooks'
 
 const Cables = () => {
   const onContextMenu = (evt: MouseEvent) => {

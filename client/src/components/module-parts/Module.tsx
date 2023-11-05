@@ -4,7 +4,7 @@ import { Id } from '@modulate/common/types'
 import css from './Module.css'
 import testAttributes from '../../test-attributes'
 import { ModuleName } from '@modulate/worklets/src/modules'
-import useDrag from '../../hooks'
+import { useDrag } from '../../hooks'
 import moduleConfig from '../../module-config'
 
 type Props = {
@@ -25,7 +25,7 @@ const Module: FC<Props> = ({
 }) => {
   const dragTargetRef = useDrag({
     relativeToViewOffset: true,
-    onMove: ({ dx, dy }) => {
+    onMove({ dx, dy }) {
       modulePosition.x -= dx
       modulePosition.y -= dy
     },

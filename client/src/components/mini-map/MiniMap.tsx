@@ -4,13 +4,14 @@ import moduleConfig from '../../module-config'
 import css from './MiniMap.css'
 import assert from '../../assert'
 import { ModuleName } from '@modulate/worklets/src/modules'
-import useDrag from '../../hooks'
+import { useDrag } from '../../hooks'
 
-const WIDTH = 200
-const HEIGHT = 120
+const MINIMAP_WIDTH = 200
+const MINIMAP_HEIGHT = 120
 
-const MINIMUM_WIDTH = 3000
-const MINIMUM_HEIGHT = (MINIMUM_WIDTH * HEIGHT) / WIDTH
+const MINIMUM_MINIMAP_WIDTH = 3000
+const MINIMUM_MINIMAP_HEIGHT =
+  MINIMUM_MINIMAP_WIDTH * (MINIMAP_HEIGHT / MINIMAP_WIDTH)
 
 const PADDING = 200
 
@@ -19,14 +20,18 @@ type AABB = {
   minY: number
   maxX: number
   maxY: number
+  width: number
+  height: number
 }
 
 const getPatchBoundingBox = (): AABB => {
   const patchBoundingBox: AABB = {
-    minX: -MINIMUM_WIDTH / 2,
-    minY: -MINIMUM_HEIGHT / 2,
-    maxX: MINIMUM_WIDTH / 2,
-    maxY: MINIMUM_HEIGHT / 2,
+    minX: -MINIMUM_MINIMAP_WIDTH / 2,
+    minY: -MINIMUM_MINIMAP_HEIGHT / 2,
+    maxX: MINIMUM_MINIMAP_WIDTH / 2,
+    maxY: MINIMUM_MINIMAP_HEIGHT / 2,
+    width: 0,
+    height: 0,
   }
 
   for (const moduleId in state.patch.modules) {
@@ -51,20 +56,22 @@ const getPatchBoundingBox = (): AABB => {
   patchBoundingBox.maxX += PADDING
   patchBoundingBox.maxY += PADDING
 
-  const minimapWidth = patchBoundingBox.maxX - patchBoundingBox.minX
-  const minimapHeight = patchBoundingBox.maxY - patchBoundingBox.minY
+  patchBoundingBox.width = patchBoundingBox.maxX - patchBoundingBox.minX
+  patchBoundingBox.height = patchBoundingBox.maxY - patchBoundingBox.minY
 
-  const scaleX = WIDTH / minimapWidth
-  const scaleY = HEIGHT / minimapHeight
+  const scaleX = MINIMAP_WIDTH / patchBoundingBox.width
+  const scaleY = MINIMAP_HEIGHT / patchBoundingBox.height
 
   if (scaleX > scaleY) {
-    const extraPad = (minimapWidth * (scaleX / scaleY - 1)) / 2
+    const extraPad = (patchBoundingBox.width * (scaleX / scaleY - 1)) / 2
     patchBoundingBox.minX -= extraPad
     patchBoundingBox.maxX += extraPad
+    patchBoundingBox.width += extraPad * 2
   } else {
-    const extraPad = (minimapHeight * (scaleY / scaleX - 1)) / 2
+    const extraPad = (patchBoundingBox.height * (scaleY / scaleX - 1)) / 2
     patchBoundingBox.minY -= extraPad
     patchBoundingBox.maxY += extraPad
+    patchBoundingBox.height += extraPad * 2
   }
 
   return patchBoundingBox
@@ -72,12 +79,26 @@ const getPatchBoundingBox = (): AABB => {
 
 const MiniMap = () => {
   const canvasRef = useDrag<HTMLCanvasElement>({
+    onStart({ relativeX, relativeY }) {
+      const patchBoundingBox = getPatchBoundingBox()
+      const scale = patchBoundingBox.width / MINIMAP_WIDTH
+
+      state.viewOffset.x =
+        -relativeX * scale - patchBoundingBox.minX + state.viewport.width / 2
+      state.viewOffset.y =
+        -relativeY * scale - patchBoundingBox.minY + state.viewport.height / 2
+
+      canvasRef.current?.classList.add(css('dragging'))
+    },
     onMove({ dx, dy }) {
       const patchBoundingBox = getPatchBoundingBox()
-      const scale = WIDTH / (patchBoundingBox.maxX - patchBoundingBox.minX)
+      const scale = patchBoundingBox.width / MINIMAP_WIDTH
 
-      state.viewOffset.x += dx / scale
-      state.viewOffset.y += dy / scale
+      state.viewOffset.x += dx * scale
+      state.viewOffset.y += dy * scale
+    },
+    onEnd() {
+      canvasRef.current?.classList.remove(css('dragging'))
     },
   })
 
@@ -87,10 +108,10 @@ const MiniMap = () => {
     assert(context)
 
     context.resetTransform()
-    context.clearRect(0, 0, WIDTH, HEIGHT)
+    context.clearRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT)
 
     const patchBoundingBox = getPatchBoundingBox()
-    const scale = WIDTH / (patchBoundingBox.maxX - patchBoundingBox.minX)
+    const scale = MINIMAP_WIDTH / patchBoundingBox.width
 
     context.scale(scale, scale)
     context.translate(-patchBoundingBox.minX, -patchBoundingBox.minY)
@@ -162,8 +183,8 @@ const MiniMap = () => {
     <canvas
       className={css('minimap')}
       ref={canvasRef}
-      width={WIDTH}
-      height={HEIGHT}
+      width={MINIMAP_WIDTH}
+      height={MINIMAP_HEIGHT}
     />
   )
 }

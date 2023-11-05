@@ -3,7 +3,12 @@ import assert from './assert'
 import state from './state'
 
 type MoveHandler = (evt: { dx: number; dy: number }) => void
-type StartHandler = (evt: { x: number; y: number }) => void
+type StartHandler = (evt: {
+  x: number
+  y: number
+  relativeX: number
+  relativeY: number
+}) => void
 type EndHandler = (evt: { x: number; y: number }) => void
 
 type TargetHandlers = {
@@ -48,7 +53,13 @@ const onTouchStart = (evt: TouchEvent) => {
           x: touch.clientX,
           y: touch.clientY,
         })
-        handlers.onStart?.({ x: touch.clientX, y: touch.clientY })
+        const { x, y } = target.getBoundingClientRect()
+        handlers.onStart?.({
+          x: touch.clientX,
+          y: touch.clientY,
+          relativeX: touch.clientX - x,
+          relativeY: touch.clientY - y,
+        })
       }
     }
   } while ((target = target.parentElement))
@@ -132,7 +143,13 @@ const onMouseDown = (evt: MouseEvent) => {
         target,
         handlers,
       }
-      handlers.onStart?.({ x: evt.clientX, y: evt.clientY })
+      const { x, y } = target.getBoundingClientRect()
+      handlers.onStart?.({
+        x: evt.clientX,
+        y: evt.clientY,
+        relativeX: evt.clientX - x,
+        relativeY: evt.clientY - y,
+      })
     }
   } while ((target = target.parentElement))
 }
@@ -163,7 +180,7 @@ document.addEventListener('mousedown', onMouseDown)
 document.addEventListener('mousemove', onMouseMove)
 document.addEventListener('mouseup', onMouseUp)
 
-const useDrag = <T extends HTMLElement = HTMLElement>(
+export const useDrag = <T extends HTMLElement = HTMLElement>(
   handlers: TargetHandlers
 ) => {
   const ref = useRef<T>()
@@ -180,5 +197,3 @@ const useDrag = <T extends HTMLElement = HTMLElement>(
 
   return ref
 }
-
-export default useDrag

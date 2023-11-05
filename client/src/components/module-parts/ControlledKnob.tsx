@@ -3,7 +3,7 @@ import state, { displayHint, hideHint, setHintContent } from '../../state'
 import css from './Knob.css'
 import assert from '../../assert'
 import testAttributes from '../../test-attributes'
-import useDrag from '../../hooks'
+import { useDrag } from '../../hooks'
 
 type PercentageKnob = {
   type: 'percentage'
@@ -208,7 +208,7 @@ const ControlledKnob = (props: ControlledKnobProps) => {
   }
 
   const dragTargetRef = useDrag({
-    onStart: (pos) => {
+    onStart(pos) {
       knobState.isDragging = true
       displayHint(getHintText({ ...props, value: getValue(props) }), pos)
     },
