@@ -5,7 +5,7 @@ const esbuild = require('esbuild')
 const chokidar = require('chokidar')
 const terser = require('terser')
 const cp = require('child_process')
-const CssModulesPlugin = require('./build/css-modules-plugin')
+const CssModulesPlugin = require('./css-modules-plugin')
 
 const isProduction = process.env.NODE_ENV === 'production'
 const isEngineTest = process.argv.some((arg) => arg === '--engine-test')
@@ -77,8 +77,8 @@ const buildClient = async () => {
   console.time('Build client')
 
   const entry = isEngineTest
-    ? path.join(__dirname, './client/src/engine-test-index.ts')
-    : path.join(__dirname, './client/src/index.tsx')
+    ? path.join(__dirname, '../client/src/engine-test-index.ts')
+    : path.join(__dirname, '../client/src/index.tsx')
 
   const buildDir = await fs.mkdtemp(path.join(os.tmpdir(), 'modulate-'))
 
@@ -95,8 +95,8 @@ const buildClient = async () => {
       plugins: [CssModulesPlugin()],
     }),
     recursiveCopy(
-      path.join(__dirname, './client/static'),
-      path.join(__dirname, './dist/client')
+      path.join(__dirname, '../client/static'),
+      path.join(__dirname, '../dist/client')
     ),
   ])
 
@@ -128,7 +128,7 @@ const buildClient = async () => {
 
   const scriptsFile = (await fs.readFile(scriptsPath)).toString('utf-8')
   const indexFile = (
-    await fs.readFile(path.join(__dirname, './client/static/index.html'))
+    await fs.readFile(path.join(__dirname, '../client/static/index.html'))
   ).toString('utf-8')
   const stylesFile = (
     await fs.readFile(path.join(buildDir, './index.css'))
@@ -147,7 +147,7 @@ const buildClient = async () => {
   )
 
   await fs.writeFile(
-    path.join(__dirname, './dist/client/index.html'),
+    path.join(__dirname, '../dist/client/index.html'),
     generatedIndex
   )
   await fs.rm(buildDir, { recursive: true, force: true })
@@ -182,7 +182,7 @@ const buildRust = async () => {
 const buildWorklets = async () => {
   console.time('Build worklets')
   const polyfill = await fs.readFile(
-    path.join(__dirname, './worklets/src/polyfill.js')
+    path.join(__dirname, '../worklets/src/polyfill.js')
   )
 
   const entries = {
@@ -195,7 +195,7 @@ const buildWorklets = async () => {
     console.time(`Build worklet ${entry}`)
     await esbuild
       .build({
-        entryPoints: [path.join(__dirname, `./worklets/src/${entry}.ts`)],
+        entryPoints: [path.join(__dirname, `../worklets/src/${entry}.ts`)],
         bundle: true,
         write: false,
         minify: isProduction,
@@ -227,7 +227,7 @@ const buildWorklets = async () => {
       })
       .then((code) =>
         fs.writeFile(
-          path.join(__dirname, `./dist/client/assets/${entry}.js`),
+          path.join(__dirname, `../dist/client/assets/${entry}.js`),
           code
         )
       )
@@ -235,8 +235,8 @@ const buildWorklets = async () => {
   }
 
   await fs.copyFile(
-    path.join(__dirname, './worklets/pkg/worklets_bg.wasm'),
-    path.join(__dirname, './dist/client/assets/worklets.wasm')
+    path.join(__dirname, '../worklets/pkg/worklets_bg.wasm'),
+    path.join(__dirname, '../dist/client/assets/worklets.wasm')
   )
 
   console.timeEnd('Build worklets')
@@ -244,7 +244,7 @@ const buildWorklets = async () => {
 
 ;(async () => {
   try {
-    await fs.mkdir(path.join(__dirname, './dist/client/assets'), {
+    await fs.mkdir(path.join(__dirname, '../dist/client/assets'), {
       recursive: true,
     })
   } catch (err) {
@@ -275,7 +275,7 @@ const buildWorklets = async () => {
   }
 
   chokidar
-    .watch(['./worklets/src/**/*.ts', './worklets/pkg/**/*'], {
+    .watch(['../worklets/src/**/*.ts', '../worklets/pkg/**/*'], {
       persistent: true,
       ignoreInitial: true,
       ignored: /wasm\.ts/,
@@ -286,7 +286,7 @@ const buildWorklets = async () => {
     )
 
   chokidar
-    .watch(['./worklets/src/**/*.rs'], {
+    .watch(['../worklets/src/**/*.rs'], {
       persistent: true,
       ignoreInitial: true,
     })
@@ -296,7 +296,7 @@ const buildWorklets = async () => {
     )
 
   chokidar
-    .watch('./client/src/**/*', {
+    .watch('../client/src/**/*', {
       persistent: true,
       ignoreInitial: true,
     })
