@@ -1,4 +1,4 @@
-import css from './Overlay.css'
+import * as styles from './Overlay.css'
 import { closeOverlay } from '../../state'
 import { FC } from 'kaiku'
 import testAttributes from '../../test-attributes'
@@ -15,11 +15,11 @@ const Overlay: FC<OverlayProps> = ({
   children,
 }) => {
   return (
-    <div className={css('overlay')} {...testAttributes({ id: 'overlay' })}>
-      <div className={[css('modal'), className]}>
+    <div className={styles.overlay} {...testAttributes({ id: 'overlay' })}>
+      <div className={[styles.modal, className]}>
         {showCloseButton ? (
           <button
-            className={css('close-button')}
+            className={styles.closeButton}
             onClick={closeOverlay}
             {...testAttributes({ id: 'close-modal' })}
           >

@@ -2,7 +2,7 @@ import state, { viewport, patch } from '../../state'
 
 import ActiveCable from './ActiveCable'
 import Cable from './Cable'
-import css from './Cables.css'
+import * as styles from './Cables.css'
 import testAttributes from '../../test-attributes'
 import { useDrag } from '../../hooks'
 import { useRef } from 'kaiku'
@@ -31,7 +31,7 @@ const Cables = () => {
   })
 
   return (
-    <div className={css('cables')}>
+    <div className={styles.cables}>
       <svg
         {...testAttributes({ id: 'cables' })}
         viewBox={`0 0 ${viewport.width} ${viewport.height}`}

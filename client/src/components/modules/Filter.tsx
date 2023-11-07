@@ -6,7 +6,7 @@ import Knob from '../module-parts/Knob'
 import { connectKnobToParam } from '../../modules'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { BiquadFilter } from '@modulate/worklets/src/modules'
-import css from './Filter.css'
+import * as styles from './Filter.css'
 
 type Props = {
   id: string
@@ -44,8 +44,8 @@ class BiquadFilterNode extends Component<Props> {
   render({ id }: Props) {
     return (
       <Module id={id} type="BiquadFilter" name="Filter">
-        <div className={css('knobs')}>
-          <div className={css('knob-group')}>
+        <div className={styles.knobs}>
+          <div className={styles.knobGroup}>
             <Knob
               moduleId={id}
               id="frequency"
@@ -65,8 +65,8 @@ class BiquadFilterNode extends Component<Props> {
               initial={1}
             />
           </div>
-          <div className={css('separator')} />
-          <div className={css('knob-group')}>
+          <div className={styles.separator} />
+          <div className={styles.knobGroup}>
             <Knob
               moduleId={id}
               id="resonance"
@@ -86,8 +86,8 @@ class BiquadFilterNode extends Component<Props> {
               initial={1}
             />
           </div>
-          <div className={css('separator')} />
-          <div className={css('knob-group')}>
+          <div className={styles.separator} />
+          <div className={styles.knobGroup}>
             <Knob
               moduleId={id}
               id="lowpassLevel"

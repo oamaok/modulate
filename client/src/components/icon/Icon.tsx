@@ -1,4 +1,4 @@
-import css from './Icon.css'
+import * as styles from './Icon.css'
 
 type Props = {
   name: string
@@ -8,7 +8,7 @@ type Props = {
 const Icon = ({ name, size }: Props) => {
   return (
     <span
-      className={css('icon')}
+      className={styles.icon}
       {...(size ? { style: { fontSize: size } } : undefined)}
     >
       {name}

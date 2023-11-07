@@ -6,7 +6,7 @@ import state, {
 } from '../../state'
 import * as api from '../../api'
 import MenuBar from '../menu-bar/MenuBar'
-import css from './Header.css'
+import * as styles from './Header.css'
 import { intersperse } from '@modulate/common/util'
 import SaveDialog from '../save-dialog/SaveDialog'
 import { createRoom } from '../../rooms'
@@ -26,11 +26,11 @@ const noop = () => {}
 const MenuIcon = ({ id, icon, label, onClick, enabled }: MenuIconProps) => (
   <button
     {...testAttributes({ id: 'menu-item', 'item-id': id, icon, label })}
-    className={css('menu-icon', { enabled })}
+    className={[styles.menuIcon, { [styles.enabled]: enabled }]}
     onClick={enabled ? onClick : noop}
   >
     <Icon name={icon} />
-    <div className={css('label')}>{label}</div>
+    <div className={styles.label}>{label}</div>
   </button>
 )
 
@@ -104,14 +104,14 @@ const Header = () => {
 
   return (
     <MenuBar top left>
-      <h2 className={css('brand')}>modulate</h2>
-      <div className={css('patch-name')}>
+      <h2 className={styles.brand}>modulate</h2>
+      <div className={styles.patchName}>
         <span>
           <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
         </span>
       </div>
-      <div className={css('actions')}>
-        <div className={css('separator')} />
+      <div className={styles.actions}>
+        <div className={styles.separator} />
         {intersperse(
           menuItems.map((item) => (
             <MenuIcon
@@ -122,7 +122,7 @@ const Header = () => {
               onClick={item.action}
             />
           )),
-          <div className={css('separator')} />
+          <div className={styles.separator} />
         )}
       </div>
     </MenuBar>

@@ -5,7 +5,7 @@ import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleOutputs } from '../module-parts/ModuleSockets'
 import { connectKnobToParam } from '../../modules'
-import css from './BouncyBoi.css'
+import * as styles from './BouncyBoi.css'
 import { BouncyBoi, EventTypes } from '@modulate/worklets/src/modules'
 import moduleConfig from '../../module-config'
 import { darkenColor } from '../../colors'
@@ -93,8 +93,8 @@ class BouncyBoiNode extends Component<Props> {
   render({ id }: Props) {
     return (
       <Module id={id} type="BouncyBoi" name="Bouncy Boi">
-        <div className={css('bouncy-boi')}>
-          <div className={css('controls')}>
+        <div className={styles.bouncyBoi}>
+          <div className={styles.controls}>
             <Knob
               moduleId={id}
               id="speed"

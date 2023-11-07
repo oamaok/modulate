@@ -6,7 +6,7 @@ import {
   setSocketPosition,
 } from '../../state'
 import { IndexOf, Vec2 } from '@modulate/common/types'
-import css from './Socket.css'
+import * as styles from './Socket.css'
 import assert from '../../assert'
 import { Module } from '@modulate/worklets/src/modules'
 import testAttributes from '../../test-attributes'
@@ -42,6 +42,17 @@ type Props<
   index: IndexOf<M[`${T}s`], N>
   label: string
   moduleId: string
+}
+
+const getClassNameForSocketType = (type: 'input' | 'output' | 'parameter') => {
+  switch (type) {
+    case 'input':
+      return styles.socketInput
+    case 'output':
+      return styles.socketOutput
+    case 'parameter':
+      return styles.socketParameter
+  }
 }
 
 const Socket = <
@@ -83,7 +94,7 @@ const Socket = <
 
   return (
     <div
-      className={css(['socket-wrapper', `socket-${type}`])}
+      className={[styles.socketWrapper, getClassNameForSocketType(type)]}
       {...testAttributes({
         id: 'socket-wrapper',
         'module-id': moduleId,
@@ -93,13 +104,13 @@ const Socket = <
       })}
     >
       <div
-        className={css('drag-start-area')}
+        className={styles.dragStartArea}
         onMouseDown={startCable}
         onTouchStart={startCable}
         {...testAttributes({ id: 'socket' })}
       />
-      <div ref={ref} className={css('socket')} />
-      <div className={css('socket-name')}>{label}</div>
+      <div ref={ref} className={styles.socket} />
+      <div className={styles.socketName}>{label}</div>
     </div>
   )
 }

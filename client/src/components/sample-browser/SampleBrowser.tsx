@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'kaiku'
 import state from '../../state'
 import * as api from '../../api'
 import * as engine from '../../engine'
-import css from './SampleBrowser.css'
+import * as styles from './SampleBrowser.css'
 
 type Props = {
   onSelect: (id: string) => void
@@ -62,25 +62,25 @@ const SampleBrowser = ({ onSelect, selected }: Props) => {
   }
 
   return (
-    <div className={css('sample-browser')}>
+    <div className={styles.sampleBrowser}>
       <input
         type="file"
         accept=".wav,.ogg,.mp3"
-        className={css('file-input')}
+        className={styles.fileInput}
         ref={fileInputRef}
         onChange={onFileChange}
       />
-      <div className={css('samples')}>
+      <div className={styles.samples}>
         {browserState.samples.map((sample) => (
           <button
             onClick={() => onSelect(sample.id)}
-            className={css({ selected: selected === sample.id })}
+            className={{ [styles.selected]: selected === sample.id }}
           >
             {sample.name}
           </button>
         ))}
       </div>
-      <div className={css('controls')}>
+      <div className={styles.controls}>
         {state.user ? (
           <button onClick={addSample}>add</button>
         ) : (

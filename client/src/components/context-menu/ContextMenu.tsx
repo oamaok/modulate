@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'kaiku'
-import css from './ContextMenu.css'
+import * as styles from './ContextMenu.css'
 import state, { addModule } from '../../state'
 import moduleConfig, { Config, categoryLabel } from '../../module-config'
 import testAttributes from '../../test-attributes'
@@ -66,23 +66,26 @@ const ContextMenu = ({}: Props) => {
     <div
       ref={menuRef}
       {...testAttributes({ id: 'context-menu' })}
-      className={() => css('context-menu', { open: state.contextMenu.open })}
+      className={() => [
+        styles.contextMenu,
+        { [styles.open]: state.contextMenu.open },
+      ]}
       style={{
         transform: getContextMenuTransform,
       }}
     >
-      <div className={css('group')}>Add a module</div>
-      <div className={css('items')}>
+      <div className={styles.group}>Add a module</div>
+      <div className={styles.items}>
         {moduleCategories.map(([category, modules]) => (
-          <div className={css('category')}>
-            <div className={css('label')}>{categoryLabel[category]}</div>
+          <div className={styles.category}>
+            <div className={styles.label}>{categoryLabel[category]}</div>
             {modules.map(([moduleName]) => (
               <button
                 {...testAttributes({
                   id: 'add-module',
                   'module-name': moduleName,
                 })}
-                className={css('item')}
+                className={styles.item}
                 onClick={() => onModuleClick(moduleName)}
               >
                 {moduleName}

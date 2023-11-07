@@ -1,7 +1,7 @@
 import { immutable, useEffect, useState } from 'kaiku'
 import { closeOverlay, loadPatch, resetPatch } from '../../state'
 import * as api from '../../api'
-import css from './PatchBrowser.css'
+import * as styles from './PatchBrowser.css'
 import Overlay from '../overlay/Overlay'
 import { groupBy } from '@modulate/common/util'
 import assert from '../../assert'
@@ -54,29 +54,29 @@ const YourPatches = () => {
   const groupedPatches = groupBy(state.patches, (patch) => patch.id)
 
   return (
-    <div className={css('own-patches')}>
+    <div className={styles.ownPatches}>
       {groupedPatches.map(([patchId, patches]) => {
         const isExpanded = state.expandedPatches.includes(patchId)
         const [firstPatch, ...rest] = patches
         assert(firstPatch)
 
         return (
-          <div className={css('group')}>
-            <div className={css('patch')}>
+          <div>
+            <div className={styles.patch}>
               {rest.length !== 0 ? (
                 <button onClick={() => togglePatchExpansion(patchId)}>
                   <Icon name={isExpanded ? 'expand_more' : 'chevron_right'} />
                 </button>
               ) : null}
-              <div className={css('name')}>{firstPatch.name}</div>
-              <div className={css('version')}>
+              <div className={styles.name}>{firstPatch.name}</div>
+              <div className={styles.version}>
                 Version #{firstPatch.version}
               </div>
-              <div className={css('date')}>
+              <div className={styles.date}>
                 {formatPatchDate(firstPatch.createdAt)}
               </div>
               <button
-                className={css('load')}
+                className={styles.load}
                 onClick={() => fetchAndLoadPatch(patchId)}
               >
                 <span>Load</span>
@@ -85,16 +85,16 @@ const YourPatches = () => {
             </div>
             {isExpanded
               ? rest.map((patch) => (
-                  <div className={css('patch', 'version')}>
-                    <div className={css('name')}>{patch.name}</div>
-                    <div className={css('version')}>
+                  <div className={[styles.patch, styles.version]}>
+                    <div className={styles.name}>{patch.name}</div>
+                    <div className={styles.version}>
                       Version #{patch.version}
                     </div>
-                    <div className={css('date')}>
+                    <div className={styles.date}>
                       {formatPatchDate(patch.createdAt)}
                     </div>
                     <button
-                      className={css('load')}
+                      className={styles.load}
                       onClick={() => fetchAndLoadPatch(patchId)}
                     >
                       <span>Load</span>
@@ -130,10 +130,10 @@ const PublicPatches = () => {
   })
 
   return (
-    <div className={css('patches')}>
+    <div className={styles.patches}>
       {state.patches.map((patch) => (
         <button
-          className={css('patch')}
+          className={styles.patch}
           onClick={() => fetchAndLoadPatch(patch.id)}
         >
           <div>{patch.name}</div>
@@ -157,16 +157,19 @@ const PatchBrowser = () => {
   }[state.tab]
 
   return (
-    <Overlay className={css('patch-browser')}>
-      <div className={css('tabs')}>
+    <Overlay className={styles.patchBrowser}>
+      <div className={styles.tabs}>
         <button
-          className={css('tab', { selected: state.tab === 'public' })}
+          className={[
+            styles.tab,
+            { [styles.selected]: state.tab === 'public' },
+          ]}
           onClick={() => (state.tab = 'public')}
         >
           Public Patches
         </button>
         <button
-          className={css('tab', { selected: state.tab === 'yours' })}
+          className={[styles.tab, { [styles.selected]: state.tab === 'yours' }]}
           onClick={() => (state.tab = 'yours')}
         >
           Your Patches

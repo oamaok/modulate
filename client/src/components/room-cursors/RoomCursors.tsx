@@ -1,15 +1,15 @@
 import state from '../../state'
-import css from './RoomCursors.css'
+import * as styles from './RoomCursors.css'
 import assert from '../../assert'
 
 const RoomCursors = () => {
   const room = state.room
   assert(room)
   return (
-    <div className={css('room-cursors')}>
+    <div className={styles.roomCursors}>
       {Object.values(room.users).map(({ cursor }) => (
         <div
-          className={css('cursor')}
+          className={styles.cursor}
           style={{
             transform: () =>
               `translate(${cursor.x - 20}px, ${cursor.y - 20}px)`,

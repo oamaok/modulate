@@ -1,10 +1,15 @@
 import state from '../../state'
-import css from './Hint.css'
+import * as styles from './Hint.css'
 
 const Hint = () => {
   return (
     <div
-      className={css('hint', { visible: state.hint.visible })}
+      className={[
+        styles.hint,
+        {
+          [styles.visible]: state.hint.visible,
+        },
+      ]}
       style={{
         transform: () =>
           `translate(${state.hint.position.x}px, ${state.hint.position.y}px)`,

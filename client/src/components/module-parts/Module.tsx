@@ -1,7 +1,7 @@
 import { FC, useRef } from 'kaiku'
 import state, { getModulePosition } from '../../state'
 import { Id } from '@modulate/common/types'
-import css from './Module.css'
+import * as styles from './Module.css'
 import testAttributes from '../../test-attributes'
 import { ModuleName } from '@modulate/worklets/src/modules'
 import { useDrag } from '../../hooks'
@@ -37,11 +37,12 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
       data-id="module"
       onMouseDown={() => (state.activeModule = id)}
       onTouchStart={() => (state.activeModule = id)}
-      className={() =>
-        css('module', {
+      className={() => [
+        styles.module,
+        {
           active: state.activeModule === id,
-        })
-      }
+        },
+      ]}
       style={{
         zIndex: () => (state.activeModule === id ? 10 : 1),
         width: config.width + 'px',
@@ -53,7 +54,7 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
       }}
     >
       <div
-        className={css('module-name')}
+        className={styles.moduleName}
         style={{
           background: config.colors.primary,
         }}
@@ -62,7 +63,7 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
       >
         {name ?? type}
       </div>
-      <div className={css('module-body')}>{children}</div>
+      <div className={styles.moduleBody}>{children}</div>
     </div>
   )
 }

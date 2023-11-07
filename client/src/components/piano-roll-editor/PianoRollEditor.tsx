@@ -1,6 +1,6 @@
 import { Component, useEffect, useRef } from 'kaiku'
 import state, { getModuleState } from '../../state'
-import css from './PianoRollEditor.css'
+import * as styles from './PianoRollEditor.css'
 import assert from '../../assert'
 import { Vec2 } from '@modulate/common/types'
 import { useDrag } from '../../hooks'
@@ -315,8 +315,8 @@ class PianoRollEditor extends Component<Props, State> {
 
   render() {
     return (
-      <div className={css('wrapper')}>
-        <div className={css('piano-roll-editor')}>
+      <div className={styles.wrapper}>
+        <div className={styles.pianoRollEditor}>
           <button
             onClick={() => {
               state.activePianoRollModuleId = null
@@ -325,7 +325,7 @@ class PianoRollEditor extends Component<Props, State> {
             close
           </button>
           <div
-            className={css('editor')}
+            className={styles.editor}
             onDblClick={this.handleDblClick}
             onWheel={this.handleWheel}
           >

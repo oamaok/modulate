@@ -20,6 +20,11 @@ const nextName = () => {
   }
 }
 
+const camelize = (name) => {
+  const [first, ...rest] = name.split('-')
+  return first + rest.map((v) => v[0].toUpperCase() + v.substring(1)).join('')
+}
+
 const CssModulesPlugin = () => ({
   name: 'CssModulesPlugin',
   setup(build) {
@@ -54,11 +59,19 @@ const CssModulesPlugin = () => ({
 
       cssContent[filePath] = css
 
+      const typingsPath = filePath + '.d.ts'
+      await fs.writeFile(
+        typingsPath,
+        Object.entries(classNameMap)
+          .map(([key, value]) => `export const ${camelize(key)} = '${value}'`)
+          .join('\n')
+      )
+
       return {
-        contents: `
-          import classNames from '@modulate/client/src/classNames'
-          export default classNames(${JSON.stringify(classNameMap)})
-        `,
+        loader: 'ts',
+        contents: Object.entries(classNameMap)
+          .map(([key, value]) => `export const ${camelize(key)} = '${value}'`)
+          .join('\n'),
       }
     })
 

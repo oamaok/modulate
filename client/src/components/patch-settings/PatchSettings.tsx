@@ -1,14 +1,14 @@
 import state from '../../state'
-import css from './PatchSettings.css'
+import * as styles from './PatchSettings.css'
 import Overlay from '../overlay/Overlay'
 
 const PatchSettings = () => {
   return (
-    <Overlay className={css('patch-settings')}>
+    <Overlay className={styles.patchSettings}>
       <h2>Patch settings</h2>
       <hr />
 
-      <div className={css('input-group')}>
+      <div>
         <label>Patch name</label>
         <input
           type="text"

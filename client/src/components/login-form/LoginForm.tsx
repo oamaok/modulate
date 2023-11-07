@@ -2,7 +2,7 @@ import { useState, useRef } from 'kaiku'
 import * as api from '../../api'
 import * as auth from '../../auth'
 import { closeOverlay } from '../../state'
-import css from './LoginForm.css'
+import * as styles from './LoginForm.css'
 import assert from '../../assert'
 import Input from '../input/Input'
 import Overlay from '../overlay/Overlay'
@@ -37,9 +37,9 @@ const LoginForm = () => {
 
   return (
     <>
-      <div className={css('header')}>Login</div>
+      <div className={styles.header}>Login</div>
       <form
-        className={css('form')}
+        className={styles.form}
         onSubmit={(evt: SubmitEvent) => {
           evt.preventDefault()
           onLogin()
@@ -140,9 +140,9 @@ const CreateAccountForm = () => {
 
   return (
     <>
-      <div className={css('header')}>Create an account</div>
+      <div className={styles.header}>Create an account</div>
       <form
-        className={css('form')}
+        className={styles.form}
         onSubmit={(evt: SubmitEvent) => {
           evt.preventDefault()
           onCreateAccount()
@@ -196,9 +196,9 @@ const Form = () => {
   })
 
   return (
-    <Overlay className={css('login-form')}>
+    <Overlay className={styles.loginForm}>
       {state.form === 'login' ? <LoginForm /> : <CreateAccountForm />}
-      <div className={css('alt-actions')}>
+      <div className={styles.altActions}>
         <button
           {...testAttributes({ id: state.form + '-link' })}
           onClick={() => {

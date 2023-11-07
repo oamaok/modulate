@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'kaiku'
 import { default as globalState } from '../../state'
-import css from './SaveDialog.css'
+import * as styles from './SaveDialog.css'
 import assert from '../../assert'
 import * as api from '../../api'
 import { JSX } from 'kaiku/jsx-runtime'
@@ -53,18 +53,18 @@ const SaveDialog: SaveDialog = () => {
   }
 
   return (
-    <Overlay className={css('save-dialog')} showCloseButton={false}>
+    <Overlay className={styles.saveDialog} showCloseButton={false}>
       <h2>You have unsaved changes</h2>
       <hr />
       <div>Do you wish to save before continuing?</div>
-      <div className={css('options')}>
-        <button className={css('discard')} onClick={onDiscardChanges}>
+      <div className={styles.options}>
+        <button className={styles.discard} onClick={onDiscardChanges}>
           Discard changes
         </button>
-        <button className={css('cancel')} onClick={onCancel}>
+        <button className={styles.cancel} onClick={onCancel}>
           Cancel
         </button>
-        <button className={css('save')} onSave={onSave}>
+        <button className={styles.save} onSave={onSave}>
           Save
         </button>
       </div>

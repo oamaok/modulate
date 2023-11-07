@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'kaiku'
 import state from '../../state'
 import moduleConfig from '../../module-config'
-import css from './MiniMap.css'
+import * as styles from './MiniMap.css'
 import assert from '../../assert'
 import { ModuleName } from '@modulate/worklets/src/modules'
 import { useDrag } from '../../hooks'
@@ -91,7 +91,7 @@ const MiniMap = () => {
       state.viewOffset.y =
         -relativeY * scale - patchBoundingBox.minY + state.viewport.height / 2
 
-      canvasRef.current?.classList.add(css('dragging'))
+      canvasRef.current?.classList.add(styles.dragging)
     },
     onMove({ dx, dy }) {
       const patchBoundingBox = getPatchBoundingBox()
@@ -101,7 +101,7 @@ const MiniMap = () => {
       state.viewOffset.y += dy * scale
     },
     onEnd() {
-      canvasRef.current?.classList.remove(css('dragging'))
+      canvasRef.current?.classList.remove(styles.dragging)
     },
   })
 
@@ -184,7 +184,7 @@ const MiniMap = () => {
 
   return (
     <canvas
-      className={css('minimap')}
+      className={styles.minimap}
       ref={canvasRef}
       width={MINIMAP_WIDTH}
       height={MINIMAP_HEIGHT}

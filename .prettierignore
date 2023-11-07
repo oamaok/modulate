@@ -6,3 +6,4 @@ worklets/target
 worklets/src/polyfill.js
 test/test-results
 test/playwright-report
+*.css.d.ts

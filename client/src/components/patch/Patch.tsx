@@ -2,13 +2,13 @@ import state from '../../state'
 import * as moduleMap from '../../module-map'
 import Cables from './Cables'
 
-import css from './Patch.css'
+import * as styles from './Patch.css'
 import assert from '../../assert'
 import RoomCursors from '../room-cursors/RoomCursors'
 
 const Patch = () => {
   return (
-    <div className={css('patch')}>
+    <div className={styles.patch}>
       <Cables />
       <div
         style={{

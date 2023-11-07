@@ -6,7 +6,7 @@ import state, {
   setKnobValue,
 } from '../../state'
 import { Id, Vec2 } from '@modulate/common/types'
-import css from './Slider.css'
+import * as styles from './Slider.css'
 
 type Props = {
   moduleId: Id
@@ -76,14 +76,14 @@ const Slider = ({ moduleId, id, label, min, max, initial }: Props) => {
 
   return (
     <div
-      className={css('slider-track')}
+      className={styles.sliderTrack}
       onMouseMove={() => {
         displayHint(getHintText(knobValue!), state.cursor)
       }}
       onMouseOut={hideHint}
     >
       <div
-        className={css('slider')}
+        className={styles.slider}
         onMouseDown={onDragStart}
         style={{ transform: `translateX(${knobState.position * 100}px)` }}
       ></div>

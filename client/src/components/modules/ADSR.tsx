@@ -8,7 +8,7 @@ import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { ADSR } from '@modulate/worklets/src/modules'
 import { getModuleKnobs } from '../../state'
 import assert from '../../assert'
-import css from './ADSR.css'
+import * as styles from './ADSR.css'
 import moduleConfig from '../../module-config'
 
 type Props = {
@@ -256,17 +256,17 @@ class ADSRNode extends Component<Props> {
   render({ id }: Props) {
     return (
       <Module id={id} type="ADSR">
-        <div className={css('adsr')}>
-          <div className={css('curve')}>
+        <div className={styles.adsr}>
+          <div className={styles.curve}>
             <canvas
               width={CURVE_WIDTH + CURVE_PADDING * 2}
               height={CURVE_HEIGHT + CURVE_PADDING * 2}
               ref={this.canvasRef}
             ></canvas>
           </div>
-          <div className={css('knobs')}>
-            <div className={css('knob-group')}>
-              <div className={css('label')}>ATT</div>
+          <div className={styles.knobs}>
+            <div className={styles.knobGroup}>
+              <div className={styles.label}>ATT</div>
               <Knob
                 moduleId={id}
                 type="exponential"
@@ -291,9 +291,9 @@ class ADSRNode extends Component<Props> {
                 initial={0}
               />
             </div>
-            <div className={css('separator')} />
-            <div className={css('knob-group')}>
-              <div className={css('label')}>DCY</div>
+            <div className={styles.separator} />
+            <div className={styles.knobGroup}>
+              <div className={styles.label}>DCY</div>
               <Knob
                 moduleId={id}
                 type="exponential"
@@ -318,9 +318,9 @@ class ADSRNode extends Component<Props> {
                 initial={0}
               />
             </div>
-            <div className={css('separator')} />
-            <div className={css('knob-group')}>
-              <div className={css('label')}>SUS</div>
+            <div className={styles.separator} />
+            <div className={styles.knobGroup}>
+              <div className={styles.label}>SUS</div>
               <Knob
                 moduleId={id}
                 type="linear"
@@ -333,9 +333,9 @@ class ADSRNode extends Component<Props> {
                 initial={0.5}
               />
             </div>
-            <div className={css('separator')} />
-            <div className={css('knob-group')}>
-              <div className={css('label')}>REL</div>
+            <div className={styles.separator} />
+            <div className={styles.knobGroup}>
+              <div className={styles.label}>REL</div>
               <Knob
                 moduleId={id}
                 type="exponential"
@@ -360,9 +360,9 @@ class ADSRNode extends Component<Props> {
                 initial={0}
               />
             </div>
-            <div className={css('separator')} />
-            <div className={css('knob-group')}>
-              <div className={css('label')}>AMT</div>
+            <div className={styles.separator} />
+            <div className={styles.knobGroup}>
+              <div className={styles.label}>AMT</div>
               <Knob
                 moduleId={id}
                 type="linear"

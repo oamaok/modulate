@@ -1,6 +1,6 @@
 import { useEffect } from 'kaiku'
 import Header from '../header/Header'
-import css from './App.css'
+import * as styles from './App.css'
 import UserBar from '../user-bar/UserBar'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
@@ -80,7 +80,7 @@ document.addEventListener('keydown', initOnEnter)
 
 const InitModal = () => {
   return (
-    <Overlay className={css('init-modal')} showCloseButton={false}>
+    <Overlay className={styles.initModal} showCloseButton={false}>
       Please adjust your audio levels before continuing. This application is
       capable of producing ear-busting sonic experiences.
       <button onClick={initialize} {...testAttributes({ id: 'initialize' })}>
@@ -117,7 +117,7 @@ const App = () => {
         initialized: state.initialized.toString(),
         'is-room': (state.room !== null).toString(),
       })}
-      className={css('app')}
+      className={styles.app}
       style={{
         backgroundPosition: () =>
           `${Math.round(state.viewOffset.x / 1.5)}px ${Math.round(

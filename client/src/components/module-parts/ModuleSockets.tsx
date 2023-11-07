@@ -1,10 +1,10 @@
 import { FC } from 'kaiku'
-import css from './ModuleSockets.css'
+import * as styles from './ModuleSockets.css'
 
 export const ModuleOutputs: FC<{}> = ({ children }) => {
-  return <div className={css('module-outputs')}>{children}</div>
+  return <div className={styles.moduleOutputs}>{children}</div>
 }
 
 export const ModuleInputs: FC<{}> = ({ children }) => {
-  return <div className={css('module-inputs')}>{children}</div>
+  return <div className={styles.moduleInputs}>{children}</div>
 }

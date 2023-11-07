@@ -3,7 +3,7 @@ import state, { openOverlay } from '../../state'
 import * as auth from '../../auth'
 import * as engine from '../../engine'
 import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
-import css from './UserBar.css'
+import * as styles from './UserBar.css'
 import ControlledKnob from '../module-parts/ControlledKnob'
 import testAttributes from '../../test-attributes'
 import Icon from '../icon/Icon'
@@ -31,7 +31,7 @@ const GlobalVolume = () => {
   })
 
   return (
-    <div className={css('global-volume')}>
+    <div className={styles.globalVolume}>
       <Icon name={getVolumeIcon(volumeState.level)} />
       <ControlledKnob
         size="s"
@@ -52,7 +52,7 @@ const GlobalVolume = () => {
 
 const UserBar = () => {
   return (
-    <MenuBar className={css('user-bar')} top right>
+    <MenuBar className={styles.userBar} top right>
       <GlobalVolume />
       <VerticalDivider />
       {state.user ? (
@@ -60,7 +60,7 @@ const UserBar = () => {
           <button
             {...testAttributes({ id: 'logout' })}
             type="button"
-            className={css('login-button')}
+            className={styles.loginButton}
             onClick={auth.reset}
           >
             Logout
@@ -70,7 +70,7 @@ const UserBar = () => {
         <button
           {...testAttributes({ id: 'login' })}
           type="button"
-          className={css('login-button')}
+          className={styles.loginButton}
           onClick={() => {
             openOverlay('login')
           }}

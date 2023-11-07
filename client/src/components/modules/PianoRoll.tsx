@@ -13,7 +13,7 @@ import state, {
   getModuleState,
   setModuleState,
 } from '../../state'
-import css from './PianoRoll.css'
+import * as styles from './PianoRoll.css'
 import assert from '../../assert'
 import moduleConfig from '../../module-config'
 type Props = {
@@ -138,8 +138,8 @@ class PianoRollModule extends Component<Props, State> {
   render({ id }: Props) {
     return (
       <Module id={id} type="PianoRoll" name="Piano Roll">
-        <div className={css('piano-roll')}>
-          <div className={css('knobs')}>
+        <div className={styles.pianoRoll}>
+          <div className={styles.knobs}>
             <Knob
               moduleId={id}
               id="speed"
@@ -161,7 +161,7 @@ class PianoRollModule extends Component<Props, State> {
             />
           </div>
           <div
-            className={css('preview')}
+            className={styles.preview}
             onClick={() => {
               state.activePianoRollModuleId = id
             }}

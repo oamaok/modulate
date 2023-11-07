@@ -1,5 +1,5 @@
 import { FC } from 'kaiku'
-import css from './MenuBar.css'
+import * as styles from './MenuBar.css'
 
 type Props = {
   left?: true
@@ -19,7 +19,7 @@ const MenuBar: FC<Props> = ({
 }) => {
   return (
     <div
-      className={[css('menu-bar'), className]}
+      className={[styles.menuBar, className]}
       style={{
         left: left && '10px',
         right: right && '10px',
@@ -32,6 +32,6 @@ const MenuBar: FC<Props> = ({
   )
 }
 
-export const VerticalDivider = () => <div className={css('vertical-divider')} />
+export const VerticalDivider = () => <div className={styles.verticalDivider} />
 
 export default MenuBar

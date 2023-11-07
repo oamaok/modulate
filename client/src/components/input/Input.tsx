@@ -1,5 +1,5 @@
 import { useRef } from 'kaiku'
-import css from './Input.css'
+import * as styles from './Input.css'
 
 type Props = {
   label: string
@@ -23,7 +23,7 @@ const Input = ({
   ...rest
 }: Props) => {
   return (
-    <div className={css('input')}>
+    <div className={styles.input}>
       <label>{label}</label>
       <input
         type={type}
@@ -32,9 +32,9 @@ const Input = ({
         maxlength={maxLength}
         {...rest}
       />
-      {error ? <div className={css('error')}>{error}</div> : null}
+      {error ? <div className={styles.error}>{error}</div> : null}
       {description ? (
-        <div className={css('description')}>{description}</div>
+        <div className={styles.description}>{description}</div>
       ) : null}
     </div>
   )

@@ -275,7 +275,7 @@ const buildWorklets = async () => {
   }
 
   chokidar
-    .watch(['../worklets/src/**/*.ts', '../worklets/pkg/**/*'], {
+    .watch(['./worklets/src/**/*.ts', './worklets/pkg/**/*'], {
       persistent: true,
       ignoreInitial: true,
       ignored: /wasm\.ts/,
@@ -286,7 +286,7 @@ const buildWorklets = async () => {
     )
 
   chokidar
-    .watch(['../worklets/src/**/*.rs'], {
+    .watch(['./worklets/src/**/*.rs'], {
       persistent: true,
       ignoreInitial: true,
     })
@@ -296,9 +296,10 @@ const buildWorklets = async () => {
     )
 
   chokidar
-    .watch('../client/src/**/*', {
+    .watch('./client/src/**/*', {
       persistent: true,
       ignoreInitial: true,
+      ignored: /\.d\.ts/,
     })
     .on(
       'all',

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'kaiku'
 import state, { displayHint, hideHint, setHintContent } from '../../state'
-import css from './Knob.css'
+import * as styles from './Knob.css'
 import assert from '../../assert'
 import testAttributes from '../../test-attributes'
 import { useDrag } from '../../hooks'
@@ -191,6 +191,17 @@ const getHintText = (props: ControlledKnobProps): string => {
   }
 }
 
+const getClassNameForSize = (size: 's' | 'm' | 'l') => {
+  switch (size) {
+    case 's':
+      return styles.s
+    case 'm':
+      return styles.m
+    case 'l':
+      return styles.l
+  }
+}
+
 const ControlledKnob = (props: ControlledKnobProps) => {
   const { hideLabel = false } = props
 
@@ -233,9 +244,9 @@ const ControlledKnob = (props: ControlledKnobProps) => {
   })
 
   return (
-    <div className={css('wrapper', props.size)}>
+    <div className={[styles.wrapper, getClassNameForSize(props.size)]}>
       <div
-        className={css('knob')}
+        className={styles.knob}
         ref={knobRef}
         style={{
           transform: `rotate(${knobState.position * 300 - 60}deg)`,
@@ -248,7 +259,7 @@ const ControlledKnob = (props: ControlledKnobProps) => {
         })}
       ></div>
       {props.label && !hideLabel ? (
-        <div className={css('name')}>{props.label}</div>
+        <div className={styles.name}>{props.label}</div>
       ) : null}
     </div>
   )

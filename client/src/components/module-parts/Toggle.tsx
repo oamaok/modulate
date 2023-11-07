@@ -1,4 +1,4 @@
-import css from './Toggle.css'
+import * as styles from './Toggle.css'
 
 type Props = {
   label?: string
@@ -8,12 +8,15 @@ type Props = {
 
 const Toggle = ({ label, active, onChange }: Props) => {
   return (
-    <div className={css('wrapper')}>
+    <div className={styles.wrapper}>
       {label}
       <button
-        className={css('toggle', {
-          active,
-        })}
+        className={[
+          styles.toggle,
+          {
+            [styles.active]: active,
+          },
+        ]}
         onClick={onChange}
       />
     </div>

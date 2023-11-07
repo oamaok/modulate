@@ -8,7 +8,7 @@ import { connectKnobToParam } from '../../modules'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
-import css from './Sequencer.css'
+import * as styles from './Sequencer.css'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Keyboard from '../module-parts/Keyboard'
@@ -78,19 +78,23 @@ class SequencerNode extends Component<
 
     return (
       <Module id={id} type="Sequencer">
-        <div className={css('sequencer')}>
-          <div className={css('steps')}>
+        <div className={styles.sequencer}>
+          <div className={styles.steps}>
             {groupedNotes.map((groups) => (
-              <div className={css('row')}>
+              <div className={styles.row}>
                 {groups.map((group) => (
-                  <div className={css('group')}>
+                  <div className={styles.group}>
                     {group.map((note) => (
                       <button
-                        className={css('indicator', {
-                          on: note.index === this.state.editing,
-                          current: note.index === this.state.currentStep,
-                          disabled: note.index >= sequenceLength,
-                        })}
+                        className={[
+                          styles.indicator,
+                          {
+                            [styles.on]: note.index === this.state.editing,
+                            [styles.current]:
+                              note.index === this.state.currentStep,
+                            [styles.disabled]: note.index >= sequenceLength,
+                          },
+                        ]}
                         onClick={() => {
                           this.state.editing = note.index
                         }}
@@ -101,16 +105,19 @@ class SequencerNode extends Component<
               </div>
             ))}
           </div>
-          <div className={css('middle')}>
-            <div className={css('octaves')}>
+          <div className={styles.middle}>
+            <div className={styles.octaves}>
               {OCTAVES.map((oct) => (
                 <button
                   onClick={() => {
                     notes[this.state.editing]!.octave = oct
                   }}
-                  className={css('indicator', {
-                    on: notes[this.state.editing]!.octave === oct,
-                  })}
+                  className={[
+                    styles.indicator,
+                    {
+                      [styles.on]: notes[this.state.editing]!.octave === oct,
+                    },
+                  ]}
                 />
               ))}
             </div>
@@ -141,12 +148,15 @@ class SequencerNode extends Component<
               label="GLIDE"
             />
           </div>
-          <div className={css('note-controls')}>
+          <div className={styles.noteControls}>
             Gate
             <button
-              className={css('indicator', {
-                on: notes[this.state.editing]!.gate,
-              })}
+              className={[
+                styles.indicator,
+                {
+                  [styles.on]: notes[this.state.editing]!.gate,
+                },
+              ]}
               onClick={() => {
                 notes[this.state.editing]!.gate =
                   !notes[this.state.editing]!.gate
@@ -154,9 +164,12 @@ class SequencerNode extends Component<
             />
             Glide
             <button
-              className={css('indicator', {
-                on: notes[this.state.editing]!.glide,
-              })}
+              className={[
+                styles.indicator,
+                {
+                  [styles.on]: notes[this.state.editing]!.glide,
+                },
+              ]}
               onClick={() => {
                 notes[this.state.editing]!.glide =
                   !notes[this.state.editing]!.glide

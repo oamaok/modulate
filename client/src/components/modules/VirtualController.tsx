@@ -6,7 +6,7 @@ import Module from '../module-parts/Module'
 import { ModuleOutputs } from '../module-parts/ModuleSockets'
 import { connectKnobToParam } from '../../modules'
 import Knob from '../module-parts/Knob'
-import css from './VirtualController.css'
+import * as styles from './VirtualController.css'
 import { VirtualController } from '@modulate/worklets/src/modules'
 import assert from '../../assert'
 import PlayableKeyboard from '../module-parts/PlayableKeyboard'
@@ -77,8 +77,8 @@ class VirtualControllerModule extends Component<Props> {
   render({ id }: Props) {
     return (
       <Module id={id} type="VirtualController" name="Virtual Controller">
-        <div className={css('virtual-controller')}>
-          <div className={css('knobs')}>
+        <div className={styles.virtualController}>
+          <div className={styles.knobs}>
             <Knob
               size="l"
               moduleId={id}
@@ -112,12 +112,12 @@ class VirtualControllerModule extends Component<Props> {
               initial={0.0}
             />
           </div>
-          <div className={css('pads')}>
+          <div className={styles.pads}>
             {[0, 1, 2, 3].map((pad) => (
               <button
                 key={pad}
                 type="button"
-                className={css('pad')}
+                className={styles.pad}
                 onTouchStart={(evt: TouchEvent) => {
                   evt.preventDefault()
                   this.onPadPress(pad)
@@ -129,7 +129,7 @@ class VirtualControllerModule extends Component<Props> {
               />
             ))}
           </div>
-          <div className={css('keyboard')}>
+          <div>
             <PlayableKeyboard onChange={this.onKeysChange} />
           </div>
         </div>

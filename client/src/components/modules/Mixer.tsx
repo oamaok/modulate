@@ -3,7 +3,7 @@ import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import { connectKnobToParam } from '../../modules'
-import css from './Mixer.css'
+import * as styles from './Mixer.css'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Slider from '../module-parts/Slider'
@@ -31,7 +31,7 @@ class MixerNode extends Component<Props> {
   render({ id }: Props) {
     return (
       <Module id={id} type="Mixer">
-        <div className={css('mixer')}>
+        <div className={styles.mixer}>
           <Slider
             moduleId={id}
             id="busLevel0"

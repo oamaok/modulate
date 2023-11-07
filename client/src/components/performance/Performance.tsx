@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'kaiku'
 import * as engine from '../../engine'
-import css from './Performance.css'
+import * as styles from './Performance.css'
 import assert from '../../assert'
 
 const Performance = () => {
@@ -38,7 +38,7 @@ const Performance = () => {
 
   return (
     <canvas
-      className={css('performance')}
+      className={styles.performance}
       ref={canvasRef}
       width="200"
       height="100"

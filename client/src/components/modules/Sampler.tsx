@@ -7,7 +7,7 @@ import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { connectKnobToParam } from '../../modules'
 import { Sampler } from '@modulate/worklets/src/modules'
 import assert from '../../assert'
-import css from './Sampler.css'
+import * as styles from './Sampler.css'
 import { getKnobValue, getModuleState, setModuleState } from '../../state'
 import SampleBrowser from '../sample-browser/SampleBrowser'
 
@@ -179,12 +179,12 @@ class SamplerNode extends Component<Props> {
 
     return (
       <Module id={id} type="Sampler">
-        <div className={css('sampler')}>
-          <div className={css('canvases')}>
+        <div className={styles.sampler}>
+          <div className={styles.canvases}>
             <canvas ref={this.waveformCanvasRef} width="300" height="100" />
             <canvas ref={this.settingsCanvasRef} width="300" height="100" />
           </div>
-          <div className={css('browser')}>
+          <div>
             <SampleBrowser
               onSelect={(id) => {
                 setModuleState<SamplerState>(this.props.id, {
@@ -194,7 +194,7 @@ class SamplerNode extends Component<Props> {
               selected={samplerState?.sampleId ?? null}
             />
           </div>
-          <div className={css('knob-group')}>
+          <div className={styles.knobGroup}>
             <Knob
               moduleId={id}
               id="speed"
