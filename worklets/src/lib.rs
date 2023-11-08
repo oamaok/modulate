@@ -1,5 +1,6 @@
 #![feature(stdsimd)]
 use core::arch::wasm32::memory_atomic_wait64;
+use modulate_core::EMPTY_AUDIO_OUTPUT;
 use modules::adsr::ADSR;
 use modules::audio_out::AudioOut;
 use modules::biquad_filter::BiquadFilter;
@@ -520,12 +521,12 @@ impl ModulateEngine {
       match connection.to {
         ConnectionTarget::Input(to_module_id, to_input) => {
           if let Some(to_module) = self.modules.get_mut(&to_module_id) {
-            to_module.set_input_buffer_ptr(to_input, std::ptr::null());
+            to_module.set_input_buffer_ptr(to_input, &EMPTY_AUDIO_OUTPUT);
           };
         }
         ConnectionTarget::Parameter(to_module_id, to_parameter) => {
           if let Some(to_module) = self.modules.get_mut(&to_module_id) {
-            to_module.set_parameter_buffer_ptr(to_parameter, std::ptr::null());
+            to_module.set_parameter_buffer_ptr(to_parameter, &EMPTY_AUDIO_OUTPUT);
           }
         }
       }

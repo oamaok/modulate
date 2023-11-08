@@ -40,15 +40,12 @@ pub struct AudioInput(*const AudioOutput);
 
 impl Default for AudioInput {
   fn default() -> Self {
-    AudioInput(std::ptr::null())
+    AudioInput(&EMPTY_AUDIO_OUTPUT)
   }
 }
 
 impl AudioInput {
   pub fn at(&self, sample: usize) -> f32 {
-    if self.0 == std::ptr::null() {
-      return 0.0;
-    }
     unsafe { (*self.0).previous()[sample] }
   }
 
@@ -56,6 +53,11 @@ impl AudioInput {
     self.0 = ptr;
   }
 }
+
+pub const EMPTY_AUDIO_OUTPUT: AudioOutput = AudioOutput {
+  buffers: [AudioBuffer([0.0; QUANTUM_SIZE]); AUDIO_OUTPUT_NUM_BUFFERS],
+  current: 0,
+};
 
 pub enum AudioParamModulationType {
   Multiplicative,
