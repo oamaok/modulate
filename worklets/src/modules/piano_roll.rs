@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::{
-  modulate_core::{log, AudioInput, AudioOutput, AudioParam, INV_SAMPLE_RATE, QUANTUM_SIZE},
+  modulate_core::{AudioInput, AudioOutput, AudioParam, INV_SAMPLE_RATE, QUANTUM_SIZE},
   module::{Module, ModuleEvent, ModuleMessage, PianoRollNote},
 };
 
@@ -61,7 +61,6 @@ impl Module for PianoRoll {
   fn on_message(&mut self, message: ModuleMessage) {
     match message {
       ModuleMessage::PianoRollSetNotes { notes } => {
-        log("got stuff");
         self.notes = notes;
         self
           .notes

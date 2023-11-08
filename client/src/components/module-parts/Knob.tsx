@@ -1,21 +1,26 @@
 import { useEffect } from 'kaiku'
 import { getKnobValue, setKnobValue } from '../../state'
 import ControlledKnob, { KnobsProps } from './ControlledKnob'
+import { Module } from '@modulate/worklets/src/modules'
+import { IndexOf } from '@modulate/common/types'
+import * as engine from '../../engine'
 
-type Props = KnobsProps & {
+type Props<M extends Module, P extends M['parameters'][number]> = KnobsProps & {
   size?: 's' | 'm' | 'l'
   label?: string
   hideLabel?: boolean
   initial: number
   moduleId: string
-  id: string
+  param: IndexOf<M['parameters'], P>
 }
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
 
-const getValue = (props: Props): number => {
-  const knobValue = getKnobValue(props.moduleId, props.id)
+const getValue = <M extends Module, P extends M['parameters'][number]>(
+  props: Props<M, P>
+): number => {
+  const knobValue = getKnobValue<M, P>(props.moduleId, props.param)
 
   switch (props.type) {
     case 'percentage': {
@@ -38,11 +43,18 @@ const getValue = (props: Props): number => {
   }
 }
 
-const Knob = (props: Props) => {
-  const value = getValue(props)
-
+const Knob = <M extends Module, P extends M['parameters'][number]>(
+  props: Props<M, P>
+) => {
   useEffect(() => {
-    setKnobValue(props.moduleId, props.id, value)
+    // `getValue` is called inside the effect to trigger it whenever the value changes
+    engine.setParameterValue(props.moduleId, props.param, getValue(props))
+  })
+
+  const value = getValue(props)
+  useEffect(() => {
+    // `getValue` is used outside the effect to only trigger it once
+    setKnobValue<M, P>(props.moduleId, props.param, value)
   })
 
   return (
@@ -50,7 +62,9 @@ const Knob = (props: Props) => {
       size={props.size ?? 's'}
       {...props}
       value={value}
-      onChange={(value) => setKnobValue(props.moduleId, props.id, value)}
+      onChange={(value) =>
+        setKnobValue<M, P>(props.moduleId, props.param, value)
+      }
     />
   )
 }

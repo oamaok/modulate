@@ -3,7 +3,6 @@ import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
-import { connectKnobToParam } from '../../modules'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { Oscillator } from '@modulate/worklets/src/modules'
@@ -16,54 +15,48 @@ class OscillatorNode extends Component<Props> {
     super(props)
 
     engine.createModule(props.id, 'Oscillator')
-
-    connectKnobToParam<Oscillator, 'cv'>(props.id, 'cv', 0)
-    connectKnobToParam<Oscillator, 'fm'>(props.id, 'fm', 1)
-    connectKnobToParam<Oscillator, 'fine'>(props.id, 'fine', 3)
-    connectKnobToParam<Oscillator, 'pw'>(props.id, 'pw', 2)
-    connectKnobToParam<Oscillator, 'level'>(props.id, 'level', 4)
   }
 
   render({ id }: Props) {
     return (
       <Module id={id} type="Oscillator">
-        <Knob
+        <Knob<Oscillator, 'cv'>
           moduleId={id}
-          id="cv"
+          param={0}
           label="CV"
           type="linear"
           min={-5}
           max={5}
           initial={0}
         />
-        <Knob
+        <Knob<Oscillator, 'fm'>
           moduleId={id}
-          id="fm"
+          param={1}
           label="FM"
           type="linear"
           min={-1}
           max={1}
           initial={0}
         />
-        <Knob
+        <Knob<Oscillator, 'fine'>
           moduleId={id}
-          id="fine"
+          param={3}
           label="FINE"
           type="linear"
           min={-1}
           max={1}
           initial={0}
         />
-        <Knob
+        <Knob<Oscillator, 'pw'>
           moduleId={id}
-          id="pw"
+          param={2}
           label="PW"
           type="percentage"
           initial={0.5}
         />
-        <Knob
+        <Knob<Oscillator, 'level'>
           moduleId={id}
-          id="level"
+          param={4}
           label="LVL"
           type="linear"
           min={-2}

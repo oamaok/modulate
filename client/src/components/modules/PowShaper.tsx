@@ -4,7 +4,6 @@ import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
-import { connectKnobToParam } from '../../modules'
 import { PowShaper } from '@modulate/worklets/src/modules'
 
 type Props = {
@@ -14,38 +13,33 @@ type Props = {
 class PowShaperNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
-
     engine.createModule(props.id, 'PowShaper')
-
-    connectKnobToParam<PowShaper, 'gain'>(props.id, 'gain', 1)
-    connectKnobToParam<PowShaper, 'preGain'>(props.id, 'preGain', 2)
-    connectKnobToParam<PowShaper, 'exponent'>(props.id, 'exponent', 0)
   }
 
   render({ id }: Props) {
     return (
       <Module id={id} type="PowShaper" name="Pow Shaper">
-        <Knob
+        <Knob<PowShaper, 'exponent'>
           moduleId={id}
-          id="exponent"
+          param={0}
           label="EXP"
           type="linear"
           min={0.01}
           max={2}
           initial={1}
         />
-        <Knob
+        <Knob<PowShaper, 'preGain'>
           moduleId={id}
-          id="preGain"
+          param={2}
           label="PRE-GAIN"
           type="linear"
           min={0}
           max={2}
           initial={1}
         />
-        <Knob
+        <Knob<PowShaper, 'gain'>
           moduleId={id}
-          id="gain"
+          param={1}
           label="GAIN"
           type="linear"
           min={0}

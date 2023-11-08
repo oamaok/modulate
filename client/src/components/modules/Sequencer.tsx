@@ -4,7 +4,6 @@ import { NoteName, Note } from '@modulate/common/types'
 import { Sequencer } from '@modulate/worklets/src/modules'
 import * as engine from '../../engine'
 import { getKnobValue, getModuleState, setModuleState } from '../../state'
-import { connectKnobToParam } from '../../modules'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
@@ -64,17 +63,13 @@ class SequencerNode extends Component<
         notes,
       })
     })
-
-    connectKnobToParam<Sequencer, 'length'>(this.props.id, 'sequenceLength', 0)
-
-    connectKnobToParam<Sequencer, 'glide'>(this.props.id, 'glide', 1)
   }
 
   render({ id }: Props) {
     const { notes } = getModuleState<SequencerState>(id)
 
     const groupedNotes = util.splitEvery(util.splitEvery(notes, 4), 4)
-    const sequenceLength = getKnobValue(id, 'sequenceLength') ?? 32
+    const sequenceLength = getKnobValue<Sequencer, 'length'>(id, 0) ?? 32
 
     return (
       <Module id={id} type="Sequencer">
@@ -127,9 +122,9 @@ class SequencerNode extends Component<
                 notes[this.state.editing]!.name = note as NoteName
               }}
             />
-            <Knob
+            <Knob<Sequencer, 'length'>
               moduleId={id}
-              id="sequenceLength"
+              param={0}
               type="stepped"
               step={1}
               min={1}
@@ -137,9 +132,9 @@ class SequencerNode extends Component<
               initial={16}
               label="LEN"
             />
-            <Knob
+            <Knob<Sequencer, 'glide'>
               moduleId={id}
-              id="glide"
+              param={1}
               type="exponential"
               exponent={2}
               min={0}

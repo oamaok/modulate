@@ -4,7 +4,6 @@ import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 
 import { ModuleOutputs } from '../module-parts/ModuleSockets'
-import { connectKnobToParam } from '../../modules'
 import Knob from '../module-parts/Knob'
 import * as styles from './VirtualController.css'
 import { VirtualController } from '@modulate/worklets/src/modules'
@@ -34,11 +33,6 @@ class VirtualControllerModule extends Component<Props> {
         this.pads = engine.getMemorySlice(pads, 4)
       }
     )
-
-    connectKnobToParam<VirtualController, 'knobA'>(props.id, 'knobA', 0)
-    connectKnobToParam<VirtualController, 'knobB'>(props.id, 'knobB', 1)
-    connectKnobToParam<VirtualController, 'knobC'>(props.id, 'knobC', 2)
-    connectKnobToParam<VirtualController, 'knobD'>(props.id, 'knobD', 3)
   }
 
   onKeysChange = (keys: number[]) => {
@@ -79,35 +73,35 @@ class VirtualControllerModule extends Component<Props> {
       <Module id={id} type="VirtualController" name="Virtual Controller">
         <div className={styles.virtualController}>
           <div className={styles.knobs}>
-            <Knob
+            <Knob<VirtualController, 'knobA'>
               size="l"
               moduleId={id}
               type="percentage"
-              id="knobA"
+              param={0}
               label="A"
               initial={0.0}
             />
-            <Knob
+            <Knob<VirtualController, 'knobB'>
               size="l"
               moduleId={id}
               type="percentage"
-              id="knobB"
+              param={1}
               label="B"
               initial={0.0}
             />
-            <Knob
+            <Knob<VirtualController, 'knobC'>
               size="l"
               moduleId={id}
               type="percentage"
-              id="knobC"
+              param={2}
               label="C"
               initial={0.0}
             />
-            <Knob
+            <Knob<VirtualController, 'knobD'>
               size="l"
               moduleId={id}
               type="percentage"
-              id="knobD"
+              param={3}
               label="D"
               initial={0.0}
             />

@@ -1,12 +1,11 @@
 import { Component, useEffect, useRef } from 'kaiku'
 import * as engine from '../../engine'
-import { connectKnobToParam } from '../../modules'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { ADSR } from '@modulate/worklets/src/modules'
-import { getModuleKnobs } from '../../state'
+import { getKnobValue } from '../../state'
 import assert from '../../assert'
 import * as styles from './ADSR.css'
 import moduleConfig from '../../module-config'
@@ -45,45 +44,26 @@ class ADSRNode extends Component<Props> {
 
     engine.createModule(props.id, 'ADSR')
 
-    connectKnobToParam<ADSR, 'attack'>(props.id, 'attack', 0)
-    connectKnobToParam<ADSR, 'decay'>(props.id, 'decay', 1)
-    connectKnobToParam<ADSR, 'sustain'>(props.id, 'sustain', 2)
-    connectKnobToParam<ADSR, 'release'>(props.id, 'release', 3)
-    connectKnobToParam<ADSR, 'attackTension'>(props.id, 'attackTension', 4)
-    connectKnobToParam<ADSR, 'decayTension'>(props.id, 'decayTension', 5)
-    connectKnobToParam<ADSR, 'releaseTension'>(props.id, 'releaseTension', 6)
-    connectKnobToParam<ADSR, 'amount'>(props.id, 'amount', 7)
-
     useEffect(() => {
-      const knobs = getModuleKnobs(props.id)
-      if (knobs) {
-        const {
-          attack,
-          decay,
-          sustain,
-          release,
-          attackTension,
-          decayTension,
-          releaseTension,
-        } = knobs
-        assert(typeof attack !== 'undefined')
-        assert(typeof decay !== 'undefined')
-        assert(typeof sustain !== 'undefined')
-        assert(typeof release !== 'undefined')
-        assert(typeof attackTension !== 'undefined')
-        assert(typeof decayTension !== 'undefined')
-        assert(typeof releaseTension !== 'undefined')
+      const attack = getKnobValue<ADSR, 'attack'>(props.id, 0) ?? 0
+      const decay = getKnobValue<ADSR, 'decay'>(props.id, 1) ?? 0
+      const sustain = getKnobValue<ADSR, 'sustain'>(props.id, 2) ?? 0
+      const release = getKnobValue<ADSR, 'release'>(props.id, 3) ?? 0
+      const attackTension =
+        getKnobValue<ADSR, 'attackTension'>(props.id, 4) ?? 0
+      const decayTension = getKnobValue<ADSR, 'decayTension'>(props.id, 5) ?? 0
+      const releaseTension =
+        getKnobValue<ADSR, 'releaseTension'>(props.id, 6) ?? 0
 
-        this.renderCurve(
-          attack,
-          decay,
-          sustain,
-          release,
-          attackTension,
-          decayTension,
-          releaseTension
-        )
-      }
+      this.renderCurve(
+        attack,
+        decay,
+        sustain,
+        release,
+        attackTension,
+        decayTension,
+        releaseTension
+      )
     })
   }
 
@@ -267,10 +247,10 @@ class ADSRNode extends Component<Props> {
           <div className={styles.knobs}>
             <div className={styles.knobGroup}>
               <div className={styles.label}>ATT</div>
-              <Knob
+              <Knob<ADSR, 'attack'>
                 moduleId={id}
                 type="exponential"
-                id="attack"
+                param={0}
                 label="Attack time"
                 hideLabel
                 unit="s"
@@ -279,10 +259,10 @@ class ADSRNode extends Component<Props> {
                 max={10}
                 initial={0.1}
               />
-              <Knob
+              <Knob<ADSR, 'attackTension'>
                 moduleId={id}
                 type="linear"
-                id="attackTension"
+                param={4}
                 label="Attack tension"
                 hideLabel
                 unit=""
@@ -294,10 +274,10 @@ class ADSRNode extends Component<Props> {
             <div className={styles.separator} />
             <div className={styles.knobGroup}>
               <div className={styles.label}>DCY</div>
-              <Knob
+              <Knob<ADSR, 'decay'>
                 moduleId={id}
                 type="exponential"
-                id="decay"
+                param={1}
                 label="Decay time"
                 hideLabel
                 unit="s"
@@ -306,10 +286,10 @@ class ADSRNode extends Component<Props> {
                 max={10}
                 initial={0.1}
               />
-              <Knob
+              <Knob<ADSR, 'decayTension'>
                 moduleId={id}
                 type="linear"
-                id="decayTension"
+                param={5}
                 label="Decay tension"
                 hideLabel
                 unit=""
@@ -321,10 +301,10 @@ class ADSRNode extends Component<Props> {
             <div className={styles.separator} />
             <div className={styles.knobGroup}>
               <div className={styles.label}>SUS</div>
-              <Knob
+              <Knob<ADSR, 'sustain'>
                 moduleId={id}
                 type="linear"
-                id="sustain"
+                param={2}
                 label="Sustain level"
                 hideLabel
                 unit="s"
@@ -336,10 +316,10 @@ class ADSRNode extends Component<Props> {
             <div className={styles.separator} />
             <div className={styles.knobGroup}>
               <div className={styles.label}>REL</div>
-              <Knob
+              <Knob<ADSR, 'release'>
                 moduleId={id}
                 type="exponential"
-                id="release"
+                param={3}
                 label="Release time"
                 hideLabel
                 unit="s"
@@ -348,10 +328,10 @@ class ADSRNode extends Component<Props> {
                 max={10}
                 initial={0.1}
               />
-              <Knob
+              <Knob<ADSR, 'releaseTension'>
                 moduleId={id}
                 type="linear"
-                id="releaseTension"
+                param={6}
                 label="Release tension"
                 hideLabel
                 unit=""
@@ -363,10 +343,10 @@ class ADSRNode extends Component<Props> {
             <div className={styles.separator} />
             <div className={styles.knobGroup}>
               <div className={styles.label}>AMT</div>
-              <Knob
+              <Knob<ADSR, 'amount'>
                 moduleId={id}
                 type="linear"
-                id="amount"
+                param={7}
                 label="Amount"
                 hideLabel
                 min={-5}

@@ -4,12 +4,11 @@ import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
-import { connectKnobToParam } from '../../modules'
 import Knob from '../module-parts/Knob'
 import { PianoRoll } from '@modulate/worklets/src/modules'
 import { PianoRollNote } from '../piano-roll-editor/PianoRollEditor'
 import state, {
-  getModuleKnobs,
+  getKnobValue,
   getModuleState,
   setModuleState,
 } from '../../state'
@@ -53,13 +52,8 @@ class PianoRollModule extends Component<Props, State> {
         throw new Error(`PianoRoll: invalid message type ${type}`)
       }
 
-      console.log('received ptr')
-
       this.positionBuf = engine.getMemorySlice(position, 1)
     })
-
-    connectKnobToParam<PianoRoll, 'length'>(this.props.id, 'length', 0)
-    connectKnobToParam<PianoRoll, 'speed'>(this.props.id, 'speed', 1)
 
     useEffect(() => {
       const timeout = setInterval(() => {
@@ -103,9 +97,8 @@ class PianoRollModule extends Component<Props, State> {
     context.fillRect(0, 0, width, height)
 
     const { notes } = getModuleState<PianoRollState>(this.props.id)
-    const knobs = getModuleKnobs(this.props.id)
-    assert(knobs)
-    assert(typeof knobs.length !== 'undefined')
+    const patternLength =
+      getKnobValue<PianoRoll, 'length'>(this.props.id, 0) ?? 0
 
     let highestPitch = -Infinity
     let lowestPitch = Infinity
@@ -120,7 +113,7 @@ class PianoRollModule extends Component<Props, State> {
 
     const pitchRange = highestPitch - lowestPitch + 7
     const pitchScale = height / pitchRange
-    const timeScale = width / ((knobs.length * BAR_LENGTH) / 4)
+    const timeScale = width / ((patternLength * BAR_LENGTH) / 4)
 
     context.fillStyle = moduleConfig.PianoRoll.colors.lighter
     for (const note of notes) {
@@ -140,18 +133,18 @@ class PianoRollModule extends Component<Props, State> {
       <Module id={id} type="PianoRoll" name="Piano Roll">
         <div className={styles.pianoRoll}>
           <div className={styles.knobs}>
-            <Knob
+            <Knob<PianoRoll, 'speed'>
               moduleId={id}
-              id="speed"
+              param={1}
               label="SPEED"
               type="linear"
               min={0}
               max={10}
               initial={1}
             />
-            <Knob
+            <Knob<PianoRoll, 'length'>
               moduleId={id}
-              id="length"
+              param={0}
               label="LENGTH"
               type="stepped"
               min={1}

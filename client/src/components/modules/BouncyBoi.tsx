@@ -4,7 +4,6 @@ import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleOutputs } from '../module-parts/ModuleSockets'
-import { connectKnobToParam } from '../../modules'
 import * as styles from './BouncyBoi.css'
 import { BouncyBoi, EventTypes } from '@modulate/worklets/src/modules'
 import moduleConfig from '../../module-config'
@@ -37,9 +36,6 @@ class BouncyBoiNode extends Component<Props> {
           )
       }
     })
-
-    connectKnobToParam<BouncyBoi, 'speed'>(props.id, 'speed', 0)
-    connectKnobToParam<BouncyBoi, 'gravity'>(props.id, 'gravity', 1)
   }
 
   renderCanvas = (state: EventTypes<BouncyBoi, 'BouncyBoiUpdate'>) => {
@@ -95,18 +91,18 @@ class BouncyBoiNode extends Component<Props> {
       <Module id={id} type="BouncyBoi" name="Bouncy Boi">
         <div className={styles.bouncyBoi}>
           <div className={styles.controls}>
-            <Knob
+            <Knob<BouncyBoi, 'speed'>
               moduleId={id}
-              id="speed"
+              param={0}
               label="Speed"
               type="linear"
               min={0}
               max={1}
               initial={0.1}
             />
-            <Knob
+            <Knob<BouncyBoi, 'gravity'>
               moduleId={id}
-              id="gravity"
+              param={1}
               label="Gravity"
               type="linear"
               min={0}

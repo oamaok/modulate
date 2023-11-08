@@ -3,7 +3,6 @@ import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
-import { connectKnobToParam } from '../../modules'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { Delay } from '@modulate/worklets/src/modules'
@@ -15,19 +14,14 @@ class DelayNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
     engine.createModule(props.id, 'Delay')
-
-    connectKnobToParam<Delay, 'time'>(props.id, 'delayTime', 0)
-    connectKnobToParam<Delay, 'feedback'>(props.id, 'feedBack', 1)
-    connectKnobToParam<Delay, 'wet'>(props.id, 'wet', 2)
-    connectKnobToParam<Delay, 'dry'>(props.id, 'dry', 3)
   }
 
   render({ id }: Props) {
     return (
       <Module id={id} type="Delay">
-        <Knob
+        <Knob<Delay, 'time'>
           moduleId={id}
-          id="delayTime"
+          param={0}
           label="TIME"
           type="exponential"
           exponent={2}
@@ -36,23 +30,23 @@ class DelayNode extends Component<Props> {
           max={2}
           initial={0.5}
         />
-        <Knob
+        <Knob<Delay, 'feedback'>
           moduleId={id}
-          id="feedBack"
+          param={1}
           label="FDBK"
           type="percentage"
           initial={0.2}
         />
-        <Knob
+        <Knob<Delay, 'wet'>
           moduleId={id}
-          id="wet"
+          param={2}
           label="WET"
           type="percentage"
           initial={0.5}
         />
-        <Knob
+        <Knob<Delay, 'dry'>
           moduleId={id}
-          id="dry"
+          param={3}
           label="DRY"
           type="percentage"
           initial={1}

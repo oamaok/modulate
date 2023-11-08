@@ -4,7 +4,6 @@ import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
-import { connectKnobToParam } from '../../modules'
 import { Sampler } from '@modulate/worklets/src/modules'
 import assert from '../../assert'
 import * as styles from './Sampler.css'
@@ -29,10 +28,6 @@ class SamplerNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
     engine.createModule(props.id, 'Sampler')
-    connectKnobToParam<Sampler, 'speed'>(props.id, 'speed', 0)
-    connectKnobToParam<Sampler, 'start'>(props.id, 'start', 1)
-    connectKnobToParam<Sampler, 'length'>(props.id, 'length', 2)
-    connectKnobToParam<Sampler, 'level'>(props.id, 'level', 3)
 
     this.drawSettingsAndPlayhead()
 
@@ -96,8 +91,9 @@ class SamplerNode extends Component<Props> {
 
     context.clearRect(0, 0, canvas.width, canvas.height)
 
-    const startAt = getKnobValue(this.props.id, 'start') ?? 0
-    const playLength = getKnobValue(this.props.id, 'length') ?? 0
+    const startAt = getKnobValue<Sampler, 'start'>(this.props.id, 1) ?? 0
+    const playLength = getKnobValue<Sampler, 'length'>(this.props.id, 2) ?? 0
+
     context.fillStyle = 'rgba(0,0,0,0.5)'
     context.fillRect(0, 0, canvas.width * startAt, canvas.height)
     context.fillRect(
@@ -195,18 +191,18 @@ class SamplerNode extends Component<Props> {
             />
           </div>
           <div className={styles.knobGroup}>
-            <Knob
+            <Knob<Sampler, 'speed'>
               moduleId={id}
-              id="speed"
+              param={0}
               label="SPEED"
               type="linear"
               min={-2}
               max={2}
               initial={1}
             />
-            <Knob
+            <Knob<Sampler, 'start'>
               moduleId={id}
-              id="start"
+              param={1}
               label="START"
               type="linear"
               min={0}
@@ -214,9 +210,9 @@ class SamplerNode extends Component<Props> {
               initial={0}
             />
 
-            <Knob
+            <Knob<Sampler, 'length'>
               moduleId={id}
-              id="length"
+              param={2}
               label="LENGTH"
               type="linear"
               min={0}
@@ -224,9 +220,9 @@ class SamplerNode extends Component<Props> {
               initial={1}
             />
 
-            <Knob
+            <Knob<Sampler, 'level'>
               moduleId={id}
-              id="level"
+              param={3}
               label="LEVEL"
               type="linear"
               min={-2}

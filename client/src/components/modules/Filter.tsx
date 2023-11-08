@@ -3,7 +3,6 @@ import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
-import { connectKnobToParam } from '../../modules'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { BiquadFilter } from '@modulate/worklets/src/modules'
 import * as styles from './Filter.css'
@@ -16,29 +15,6 @@ class BiquadFilterNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
     engine.createModule(props.id, 'BiquadFilter')
-
-    connectKnobToParam<BiquadFilter, 'frequency'>(props.id, 'frequency', 0)
-    connectKnobToParam<BiquadFilter, 'resonance'>(props.id, 'resonance', 1)
-    connectKnobToParam<BiquadFilter, 'lowpassLevel'>(
-      props.id,
-      'lowpassLevel',
-      2
-    )
-    connectKnobToParam<BiquadFilter, 'highpassLevel'>(
-      props.id,
-      'highpassLevel',
-      3
-    )
-    connectKnobToParam<BiquadFilter, 'freqModAmount'>(
-      props.id,
-      'freqModAmount',
-      4
-    )
-    connectKnobToParam<BiquadFilter, 'resoModAmount'>(
-      props.id,
-      'resoModAmount',
-      5
-    )
   }
 
   render({ id }: Props) {
@@ -46,18 +22,18 @@ class BiquadFilterNode extends Component<Props> {
       <Module id={id} type="BiquadFilter" name="Filter">
         <div className={styles.knobs}>
           <div className={styles.knobGroup}>
-            <Knob
+            <Knob<BiquadFilter, 'frequency'>
               moduleId={id}
-              id="frequency"
+              param={0}
               label="FREQ"
               type="linear"
               min={-5}
               max={5}
               initial={0}
             />
-            <Knob
+            <Knob<BiquadFilter, 'freqModAmount'>
               moduleId={id}
-              id="freqModAmount"
+              param={4}
               label="MOD AMT"
               type="linear"
               min={-5}
@@ -67,18 +43,18 @@ class BiquadFilterNode extends Component<Props> {
           </div>
           <div className={styles.separator} />
           <div className={styles.knobGroup}>
-            <Knob
+            <Knob<BiquadFilter, 'resonance'>
               moduleId={id}
-              id="resonance"
+              param={1}
               label="RES"
               type="linear"
               min={1}
               max={20}
               initial={1}
             />
-            <Knob
+            <Knob<BiquadFilter, 'resoModAmount'>
               moduleId={id}
-              id="resoModAmount"
+              param={5}
               label="MOD AMT"
               type="linear"
               min={-5}
@@ -88,18 +64,18 @@ class BiquadFilterNode extends Component<Props> {
           </div>
           <div className={styles.separator} />
           <div className={styles.knobGroup}>
-            <Knob
+            <Knob<BiquadFilter, 'lowpassLevel'>
               moduleId={id}
-              id="lowpassLevel"
+              param={2}
               label="LP AMT"
               type="linear"
               min={0}
               max={2}
               initial={1}
             />
-            <Knob
+            <Knob<BiquadFilter, 'highpassLevel'>
               moduleId={id}
-              id="highpassLevel"
+              param={3}
               label="HP AMT"
               type="linear"
               min={0}

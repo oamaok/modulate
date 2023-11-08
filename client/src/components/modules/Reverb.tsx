@@ -3,7 +3,6 @@ import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
-import { connectKnobToParam } from '../../modules'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { Reverb } from '@modulate/worklets/src/modules'
@@ -15,56 +14,50 @@ class ReverbNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
     engine.createModule(props.id, 'Reverb')
-
-    connectKnobToParam<Reverb, 'dry'>(props.id, 'dry', 4)
-    connectKnobToParam<Reverb, 'wet'>(props.id, 'wet', 3)
-    connectKnobToParam<Reverb, 'decay'>(props.id, 'decay', 1)
-    connectKnobToParam<Reverb, 'delay'>(props.id, 'delay', 0)
-    connectKnobToParam<Reverb, 'diffuse'>(props.id, 'diffuse', 2)
   }
 
   render({ id }: Props) {
     return (
       <Module id={id} type="Reverb">
-        <Knob
+        <Knob<Reverb, 'delay'>
           moduleId={id}
-          id="delay"
+          param={0}
           label="DELAY"
           type="linear"
           min={0}
           max={0.2}
           initial={0.1}
         />
-        <Knob
+        <Knob<Reverb, 'decay'>
           moduleId={id}
-          id="decay"
+          param={1}
           label="DECAY"
           type="linear"
           min={0}
           max={0.99}
           initial={0.6}
         />
-        <Knob
+        <Knob<Reverb, 'diffuse'>
           moduleId={id}
-          id="diffuse"
+          param={2}
           label="DIFFUSE"
           type="linear"
           min={0}
           max={1}
           initial={0.7}
         />
-        <Knob
+        <Knob<Reverb, 'wet'>
           moduleId={id}
-          id="wet"
+          param={3}
           label="WET"
           type="linear"
           min={0}
           max={1}
           initial={0.5}
         />
-        <Knob
+        <Knob<Reverb, 'dry'>
           moduleId={id}
-          id="dry"
+          param={4}
           label="DRY"
           type="linear"
           min={0}

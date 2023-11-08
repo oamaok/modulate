@@ -9,12 +9,13 @@ import {
   Vec2,
   OutputSocket,
   InputSocket,
+  IndexOf,
 } from '@modulate/common/types'
 import * as engine from './engine'
 import { parseRoute } from './routes'
 import assert from './assert'
 import { origin } from '@modulate/common/util'
-import { ModuleName } from '@modulate/worklets/src/modules'
+import { Module, ModuleName } from '@modulate/worklets/src/modules'
 
 const state = createState<State>({
   initialized: false,
@@ -309,24 +310,28 @@ export const getSocketPosition = (socket: Socket): Vec2 | null => {
   }
 }
 
-export const getModuleKnobs = (
-  moduleId: Id
-): undefined | Record<string, number> => {
-  return patch.knobs[moduleId]
-}
-
-export const getKnobValue = (
+export const getKnobValue = <
+  M extends Module,
+  Param extends M['parameters'][number],
+>(
   moduleId: Id,
-  name: string
+  param: IndexOf<M['parameters'], Param>
 ): undefined | number => {
-  return patch.knobs[moduleId]?.[name]
+  return patch.knobs[moduleId]?.[param]
 }
 
-export const setKnobValue = (moduleId: Id, name: string, value: number) => {
+export const setKnobValue = <
+  M extends Module,
+  Param extends M['parameters'][number],
+>(
+  moduleId: Id,
+  param: IndexOf<M['parameters'], Param>,
+  value: number
+) => {
   if (!patch.knobs[moduleId]) {
     patch.knobs[moduleId] = {}
   }
-  patch.knobs[moduleId]![name] = value
+  patch.knobs[moduleId]![param] = value
 }
 const cableConnectsToSocket = (cable: Cable, socket: Socket): boolean =>
   isSameSocket(cable.from, socket) || isSameSocket(cable.to, socket)

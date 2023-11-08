@@ -3,7 +3,6 @@ import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
-import { connectKnobToParam } from '../../modules'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { LFO } from '@modulate/worklets/src/modules'
 
@@ -17,36 +16,32 @@ class LFONode extends Component<Props> {
   constructor(props: Props) {
     super(props)
     engine.createModule(props.id, 'LFO')
-
-    connectKnobToParam<LFO, 'cv'>(props.id, 'freq', 0)
-    connectKnobToParam<LFO, 'pw'>(props.id, 'pw', 1)
-    connectKnobToParam<LFO, 'amount'>(props.id, 'amount', 2)
   }
 
   render({ id }: Props) {
     return (
       <Module id={id} type="LFO">
-        <Knob
+        <Knob<LFO, 'cv'>
           moduleId={id}
-          id="freq"
+          param={0}
           label="FREQ"
           type="linear"
           min={0}
           max={10}
           initial={1}
         />
-        <Knob
+        <Knob<LFO, 'pw'>
           moduleId={id}
-          id="pw"
+          param={1}
           label="PW"
           type="linear"
           min={0}
           max={1}
           initial={0.5}
         />
-        <Knob
+        <Knob<LFO, 'amount'>
           moduleId={id}
-          id="amount"
+          param={2}
           label="AMOUNT"
           type="percentage"
           initial={1.0}

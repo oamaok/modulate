@@ -3,7 +3,6 @@ import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
-import { connectKnobToParam } from '../../modules'
 
 import { ModuleOutputs } from '../module-parts/ModuleSockets'
 import { getModuleState, setModuleState } from '../../state'
@@ -65,17 +64,6 @@ class ClockNode extends Component<Props> {
         running: isRunning,
       })
     })
-
-    connectKnobToParam<Clock, 'tempo'>(props.id, 'tempo', 0)
-    connectKnobToParam<Clock, 'ratio0'>(props.id, 'ratio0', 1)
-    connectKnobToParam<Clock, 'ratio1'>(props.id, 'ratio1', 2)
-    connectKnobToParam<Clock, 'ratio2'>(props.id, 'ratio2', 3)
-    connectKnobToParam<Clock, 'pw0'>(props.id, 'pulseWidth0', 4)
-    connectKnobToParam<Clock, 'pw1'>(props.id, 'pulseWidth1', 5)
-    connectKnobToParam<Clock, 'pw2'>(props.id, 'pulseWidth2', 6)
-    connectKnobToParam<Clock, 'swing0'>(props.id, 'swing0', 7)
-    connectKnobToParam<Clock, 'swing1'>(props.id, 'swing1', 8)
-    connectKnobToParam<Clock, 'swing2'>(props.id, 'swing2', 9)
   }
 
   render({ id }: Props) {
@@ -100,9 +88,9 @@ class ClockNode extends Component<Props> {
             Reset
           </button>
         </div>
-        <Knob
+        <Knob<Clock, 'tempo'>
           moduleId={id}
-          id="tempo"
+          param={0}
           label="TEMPO"
           type="linear"
           min={1}
@@ -110,78 +98,78 @@ class ClockNode extends Component<Props> {
           initial={128}
         />
         <div className={styles.row}>
-          <Knob
+          <Knob<Clock, 'ratio0'>
             moduleId={id}
-            id="ratio0"
+            param={1}
             label="RATIO"
             type="option"
             options={RATIO_OPTIONS}
             initial={1}
           />
           <div className={styles.connector} />
-          <Knob
+          <Knob<Clock, 'swing0'>
             moduleId={id}
-            id="swing0"
+            param={7}
             label="SWING"
             type="percentage"
             initial={0.5}
           />
           <div className={styles.connector} />
-          <Knob
+          <Knob<Clock, 'pw0'>
             moduleId={id}
-            id="pulseWidth0"
+            param={4}
             label="PW"
             type="percentage"
             initial={0.5}
           />
         </div>
         <div className={styles.row}>
-          <Knob
+          <Knob<Clock, 'ratio1'>
             moduleId={id}
-            id="ratio1"
+            param={2}
             label="RATIO"
             type="option"
             options={RATIO_OPTIONS}
             initial={1}
           />
           <div className={styles.connector} />
-          <Knob
+          <Knob<Clock, 'swing1'>
             moduleId={id}
-            id="swing1"
+            param={8}
             label="SWING"
             type="percentage"
             initial={0.5}
           />
           <div className={styles.connector} />
-          <Knob
+          <Knob<Clock, 'pw1'>
             moduleId={id}
-            id="pulseWidth1"
+            param={5}
             label="PW"
             type="percentage"
             initial={0.5}
           />
         </div>
         <div className={styles.row}>
-          <Knob
+          <Knob<Clock, 'ratio2'>
             moduleId={id}
-            id="ratio2"
+            param={3}
             label="RATIO"
             type="option"
             options={RATIO_OPTIONS}
             initial={1}
           />
           <div className={styles.connector} />
-          <Knob
+          <Knob<Clock, 'swing2'>
             moduleId={id}
-            id="swing2"
+            param={9}
             label="SWING"
             type="percentage"
             initial={0.5}
           />
           <div className={styles.connector} />
-          <Knob
+          <Knob<Clock, 'pw2'>
             moduleId={id}
-            id="pulseWidth2"
+            param={6}
             label="PW"
             type="percentage"
             initial={0.5}

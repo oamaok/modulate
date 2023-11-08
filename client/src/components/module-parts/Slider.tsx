@@ -5,20 +5,28 @@ import state, {
   hideHint,
   setKnobValue,
 } from '../../state'
-import { Id, Vec2 } from '@modulate/common/types'
+import { Id, IndexOf, Vec2 } from '@modulate/common/types'
 import * as styles from './Slider.css'
+import { Module } from '@modulate/worklets/src/modules'
 
-type Props = {
+type Props<M extends Module, P extends M['parameters'][number]> = {
   moduleId: Id
-  id: string
+  param: IndexOf<M['parameters'], P>
   label?: string
   min: number
   max: number
   initial: number
 }
 
-const Slider = ({ moduleId, id, label, min, max, initial }: Props) => {
-  const knobValue = getKnobValue(moduleId, id)
+const Slider = <M extends Module, P extends M['parameters'][number]>({
+  moduleId,
+  param,
+  label,
+  min,
+  max,
+  initial,
+}: Props<M, P>) => {
+  const knobValue = getKnobValue<M, P>(moduleId, param)
   const initialValue = knobValue ?? initial
 
   const knobState = useState<{
@@ -29,7 +37,7 @@ const Slider = ({ moduleId, id, label, min, max, initial }: Props) => {
     dragPosition: null,
   })
 
-  const getHintText = (value: number) => `${label ?? id}: ${value.toFixed(2)}`
+  const getHintText = (value: number) => `${label}: ${value.toFixed(2)}`
 
   const onDragStart = () => {
     knobState.dragPosition = { x: state.cursor.x, y: state.cursor.y }
@@ -42,14 +50,14 @@ const Slider = ({ moduleId, id, label, min, max, initial }: Props) => {
 
   useEffect(() => {
     if (!knobState.dragPosition) {
-      const knobValue = getKnobValue(moduleId, id) ?? initial
+      const knobValue = getKnobValue<M, P>(moduleId, param) ?? initial
       const externallyUpdatedPosition = (knobValue - min) / (max - min)
       knobState.position = externallyUpdatedPosition
     }
   })
 
   useEffect(() => {
-    setKnobValue(moduleId, id, initialValue)
+    setKnobValue<M, P>(moduleId, param, initialValue)
 
     document.addEventListener('mouseup', onDragEnd)
     document.addEventListener('blur', onDragEnd)
@@ -68,7 +76,7 @@ const Slider = ({ moduleId, id, label, min, max, initial }: Props) => {
       knobState.dragPosition.x = state.cursor.x
       knobState.dragPosition.y = state.cursor.y
       const value = knobState.position * (max - min) + min
-      setKnobValue(moduleId, id, value)
+      setKnobValue<M, P>(moduleId, param, value)
 
       displayHint(getHintText(value), state.cursor)
     }
