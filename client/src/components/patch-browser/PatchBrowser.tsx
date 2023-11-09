@@ -6,6 +6,7 @@ import Overlay from '../overlay/Overlay'
 import { groupBy } from '@modulate/common/util'
 import assert from '../../assert'
 import Icon from '../icon/Icon'
+import * as icons from '../../icons'
 
 const fetchAndLoadPatch = async (patchId: string) => {
   const patchData = await api.getLatestPatchVersion(patchId)
@@ -80,7 +81,7 @@ const YourPatches = () => {
                 onClick={() => fetchAndLoadPatch(patchId)}
               >
                 <span>Load</span>
-                <Icon name="play_arrow" />
+                <Icon name={icons.playArrow} />
               </button>
             </div>
             {isExpanded
@@ -98,7 +99,7 @@ const YourPatches = () => {
                       onClick={() => fetchAndLoadPatch(patchId)}
                     >
                       <span>Load</span>
-                      <Icon name="play_arrow" />
+                      <Icon name={icons.playArrow} />
                     </button>
                   </div>
                 ))

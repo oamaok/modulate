@@ -6,13 +6,14 @@ import MenuBar, { VerticalDivider } from '../menu-bar/MenuBar'
 import * as styles from './UserBar.css'
 import ControlledKnob from '../module-parts/ControlledKnob'
 import testAttributes from '../../test-attributes'
+import * as icon from '../../icons'
 import Icon from '../icon/Icon'
 
 const getVolumeIcon = (level: number) => {
-  if (level > 0.66) return 'volume_up'
-  if (level > 0.33) return 'volume_down'
-  if (level > 0.001) return 'volume_mute'
-  return 'no_sound'
+  if (level > 0.66) return icon.volumeUp
+  if (level > 0.33) return icon.volumeDown
+  if (level > 0.001) return icon.volumeMute
+  return icon.volumeOff
 }
 
 const initialVolumeLevel = parseFloat(

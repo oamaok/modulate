@@ -7,6 +7,7 @@ import state, {
 import * as api from '../../api'
 import MenuBar from '../menu-bar/MenuBar'
 import * as styles from './Header.css'
+import * as icons from './../../icons'
 import { intersperse } from '@modulate/common/util'
 import SaveDialog from '../save-dialog/SaveDialog'
 import { createRoom } from '../../rooms'
@@ -44,14 +45,14 @@ const Header = () => {
   const menuItems = [
     {
       id: 'patch-browser',
-      icon: 'view_list',
+      icon: icons.viewList,
       label: 'Browse patches',
       action: () => openOverlay('patch-browser'),
       enabled: true,
     },
     {
       id: 'new-patch',
-      icon: 'add',
+      icon: icons.add,
       label: 'New patch',
       action: async () => {
         if (!canUserSavePatch() || (await SaveDialog.open())) {
@@ -62,14 +63,14 @@ const Header = () => {
     },
     {
       id: 'settings',
-      icon: 'settings',
+      icon: icons.settings,
       label: 'Patch settings',
       action: () => openOverlay('patch-settings'),
       enabled: isOwnPatch(),
     },
     {
       id: 'save-patch',
-      icon: 'save',
+      icon: icons.save,
       label: 'Save patch',
       action: async () => {
         const res = await api.savePatch(state.patchMetadata, state.patch)
@@ -88,14 +89,14 @@ const Header = () => {
     */
     {
       id: 'fork-patch',
-      icon: 'fork_right',
+      icon: icons.fork,
       label: 'Fork this patch',
       action: () => {},
       enabled: isLoggedIn && !isOwnPatch(),
     },
     {
       id: 'create-room',
-      icon: 'group',
+      icon: icons.group,
       label: 'Create multiplayer room',
       action: () => createRoom(state.patchMetadata.id!),
       enabled: isLoggedIn && isSavedPatch,

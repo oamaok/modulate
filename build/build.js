@@ -6,6 +6,7 @@ const chokidar = require('chokidar')
 const terser = require('terser')
 const cp = require('child_process')
 const CssModulesPlugin = require('./css-modules-plugin')
+const SvgLoaderPlugin = require('./svg-loader-plugin')
 
 const isProduction = process.env.NODE_ENV === 'production'
 const isEngineTest = process.argv.some((arg) => arg === '--engine-test')
@@ -92,7 +93,7 @@ const buildClient = async () => {
         __DEBUG__: isProduction ? 'false' : 'true',
       },
 
-      plugins: [CssModulesPlugin()],
+      plugins: [CssModulesPlugin(), SvgLoaderPlugin()],
     }),
     recursiveCopy(
       path.join(__dirname, '../client/static'),
@@ -133,6 +134,9 @@ const buildClient = async () => {
   const stylesFile = (
     await fs.readFile(path.join(buildDir, './index.css'))
   ).toString('utf-8')
+  const svgAtlas = (
+    await fs.readFile(path.join(buildDir, './atlas.svg'))
+  ).toString('utf-8')
 
   let generatedIndex = indexFile
   generatedIndex = replaceWithoutSpecialReplacements(
@@ -144,6 +148,12 @@ const buildClient = async () => {
     generatedIndex,
     '{%SCRIPT%}',
     `<script>${scriptsFile}</script>`
+  )
+
+  generatedIndex = replaceWithoutSpecialReplacements(
+    generatedIndex,
+    '{%SVG_ATLAS%}',
+    svgAtlas
   )
 
   await fs.writeFile(

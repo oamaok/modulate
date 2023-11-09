@@ -9,6 +9,7 @@
   "author": "Teemu Pääkkönen",
   "license": "UNLICENSED",
   "dependencies": {
+    "@material-design-icons/svg": "^0.14.13",
     "@types/webmidi": "^2.0.7",
     "kaiku": "^1.21.7"
   }
