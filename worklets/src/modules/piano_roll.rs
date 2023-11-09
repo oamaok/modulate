@@ -24,7 +24,7 @@ pub struct PianoRoll {
 }
 
 impl Module for PianoRoll {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
       let mut gate = 0.0;
 
@@ -38,8 +38,8 @@ impl Module for PianoRoll {
       self.cv_output[sample] = self.last_cv;
       self.gate_output[sample] = gate;
 
-      self.position += self.speed.at(sample, quantum) * (BAR_LENGTH / 4.0 * INV_SAMPLE_RATE);
-      let length = self.length.at(sample, quantum) * BAR_LENGTH / 4.0;
+      self.position += self.speed.at(sample) * (BAR_LENGTH / 4.0 * INV_SAMPLE_RATE);
+      let length = self.length.at(sample) * BAR_LENGTH / 4.0;
       if self.position > length {
         self.position -= length;
       }

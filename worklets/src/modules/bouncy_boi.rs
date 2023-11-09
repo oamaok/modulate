@@ -46,7 +46,7 @@ struct Wall {
 }
 
 impl Module for BouncyBoi {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     let mut walls: [Wall; 5] = [Wall::default(); 5];
 
     for (i, wall) in walls.iter_mut().enumerate() {
@@ -66,10 +66,10 @@ impl Module for BouncyBoi {
       }
     }
 
-    self.phase += self.speed.at(0, quantum) * 0.01;
+    self.phase += self.speed.at(0) * 0.01;
 
     for (i, ball) in self.balls.iter_mut().enumerate() {
-      ball.vel.y += self.gravity.at(0, quantum) * 0.05;
+      ball.vel.y += self.gravity.at(0) * 0.05;
 
       let speed = ball.vel.length();
       ball.vel = ball.vel.normalize() * f32::min(speed, 10.0);

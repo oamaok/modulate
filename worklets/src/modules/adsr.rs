@@ -21,18 +21,17 @@ pub struct ADSR {
 }
 
 impl Module for ADSR {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
-      self.adsr.attack_time = self.attack_time.at(sample, quantum);
-      self.adsr.attack_tension = self.attack_tension.at(sample, quantum);
-      self.adsr.decay_time = self.decay_time.at(sample, quantum);
-      self.adsr.decay_tension = self.decay_tension.at(sample, quantum);
-      self.adsr.sustain_level = self.sustain_level.at(sample, quantum);
-      self.adsr.release_time = self.release_time.at(sample, quantum);
-      self.adsr.release_tension = self.release_tension.at(sample, quantum);
+      self.adsr.attack_time = self.attack_time.at(sample);
+      self.adsr.attack_tension = self.attack_tension.at(sample);
+      self.adsr.decay_time = self.decay_time.at(sample);
+      self.adsr.decay_tension = self.decay_tension.at(sample);
+      self.adsr.sustain_level = self.sustain_level.at(sample);
+      self.adsr.release_time = self.release_time.at(sample);
+      self.adsr.release_tension = self.release_tension.at(sample);
 
-      self.output[sample] =
-        self.adsr.step(self.gate_input.at(sample)) * self.amount.at(sample, quantum);
+      self.output[sample] = self.adsr.step(self.gate_input.at(sample)) * self.amount.at(sample);
     }
   }
 

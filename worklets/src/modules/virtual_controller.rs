@@ -33,7 +33,7 @@ pub struct VirtualController {
 }
 
 impl Module for VirtualController {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
       self.pad_a_output[sample] = self.pads[0];
       self.pad_b_output[sample] = self.pads[1];
@@ -46,10 +46,10 @@ impl Module for VirtualController {
       self.keyboard_second_cv_output[sample] = (self.pressed_keys[1].0 as f32 - 9.0) / 12.0;
       self.keyboard_second_gate_output[sample] = self.pressed_keys[1].1;
 
-      self.knob_a_output[sample] = self.knob_a_param.at(sample, quantum);
-      self.knob_b_output[sample] = self.knob_b_param.at(sample, quantum);
-      self.knob_c_output[sample] = self.knob_c_param.at(sample, quantum);
-      self.knob_d_output[sample] = self.knob_d_param.at(sample, quantum);
+      self.knob_a_output[sample] = self.knob_a_param.at(sample);
+      self.knob_b_output[sample] = self.knob_b_param.at(sample);
+      self.knob_c_output[sample] = self.knob_c_param.at(sample);
+      self.knob_d_output[sample] = self.knob_d_param.at(sample);
     }
   }
 

@@ -25,10 +25,9 @@ pub struct Reverb {
 }
 
 impl Module for Reverb {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for i in 0..COMB_GAIN_COUNT {
-      let delay =
-        ((self.delay.at(0, quantum) + COMB_DELAY_OFFSETS[i]) * SAMPLE_RATE as f32) as usize;
+      let delay = ((self.delay.at(0) + COMB_DELAY_OFFSETS[i]) * SAMPLE_RATE as f32) as usize;
       self.comb_filters[i].set_delay(delay);
     }
 
@@ -38,17 +37,16 @@ impl Module for Reverb {
 
       for i in 0..COMB_GAIN_COUNT {
         let filter = &mut self.comb_filters[i];
-        filter.gain = self.decay.at(sample, quantum) + COMB_GAIN_OFFSETS[i];
+        filter.gain = self.decay.at(sample) + COMB_GAIN_OFFSETS[i];
         output += filter.step(input);
       }
 
       for filter in self.all_pass_filters.iter_mut() {
-        filter.gain = self.diffuse.at(sample, quantum);
+        filter.gain = self.diffuse.at(sample);
         output = filter.step(output);
       }
 
-      self.output[sample] =
-        output * self.wet.at(sample, quantum) + input * self.dry.at(sample, quantum);
+      self.output[sample] = output * self.wet.at(sample) + input * self.dry.at(sample);
     }
   }
 

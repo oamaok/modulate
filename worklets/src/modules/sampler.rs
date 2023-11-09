@@ -19,7 +19,7 @@ pub struct Sampler {
 }
 
 impl Module for Sampler {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
       self.output[sample] = 0.0;
 
@@ -29,8 +29,8 @@ impl Module for Sampler {
 
       let ipos = self.pos as usize;
       let sample_len = audio_sample.len();
-      let len_param = self.length.at(sample, quantum);
-      let start_param = self.start.at(sample, quantum);
+      let len_param = self.length.at(sample);
+      let start_param = self.start.at(sample);
 
       if self.edge_detector.step(self.gate_input.at(sample)) == Edge::Rose {
         self.pos = start_param as f64 * sample_len as f64;
@@ -44,10 +44,10 @@ impl Module for Sampler {
           0.0
         };
         let t = f64::fract(self.pos);
-        self.output[sample] = lerp(a, b, t as f32) * self.level.at(sample, quantum);
+        self.output[sample] = lerp(a, b, t as f32) * self.level.at(sample);
       }
 
-      self.pos += self.speed.at(sample, quantum) as f64;
+      self.pos += self.speed.at(sample) as f64;
       self.pos = self.pos.clamp(
         0.0,
         f32::min(1.0, start_param + len_param) as f64 * sample_len as f64,

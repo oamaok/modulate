@@ -10,9 +10,9 @@ pub struct Gain {
 }
 
 impl Module for Gain {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
-      self.output[sample] = self.input.at(sample) * self.gain.at(sample, quantum)
+      self.output[sample] = self.input.at(sample) * self.gain.at(sample)
     }
   }
 

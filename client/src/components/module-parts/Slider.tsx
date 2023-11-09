@@ -6,8 +6,9 @@ import state, {
   setKnobValue,
 } from '../../state'
 import { Id, IndexOf, Vec2 } from '@modulate/common/types'
-import * as styles from './Slider.css'
 import { Module } from '@modulate/worklets/src/modules'
+import * as engine from '../../engine'
+import * as styles from './Slider.css'
 
 type Props<M extends Module, P extends M['parameters'][number]> = {
   moduleId: Id
@@ -28,6 +29,15 @@ const Slider = <M extends Module, P extends M['parameters'][number]>({
 }: Props<M, P>) => {
   const knobValue = getKnobValue<M, P>(moduleId, param)
   const initialValue = knobValue ?? initial
+
+  useEffect(() => {
+    // `getValue` is called inside the effect to trigger it whenever the value changes
+    engine.setParameterValue(
+      moduleId,
+      param,
+      getKnobValue<M, P>(moduleId, param) ?? initial
+    )
+  })
 
   const knobState = useState<{
     position: number

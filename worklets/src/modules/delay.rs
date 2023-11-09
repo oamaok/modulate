@@ -16,19 +16,16 @@ pub struct Delay {
 }
 
 impl Module for Delay {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     self
       .buffer
-      .resize((self.time.at(0, quantum) * SAMPLE_RATE as f32) as usize);
+      .resize((self.time.at(0) * SAMPLE_RATE as f32) as usize);
 
     for sample in 0..QUANTUM_SIZE {
       let input = self.input.at(sample);
       let wet = self.buffer.head();
-      self
-        .buffer
-        .write(input + wet * self.feedback.at(sample, quantum));
-      self.output[sample] =
-        wet * self.wet.at(sample, quantum) + input * self.dry.at(sample, quantum);
+      self.buffer.write(input + wet * self.feedback.at(sample));
+      self.output[sample] = wet * self.wet.at(sample) + input * self.dry.at(sample);
     }
   }
 

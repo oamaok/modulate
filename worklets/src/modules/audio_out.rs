@@ -10,9 +10,9 @@ pub struct AudioOut {
 }
 
 impl Module for AudioOut {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
-      self.output[sample] = self.input.at(sample) * self.volume.at(sample, quantum)
+      self.output[sample] = self.input.at(sample) * self.volume.at(sample)
     }
   }
 

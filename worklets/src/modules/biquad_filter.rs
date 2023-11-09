@@ -24,24 +24,14 @@ pub struct BiquadFilter {
 }
 
 impl Module for BiquadFilter {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
-      let voltage = 5.0
-        + self
-          .frequency
-          .at_mod_amt(sample, quantum, self.freq_mod_amount.at(sample, quantum));
+      let voltage = 5.0 + self.frequency.at(sample);
       let freq = 13.75 * f32::powf(2.0, voltage);
 
       let omega = std::f32::consts::PI * 2.0 * freq * INV_SAMPLE_RATE;
       let (sin_omega, cos_omega) = f32::sin_cos(omega);
-      let alpha = sin_omega
-        / 2.0
-        / f32::max(
-          f32::EPSILON,
-          self
-            .q
-            .at_mod_amt(sample, quantum, self.q_mod_amount.at(sample, quantum)),
-        );
+      let alpha = sin_omega / 2.0 / f32::max(f32::EPSILON, self.q.at(sample));
       let input = self.input.at(sample);
 
       let a0 = 1.0 + alpha;
@@ -64,7 +54,7 @@ impl Module for BiquadFilter {
 
         self.lowpass_buffer[1] = self.lowpass_buffer[0];
         self.lowpass_buffer[0] = output;
-        self.lowpass_output[sample] = output * self.lowpass_level.at(sample, quantum);
+        self.lowpass_output[sample] = output * self.lowpass_level.at(sample);
       }
 
       {
@@ -81,7 +71,7 @@ impl Module for BiquadFilter {
 
         self.highpass_buffer[1] = self.highpass_buffer[0];
         self.highpass_buffer[0] = output;
-        self.highpass_output[sample] = output * self.highpass_level.at(sample, quantum);
+        self.highpass_output[sample] = output * self.highpass_level.at(sample);
       }
 
       self.input_buffer[1] = self.input_buffer[0];

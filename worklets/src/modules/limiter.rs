@@ -14,10 +14,10 @@ pub struct Limiter {
 }
 
 impl Module for Limiter {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
       let rms = self.buffer.rms();
-      let threshold = self.threshold.at(sample, quantum);
+      let threshold = self.threshold.at(sample);
       let ratio = if rms > threshold {
         threshold / rms
       } else {

@@ -62,7 +62,7 @@ pub enum ModuleMessage {
 }
 
 pub trait Module {
-  fn process(&mut self, quantum: u64);
+  fn process(&mut self, _quantum: u64);
   fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
     vec![]
   }

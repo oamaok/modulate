@@ -13,12 +13,12 @@ pub struct PowShaper {
 }
 
 impl Module for PowShaper {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
-      let pre_gained = self.input.at(sample) * self.pre_gain.at(sample, quantum);
+      let pre_gained = self.input.at(sample) * self.pre_gain.at(sample);
       self.output[sample] = f32::signum(pre_gained)
-        * f32::abs(pre_gained).powf(self.exponent.at(sample, quantum))
-        * self.gain.at(sample, quantum);
+        * f32::abs(pre_gained).powf(self.exponent.at(sample))
+        * self.gain.at(sample);
     }
   }
 

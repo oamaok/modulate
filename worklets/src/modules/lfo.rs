@@ -23,7 +23,7 @@ pub struct LFO {
 }
 
 impl Module for LFO {
-  fn process(&mut self, quantum: u64) {
+  fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
       let edge = self.sync_edge_detector.step(self.sync_input.at(sample));
 
@@ -31,9 +31,9 @@ impl Module for LFO {
         self.phase = 0.5;
       }
 
-      let cv = self.cv_param.at(sample, quantum);
-      let pw = self.pw_param.at(sample, quantum);
-      let amount = self.amount_param.at(sample, quantum);
+      let cv = self.cv_param.at(sample);
+      let pw = self.pw_param.at(sample);
+      let amount = self.amount_param.at(sample);
 
       let freq = 13.75 * f32::powf(2.0, cv - 12.0);
 

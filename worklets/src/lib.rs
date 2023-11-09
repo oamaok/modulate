@@ -210,7 +210,12 @@ impl Worker {
           break;
         }
 
-        modules[module_index].process(context.worker_position);
+        let module = &mut modules[module_index];
+        for parameter in module.get_parameters() {
+          parameter.process(context.worker_position);
+        }
+
+        module.process(context.worker_position);
       }
 
       modules.rw_lock.unlock_read();

@@ -1,3 +1,4 @@
+use std::arch::wasm32::{f32x4_add, f32x4_mul, v128, v128_load, v128_store};
 use std::ops::{Deref, DerefMut};
 use std::ops::{Index, IndexMut};
 use wasm_bindgen::prelude::*;
@@ -14,7 +15,7 @@ extern "C" {
 }
 
 #[derive(Clone, Copy)]
-pub struct AudioBuffer([f32; QUANTUM_SIZE]);
+pub struct AudioBuffer(pub [f32; QUANTUM_SIZE]);
 
 impl Deref for AudioBuffer {
   type Target = [f32; QUANTUM_SIZE];
@@ -36,7 +37,7 @@ impl Default for AudioBuffer {
 }
 
 #[derive(PartialEq)]
-pub struct AudioInput(*const AudioOutput);
+pub struct AudioInput(pub *const AudioOutput);
 
 impl Default for AudioInput {
   fn default() -> Self {
@@ -68,7 +69,8 @@ pub struct AudioParam {
   modulation_type: AudioParamModulationType,
   target: f32,
   previous: f32,
-  value: f32,
+  buffer: [f32; QUANTUM_SIZE],
+  modulated_buffer: [f32; QUANTUM_SIZE],
   target_set_at_quantum: u64,
   pub modulation: AudioInput,
 }
@@ -79,7 +81,8 @@ impl Default for AudioParam {
       modulation_type: AudioParamModulationType::Additive,
       target: 0.0,
       previous: 0.0,
-      value: 0.0,
+      buffer: [0.0; QUANTUM_SIZE],
+      modulated_buffer: [0.0; QUANTUM_SIZE],
       target_set_at_quantum: 0,
       modulation: AudioInput::default(),
     }
@@ -94,38 +97,75 @@ impl AudioParam {
       modulation_type,
       target: 0.0,
       previous: 0.0,
-      value: 0.0,
+      buffer: [0.0; QUANTUM_SIZE],
+      modulated_buffer: [0.0; QUANTUM_SIZE],
       target_set_at_quantum: 0,
       modulation: AudioInput::default(),
+    }
+  }
+
+  pub fn process(&mut self, quantum: u64) {
+    for sample in 0..QUANTUM_SIZE {
+      let dq = (quantum as i64) - (self.target_set_at_quantum as i64);
+      let ds = dq * 128 + sample as i64;
+      let t = ds as f32 / PARAMETER_SMOOTHING_TIME;
+      let value = if t > 1.0 {
+        self.target
+      } else if t < 0.0 {
+        self.previous
+      } else {
+        lerp(self.previous, self.target, t)
+      };
+
+      self.buffer[sample] = value;
+    }
+
+    let modulation_ptr = unsafe { (*self.modulation.0).current().as_ptr() };
+
+    match self.modulation_type {
+      AudioParamModulationType::Additive => unsafe {
+        for block in 0..(QUANTUM_SIZE / 4) {
+          let block = block * 4;
+
+          let value = v128_load((self.buffer.as_ptr().offset(block as isize)) as *const v128);
+          let modulation = v128_load((modulation_ptr.offset(block as isize)) as *const v128);
+
+          v128_store(
+            self.modulated_buffer.as_mut_ptr().offset(block as isize) as *mut v128,
+            f32x4_add(value, modulation),
+          );
+        }
+      },
+      AudioParamModulationType::Multiplicative => unsafe {
+        for block in 0..(QUANTUM_SIZE / 4) {
+          let block = block * 4;
+
+          let value = v128_load((self.buffer.as_ptr().offset(block as isize)) as *const v128);
+          let modulation = v128_load((modulation_ptr.offset(block as isize)) as *const v128);
+
+          v128_store(
+            self.modulated_buffer.as_mut_ptr().offset(block as isize) as *mut v128,
+            f32x4_mul(value, modulation),
+          );
+        }
+      },
     }
   }
 
   pub fn set_target(&mut self, target: f32, target_set_at_quantum: u64) {
     self.target = target;
     self.target_set_at_quantum = target_set_at_quantum;
-    self.previous = self.value;
+    self.previous = self.buffer[QUANTUM_SIZE - 1];
   }
 
-  pub fn at_mod_amt(&mut self, sample: usize, quantum: u64, amt: f32) -> f32 {
-    let dq = (quantum as i64) - (self.target_set_at_quantum as i64);
-    let ds = dq * 128 + sample as i64;
-    let t = ds as f32 / PARAMETER_SMOOTHING_TIME;
-    self.value = if t > 1.0 {
-      self.target
-    } else if t < 0.0 {
-      self.value
-    } else {
-      lerp(self.previous, self.target, t)
-    };
-
-    match self.modulation_type {
-      AudioParamModulationType::Additive => self.value + self.modulation.at(sample) * amt,
-      AudioParamModulationType::Multiplicative => self.value * self.modulation.at(sample),
-    }
+  pub fn at(&mut self, sample: usize) -> f32 {
+    self.modulated_buffer[sample]
   }
 
-  pub fn at(&mut self, sample: usize, quantum: u64) -> f32 {
-    self.at_mod_amt(sample, quantum, 1.0)
+  pub fn at_f32x4(&mut self, sample: usize) -> *const v128 {
+    debug_assert!(sample + 4 <= QUANTUM_SIZE);
+
+    unsafe { self.modulated_buffer.as_ptr().offset(sample as isize) as *const v128 }
   }
 }
 
