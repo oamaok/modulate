@@ -66,7 +66,12 @@ const state = createState<State>({
 
 export default state
 export const { cursor, viewport, patch } = state
-export const nextId = () => crypto.randomUUID() as Id
+
+const randomBytes = new Uint8Array(12)
+export const nextId = () => {
+  crypto.getRandomValues(randomBytes)
+  return btoa(String.fromCharCode(...randomBytes)) as Id
+}
 
 window.addEventListener('popstate', () => {
   state.route = parseRoute(location)
