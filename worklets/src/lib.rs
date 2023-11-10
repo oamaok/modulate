@@ -237,7 +237,7 @@ impl Worker {
         for audio_output in context.audio_outputs.iter() {
           let module = modules.get_mut(audio_output).unwrap();
           let mut outputs = module.get_outputs();
-          let output = outputs.get_mut(0).unwrap().current();
+          let output = outputs.get_mut(0).unwrap().read_buffer();
           for sample in 0..modulate_core::QUANTUM_SIZE {
             (*output_buffer)[sample] += output[sample];
           }

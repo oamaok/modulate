@@ -1,4 +1,6 @@
-use std::arch::wasm32::{f32x4_add, f32x4_mul, v128, v128_load, v128_store};
+use std::arch::wasm32::{
+  f32x4, f32x4_add, f32x4_max, f32x4_min, f32x4_mul, f32x4_sub, v128, v128_load, v128_store,
+};
 use std::ops::{Deref, DerefMut};
 use std::ops::{Index, IndexMut};
 use wasm_bindgen::prelude::*;
@@ -47,7 +49,7 @@ impl Default for AudioInput {
 
 impl AudioInput {
   pub fn at(&self, sample: usize) -> f32 {
-    unsafe { (*self.0).previous()[sample] }
+    unsafe { (*self.0).read_buffer()[sample] }
   }
 
   pub fn set_ptr(&mut self, ptr: *const AudioOutput) {
@@ -89,7 +91,7 @@ impl Default for AudioParam {
   }
 }
 
-const PARAMETER_SMOOTHING_TIME: f32 = 44100.0 * 0.01; // samples
+const INV_PARAMETER_SMOOTHING_TIME: f32 = 1.0 / (44100.0 * 0.01/* samples */);
 
 impl AudioParam {
   pub fn new(modulation_type: AudioParamModulationType) -> AudioParam {
@@ -105,22 +107,40 @@ impl AudioParam {
   }
 
   pub fn process(&mut self, quantum: u64) {
-    for sample in 0..QUANTUM_SIZE {
-      let dq = (quantum as i64) - (self.target_set_at_quantum as i64);
-      let ds = dq * 128 + sample as i64;
-      let t = ds as f32 / PARAMETER_SMOOTHING_TIME;
-      let value = if t > 1.0 {
-        self.target
-      } else if t < 0.0 {
-        self.previous
-      } else {
-        lerp(self.previous, self.target, t)
-      };
+    let mut t = [0.0; 4];
 
-      self.buffer[sample] = value;
+    for i in 0..4 {
+      let dq = ((quantum as i64) - (self.target_set_at_quantum as i64)) as f32;
+      let ds = dq * 128.0 + i as f32;
+      t[i] = ds * INV_PARAMETER_SMOOTHING_TIME;
     }
 
-    let modulation_ptr = unsafe { (*self.modulation.0).current().as_ptr() };
+    let t_increment = (t[1] - t[0]) * 4.0;
+
+    unsafe {
+      let mut t = v128_load(t.as_ptr() as *const v128);
+      let t_increment = f32x4(t_increment, t_increment, t_increment, t_increment);
+
+      let zero = f32x4(0.0, 0.0, 0.0, 0.0);
+      let one = f32x4(1.0, 1.0, 1.0, 1.0);
+
+      let target = f32x4(self.target, self.target, self.target, self.target);
+      let previous = f32x4(self.previous, self.previous, self.previous, self.previous);
+
+      for block in 0..(QUANTUM_SIZE / 4) {
+        let block = block * 4;
+        let clamped_t = f32x4_max(zero, f32x4_min(one, t));
+
+        v128_store(
+          self.buffer.as_mut_ptr().offset(block as isize) as *mut v128,
+          f32x4_add(previous, f32x4_mul(clamped_t, f32x4_sub(target, previous))),
+        );
+
+        t = f32x4_add(t, t_increment);
+      }
+    }
+
+    let modulation_ptr = unsafe { (*self.modulation.0).read_buffer().as_ptr() };
 
     match self.modulation_type {
       AudioParamModulationType::Additive => unsafe {
@@ -203,22 +223,17 @@ impl AudioOutput {
     self.current = (self.current + 1) % AUDIO_OUTPUT_NUM_BUFFERS;
   }
 
-  pub fn current(&self) -> &AudioBuffer {
+  pub fn write_buffer(&self) -> &AudioBuffer {
     &self.buffers[self.current]
   }
 
-  pub fn current_mut(&mut self) -> &mut AudioBuffer {
+  pub fn write_buffer_mut(&mut self) -> &mut AudioBuffer {
     &mut self.buffers[self.current]
   }
 
-  pub fn previous(&self) -> &AudioBuffer {
+  pub fn read_buffer(&self) -> &AudioBuffer {
     let prev = (self.current + AUDIO_OUTPUT_NUM_BUFFERS - 1) % AUDIO_OUTPUT_NUM_BUFFERS;
     &self.buffers[prev]
-  }
-
-  pub fn previous_mut(&mut self) -> &mut AudioBuffer {
-    let prev = (self.current + AUDIO_OUTPUT_NUM_BUFFERS - 1) % AUDIO_OUTPUT_NUM_BUFFERS;
-    &mut self.buffers[prev]
   }
 }
 

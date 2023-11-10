@@ -24,7 +24,7 @@ impl Module for Mixer {
         for channel in 0..CHANNELS {
           let input = v128_load(
             (*self.inputs[channel].0)
-              .previous()
+              .read_buffer()
               .as_ptr()
               .offset(block as isize) as *const v128,
           );
@@ -33,7 +33,9 @@ impl Module for Mixer {
         }
 
         v128_store(
-          (&self.output.current().0).as_ptr().offset(block as isize) as *mut v128,
+          (&self.output.write_buffer().0)
+            .as_ptr()
+            .offset(block as isize) as *mut v128,
           output,
         )
       }
