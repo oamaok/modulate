@@ -47,6 +47,8 @@ const SNAPPING_OPTIONS = [
 const SNAPPING_NONE = 0
 
 const A4_OFFSET = 50
+const MIN_PITCH = -45
+const MAX_PITCH = 50
 
 const NOTE_NAMES = [
   'A',
@@ -140,7 +142,6 @@ class PianoRollEditor extends Component<Props, State> {
     let initialSelectedNotes: string[] = []
 
     const startRectSelection = (pitch: number, pos: number) => {
-      initialSelectedNotes = this.state.selectedNotes
       this.state.selectionRect = {
         minPitch: pitch,
         maxPitch: pitch - 1,
@@ -205,12 +206,34 @@ class PianoRollEditor extends Component<Props, State> {
     }
 
     const moveSelectedNotes = (pitch: number, pos: number) => {
-      for (const noteId of this.state.selectedNotes) {
-        const note = moduleState.notes.find(({ id }) => noteId === id)
+      const selectedNotes = moduleState.notes.filter((note) =>
+        this.state.selectedNotes.includes(note.id)
+      )
+
+      let deltaPos = pos - startPos
+      let deltaPitch = pitch - startPitch
+
+      for (const note of selectedNotes) {
+        if (note.start + deltaPos < 0) {
+          deltaPos = 0
+          break
+        }
+      }
+
+      for (const note of selectedNotes) {
+        if (
+          note.pitch + deltaPitch < MIN_PITCH ||
+          note.pitch + deltaPitch > MAX_PITCH
+        ) {
+          deltaPitch = 0
+        }
+      }
+
+      for (const note of selectedNotes) {
         assert(note)
 
-        note.pitch += pitch - startPitch
-        note.start += pos - startPos
+        note.pitch += deltaPitch
+        note.start += deltaPos
       }
 
       startPitch = pitch
@@ -238,11 +261,16 @@ class PianoRollEditor extends Component<Props, State> {
 
     useMouseDrag({
       ref: this.canvasRef,
-      onDragStart: ({ button, ctrlKey, relativeX, relativeY }) => {
+      onDragStart: ({ button, ctrlKey, shiftKey, relativeX, relativeY }) => {
         const { pos, pitch } = this.getPitchAndPosition(relativeX, relativeY)
 
         if (button === LEFT_CLICK) {
           if (ctrlKey) {
+            if (shiftKey) {
+              initialSelectedNotes = this.state.selectedNotes
+            } else {
+              initialSelectedNotes = []
+            }
             startRectSelection(pitch, pos)
             return
           }
@@ -497,12 +525,15 @@ class PianoRollEditor extends Component<Props, State> {
         const y = (A4_OFFSET - note.pitch) * noteHeight
         const width = (note.length / BAR_LENGTH) * BAR_WIDTH
 
-        context.fillStyle = '#25a200'
-        context.fillRect(x, y, width, noteHeight)
-        context.strokeStyle = this.state.selectedNotes.includes(note.id)
-          ? '#ffff00'
-          : '#155c00'
-        context.strokeRect(x, y, width, noteHeight)
+        const isSelectedNode = this.state.selectedNotes.includes(note.id)
+
+        context.fillStyle = isSelectedNode ? '#a29500' : '#5aad41'
+        context.strokeStyle = isSelectedNode ? '#f5e200' : '#155c00'
+
+        context.beginPath()
+        context.roundRect(x, y, width, noteHeight, 4)
+        context.fill()
+        context.stroke()
         context.fillStyle = '#165901'
         if (noteHeight >= 16) {
           context.fillText(
@@ -552,8 +583,8 @@ class PianoRollEditor extends Component<Props, State> {
           -this.state.offset.x + REFERENCE_KEYBOARD_WIDTH,
           -this.state.offset.y
         )
-        context.strokeStyle = '#ff0000'
-        context.lineWidth = 2
+        context.strokeStyle = '#a295007f'
+        context.lineWidth = 8
 
         const x = (this.state.selectionRect.minTime / BAR_LENGTH) * BAR_WIDTH
         const y = (A4_OFFSET - this.state.selectionRect.minPitch) * noteHeight
@@ -567,19 +598,21 @@ class PianoRollEditor extends Component<Props, State> {
             this.state.selectionRect.maxPitch) *
           noteHeight
 
-        context.strokeRect(x, y, w, h)
+        context.beginPath()
+        context.roundRect(x, y, w, h, 8)
+        context.stroke()
       }
     }
 
     {
       // Render playhead
-      context.fillStyle = '#165901'
+      context.fillStyle = '#1659017f'
       context.resetTransform()
       context.translate(-this.state.offset.x + REFERENCE_KEYBOARD_WIDTH, 0)
       context.fillRect(
         (this.state.position / BAR_LENGTH) * BAR_WIDTH,
         0,
-        4,
+        8,
         height
       )
     }
@@ -589,6 +622,7 @@ class PianoRollEditor extends Component<Props, State> {
       context.resetTransform()
       context.translate(Math.max(-this.state.offset.x, 0), -this.state.offset.y)
       context.font = 'bold 12px "Gemunu Libre"'
+      context.lineWidth = 2
 
       for (let i = 0; i < 12 * OCTAVES; i++) {
         context.fillStyle = NOTE_COLOR[i % 12] ? '#333' : '#ddd'
