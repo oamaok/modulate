@@ -20,6 +20,40 @@
   padding: 24px;
 }
 
+.actions {
+  display: flex;
+  flex-direction: row;
+  height: 32px;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.actions button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 8px;
+  background-color: #222;
+  box-shadow: var(--box-shadow);
+  border-radius: 3px;
+}
+
+.snapping {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.snapping select {
+  font-family: 'Gemunu Libre';
+  color: #fff;
+  border: 1px solid var(--primary);
+}
+
+.snapping select option {
+  color: #000;
+}
+
 .editor {
   width: 100%;
   height: 100%;

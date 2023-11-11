@@ -11,6 +11,8 @@ import useMouseDrag, {
 } from '../../hooks/useMouseDrag'
 import useTouchEvents, { TapType } from '../../hooks/useTouchEvents'
 import useKeyboard from '../../hooks/useKeyboard'
+import Icon from '../icon/Icon'
+import * as icons from '../../icons'
 
 export type PianoRollNote = {
   id: string
@@ -672,20 +674,33 @@ class PianoRollEditor extends Component<Props, State> {
     return (
       <div className={styles.wrapper}>
         <div className={styles.pianoRollEditor}>
-          <button onClick={this.props.onClose}>close</button>
-          <select
-            onChange={(evt: InputEvent) => {
-              this.state.snapping = parseInt(
-                (evt.target as HTMLOptionElement).value
-              )
-            }}
-          >
-            {SNAPPING_OPTIONS.map(([, name], i) => (
-              <option selected={i === this.state.snapping} value={i}>
-                {name}
-              </option>
-            ))}
-          </select>
+          <div className={styles.actions}>
+            <button onClick={() => this.deleteNotes(this.state.selectedNotes)}>
+              <Icon size={16} name={icons.delete} />
+              delete selected
+            </button>
+            <div className={styles.snapping}>
+              <label>Snapping</label>
+              <select
+                onChange={(evt: InputEvent) => {
+                  this.state.snapping = parseInt(
+                    (evt.target as HTMLOptionElement).value
+                  )
+                }}
+              >
+                {SNAPPING_OPTIONS.map(([, name], i) => (
+                  <option selected={i === this.state.snapping} value={i}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button onClick={this.props.onClose}>
+              <Icon size={16} name={icons.close} />
+              close
+            </button>
+          </div>
           <div className={styles.editor} onWheel={this.handleWheel}>
             <canvas ref={this.canvasRef} />
           </div>
