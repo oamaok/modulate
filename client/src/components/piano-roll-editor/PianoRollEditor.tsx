@@ -30,7 +30,7 @@ const OCTAVES = 8
 const BAR_WIDTH = 720
 
 // Set to this value to allow snapping for 1/32ths, 3rds, 5ths, 7ths and more
-export const BAR_LENGTH = 32 * 3 * 5 * 7
+export const BAR_LENGTH = 64 * 3 * 5 * 7
 
 const SNAPPING_OPTIONS = [
   [BAR_LENGTH, 'None'],
@@ -139,7 +139,7 @@ class PianoRollEditor extends Component<Props, State> {
 
     let startPos = 0
     let startPitch = 0
-    let editingLength = false
+    let resizing = false
     let noteLength = BAR_LENGTH / 16
     let initialSelectedNotes: string[] = []
 
@@ -150,6 +150,33 @@ class PianoRollEditor extends Component<Props, State> {
         minTime: pos,
         maxTime: pos + 1,
       }
+    }
+
+    const updateResize = (pitch: number, pos: number) => {
+      const selectedNotes = moduleState.notes.filter((note) =>
+        this.state.selectedNotes.includes(note.id)
+      )
+
+      let deltaPos = pos - startPos
+
+      for (const note of selectedNotes) {
+        if (note.length + deltaPos < BAR_LENGTH / 64) {
+          deltaPos = 0
+          break
+        }
+      }
+
+      for (const note of selectedNotes) {
+        note.length += deltaPos
+      }
+
+      noteLength += deltaPos
+
+      startPos = pos
+    }
+
+    const pitchToPixels = (pitch: number) => {
+      return (pitch / BAR_LENGTH) * BAR_WIDTH
     }
 
     const updateRectSelection = (pitch: number, pos: number) => {
@@ -179,18 +206,23 @@ class PianoRollEditor extends Component<Props, State> {
     }
 
     const createOrDragNote = (pitch: number, pos: number) => {
-      const noteAtPosition = moduleState.notes.find(
-        (note) =>
-          note.pitch === pitch &&
-          note.start <= pos &&
-          note.start + note.length > pos
-      )
-      startPos = pos
+      const noteAtPosition = getNoteAtPosition(pitch, pos)
+
+      const roundedPos = this.roundToSnap(pos)
+
+      startPos = roundedPos
       startPitch = pitch
 
       if (noteAtPosition) {
+        noteLength = noteAtPosition.length
         if (!this.state.selectedNotes.includes(noteAtPosition.id)) {
           this.state.selectedNotes = [noteAtPosition.id]
+        }
+
+        if (
+          pitchToPixels(noteAtPosition.start + noteAtPosition.length - pos) < 20
+        ) {
+          resizing = true
         }
 
         return
@@ -199,7 +231,7 @@ class PianoRollEditor extends Component<Props, State> {
       const note: PianoRollNote = {
         id: nextId(),
         pitch,
-        start: this.roundToSnap(pos),
+        start: roundedPos,
         length: noteLength,
       }
 
@@ -211,8 +243,8 @@ class PianoRollEditor extends Component<Props, State> {
       const selectedNotes = moduleState.notes.filter((note) =>
         this.state.selectedNotes.includes(note.id)
       )
-
-      let deltaPos = pos - startPos
+      const roundedPos = this.roundToSnap(pos)
+      let deltaPos = roundedPos - startPos
       let deltaPitch = pitch - startPitch
 
       for (const note of selectedNotes) {
@@ -239,7 +271,7 @@ class PianoRollEditor extends Component<Props, State> {
       }
 
       startPitch = pitch
-      startPos = pos
+      startPos = roundedPos
     }
 
     const getNoteAtPosition = (pitch: number, pos: number) => {
@@ -264,7 +296,10 @@ class PianoRollEditor extends Component<Props, State> {
     useMouseDrag({
       ref: this.canvasRef,
       onDragStart: ({ button, ctrlKey, shiftKey, relativeX, relativeY }) => {
-        const { pos, pitch } = this.getPitchAndPosition(relativeX, relativeY)
+        const { pos, snappedPos, pitch } = this.getPitchAndPosition(
+          relativeX,
+          relativeY
+        )
 
         if (button === LEFT_CLICK) {
           if (ctrlKey) {
@@ -286,13 +321,22 @@ class PianoRollEditor extends Component<Props, State> {
         }
       },
       onDrag: ({ button, relativeX, relativeY, deltaX, deltaY }) => {
-        const { pos, pitch } = this.getPitchAndPosition(relativeX, relativeY)
+        const { pos, snappedPos, pitch } = this.getPitchAndPosition(
+          relativeX,
+          relativeY
+        )
 
         if (button === LEFT_CLICK) {
           if (this.state.selectionRect) {
             updateRectSelection(pitch, pos)
             return
           }
+
+          if (resizing) {
+            updateResize(pitch, snappedPos)
+            return
+          }
+
           moveSelectedNotes(pitch, pos)
         }
 
@@ -308,6 +352,7 @@ class PianoRollEditor extends Component<Props, State> {
         }
       },
       onDragEnd: () => {
+        resizing = false
         endRectSelection()
       },
     })
@@ -316,7 +361,10 @@ class PianoRollEditor extends Component<Props, State> {
       ref: this.canvasRef,
       disableDoubleTap: true,
       onTap: ({ relativeX, relativeY, tapType }) => {
-        const { pos, pitch } = this.getPitchAndPosition(relativeX, relativeY)
+        const { pos, snappedPos, pitch } = this.getPitchAndPosition(
+          relativeX,
+          relativeY
+        )
 
         const noteAtPosition = getNoteAtPosition(pitch, pos)
         if (tapType === TapType.SINGLE) {
@@ -327,7 +375,7 @@ class PianoRollEditor extends Component<Props, State> {
             const note: PianoRollNote = {
               id: nextId(),
               pitch,
-              start: this.roundToSnap(pos),
+              start: snappedPos,
               length: noteLength,
             }
 
@@ -337,12 +385,15 @@ class PianoRollEditor extends Component<Props, State> {
         }
       },
       onDragStart: ({ relativeX, relativeY, tapType }) => {
-        const { pos, pitch } = this.getPitchAndPosition(relativeX, relativeY)
-        startPos = pos
+        const { pos, snappedPos, pitch } = this.getPitchAndPosition(
+          relativeX,
+          relativeY
+        )
+        startPos = snappedPos
         startPitch = pitch
 
         if (tapType === TapType.LONG) {
-          startRectSelection(pitch, pos)
+          startRectSelection(pitch, snappedPos)
         }
 
         if (tapType === TapType.SINGLE) {
@@ -350,24 +401,40 @@ class PianoRollEditor extends Component<Props, State> {
           if (!noteAtPosition) {
             this.state.selectedNotes = []
           } else {
+            noteLength = noteAtPosition.length
             if (!this.state.selectedNotes.includes(noteAtPosition.id)) {
               this.state.selectedNotes = [noteAtPosition.id]
+            }
+
+            if (
+              pitchToPixels(
+                noteAtPosition.start + noteAtPosition.length - pos
+              ) < 20
+            ) {
+              resizing = true
             }
           }
         }
       },
       onDrag: ({ relativeX, relativeY, deltaX, deltaY, tapType }) => {
-        const { pos, pitch } = this.getPitchAndPosition(relativeX, relativeY)
+        const { pos, snappedPos, pitch } = this.getPitchAndPosition(
+          relativeX,
+          relativeY
+        )
         if (tapType === TapType.LONG) {
           if (this.state.selectionRect) {
-            updateRectSelection(pitch, pos)
+            updateRectSelection(pitch, snappedPos)
             return
           }
         }
 
         if (tapType === TapType.SINGLE) {
           if (this.state.selectedNotes.length !== 0) {
-            moveSelectedNotes(pitch, pos)
+            if (resizing) {
+              updateResize(pitch, snappedPos)
+            } else {
+              moveSelectedNotes(pitch, snappedPos)
+            }
           } else {
             this.state.offset.x += deltaX
             this.state.offset.y += deltaY
@@ -377,6 +444,7 @@ class PianoRollEditor extends Component<Props, State> {
       },
       onDragEnd: () => {
         endRectSelection()
+        resizing = false
       },
     })
 
@@ -424,20 +492,20 @@ class PianoRollEditor extends Component<Props, State> {
   }
 
   getPitchAndPosition = (x: number, y: number) => {
-    const pos = this.roundToSnap(
-      Math.max(
-        0,
-        Math.floor(
-          (x + this.state.offset.x - REFERENCE_KEYBOARD_WIDTH) /
-            (BAR_WIDTH / BAR_LENGTH)
-        )
+    const pos = Math.max(
+      0,
+      Math.floor(
+        (x + this.state.offset.x - REFERENCE_KEYBOARD_WIDTH) /
+          (BAR_WIDTH / BAR_LENGTH)
       )
     )
+
+    const snappedPos = this.roundToSnap(pos)
 
     const noteHeight = NOTE_HEIGHT * this.state.zoom.y
     const pitch = A4_OFFSET - Math.floor((this.state.offset.y + y) / noteHeight)
 
-    return { pos, pitch }
+    return { pos, snappedPos, pitch }
   }
 
   renderPianoRoll = () => {

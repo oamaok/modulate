@@ -55,7 +55,7 @@ const Header = () => {
       icon: icons.add,
       label: 'New patch',
       action: async () => {
-        if (!canUserSavePatch() || (await SaveDialog.open())) {
+        if (await SaveDialog.open()) {
           await resetPatch()
         }
       },

@@ -5,7 +5,7 @@ import { Vec2 } from '@modulate/common/types'
 
 const DOUBLE_TAP_THRESHOLD = 200 // ms
 const DOUBLE_TAP_ERROR_RADIUS_SQUARED = 4 ** 2 // px
-const LONG_PRESS_THRESHOLD = 500 // ms
+const LONG_PRESS_THRESHOLD = 300 // ms
 
 type Target = HTMLElement | SVGElement
 
