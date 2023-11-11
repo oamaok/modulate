@@ -380,16 +380,16 @@ class PianoRollEditor extends Component<Props, State> {
     const wrapper = canvas.parentElement
     assert(wrapper)
 
-    const { height } = wrapper.getBoundingClientRect()
+    const { height, width } = wrapper.getBoundingClientRect()
 
     const noteHeight = NOTE_HEIGHT * this.state.zoom.y
     const pianoRollHeight = noteHeight * 12 * OCTAVES
 
-    this.state.offset.x = Math.max(this.state.offset.x, -BAR_WIDTH * 2)
+    this.state.offset.x = Math.max(this.state.offset.x, -width * 0.5)
     this.state.offset.y = clamp(
       this.state.offset.y,
-      -pianoRollHeight / 2,
-      pianoRollHeight * 1.5 - height
+      -height * 0.5,
+      pianoRollHeight - height * 0.5
     )
   }
 
