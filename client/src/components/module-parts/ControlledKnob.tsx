@@ -57,7 +57,7 @@ type CommonProps = {
   onChange: (value: number) => void
 
   // Used for tests
-  id?: string
+  param?: number
   moduleId?: string
 }
 
@@ -253,7 +253,7 @@ const ControlledKnob = (props: ControlledKnobProps) => {
         }}
         {...testAttributes({
           id: 'knob',
-          'knob-id': props.id,
+          'knob-param': props.param,
           'module-id': props.moduleId,
           value: getValue(props).toFixed(4),
         })}
