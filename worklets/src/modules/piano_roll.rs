@@ -5,7 +5,7 @@ use crate::{
   module::{Module, ModuleEvent, ModuleMessage, PianoRollNote},
 };
 
-const BAR_LENGTH: f32 = 2.0 * 2.0 * 3.0 * 4.0 * 5.0;
+const BAR_LENGTH: f32 = 32.0 * 3.0 * 5.0 * 7.0;
 
 #[derive(Default)]
 pub struct PianoRoll {

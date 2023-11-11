@@ -1,11 +1,17 @@
-import { useEffect } from 'kaiku'
+import { useEffect, useRef, useState } from 'kaiku'
 import Header from '../header/Header'
 import * as styles from './App.css'
 import UserBar from '../user-bar/UserBar'
 import Patch from '../patch/Patch'
 import Hint from '../hint/Hint'
 import { initializeEngine } from '../../engine'
-import state, { closeOverlay, loadPatch, patch, resetPatch } from '../../state'
+import state, {
+  closeOverlay,
+  deleteModule,
+  loadPatch,
+  patch,
+  resetPatch,
+} from '../../state'
 import * as api from '../../api'
 import { joinRoom } from '../../rooms'
 import Performance from '../performance/Performance'
@@ -18,6 +24,8 @@ import Overlay from '../overlay/Overlay'
 import testAttributes from '../../test-attributes'
 import MiniMap from '../mini-map/MiniMap'
 import PianoRollEditor from '../piano-roll-editor/PianoRollEditor'
+import useKeyboard from '../../hooks/useKeyboard'
+import { PianoRollEditorPortal } from '../../portals'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -103,6 +111,20 @@ const App = () => {
     )
   })
 
+  document.addEventListener('keydown', (evt) => {
+    switch (evt.code) {
+    }
+  })
+
+  useKeyboard({
+    Delete: () => {
+      if (state.activeModule) {
+        deleteModule(state.activeModule)
+        state.activeModule = null
+      }
+    },
+  })
+
   const OverlayComponent = {
     none: null,
     init: InitModal,
@@ -134,9 +156,7 @@ const App = () => {
       <ContextMenu />
       {OverlayComponent ? <OverlayComponent /> : null}
       <SaveDialog />
-      {state.activePianoRollModuleId !== null ? (
-        <PianoRollEditor moduleId={state.activePianoRollModuleId} />
-      ) : null}
+      <PianoRollEditorPortal.Exit />
     </div>
   )
 }

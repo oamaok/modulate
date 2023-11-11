@@ -60,8 +60,6 @@ const state = createState<State>({
     open: false,
     position: origin(),
   },
-
-  activePianoRollModuleId: null,
 })
 
 export default state

@@ -4,8 +4,8 @@ import { Id } from '@modulate/common/types'
 import * as styles from './Module.css'
 import testAttributes from '../../test-attributes'
 import { ModuleName } from '@modulate/worklets/src/modules'
-import { useDrag } from '../../hooks'
 import moduleConfig from '../../module-config'
+import useDrag from '../../hooks/useDrag'
 
 type Props = {
   id: Id
@@ -15,12 +15,13 @@ type Props = {
 
 const Module: FC<Props> = ({ id, type, name, children }) => {
   const headerRef = useRef<HTMLDivElement>()
+
   useDrag({
     ref: headerRef,
     relativeToViewOffset: true,
-    onMove({ dx, dy }) {
-      modulePosition.x -= dx
-      modulePosition.y -= dy
+    onDrag({ deltaX, deltaY }) {
+      modulePosition.x -= deltaX
+      modulePosition.y -= deltaY
     },
   })
 
