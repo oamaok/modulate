@@ -150,6 +150,11 @@ const onMouseUp = (evt: MouseEvent) => {
 document.addEventListener('mousedown', onMouseDown)
 document.addEventListener('mousemove', onMouseMove)
 document.addEventListener('mouseup', onMouseUp)
+document.addEventListener('contextmenu', (evt) => {
+  if (targetHandlers.has(evt.target as HTMLElement)) {
+    evt.preventDefault()
+  }
+})
 
 const useMouseDrag = (handlers: TargetHandlers) => {
   useEffect(() => {
