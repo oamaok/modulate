@@ -3,8 +3,8 @@ const testAttributes = __DEBUG__
       const ret: Record<string, string | number> = {}
       for (const key in data) {
         const value = data[key]
-        if (value) {
-          ret[`data-test-${key}`] = value
+        if (value !== null && value !== undefined) {
+          ret[`data-test-${key}`] = String(value)
         }
       }
       return ret

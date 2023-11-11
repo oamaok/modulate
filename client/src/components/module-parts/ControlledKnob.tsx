@@ -3,7 +3,7 @@ import state, { displayHint, hideHint, setHintContent } from '../../state'
 import * as styles from './Knob.css'
 import assert from '../../assert'
 import testAttributes from '../../test-attributes'
-import { useDrag } from '../../hooks'
+import useDrag from '../../hooks/useDrag'
 
 type PercentageKnob = {
   type: 'percentage'
@@ -57,7 +57,7 @@ type CommonProps = {
   onChange: (value: number) => void
 
   // Used for tests
-  id?: string
+  param?: number
   moduleId?: string
 }
 
@@ -222,14 +222,14 @@ const ControlledKnob = (props: ControlledKnobProps) => {
 
   useDrag({
     ref: knobRef,
-    onStart(pos) {
+    onDragStart(pos) {
       knobState.isDragging = true
       displayHint(getHintText({ ...props, value: getValue(props) }), pos)
     },
 
-    onMove: ({ dy }) => {
+    onDrag: ({ deltaY }) => {
       const multiplier = state.keyboard.modifiers.shift ? 1 / 3000 : 1 / 300
-      knobState.position += dy * multiplier
+      knobState.position += deltaY * multiplier
       knobState.position = Math.max(0, Math.min(1, knobState.position))
 
       const newValue = getNormalizedKnobValue(knobState.position, props)
@@ -237,7 +237,7 @@ const ControlledKnob = (props: ControlledKnobProps) => {
       setHintContent(getHintText({ ...props, value: newValue }))
     },
 
-    onEnd: () => {
+    onDragEnd: () => {
       knobState.isDragging = false
       hideHint()
     },
@@ -253,7 +253,7 @@ const ControlledKnob = (props: ControlledKnobProps) => {
         }}
         {...testAttributes({
           id: 'knob',
-          'knob-id': props.id,
+          'knob-param': props.param,
           'module-id': props.moduleId,
           value: getValue(props).toFixed(4),
         })}

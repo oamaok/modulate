@@ -4,7 +4,7 @@ import moduleConfig from '../../module-config'
 import * as styles from './MiniMap.css'
 import assert from '../../assert'
 import { ModuleName } from '@modulate/worklets/src/modules'
-import { useDrag } from '../../hooks'
+import useDrag from '../../hooks/useDrag'
 
 const MINIMAP_WIDTH = 200
 const MINIMAP_HEIGHT = 120
@@ -82,7 +82,7 @@ const MiniMap = () => {
 
   useDrag({
     ref: canvasRef,
-    onStart({ relativeX, relativeY }) {
+    onDragStart({ relativeX, relativeY }) {
       const patchBoundingBox = getPatchBoundingBox()
       const scale = patchBoundingBox.width / MINIMAP_WIDTH
 
@@ -93,14 +93,14 @@ const MiniMap = () => {
 
       canvasRef.current?.classList.add(styles.dragging)
     },
-    onMove({ dx, dy }) {
+    onDrag({ deltaX, deltaY }) {
       const patchBoundingBox = getPatchBoundingBox()
       const scale = patchBoundingBox.width / MINIMAP_WIDTH
 
-      state.viewOffset.x += dx * scale
-      state.viewOffset.y += dy * scale
+      state.viewOffset.x += deltaX * scale
+      state.viewOffset.y += deltaY * scale
     },
-    onEnd() {
+    onDragEnd() {
       canvasRef.current?.classList.remove(styles.dragging)
     },
   })

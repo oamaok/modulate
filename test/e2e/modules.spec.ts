@@ -288,7 +288,7 @@ test('can delete connected modules', async ({ page }) => {
 
   await expect(gainModule).toHaveCount(0)
 
-  const cablePath = page.locator('path')
+  const cablePath = page.locator('[data-test-id=cable]')
   await expect(cablePath).toHaveCount(0)
 })
 

@@ -1,462 +1,134 @@
 {
   "modules": {
-    "836172b4-7a64-4091-b3ad-0b5aeab52b0c": {
-      "name": "Gain",
-      "position": {
-        "x": 808,
-        "y": 215
-      },
-      "state": null
-    },
-    "e9ca7e71-5206-4c32-bda1-b63ee9d74e8f": {
-      "name": "AudioOut",
-      "position": {
-        "x": 805,
-        "y": 445
-      },
-      "state": null
-    },
-    "bea4ca73-30e3-46bf-87e5-4a843523f31b": {
-      "name": "Oscillator",
-      "position": {
-        "x": 472,
-        "y": 314
-      },
-      "state": null
-    },
-    "641457ed-e26a-4c52-996f-7ec043cb7022": {
+    "14VckNrFb1QinIBB": {
       "name": "Clock",
       "position": {
-        "x": 70,
-        "y": 311
+        "x": 509,
+        "y": 381
       },
       "state": {
         "isRunning": true
       }
     },
-    "0a4047a0-7bc5-46d8-a369-82a8b607fee5": {
+    "2wluI1S8LrgHAvzw": {
+      "name": "Oscillator",
+      "position": {
+        "x": 145,
+        "y": 197
+      },
+      "state": null
+    },
+    "J+8xPpJpLXhm/YGa": {
+      "name": "Gain",
+      "position": {
+        "x": 1203,
+        "y": 491
+      },
+      "state": null
+    },
+    "PBuYpIWexKRY2Yx9": {
       "name": "ADSR",
       "position": {
-        "x": 474,
-        "y": 101
+        "x": 797,
+        "y": 311
       },
       "state": null
     },
-    "5346a5f9-5397-4b69-b4be-b1c86c3eb566": {
-      "name": "Delay",
+    "g/KqfVvjOtOgRuuu": {
+      "name": "AudioOut",
       "position": {
-        "x": 806,
-        "y": 331
-      },
-      "state": null
-    },
-    "147d9dba-a46e-4866-8131-58f7eb5a0509": {
-      "name": "Sequencer",
-      "position": {
-        "x": 69,
-        "y": 99
-      },
-      "state": {
-        "notes": [
-          {
-            "index": 0,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 1,
-            "name": "D#",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 2,
-            "name": "A#",
-            "octave": 4,
-            "gate": true,
-            "glide": true
-          },
-          {
-            "index": 3,
-            "name": "G#",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 4,
-            "name": "A#",
-            "octave": 3,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 5,
-            "name": "D#",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 6,
-            "name": "F",
-            "octave": 4,
-            "gate": true,
-            "glide": true
-          },
-          {
-            "index": 7,
-            "name": "D",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 8,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 9,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 10,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 11,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 12,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 13,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 14,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 15,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 16,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 17,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 18,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 19,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 20,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 21,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 22,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 23,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 24,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 25,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 26,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 27,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 28,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 29,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 30,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          },
-          {
-            "index": 31,
-            "name": "C",
-            "octave": 4,
-            "gate": true,
-            "glide": false
-          }
-        ]
-      }
-    },
-    "b506702c-e6a1-47ab-81e3-870c49b7b846": {
-      "name": "BiquadFilter",
-      "position": {
-        "x": 808,
-        "y": 103
+        "x": 1514,
+        "y": 482
       },
       "state": null
     }
   },
   "knobs": {
-    "836172b4-7a64-4091-b3ad-0b5aeab52b0c": {
-      "gain": 0
+    "14VckNrFb1QinIBB": {
+      "0": 128,
+      "1": 1,
+      "2": 1,
+      "3": 1,
+      "4": 0.5,
+      "5": 0.5,
+      "6": 0.5,
+      "7": 0.5,
+      "8": 0.5,
+      "9": 0.5
     },
-    "e9ca7e71-5206-4c32-bda1-b63ee9d74e8f": {
-      "volume": 0.75
+    "2wluI1S8LrgHAvzw": {
+      "0": 0,
+      "1": 0,
+      "2": 0.5,
+      "3": 0,
+      "4": 1
     },
-    "bea4ca73-30e3-46bf-87e5-4a843523f31b": {
-      "pw": 0.5,
-      "fine": 0,
-      "fm": 0,
-      "cv": 1.5987211554602254e-14
+    "J+8xPpJpLXhm/YGa": {
+      "0": 0
     },
-    "641457ed-e26a-4c52-996f-7ec043cb7022": {
-      "pulseWidth2": 0.5,
-      "swing2": 0.5,
-      "ratio2": 1,
-      "pulseWidth1": 0.5,
-      "swing1": 0.5,
-      "ratio1": 1,
-      "pulseWidth0": 0.5633333333333335,
-      "swing0": 0.6599999999999991,
-      "ratio0": 1,
-      "tempo": 127.99999999999966
+    "PBuYpIWexKRY2Yx9": {
+      "0": 0.02944159999999999,
+      "1": 0.1,
+      "2": 0,
+      "3": 0.1,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 1
     },
-    "0a4047a0-7bc5-46d8-a369-82a8b607fee5": {
-      "releaseTension": 0.04666666666666619,
-      "release": 0.14379710745963944,
-      "sustain": 0.18999999999999992,
-      "decayTension": -0.060000000000000275,
-      "decay": 0.0871785641801207,
-      "attackTension": -0.04666666666666619,
-      "attack": 0.001
-    },
-    "5346a5f9-5397-4b69-b4be-b1c86c3eb566": {
-      "dry": 1,
-      "wet": 0.5,
-      "feedBack": 0.3900000000000002,
-      "delayTime": 0.4737220519538325
-    },
-    "147d9dba-a46e-4866-8131-58f7eb5a0509": {
-      "glide": 0.008711111111111145,
-      "sequenceLength": 8
-    },
-    "b506702c-e6a1-47ab-81e3-870c49b7b846": {
-      "resonance": 1,
-      "frequency": 1.1333333333333337
+    "g/KqfVvjOtOgRuuu": {
+      "0": 0.75
     }
   },
   "cables": [
     {
-      "id": "10b3fd6e-42cc-4d5c-9084-6b2de2aeb6cc",
+      "id": "EjfJi6TDY6UFUCe9",
       "from": {
-        "moduleId": "147d9dba-a46e-4866-8131-58f7eb5a0509",
-        "index": 1,
-        "type": "output"
-      },
-      "to": {
-        "moduleId": "0a4047a0-7bc5-46d8-a369-82a8b607fee5",
-        "type": "input",
-        "index": 0
-      }
-    },
-    {
-      "id": "4f349e44-a6e4-4155-abaf-cd42cf6e02ec",
-      "from": {
-        "moduleId": "147d9dba-a46e-4866-8131-58f7eb5a0509",
+        "moduleId": "PBuYpIWexKRY2Yx9",
         "index": 0,
         "type": "output"
       },
       "to": {
-        "moduleId": "bea4ca73-30e3-46bf-87e5-4a843523f31b",
+        "moduleId": "J+8xPpJpLXhm/YGa",
         "type": "parameter",
         "index": 0
       }
     },
     {
-      "id": "a9c79ae4-06d7-4931-bae3-241168368632",
+      "id": "rel3umW1x28/SJeL",
       "from": {
-        "moduleId": "0a4047a0-7bc5-46d8-a369-82a8b607fee5",
-        "index": 0,
-        "type": "output"
-      },
-      "to": {
-        "moduleId": "836172b4-7a64-4091-b3ad-0b5aeab52b0c",
-        "type": "parameter",
-        "index": 0
-      }
-    },
-    {
-      "id": "4d1069ad-6eca-47fb-ac9e-382c7bd41d5c",
-      "from": {
-        "moduleId": "0a4047a0-7bc5-46d8-a369-82a8b607fee5",
+        "moduleId": "2wluI1S8LrgHAvzw",
         "type": "output",
-        "index": 0
+        "index": 2
       },
       "to": {
-        "moduleId": "b506702c-e6a1-47ab-81e3-870c49b7b846",
-        "index": 0,
-        "type": "parameter"
-      }
-    },
-    {
-      "id": "6e9e2b48-4768-449d-b203-13fe654c53b5",
-      "from": {
-        "moduleId": "836172b4-7a64-4091-b3ad-0b5aeab52b0c",
-        "index": 0,
-        "type": "output"
-      },
-      "to": {
-        "moduleId": "5346a5f9-5397-4b69-b4be-b1c86c3eb566",
-        "type": "input",
-        "index": 0
-      }
-    },
-    {
-      "id": "11ec509a-cda7-47c3-9bb3-61aaa0c4876f",
-      "from": {
-        "moduleId": "5346a5f9-5397-4b69-b4be-b1c86c3eb566",
-        "index": 0,
-        "type": "output"
-      },
-      "to": {
-        "moduleId": "e9ca7e71-5206-4c32-bda1-b63ee9d74e8f",
-        "type": "input",
-        "index": 0
-      }
-    },
-    {
-      "id": "8cf8e290-8047-43ee-887b-a57d1ccf3823",
-      "from": {
-        "moduleId": "641457ed-e26a-4c52-996f-7ec043cb7022",
-        "index": 0,
-        "type": "output"
-      },
-      "to": {
-        "moduleId": "147d9dba-a46e-4866-8131-58f7eb5a0509",
-        "type": "input",
-        "index": 0
-      }
-    },
-    {
-      "id": "0a996b62-61b7-4e67-8938-e896a069fb1d",
-      "from": {
-        "moduleId": "b506702c-e6a1-47ab-81e3-870c49b7b846",
-        "type": "output",
-        "index": 0
-      },
-      "to": {
-        "moduleId": "836172b4-7a64-4091-b3ad-0b5aeab52b0c",
+        "moduleId": "J+8xPpJpLXhm/YGa",
         "index": 0,
         "type": "input"
       }
     },
     {
-      "id": "b070b314-80bb-4bf6-9923-d975eaf85dbf",
+      "id": "1KovuzOd83iIxitm",
       "from": {
-        "moduleId": "bea4ca73-30e3-46bf-87e5-4a843523f31b",
+        "moduleId": "14VckNrFb1QinIBB",
         "type": "output",
-        "index": 2
+        "index": 0
       },
       "to": {
-        "moduleId": "b506702c-e6a1-47ab-81e3-870c49b7b846",
+        "moduleId": "PBuYpIWexKRY2Yx9",
+        "index": 0,
+        "type": "input"
+      }
+    },
+    {
+      "id": "VlJiZXAciCJ/tySA",
+      "from": {
+        "moduleId": "J+8xPpJpLXhm/YGa",
+        "index": 0,
+        "type": "output"
+      },
+      "to": {
+        "moduleId": "g/KqfVvjOtOgRuuu",
         "type": "input",
         "index": 0
       }

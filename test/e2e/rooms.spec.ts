@@ -1,4 +1,5 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test'
+import { modules } from '@modulate/worklets/src/modules'
 import {
   clickMenuItem,
   connectSockets,
@@ -18,7 +19,7 @@ import {
 
 const USERS = ['alice', 'bob', 'carlos'] as const
 const SAMPLE_PATCH_ID = '9982d3c7-8ffd-43a7-8431-53d6a31de913'
-const OSCILLATOR_ID = 'bea4ca73-30e3-46bf-87e5-4a843523f31b'
+const OSCILLATOR_ID = '2wluI1S8LrgHAvzw'
 
 test('rooms should stay synced over different changes', async ({
   browser,
@@ -53,12 +54,14 @@ test('rooms should stay synced over different changes', async ({
   await init(pages.bob, roomLink)
   await init(pages.carlos, roomLink)
 
+  const cvParam = modules.Oscillator.parameters.indexOf('cv')
+
   const aliceOsc = getModuleById(pages.alice, OSCILLATOR_ID)
   const bobOsc = getModuleById(pages.bob, OSCILLATOR_ID)
   const carlosOsc = getModuleById(pages.carlos, OSCILLATOR_ID)
-  const aliceOscCV = await getModuleKnob(aliceOsc, 'cv')
-  const bobOscCV = await getModuleKnob(bobOsc, 'cv')
-  const carlosOscCV = await getModuleKnob(carlosOsc, 'cv')
+  const aliceOscCV = await getModuleKnob(aliceOsc, cvParam)
+  const bobOscCV = await getModuleKnob(bobOsc, cvParam)
+  const carlosOscCV = await getModuleKnob(carlosOsc, cvParam)
 
   expect(await getKnobValue(bobOscCV)).toEqual(await getKnobValue(aliceOscCV))
   expect(await getKnobValue(carlosOscCV)).toEqual(

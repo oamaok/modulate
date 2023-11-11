@@ -91,11 +91,11 @@ export const getModuleKnobs = async (module: Locator) => {
   )
 }
 
-export const getModuleKnob = async (module: Locator, name: string) => {
+export const getModuleKnob = async (module: Locator, param: number) => {
   return module.locator(
     testLocator({
       id: 'knob',
-      'knob-id': name,
+      'knob-param': param,
     })
   )
 }

@@ -6,15 +6,15 @@ import Module from '../module-parts/Module'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import Knob from '../module-parts/Knob'
 import { PianoRoll } from '@modulate/worklets/src/modules'
-import { PianoRollNote } from '../piano-roll-editor/PianoRollEditor'
-import state, {
-  getKnobValue,
-  getModuleState,
-  setModuleState,
-} from '../../state'
+import PianoRollEditor, {
+  BAR_LENGTH,
+  PianoRollNote,
+} from '../piano-roll-editor/PianoRollEditor'
+import { getKnobValue, getModuleState, setModuleState } from '../../state'
 import * as styles from './PianoRoll.css'
 import assert from '../../assert'
 import moduleConfig from '../../module-config'
+import { PianoRollEditorPortal } from '../../portals'
 type Props = {
   id: string
 }
@@ -25,15 +25,15 @@ type PianoRollState = {
 
 type State = {
   position: number
+  editorOpen: boolean
 }
-
-const BAR_LENGTH = 2 * 2 * 3 * 4 * 5
 
 class PianoRollModule extends Component<Props, State> {
   canvasRef = useRef<HTMLCanvasElement>()
   positionBuf: Float32Array | null = null
 
   state: State = {
+    editorOpen: false,
     position: 0,
   }
 
@@ -131,6 +131,17 @@ class PianoRollModule extends Component<Props, State> {
   render({ id }: Props) {
     return (
       <Module id={id} type="PianoRoll" name="Piano Roll">
+        {this.state.editorOpen ? (
+          <PianoRollEditorPortal.Entry>
+            <PianoRollEditor
+              onClose={() => {
+                this.state.editorOpen = false
+              }}
+              positionBuf={this.positionBuf!}
+              moduleId={id}
+            />
+          </PianoRollEditorPortal.Entry>
+        ) : null}
         <div className={styles.pianoRoll}>
           <div className={styles.knobs}>
             <Knob<PianoRoll, 'speed'>
@@ -156,7 +167,7 @@ class PianoRollModule extends Component<Props, State> {
           <div
             className={styles.preview}
             onClick={() => {
-              state.activePianoRollModuleId = id
+              this.state.editorOpen = true
             }}
           >
             <canvas ref={this.canvasRef} />

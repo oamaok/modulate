@@ -4,8 +4,9 @@ import ActiveCable from './ActiveCable'
 import Cable from './Cable'
 import * as styles from './Cables.css'
 import testAttributes from '../../test-attributes'
-import { useDrag } from '../../hooks'
 import { useRef } from 'kaiku'
+import useTouchEvents, { TapType } from '../../hooks/useTouchEvents'
+import useMouseDrag from '../../hooks/useMouseDrag'
 
 const Cables = () => {
   const svgRef = useRef<SVGElement>()
@@ -19,14 +20,33 @@ const Cables = () => {
     }
   }
 
-  useDrag({
+  useTouchEvents({
     ref: svgRef,
-    onStart() {
+    onLongPress({ x, y }) {
+      state.contextMenu.open = true
+      state.cursor = { x, y }
+      state.contextMenu.position = {
+        x,
+        y,
+      }
+    },
+    onDragStart() {
       state.contextMenu.open = false
     },
-    onMove({ dx, dy }) {
-      state.viewOffset.x -= dx
-      state.viewOffset.y -= dy
+    onDrag({ deltaX, deltaY }) {
+      state.viewOffset.x -= deltaX
+      state.viewOffset.y -= deltaY
+    },
+  })
+
+  useMouseDrag({
+    ref: svgRef,
+    onDragStart() {
+      state.contextMenu.open = false
+    },
+    onDrag({ deltaX, deltaY }) {
+      state.viewOffset.x -= deltaX
+      state.viewOffset.y -= deltaY
     },
   })
 
@@ -36,7 +56,6 @@ const Cables = () => {
         {...testAttributes({ id: 'cables' })}
         viewBox={`0 0 ${viewport.width} ${viewport.height}`}
         onContextMenu={onContextMenu}
-        onDblClick={onContextMenu}
         ref={svgRef}
       >
         <g

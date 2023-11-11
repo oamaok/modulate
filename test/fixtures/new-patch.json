@@ -2,48 +2,139 @@
   "metadata": {
     "id": null,
     "author": null,
-    "name": "New Patch"
+    "name": "untitled"
   },
   "patch": {
     "modules": {
-      "e3b4d035-2f17-4bd0-bed7-fe5da037395b": {
-        "name": "AudioOut",
+      "14VckNrFb1QinIBB": {
+        "name": "Clock",
         "position": {
-          "x": 455,
-          "y": 412
+          "x": 509,
+          "y": 381
+        },
+        "state": {
+          "isRunning": true
+        }
+      },
+      "2wluI1S8LrgHAvzw": {
+        "name": "Oscillator",
+        "position": {
+          "x": 845,
+          "y": 697
         },
         "state": null
       },
-      "8c0ef564-93db-4e2c-bac4-944f2663ccf7": {
-        "name": "Oscillator",
+      "J+8xPpJpLXhm/YGa": {
+        "name": "Gain",
         "position": {
-          "x": 155,
-          "y": 410
+          "x": 1203,
+          "y": 491
+        },
+        "state": null
+      },
+      "PBuYpIWexKRY2Yx9": {
+        "name": "ADSR",
+        "position": {
+          "x": 797,
+          "y": 311
+        },
+        "state": null
+      },
+      "g/KqfVvjOtOgRuuu": {
+        "name": "AudioOut",
+        "position": {
+          "x": 1514,
+          "y": 482
         },
         "state": null
       }
     },
     "knobs": {
-      "e3b4d035-2f17-4bd0-bed7-fe5da037395b": {
-        "volume": 0
+      "14VckNrFb1QinIBB": {
+        "0": 128,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 0.5,
+        "5": 0.5,
+        "6": 0.5,
+        "7": 0.5,
+        "8": 0.5,
+        "9": 0.5
       },
-      "8c0ef564-93db-4e2c-bac4-944f2663ccf7": {
-        "pw": 0.5,
-        "fine": 0,
-        "fm": 0,
-        "cv": -5
+      "2wluI1S8LrgHAvzw": {
+        "0": 0,
+        "1": 0,
+        "2": 0.5,
+        "3": 0,
+        "4": 1
+      },
+      "J+8xPpJpLXhm/YGa": {
+        "0": 0
+      },
+      "PBuYpIWexKRY2Yx9": {
+        "0": 0.02944159999999999,
+        "1": 0.1,
+        "2": 0,
+        "3": 0.1,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 1
+      },
+      "g/KqfVvjOtOgRuuu": {
+        "0": 0.75
       }
     },
     "cables": [
       {
-        "id": "e9a835e2-d0b4-46c7-9aff-73d7c399dd9c",
+        "id": "EjfJi6TDY6UFUCe9",
         "from": {
-          "moduleId": "8c0ef564-93db-4e2c-bac4-944f2663ccf7",
+          "moduleId": "PBuYpIWexKRY2Yx9",
+          "index": 0,
+          "type": "output"
+        },
+        "to": {
+          "moduleId": "J+8xPpJpLXhm/YGa",
+          "type": "parameter",
+          "index": 0
+        }
+      },
+      {
+        "id": "rel3umW1x28/SJeL",
+        "from": {
+          "moduleId": "2wluI1S8LrgHAvzw",
           "type": "output",
           "index": 2
         },
         "to": {
-          "moduleId": "e3b4d035-2f17-4bd0-bed7-fe5da037395b",
+          "moduleId": "J+8xPpJpLXhm/YGa",
+          "index": 0,
+          "type": "input"
+        }
+      },
+      {
+        "id": "1KovuzOd83iIxitm",
+        "from": {
+          "moduleId": "14VckNrFb1QinIBB",
+          "type": "output",
+          "index": 0
+        },
+        "to": {
+          "moduleId": "PBuYpIWexKRY2Yx9",
+          "index": 0,
+          "type": "input"
+        }
+      },
+      {
+        "id": "VlJiZXAciCJ/tySA",
+        "from": {
+          "moduleId": "J+8xPpJpLXhm/YGa",
+          "index": 0,
+          "type": "output"
+        },
+        "to": {
+          "moduleId": "g/KqfVvjOtOgRuuu",
           "type": "input",
           "index": 0
         }

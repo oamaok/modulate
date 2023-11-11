@@ -9,3 +9,5 @@ export { default as volumeDown } from '@material-design-icons/svg/outlined/volum
 export { default as volumeMute } from '@material-design-icons/svg/outlined/volume_mute.svg'
 export { default as volumeOff } from '@material-design-icons/svg/outlined/volume_off.svg'
 export { default as playArrow } from '@material-design-icons/svg/outlined/play_arrow.svg'
+export { default as delete } from '@material-design-icons/svg/outlined/delete.svg'
+export { default as close } from '@material-design-icons/svg/outlined/close.svg'

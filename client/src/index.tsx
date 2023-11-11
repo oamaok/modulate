@@ -33,16 +33,4 @@ useEffect(() => {
   document.documentElement.style.height = `${state.viewport.height}px`
 })
 
-document.addEventListener('keydown', (evt) => {
-  switch (evt.code) {
-    case 'Delete': {
-      const element = evt.target as HTMLElement
-      if (state.activeModule && element.tagName !== 'input') {
-        deleteModule(state.activeModule)
-        state.activeModule = null
-      }
-    }
-  }
-})
-
 render(<App />, document.body, state)
