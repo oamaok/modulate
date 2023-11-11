@@ -25,7 +25,7 @@ const REFERENCE_KEYBOARD_WIDTH = 64
 const NOTE_HEIGHT = 16
 const OCTAVES = 8
 
-const BAR_WIDTH = 600
+const BAR_WIDTH = 720
 
 // Set to this value to allow snapping for 1/32ths, 3rds, 5ths, 7ths and more
 export const BAR_LENGTH = 32 * 3 * 5 * 7
@@ -474,8 +474,15 @@ class PianoRollEditor extends Component<Props, State> {
       const firstBar = Math.max(0, Math.floor(this.state.offset.x / BAR_WIDTH))
       const numBars = Math.ceil(width / BAR_WIDTH) + 1
       for (let bar = firstBar; bar < firstBar + numBars; bar++) {
-        context.fillStyle = bar & 1 ? '#2f2f2f' : '#222'
-        context.fillRect(bar * BAR_WIDTH, 0, BAR_WIDTH, pianoRollHeight)
+        for (let i = 0; i < 12 * OCTAVES; i++) {
+          context.fillStyle = NOTE_COLOR[i % 12] ? '#222' : '#2f2f2f'
+          context.fillRect(
+            bar * BAR_WIDTH,
+            i * noteHeight,
+            BAR_WIDTH,
+            noteHeight
+          )
+        }
 
         if (this.state.snapping === SNAPPING_NONE) {
           // Show grid for 1/4ths if snapping is set to 'None'
@@ -484,7 +491,7 @@ class PianoRollEditor extends Component<Props, State> {
             context.fillRect(
               bar * BAR_WIDTH + i * (BAR_WIDTH / 16),
               0,
-              1,
+              i === 0 ? 2 : 1,
               pianoRollHeight
             )
           }
@@ -496,16 +503,21 @@ class PianoRollEditor extends Component<Props, State> {
             context.fillRect(
               bar * BAR_WIDTH + i * (BAR_WIDTH / snapping),
               0,
-              1,
+              i === 0 ? 2 : 1,
               pianoRollHeight
             )
           }
         }
       }
+      context.resetTransform()
+      context.translate(REFERENCE_KEYBOARD_WIDTH, -this.state.offset.y)
 
-      for (let i = 1; i < 12 * OCTAVES; i++) {
+      for (let i = 0; i < 12 * OCTAVES; i++) {
+        if (!(i % 12 === 7 || i % 12 === 0)) {
+          continue
+        }
         context.fillStyle = '#444'
-        context.fillRect(0, i * noteHeight, this.state.offset.x + width, 1)
+        context.fillRect(0, i * noteHeight, width, 1)
       }
     }
     {
@@ -606,13 +618,13 @@ class PianoRollEditor extends Component<Props, State> {
 
     {
       // Render playhead
-      context.fillStyle = '#1659017f'
+      context.fillStyle = '#a29500'
       context.resetTransform()
       context.translate(-this.state.offset.x + REFERENCE_KEYBOARD_WIDTH, 0)
       context.fillRect(
         (this.state.position / BAR_LENGTH) * BAR_WIDTH,
         0,
-        8,
+        4,
         height
       )
     }
