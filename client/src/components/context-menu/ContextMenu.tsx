@@ -14,7 +14,7 @@ const ContextMenu = ({}: Props) => {
   const menuRef = useRef<HTMLDivElement>()
 
   const onModuleClick = (moduleName: ModuleName) => {
-    addModule(moduleName, {
+    state.activeModule = addModule(moduleName, {
       x: state.contextMenu.position.x - state.viewOffset.x,
       y: state.contextMenu.position.y - state.viewOffset.y,
     })

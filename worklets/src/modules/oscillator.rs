@@ -24,7 +24,7 @@ pub struct Oscillator {
   phase: f32,
 }
 
-const OSCILLATOR_OVERSAMPLE: usize = 8;
+const OSCILLATOR_OVERSAMPLE: usize = 32;
 
 impl Module for Oscillator {
   fn process(&mut self, _quantum: u64) {

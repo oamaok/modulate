@@ -9,7 +9,7 @@
   "devDependencies": {
     "chokidar": "^3.5.2",
     "cssnano": "^5.0.8",
-    "esbuild": "^0.18.17",
+    "esbuild": "^0.18.20",
     "fast-xml-parser": "^4.3.2",
     "postcss": "^8.3.9",
     "postcss-modules": "^4.2.2",

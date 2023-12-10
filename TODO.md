@@ -73,6 +73,23 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 - [ ] Initial implementation
 
+## Sample&Hold
+
+Input, Hold and internal clock.
+Smoothing parameter?
+
+- [ ] Initial implementation
+
+## Chaos
+
+Low frequency noise.
+
+- [ ] Initial implementation
+
+## Noise
+
+- [ ] Initial implementation
+
 ## Distortion
 
 - [ ] Initial implementation
@@ -111,6 +128,9 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 - [ ] Multiselect modules
 - [ ] Copy modules with ctrl+drag
 - [ ]
+
+- context menu avaus ei mene pois jos liikuttaa sormea
+- nuotin resize nuotin ulkopuolella
 
 # Misc
 

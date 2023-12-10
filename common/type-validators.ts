@@ -30,6 +30,7 @@ export const Cable = t.type({
 export const Module = t.type({
   name: t.string,
   position: Vec2,
+  knobs: t.array(t.number),
   state: nullable(t.UnknownRecord),
 })
 
@@ -46,7 +47,6 @@ export const PatchMetadata = t.type({
 
 export const Patch = t.type({
   modules: t.record(t.string, Module),
-  knobs: t.record(t.string, t.record(t.string, t.number)),
   cables: t.array(Cable),
 })
 
@@ -97,7 +97,7 @@ export const ChangeModulePositionEvent = t.type({
 export const TweakKnobEvent = t.type({
   type: t.literal('tweak-knob'),
   moduleId: t.string,
-  knob: t.string,
+  knob: t.number,
   value: t.number,
 })
 

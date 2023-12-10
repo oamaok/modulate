@@ -13,6 +13,7 @@ const Cables = () => {
 
   const onContextMenu = (evt: MouseEvent) => {
     evt.preventDefault()
+    state.activeModule = null
     state.contextMenu.open = true
     state.contextMenu.position = {
       x: state.cursor.x,
@@ -24,6 +25,7 @@ const Cables = () => {
     ref: svgRef,
     onLongPress({ x, y }) {
       state.contextMenu.open = true
+      state.activeModule = null
       state.cursor = { x, y }
       state.contextMenu.position = {
         x,
@@ -32,6 +34,7 @@ const Cables = () => {
     },
     onDragStart() {
       state.contextMenu.open = false
+      state.activeModule = null
     },
     onDrag({ deltaX, deltaY }) {
       state.viewOffset.x -= deltaX
@@ -43,6 +46,7 @@ const Cables = () => {
     ref: svgRef,
     onDragStart() {
       state.contextMenu.open = false
+      state.activeModule = null
     },
     onDrag({ deltaX, deltaY }) {
       state.viewOffset.x -= deltaX

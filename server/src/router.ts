@@ -375,7 +375,7 @@ const router = (): RouterChain => {
       send: res.write.bind(res),
       end: () => {
         logger.info(
-          `${req.headers['x-real-ip'] ?? req.socket.remoteAddress} ${
+          `${req.headers['x-forwarded-for'] ?? req.socket.remoteAddress} ${
             req.method
           } ${url.pathname} [${res.statusCode}]`
         )

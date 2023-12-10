@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'kaiku'
+import { useEffect } from 'kaiku'
 import Header from '../header/Header'
 import * as styles from './App.css'
 import UserBar from '../user-bar/UserBar'
@@ -23,9 +23,9 @@ import SaveDialog from '../save-dialog/SaveDialog'
 import Overlay from '../overlay/Overlay'
 import testAttributes from '../../test-attributes'
 import MiniMap from '../mini-map/MiniMap'
-import PianoRollEditor from '../piano-roll-editor/PianoRollEditor'
 import useKeyboard from '../../hooks/useKeyboard'
 import { PianoRollEditorPortal } from '../../portals'
+import Background from './Background'
 
 const loadSaveState = async () => {
   const rawSaveState = localStorage.getItem('savestate')
@@ -140,13 +140,8 @@ const App = () => {
         'is-room': (state.room !== null).toString(),
       })}
       className={styles.app}
-      style={{
-        backgroundPosition: () =>
-          `${Math.round(state.viewOffset.x / 1.5)}px ${Math.round(
-            state.viewOffset.y / 1.5
-          )}px`,
-      }}
     >
+      <Background />
       <Header />
       {state.initialized ? <Performance /> : null}
       {state.initialized ? <MiniMap /> : null}

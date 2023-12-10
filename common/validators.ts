@@ -98,21 +98,16 @@ export const validatePatch = (patch: Patch) => {
     }
   }
 
-  for (const moduleId in patch.knobs) {
-    const moduleForKnob = patch.modules[moduleId]
-    const knobs = patch.knobs[moduleId]!
-    if (!moduleForKnob) {
-      errors.push(`knob: knob settings for unknown module found (${moduleId})`)
-    } else {
-      const moduleType = getModuleTypeByName(moduleForKnob.name)
-      if (moduleType) {
-        for (const param in knobs) {
-          if (!(param in moduleType.parameters)) {
-            errors.push(
-              `knob: invalid knob ${param} for module ${moduleType} (${moduleId})`
-            )
-          }
-        }
+  for (const moduleId in patch.modules) {
+    const module = patch.modules[moduleId]!
+    const { knobs } = module
+    const moduleType = getModuleTypeByName(module.name)
+
+    if (moduleType) {
+      if (moduleType.parameters.length !== knobs.length) {
+        errors.push(
+          `knob: invalid amount of knobs (${knobs.length}) for module ${module.name} (${moduleId})`
+        )
       }
     }
   }

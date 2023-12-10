@@ -46,7 +46,6 @@ const state = createState<State>({
   },
   patch: {
     modules: {},
-    knobs: {},
     cables: [],
   },
   route: parseRoute(window.location),
@@ -167,9 +166,8 @@ export const openOverlay = (overlay: Overlay) => {
 }
 
 export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
-  const { modules, knobs, cables } = savedPatch
+  const { modules, cables } = savedPatch
   state.patchMetadata = metadata
-  patch.knobs = knobs
   patch.modules = modules
   patch.cables = cables
 
@@ -198,18 +196,21 @@ export const resetPatch = async () => {
   history.pushState({}, '', `/`)
 }
 
-export const addModule = async (
+export const addModule = (
   name: ModuleName,
   pos: Vec2 = {
     x: -state.viewOffset.x + window.innerWidth / 2,
     y: -state.viewOffset.y + window.innerHeight / 2,
   }
 ) => {
-  patch.modules[nextId()] = {
+  const id = nextId()
+  patch.modules[id] = {
     name,
     position: pos,
+    knobs: [],
     state: null,
   }
+  return id
 }
 
 export const isOwnPatch = () => {
@@ -320,7 +321,12 @@ export const getKnobValue = <
   moduleId: Id,
   param: IndexOf<M['parameters'], Param>
 ): undefined | number => {
-  return patch.knobs[moduleId]?.[param]
+  const module = patch.modules[moduleId]
+  assert(
+    module,
+    `getKnobValue: tried to access knobs of a module which doesn't exist (id: ${moduleId}, param: ${param})`
+  )
+  return module.knobs[param]
 }
 
 export const setKnobValue = <
@@ -331,10 +337,12 @@ export const setKnobValue = <
   param: IndexOf<M['parameters'], Param>,
   value: number
 ) => {
-  if (!patch.knobs[moduleId]) {
-    patch.knobs[moduleId] = {}
-  }
-  patch.knobs[moduleId]![param] = value
+  const module = patch.modules[moduleId]
+  assert(
+    module,
+    `setKnobValue: tried to access knobs of a module which doesn't exist (id: ${moduleId}, param: ${param})`
+  )
+  module.knobs[param as number] = value
 }
 const cableConnectsToSocket = (cable: Cable, socket: Socket): boolean =>
   isSameSocket(cable.from, socket) || isSameSocket(cable.to, socket)
@@ -467,7 +475,6 @@ export const deleteModule = async (moduleId: string) => {
       cable.from.moduleId !== moduleId && cable.to.moduleId !== moduleId
   )
 
-  delete state.patch.knobs[moduleId]
   delete state.sockets[moduleId]
   delete state.patch.modules[moduleId]
 }

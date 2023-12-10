@@ -10,7 +10,6 @@ import * as engine from './engine'
 
 let previousPatch: Patch = {
   modules: {},
-  knobs: {},
   cables: [],
 }
 
@@ -121,6 +120,7 @@ export const joinRoom = (roomId: string) => {
               case 'create-module': {
                 patch.modules[event.moduleId] = {
                   name: event.name,
+                  knobs: [],
                   position: event.position,
                   state: null,
                 }
@@ -145,7 +145,6 @@ export const joinRoom = (roomId: string) => {
                     cable.to.moduleId !== event.moduleId
                 )
 
-                delete patch.knobs[event.moduleId]
                 delete patch.modules[event.moduleId]
 
                 if (__DEBUG__) {
@@ -192,7 +191,7 @@ export const joinRoom = (roomId: string) => {
               }
 
               case 'tweak-knob': {
-                patch.knobs[event.moduleId]![event.knob] = event.value
+                patch.modules[event.moduleId]!.knobs[event.knob] = event.value
 
                 if (__DEBUG__) {
                   const { valid, errors } = validatePatch(patch)
@@ -300,6 +299,7 @@ useEffect(() => {
 
       previousPatch.modules[moduleId] = {
         name: module.name,
+        knobs: [...module.knobs],
         position: {
           ...module.position,
         },
@@ -382,28 +382,30 @@ useEffect(() => {
   if (!isRoomReady()) {
     return
   }
-  for (const moduleId in state.patch.knobs) {
-    const knobs = state.patch.knobs[moduleId]
+  for (const moduleId in state.patch.modules) {
+    const module = state.patch.modules[moduleId]
+    assert(module)
+    const { knobs } = module
 
-    for (const knobName in knobs) {
-      const knobValue = knobs[knobName]
+    if (!knobs) {
+      continue
+    }
+
+    for (let knobIndex = 0; knobIndex < knobs.length; knobIndex++) {
+      const knobValue = knobs[knobIndex]
       assert(typeof knobValue !== 'undefined')
 
-      if (!previousPatch.knobs[moduleId]) {
-        previousPatch.knobs[moduleId] = {}
-      }
-
-      const moduleKnobs = previousPatch.knobs[moduleId]
+      const moduleKnobs = previousPatch.modules[moduleId]!.knobs
       assert(moduleKnobs)
 
-      if (moduleKnobs[knobName] !== knobValue) {
+      if (moduleKnobs[knobIndex] !== knobValue) {
         dispatchPatchEvent({
           type: 'tweak-knob',
           moduleId,
-          knob: knobName,
+          knob: knobIndex,
           value: knobValue,
         })
-        moduleKnobs[knobName] = knobValue
+        moduleKnobs[knobIndex] = knobValue
       }
     }
   }

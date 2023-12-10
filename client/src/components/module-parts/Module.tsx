@@ -41,7 +41,7 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
       className={() => [
         styles.module,
         {
-          active: state.activeModule === id,
+          [styles.active]: state.activeModule === id,
         },
       ]}
       style={{

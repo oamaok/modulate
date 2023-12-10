@@ -156,9 +156,10 @@ export default (server: http.Server) => {
                 room.patch.modules[event.moduleId] = {
                   name: event.name,
                   position: event.position,
+                  knobs: [],
                   state: null,
                 }
-                room.patch.knobs[event.moduleId] = {}
+
                 break
               }
               case 'delete-module': {
@@ -175,7 +176,8 @@ export default (server: http.Server) => {
               }
 
               case 'tweak-knob': {
-                room.patch.knobs[event.moduleId]![event.knob] = event.value
+                room.patch.modules[event.moduleId]!.knobs[event.knob] =
+                  event.value
                 break
               }
 

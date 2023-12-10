@@ -92,7 +92,6 @@ const buildClient = async () => {
       define: {
         __DEBUG__: isProduction ? 'false' : 'true',
       },
-
       plugins: [CssModulesPlugin(), SvgLoaderPlugin()],
     }),
     recursiveCopy(
@@ -106,7 +105,7 @@ const buildClient = async () => {
     isEngineTest ? './engine-test-index.js' : './index.js'
   )
 
-  if (isProduction) {
+  if (isProduction && false) {
     await terser
       .minify((await fs.readFile(scriptsPath)).toString(), {
         sourceMap: false,
