@@ -15,18 +15,7 @@
         "state": {
           "isRunning": true
         },
-        "knobs": [
-          128,
-          1,
-          1,
-          1,
-          0.5,
-          0.5,
-          0.5,
-          0.5,
-          0.5,
-          0.5
-        ]
+        "knobs": [128, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
       },
       "2wluI1S8LrgHAvzw": {
         "name": "Oscillator",
@@ -35,13 +24,7 @@
           "y": 697
         },
         "state": null,
-        "knobs": [
-          0,
-          0,
-          0.5,
-          0,
-          1
-        ]
+        "knobs": [0, 0, 0.5, 0, 1]
       },
       "J+8xPpJpLXhm/YGa": {
         "name": "Gain",
@@ -50,9 +33,7 @@
           "y": 491
         },
         "state": null,
-        "knobs": [
-          0
-        ]
+        "knobs": [0]
       },
       "PBuYpIWexKRY2Yx9": {
         "name": "ADSR",
@@ -61,16 +42,7 @@
           "y": 311
         },
         "state": null,
-        "knobs": [
-          0.02944159999999999,
-          0.1,
-          0,
-          0.1,
-          0,
-          0,
-          0,
-          1
-        ]
+        "knobs": [0.02944159999999999, 0.1, 0, 0.1, 0, 0, 0, 1]
       },
       "g/KqfVvjOtOgRuuu": {
         "name": "AudioOut",
@@ -79,9 +51,7 @@
           "y": 482
         },
         "state": null,
-        "knobs": [
-          0.75
-        ]
+        "knobs": [0.75]
       }
     },
     "cables": [
