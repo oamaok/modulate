@@ -6,6 +6,7 @@
         "x": 509,
         "y": 381
       },
+      "knobs": [128, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
       "state": {
         "isRunning": true
       }
@@ -16,6 +17,7 @@
         "x": 145,
         "y": 197
       },
+      "knobs": [0, 0, 0.5, 0, 1],
       "state": null
     },
     "J+8xPpJpLXhm/YGa": {
@@ -24,6 +26,7 @@
         "x": 1203,
         "y": 491
       },
+      "knobs": [0],
       "state": null
     },
     "PBuYpIWexKRY2Yx9": {
@@ -32,6 +35,7 @@
         "x": 797,
         "y": 311
       },
+      "knobs": [0.02944159999999999, 0.1, 0, 0.1, 0, 0, 0, 1],
       "state": null
     },
     "g/KqfVvjOtOgRuuu": {
@@ -40,15 +44,9 @@
         "x": 1514,
         "y": 482
       },
+      "knobs": [0.75],
       "state": null
     }
-  },
-  "knobs": {
-    "14VckNrFb1QinIBB": [128, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-    "2wluI1S8LrgHAvzw": [0, 0, 0.5, 0, 1],
-    "J+8xPpJpLXhm/YGa": [0],
-    "PBuYpIWexKRY2Yx9": [0.02944159999999999, 0.1, 0, 0.1, 0, 0, 0, 1],
-    "g/KqfVvjOtOgRuuu": [0.75]
   },
   "cables": [
     {

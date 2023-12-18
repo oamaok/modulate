@@ -127,7 +127,8 @@ Low frequency noise.
 
 - [ ] Multiselect modules
 - [ ] Copy modules with ctrl+drag
-- [ ]
+- [ ] Learn MIDI
+- [ ] Add support for copying to clipboard
 
 - context menu avaus ei mene pois jos liikuttaa sormea
 - nuotin resize nuotin ulkopuolella

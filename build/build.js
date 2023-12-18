@@ -105,7 +105,7 @@ const buildClient = async () => {
     isEngineTest ? './engine-test-index.js' : './index.js'
   )
 
-  if (isProduction && false) {
+  if (isProduction) {
     await terser
       .minify((await fs.readFile(scriptsPath)).toString(), {
         sourceMap: false,
