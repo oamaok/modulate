@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "description": "",
   "main": "src/",
-  "scripts": {},
+  "scripts": {
+    "typecheck": ""
+  },
   "author": "Teemu Pääkkönen",
   "license": "UNLICENSED",
   "devDependencies": {
