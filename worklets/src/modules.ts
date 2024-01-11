@@ -243,6 +243,18 @@ export type PianoRoll = ModuleTypeOf<
   { type: 'PianoRollPointers'; position: number }
 >
 
+export const Oscilloscope = {
+  name: 'Oscilloscope',
+  inputs: ['x', 'y'],
+  parameters: [],
+  outputs: [],
+} as const
+export type Oscilloscope = ModuleTypeOf<
+  typeof Oscilloscope,
+  never,
+  { type: 'OscilloscopePointers'; x_ptr: number; y_ptr: number }
+>
+
 export const modules = {
   AudioOut,
   Oscillator,
@@ -262,6 +274,7 @@ export const modules = {
   Sampler,
   VirtualController,
   PianoRoll,
+  Oscilloscope,
 } as const
 
 export type Module =
@@ -283,6 +296,7 @@ export type Module =
   | Sampler
   | VirtualController
   | PianoRoll
+  | Oscilloscope
 
 export type ModuleName = Module['name']
 

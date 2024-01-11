@@ -42,13 +42,13 @@ impl Module for Limiter {
 }
 
 impl Limiter {
-  pub fn new() -> Limiter {
-    Limiter {
+  pub fn new() -> Box<Limiter> {
+    Box::new(Limiter {
       input: AudioInput::default(),
       output: AudioOutput::default(),
       threshold: AudioParam::new(AudioParamModulationType::Additive),
 
       buffer: RingBuffer::new(500),
-    }
+    })
   }
 }

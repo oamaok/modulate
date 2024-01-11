@@ -84,7 +84,7 @@ impl Module for Clock {
 }
 
 impl Clock {
-  pub fn new() -> Clock {
-    Clock::default()
+  pub fn new() -> Box<Clock> {
+    Box::new(Clock::default())
   }
 }

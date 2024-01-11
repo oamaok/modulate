@@ -374,6 +374,26 @@ export const plugActiveCable = (socket: Socket) => {
   }
 }
 
+export const isSocketOccupied = <
+  M extends Module,
+  T extends 'input' | 'output' | 'parameter',
+  N extends M[`${T}s`][number],
+>(
+  moduleId: string,
+  type: T,
+  index: IndexOf<M[`${T}s`], N>
+) => {
+  const socket: Socket = {
+    moduleId,
+    type,
+    index: index,
+  }
+  return state.patch.cables.some(
+    (cable) =>
+      isSameSocket(socket, cable.from) || isSameSocket(socket, cable.to)
+  )
+}
+
 const getSockets = () => Object.values(state.sockets).flat()
 
 const canSocketsConnect = (a: Socket, b: Socket) => {

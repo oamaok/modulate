@@ -100,7 +100,7 @@ impl Module for BiquadFilter {
 }
 
 impl BiquadFilter {
-  pub fn new() -> BiquadFilter {
-    BiquadFilter::default()
+  pub fn new() -> Box<BiquadFilter> {
+    Box::new(BiquadFilter::default())
   }
 }

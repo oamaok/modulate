@@ -169,4 +169,9 @@ export default createConfig({
     width: 440,
     height: 200,
   },
+  Oscilloscope: {
+    category: ModuleCategory.UTILITY,
+    width: 450,
+    height: 450,
+  },
 })

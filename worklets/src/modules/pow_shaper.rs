@@ -36,13 +36,13 @@ impl Module for PowShaper {
 }
 
 impl PowShaper {
-  pub fn new() -> PowShaper {
-    PowShaper {
+  pub fn new() -> Box<PowShaper> {
+    Box::new(PowShaper {
       input: AudioInput::default(),
       output: AudioOutput::default(),
       exponent: AudioParam::new(AudioParamModulationType::Additive),
       gain: AudioParam::new(AudioParamModulationType::Additive),
       pre_gain: AudioParam::new(AudioParamModulationType::Additive),
-    }
+    })
   }
 }

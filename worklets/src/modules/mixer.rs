@@ -56,7 +56,7 @@ impl Module for Mixer {
 }
 
 impl Mixer {
-  pub fn new() -> Mixer {
-    Mixer::default()
+  pub fn new() -> Box<Mixer> {
+    Box::new(Mixer::default())
   }
 }

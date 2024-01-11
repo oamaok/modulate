@@ -138,7 +138,7 @@ impl Module for Sequencer {
 }
 
 impl Sequencer {
-  pub fn new() -> Sequencer {
-    Sequencer::default()
+  pub fn new() -> Box<Sequencer> {
+    Box::new(Sequencer::default())
   }
 }

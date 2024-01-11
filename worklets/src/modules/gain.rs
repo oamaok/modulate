@@ -30,11 +30,11 @@ impl Module for Gain {
 }
 
 impl Gain {
-  pub fn new() -> Gain {
-    Gain {
+  pub fn new() -> Box<Gain> {
+    Box::new(Gain {
       input: AudioInput::default(),
       output: AudioOutput::default(),
       gain: AudioParam::new(AudioParamModulationType::Additive),
-    }
+    })
   }
 }

@@ -48,8 +48,8 @@ impl Module for Delay {
 }
 
 impl Delay {
-  pub fn new() -> Delay {
-    Delay {
+  pub fn new() -> Box<Delay> {
+    Box::new(Delay {
       input: AudioInput::default(),
       output: AudioOutput::default(),
 
@@ -59,6 +59,6 @@ impl Delay {
       dry: AudioParam::default(),
 
       buffer: RingBuffer::new(10000),
-    }
+    })
   }
 }

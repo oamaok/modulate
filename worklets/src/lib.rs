@@ -13,12 +13,14 @@ use modules::limiter::Limiter;
 use modules::midi::MIDI;
 use modules::mixer::Mixer;
 use modules::oscillator::Oscillator;
+use modules::oscilloscope::Oscilloscope;
 use modules::piano_roll::PianoRoll;
 use modules::pow_shaper::PowShaper;
 use modules::reverb::Reverb;
 use modules::sampler::Sampler;
 use modules::sequencer::Sequencer;
 use modules::virtual_controller::VirtualController;
+use rw_lock::RwLock;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::ops::{Index, IndexMut};
@@ -57,7 +59,7 @@ struct ModuleConnection {
 struct ModuleStore {
   modules: Vec<Box<dyn module::Module>>,
   module_ids: HashMap<module::ModuleId, usize>,
-  rw_lock: rw_lock::RwLock,
+  rw_lock: RwLock,
 }
 
 impl Index<usize> for ModuleStore {
@@ -78,7 +80,7 @@ impl ModuleStore {
     ModuleStore {
       modules: vec![],
       module_ids: HashMap::new(),
-      rw_lock: rw_lock::RwLock::new(),
+      rw_lock: RwLock::new(),
     }
   }
 
@@ -328,63 +330,65 @@ impl ModulateEngine {
 
     match module_name {
       "AudioOut" => {
-        self.modules.insert(id, Box::new(AudioOut::new()));
+        self.modules.insert(id, AudioOut::new());
         self.worker_context.audio_outputs.insert(id);
       }
       "Oscillator" => {
-        self.modules.insert(id, Box::new(Oscillator::new()));
+        self.modules.insert(id, Oscillator::new());
       }
       "LFO" => {
-        self.modules.insert(id, Box::new(LFO::new()));
+        self.modules.insert(id, LFO::new());
       }
       "BiquadFilter" => {
-        self.modules.insert(id, Box::new(BiquadFilter::new()));
+        self.modules.insert(id, BiquadFilter::new());
       }
       "Mixer" => {
-        self.modules.insert(id, Box::new(Mixer::new()));
+        self.modules.insert(id, Mixer::new());
       }
       "Gain" => {
-        self.modules.insert(id, Box::new(Gain::new()));
+        self.modules.insert(id, Gain::new());
       }
       "Limiter" => {
-        self.modules.insert(id, Box::new(Limiter::new()));
+        self.modules.insert(id, Limiter::new());
       }
       "PowShaper" => {
-        self.modules.insert(id, Box::new(PowShaper::new()));
+        self.modules.insert(id, PowShaper::new());
       }
       "Sequencer" => {
-        self.modules.insert(id, Box::new(Sequencer::new()));
+        self.modules.insert(id, Sequencer::new());
       }
       "ADSR" => {
-        self.modules.insert(id, Box::new(ADSR::new()));
+        self.modules.insert(id, ADSR::new());
       }
       "Reverb" => {
-        self.modules.insert(id, Box::new(Reverb::new()));
+        self.modules.insert(id, Reverb::new());
       }
       "Delay" => {
-        self.modules.insert(id, Box::new(Delay::new()));
+        self.modules.insert(id, Delay::new());
       }
       "Clock" => {
-        self.modules.insert(id, Box::new(Clock::new()));
+        self.modules.insert(id, Clock::new());
       }
       "MIDI" => {
-        self.modules.insert(id, Box::new(MIDI::new()));
+        self.modules.insert(id, MIDI::new());
       }
       "BouncyBoi" => {
-        self.modules.insert(id, Box::new(BouncyBoi::new()));
+        self.modules.insert(id, BouncyBoi::new());
       }
       "Sampler" => {
-        self.modules.insert(id, Box::new(Sampler::new()));
+        self.modules.insert(id, Sampler::new());
       }
       "VirtualController" => {
-        let mut module = Box::new(VirtualController::new());
-        module.init();
-        self.modules.insert(id, module);
+        self.modules.insert(id, VirtualController::new());
       }
       "PianoRoll" => {
-        let mut module = Box::new(PianoRoll::new());
-        module.init();
-        self.modules.insert(id, module);
+        self.modules.insert(id, PianoRoll::new());
+      }
+      "Oscilloscope" => {
+        self.modules.insert(
+          id,
+          Oscilloscope::new(self.worker_context.worker_position as usize),
+        );
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }

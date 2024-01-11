@@ -89,8 +89,8 @@ impl Module for Oscillator {
 }
 
 impl Oscillator {
-  pub fn new() -> Oscillator {
-    Oscillator {
+  pub fn new() -> Box<Oscillator> {
+    Box::new(Oscillator {
       sync_input: AudioInput::default(),
       sync_edge_detector: EdgeDetector::new(0.0),
 
@@ -106,7 +106,7 @@ impl Oscillator {
       level: AudioParam::new(AudioParamModulationType::Additive),
 
       phase: 0.0,
-    }
+    })
   }
 
   fn sin(&self) -> f32 {

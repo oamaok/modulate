@@ -30,11 +30,11 @@ impl Module for AudioOut {
 }
 
 impl AudioOut {
-  pub fn new() -> AudioOut {
-    AudioOut {
+  pub fn new() -> Box<AudioOut> {
+    Box::new(AudioOut {
       input: AudioInput::default(),
       volume: AudioParam::new(AudioParamModulationType::Additive),
       output: AudioOutput::default(),
-    }
+    })
   }
 }

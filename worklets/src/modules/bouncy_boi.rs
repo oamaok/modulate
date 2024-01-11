@@ -143,8 +143,8 @@ impl Module for BouncyBoi {
 }
 
 impl BouncyBoi {
-  pub fn new() -> BouncyBoi {
-    let mut boi = BouncyBoi {
+  pub fn new() -> Box<BouncyBoi> {
+    let mut boi = Box::new(BouncyBoi {
       balls: [Ball::default(), Ball::default(), Ball::default()],
       trigger_outputs: [
         AudioOutput::default(),
@@ -164,7 +164,7 @@ impl BouncyBoi {
       phase: 0.0,
       cycle_count: 0,
       events: vec![],
-    };
+    });
     let mut rng = Rng::default();
 
     for ball in boi.balls.iter_mut() {

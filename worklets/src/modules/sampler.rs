@@ -99,8 +99,8 @@ impl Module for Sampler {
 }
 
 impl Sampler {
-  pub fn new() -> Sampler {
-    Sampler {
+  pub fn new() -> Box<Sampler> {
+    Box::new(Sampler {
       gate_input: AudioInput::default(),
       edge_detector: EdgeDetector::new(0.5),
       speed: AudioParam::default(),
@@ -111,6 +111,6 @@ impl Sampler {
       pos: 0.0,
       sample: None,
       events: vec![],
-    }
+    })
   }
 }

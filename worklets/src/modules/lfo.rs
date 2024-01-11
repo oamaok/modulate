@@ -72,8 +72,8 @@ impl Module for LFO {
 }
 
 impl LFO {
-  pub fn new() -> LFO {
-    LFO::default()
+  pub fn new() -> Box<LFO> {
+    Box::new(LFO::default())
   }
 
   fn sin(&self) -> f32 {

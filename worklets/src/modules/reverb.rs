@@ -70,8 +70,8 @@ impl Module for Reverb {
 }
 
 impl Reverb {
-  pub fn new() -> Reverb {
-    Reverb {
+  pub fn new() -> Box<Reverb> {
+    Box::new(Reverb {
       input: AudioInput::default(),
       output: AudioOutput::default(),
 
@@ -93,6 +93,6 @@ impl Reverb {
         AllPassFilter::new(337, 0.7),
         AllPassFilter::new(113, 0.7),
       ],
-    }
+    })
   }
 }

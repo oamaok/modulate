@@ -58,7 +58,7 @@ impl Module for ADSR {
 }
 
 impl ADSR {
-  pub fn new() -> ADSR {
-    ADSR::default()
+  pub fn new() -> Box<ADSR> {
+    Box::new(ADSR::default())
   }
 }

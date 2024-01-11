@@ -24,7 +24,7 @@ const Performance = () => {
       }
 
       total /= timers.length
-      total /= 128 / 44100
+      total /= 128 / engine.getAudioContext().sampleRate
       total /= 1000
       const imageData = context.getImageData(0, 0, width, height)
       context.clearRect(width - 1, 0, 1, height)

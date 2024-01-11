@@ -85,7 +85,9 @@ impl PianoRoll {
     });
   }
 
-  pub fn new() -> PianoRoll {
-    PianoRoll::default()
+  pub fn new() -> Box<PianoRoll> {
+    let mut module = Box::new(PianoRoll::default());
+    module.init();
+    module
   }
 }

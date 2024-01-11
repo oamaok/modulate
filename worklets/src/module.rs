@@ -23,6 +23,7 @@ pub enum ModuleEvent {
   SamplerPlayheadPtr { ptr: usize },
   VirtualControllerPointers { pressed_keys: usize, pads: usize },
   PianoRollPointers { position: usize },
+  OscilloscopePointers { x_ptr: usize, y_ptr: usize },
 }
 
 #[derive(Serialize)]

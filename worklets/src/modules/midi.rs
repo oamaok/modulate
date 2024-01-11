@@ -77,8 +77,8 @@ impl Module for MIDI {
   }
 }
 impl MIDI {
-  pub fn new() -> MIDI {
-    MIDI {
+  pub fn new() -> Box<MIDI> {
+    Box::new(MIDI {
       cv_output: AudioOutput::default(),
       velocity_output: AudioOutput::default(),
       gate_output: AudioOutput::default(),
@@ -86,6 +86,6 @@ impl MIDI {
       current_cv: 0.0,
 
       note_velocities: [0; 128],
-    }
+    })
   }
 }

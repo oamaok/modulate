@@ -94,8 +94,8 @@ impl VirtualController {
     });
   }
 
-  pub fn new() -> VirtualController {
-    VirtualController {
+  pub fn new() -> Box<VirtualController> {
+    let mut module = Box::new(VirtualController {
       pressed_keys: [(0.0, 0.0); 2],
       pads: [0.0; NUM_PADS],
       knob_a_param: AudioParam::default(),
@@ -115,6 +115,10 @@ impl VirtualController {
       knob_c_output: AudioOutput::default(),
       knob_d_output: AudioOutput::default(),
       events: vec![],
-    }
+    });
+
+    module.init();
+
+    module
   }
 }
