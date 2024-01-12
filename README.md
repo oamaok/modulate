@@ -1,3 +1,3 @@
-# [modulate](https://modulate.bitti.io)
+# modulate
 
 Modular synthesis in your browser.
