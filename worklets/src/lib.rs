@@ -7,6 +7,7 @@ use modules::biquad_filter::BiquadFilter;
 use modules::bouncy_boi::BouncyBoi;
 use modules::clock::Clock;
 use modules::delay::Delay;
+use modules::fdn_reverb::FDNReverb;
 use modules::gain::Gain;
 use modules::lfo::LFO;
 use modules::limiter::Limiter;
@@ -389,6 +390,9 @@ impl ModulateEngine {
           id,
           Oscilloscope::new(self.worker_context.worker_position as usize),
         );
+      }
+      "FDNReverb" => {
+        self.modules.insert(id, FDNReverb::new());
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }

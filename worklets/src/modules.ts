@@ -255,6 +255,14 @@ export type Oscilloscope = ModuleTypeOf<
   { type: 'OscilloscopePointers'; x_ptr: number; y_ptr: number }
 >
 
+export const FDNReverb = {
+  name: 'FDNReverb',
+  inputs: ['input'],
+  parameters: ['dryWet', 'modAmount', 'modSpeed', 'decay'],
+  outputs: ['output'],
+} as const
+export type FDNReverb = ModuleTypeOf<typeof FDNReverb>
+
 export const modules = {
   AudioOut,
   Oscillator,
@@ -275,6 +283,7 @@ export const modules = {
   VirtualController,
   PianoRoll,
   Oscilloscope,
+  FDNReverb,
 } as const
 
 export type Module =
@@ -297,6 +306,7 @@ export type Module =
   | VirtualController
   | PianoRoll
   | Oscilloscope
+  | FDNReverb
 
 export type ModuleName = Module['name']
 

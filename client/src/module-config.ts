@@ -174,4 +174,9 @@ export default createConfig({
     width: 450,
     height: 450,
   },
+  FDNReverb: {
+    category: ModuleCategory.DELAY_REVERB,
+    width: 200,
+    height: 200,
+  },
 })

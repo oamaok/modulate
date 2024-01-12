@@ -4,6 +4,7 @@ pub mod biquad_filter;
 pub mod bouncy_boi;
 pub mod clock;
 pub mod delay;
+pub mod fdn_reverb;
 pub mod gain;
 pub mod lfo;
 pub mod limiter;

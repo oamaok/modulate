@@ -43,7 +43,7 @@ impl Module for Oscilloscope {
   }
 
   fn pop_event(&mut self) -> Option<ModuleEvent> {
-      self.events.pop()
+    self.events.pop()
   }
 }
 
