@@ -44,7 +44,7 @@ impl Module for FDNReverb {
         let phase_offset = 1.5708 * i as f32;
 
         vec[i] = {
-          let modulation = ((self.modulation).sin() + phase_offset) * mod_amount * 10.0;
+          let modulation = ((self.modulation + phase_offset).sin() + 1.0) * mod_amount * 10.0;
           let mod_frac = modulation.fract();
           let mod_int = modulation as usize;
 
