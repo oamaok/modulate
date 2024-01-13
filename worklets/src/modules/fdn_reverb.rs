@@ -52,11 +52,13 @@ impl Module for FDNReverb {
           let len = &self.delay_lengths[i];
           let buf = &self.delay_buffers[i];
 
-          lerp(
+          let modulated = lerp(
             buf[(pos + mod_int) % len],
             buf[(pos + 1 + mod_int) % len],
             mod_frac,
-          )
+          );
+
+          (modulated + buf[*pos]) * 0.5
         };
 
         sum += vec[i];
@@ -82,7 +84,7 @@ impl Module for FDNReverb {
         }
       }
 
-      self.modulation += mod_speed * 0.005;
+      self.modulation += mod_speed * 0.001;
 
       let dry_wet = self.dry_wet.at(sample);
 
