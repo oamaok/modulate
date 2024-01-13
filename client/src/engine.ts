@@ -163,13 +163,15 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
       'EngineOutput',
       {
         numberOfOutputs: 1,
+        outputChannelCount: [2],
       }
     )
-    engineOutputNode.connect(engine.globalGain)
+    engineOutputNode.connect(engine.globalGain, 0, 0)
 
     engineOutputNode.port.postMessage({
       memory,
-      outputBufferPtr: pointers.outputBuffers,
+      outputLeftPtr: pointers.outputLeft,
+      outputRightPtr: pointers.outputRight,
       audioThreadPositionPtr: pointers.audioWorkletPosition,
     })
   }

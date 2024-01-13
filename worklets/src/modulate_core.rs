@@ -3,6 +3,7 @@ use std::arch::wasm32::{
 };
 use std::ops::{Deref, DerefMut};
 use std::ops::{Index, IndexMut};
+use std::ptr::eq;
 use wasm_bindgen::prelude::*;
 
 pub const SAMPLE_RATE: usize = 44100;
@@ -43,7 +44,7 @@ pub struct AudioInput(pub *const AudioOutput);
 
 impl Default for AudioInput {
   fn default() -> Self {
-    AudioInput(&EMPTY_AUDIO_OUTPUT)
+    AudioInput(EMPTY_AUDIO_OUTPUT)
   }
 }
 
@@ -55,12 +56,20 @@ impl AudioInput {
   pub fn set_ptr(&mut self, ptr: *const AudioOutput) {
     self.0 = ptr;
   }
+
+  pub fn reset_ptr(&mut self) {
+    self.0 = EMPTY_AUDIO_OUTPUT;
+  }
+
+  pub fn is_connected(&self) -> bool {
+    !eq(self.0, EMPTY_AUDIO_OUTPUT)
+  }
 }
 
-pub const EMPTY_AUDIO_OUTPUT: AudioOutput = AudioOutput {
+const EMPTY_AUDIO_OUTPUT: &AudioOutput = &(AudioOutput {
   buffers: [AudioBuffer([0.0; QUANTUM_SIZE]); AUDIO_OUTPUT_NUM_BUFFERS],
   current: 0,
-};
+});
 
 pub enum AudioParamModulationType {
   Multiplicative,

@@ -1,6 +1,5 @@
 #![feature(stdsimd)]
 use core::arch::wasm32::memory_atomic_wait64;
-use modulate_core::EMPTY_AUDIO_OUTPUT;
 use modules::adsr::ADSR;
 use modules::audio_out::AudioOut;
 use modules::biquad_filter::BiquadFilter;
@@ -121,7 +120,8 @@ impl ModuleStore {
 
 #[derive(Serialize)]
 struct ContextPointers {
-  audio_buffers: usize,
+  output_left: usize,
+  output_right: usize,
   worker_performance: usize,
   worker_position: usize,
   audio_worklet_position: usize,
@@ -141,7 +141,8 @@ struct WorkerContext {
   worker_position: u64,
 
   audio_outputs: HashSet<module::ModuleId>,
-  output_buffers: [modulate_core::AudioBuffer; NUM_OUTPUT_BUFFERS],
+  output_buffers_left: [modulate_core::AudioBuffer; NUM_OUTPUT_BUFFERS],
+  output_buffers_right: [modulate_core::AudioBuffer; NUM_OUTPUT_BUFFERS],
 
   performance: Vec<f32>,
 }
@@ -231,18 +232,23 @@ impl Worker {
         // into an atomic. Currently only a single thread reads and writes to it.
         context.worker_position += 1;
         let output_index = context.worker_position % NUM_OUTPUT_BUFFERS as u64;
-        let output_buffer = &mut context.output_buffers[output_index as usize];
+        let output_buf_l = &mut context.output_buffers_left[output_index as usize];
+        let output_buf_r = &mut context.output_buffers_right[output_index as usize];
 
         for sample in 0..modulate_core::QUANTUM_SIZE {
-          (*output_buffer)[sample] = 0.0;
+          (*output_buf_l)[sample] = 0.0;
+          (*output_buf_r)[sample] = 0.0;
         }
 
         for audio_output in context.audio_outputs.iter() {
           let module = modules.get_mut(audio_output).unwrap();
-          let mut outputs = module.get_outputs();
-          let output = outputs.get_mut(0).unwrap().read_buffer();
+          let outputs = module.get_outputs();
+          let output_l = outputs.get(0).unwrap().read_buffer();
+          let output_r = outputs.get(1).unwrap().read_buffer();
+
           for sample in 0..modulate_core::QUANTUM_SIZE {
-            (*output_buffer)[sample] += output[sample];
+            (*output_buf_l)[sample] += output_l[sample];
+            (*output_buf_r)[sample] += output_r[sample];
           }
         }
 
@@ -284,7 +290,8 @@ impl ModulateEngine {
         audio_worklet_position: AtomicU64::new(0),
 
         audio_outputs: HashSet::new(),
-        output_buffers: [modulate_core::AudioBuffer::default(); NUM_OUTPUT_BUFFERS],
+        output_buffers_left: [modulate_core::AudioBuffer::default(); NUM_OUTPUT_BUFFERS],
+        output_buffers_right: [modulate_core::AudioBuffer::default(); NUM_OUTPUT_BUFFERS],
 
         performance: vec![0.0; num_threads],
       },
@@ -318,7 +325,8 @@ impl ModulateEngine {
 
   pub fn get_context_pointers(&self) -> ContextPointers {
     ContextPointers {
-      audio_buffers: self.worker_context.output_buffers.as_ptr() as usize,
+      output_left: self.worker_context.output_buffers_left.as_ptr() as usize,
+      output_right: self.worker_context.output_buffers_right.as_ptr() as usize,
       worker_performance: self.worker_context.performance.as_ptr() as usize,
       worker_position: &self.worker_context.worker_position as *const u64 as usize,
       audio_worklet_position: self.worker_context.audio_worklet_position.as_ptr() as usize,
@@ -534,12 +542,12 @@ impl ModulateEngine {
       match connection.to {
         ConnectionTarget::Input(to_module_id, to_input) => {
           if let Some(to_module) = self.modules.get_mut(&to_module_id) {
-            to_module.set_input_buffer_ptr(to_input, &EMPTY_AUDIO_OUTPUT);
+            to_module.reset_input_buffer_ptr(to_input);
           };
         }
         ConnectionTarget::Parameter(to_module_id, to_parameter) => {
           if let Some(to_module) = self.modules.get_mut(&to_module_id) {
-            to_module.set_parameter_buffer_ptr(to_parameter, &EMPTY_AUDIO_OUTPUT);
+            to_module.reset_parameter_buffer_ptr(to_parameter);
           }
         }
       }

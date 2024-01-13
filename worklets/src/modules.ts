@@ -7,7 +7,7 @@ type ModuleTypeOf<Module, Messages = never, Events = never> = Module & {
 
 export const AudioOut = {
   name: 'AudioOut',
-  inputs: ['input'],
+  inputs: ['inputLeft', 'inputRight'],
   parameters: ['volume'],
   outputs: [],
 } as const

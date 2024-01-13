@@ -118,7 +118,8 @@ export type ClockMessage =
     }
 
 export type ContextPointers = {
-  outputBuffers: number
+  outputLeft: number
+  outputRight: number
   workers: Uint32Array
   audioWorkletPosition: number
   workerPerformance: number

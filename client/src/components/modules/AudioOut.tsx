@@ -27,11 +27,17 @@ class AudioOutNode extends Component<Props> {
           initial={0.75}
         />
         <ModuleInputs>
-          <Socket<AudioOut, 'input', 'input'>
+          <Socket<AudioOut, 'input', 'inputLeft'>
             moduleId={id}
             type="input"
-            label=""
+            label="L"
             index={0}
+          />
+          <Socket<AudioOut, 'input', 'inputRight'>
+            moduleId={id}
+            type="input"
+            label="R"
+            index={1}
           />
         </ModuleInputs>
       </Module>

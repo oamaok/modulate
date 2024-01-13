@@ -103,14 +103,26 @@ pub trait Module {
     buffer.set_ptr(buffer_ptr);
   }
 
+  fn reset_input_buffer_ptr(&mut self, input: InputId) {
+    let mut inputs = self.get_inputs();
+    let buffer = inputs.get_mut(input).unwrap();
+    buffer.reset_ptr();
+  }
+
   fn set_parameter_buffer_ptr(
     &mut self,
-    input: ParameterId,
+    param: ParameterId,
     buffer_ptr: *const modulate_core::AudioOutput,
   ) {
     let mut params = self.get_parameters();
-    let buffer = params.get_mut(input).unwrap();
+    let buffer = params.get_mut(param).unwrap();
     buffer.modulation.set_ptr(buffer_ptr);
+  }
+
+  fn reset_parameter_buffer_ptr(&mut self, param: ParameterId) {
+    let mut params = self.get_parameters();
+    let buffer = params.get_mut(param).unwrap();
+    buffer.modulation.reset_ptr();
   }
 
   fn pop_event(&mut self) -> Option<ModuleEvent> {

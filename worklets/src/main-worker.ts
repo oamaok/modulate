@@ -22,14 +22,16 @@ const requestHandlers: {
     // TODO: Report error if WASM init failed
     const workerPointers = await engine.initWorkers()
     const {
-      audio_buffers,
+      output_left,
+      output_right,
       worker_performance,
       worker_position,
       audio_worklet_position,
     } = await engine.getContextPointers()
     return {
       pointers: {
-        outputBuffers: audio_buffers,
+        outputLeft: output_left,
+        outputRight: output_right,
         workers: workerPointers,
         audioWorkletPosition: audio_worklet_position,
         workerPerformance: worker_performance,

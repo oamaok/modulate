@@ -4,8 +4,10 @@ const AUDIO_BUFFERS = 16n
 
 class EngineOutput extends AudioWorkletProcessor {
   memory: WebAssembly.Memory | null = null
-  buffers: Float32Array[] = []
-  outputBufferPtr: number | null = null
+  outputLeft: Float32Array[] = []
+  outputRight: Float32Array[] = []
+  outputRightPtr: number | null = null
+  outputLeftPtr: number | null = null
   audioThreadPositionPtr: number | null
 
   constructor() {
@@ -13,20 +15,33 @@ class EngineOutput extends AudioWorkletProcessor {
     this.port.onmessage = (
       message: MessageEvent<{
         memory: WebAssembly.Memory
-        outputBufferPtr: number
+        outputLeftPtr: number
+        outputRightPtr: number
         audioThreadPositionPtr: number
       }>
     ) => {
-      const { memory, outputBufferPtr, audioThreadPositionPtr } = message.data
+      const { memory, outputLeftPtr, outputRightPtr, audioThreadPositionPtr } =
+        message.data
       this.memory = memory
-      this.outputBufferPtr = outputBufferPtr
+      this.outputLeftPtr = outputLeftPtr
+      this.outputRightPtr = outputRightPtr
       this.audioThreadPositionPtr = audioThreadPositionPtr
 
       for (let i = 0; i < AUDIO_BUFFERS; i++) {
-        this.buffers.push(
+        this.outputLeft.push(
           new Float32Array(
             this.memory.buffer,
-            this.outputBufferPtr + 4 * 128 * Number(i % Number(AUDIO_BUFFERS)),
+            this.outputLeftPtr + 4 * 128 * Number(i % Number(AUDIO_BUFFERS)),
+            128
+          )
+        )
+      }
+
+      for (let i = 0; i < AUDIO_BUFFERS; i++) {
+        this.outputRight.push(
+          new Float32Array(
+            this.memory.buffer,
+            this.outputRightPtr + 4 * 128 * Number(i % Number(AUDIO_BUFFERS)),
             128
           )
         )
@@ -40,7 +55,8 @@ class EngineOutput extends AudioWorkletProcessor {
     parameters: Record<string, Float32Array>
   ) {
     if (!this.memory) return true
-    if (!this.outputBufferPtr) return true
+    if (!this.outputLeftPtr) return true
+    if (!this.outputRightPtr) return true
     if (!this.audioThreadPositionPtr) return true
 
     const audioThreadPosition = new BigInt64Array(
@@ -48,11 +64,13 @@ class EngineOutput extends AudioWorkletProcessor {
       this.audioThreadPositionPtr,
       1
     )
-    for (let i = 0; i < outputs.length; i++) {
-      outputs[i]![0]!.set(
-        this.buffers[Number(audioThreadPosition[0]! % AUDIO_BUFFERS)]!
-      )
-    }
+
+    outputs[0]![0]!.set(
+      this.outputLeft[Number(audioThreadPosition[0]! % AUDIO_BUFFERS)]!
+    )
+    outputs[0]![1]!.set(
+      this.outputRight[Number(audioThreadPosition[0]! % AUDIO_BUFFERS)]!
+    )
 
     Atomics.add(audioThreadPosition, 0, 1n)
     Atomics.notify(audioThreadPosition, 0)
