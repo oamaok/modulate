@@ -18,3 +18,4 @@ export { default as VirtualController } from './components/modules/VirtualContro
 export { default as PianoRoll } from './components/modules/PianoRoll'
 export { default as Oscilloscope } from './components/modules/Oscilloscope'
 export { default as FDNReverb } from './components/modules/FDNReverb'
+export { default as Chorus } from './components/modules/Chorus'

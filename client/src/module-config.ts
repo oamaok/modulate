@@ -179,4 +179,9 @@ export default createConfig({
     width: 200,
     height: 200,
   },
+  Chorus: {
+    category: ModuleCategory.DELAY_REVERB,
+    width: 400,
+    height: 100,
+  },
 })

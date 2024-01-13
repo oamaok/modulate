@@ -57,6 +57,10 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 - [ ] Initial implementation
 
+## Chorus
+
+- [x] Initial implementation
+
 ## Phaser
 
 - [ ] Initial implementation

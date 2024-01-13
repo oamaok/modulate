@@ -2,6 +2,7 @@ pub mod adsr;
 pub mod audio_out;
 pub mod biquad_filter;
 pub mod bouncy_boi;
+pub mod chorus;
 pub mod clock;
 pub mod delay;
 pub mod fdn_reverb;

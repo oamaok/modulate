@@ -4,6 +4,7 @@ use modules::adsr::ADSR;
 use modules::audio_out::AudioOut;
 use modules::biquad_filter::BiquadFilter;
 use modules::bouncy_boi::BouncyBoi;
+use modules::chorus::Chorus;
 use modules::clock::Clock;
 use modules::delay::Delay;
 use modules::fdn_reverb::FDNReverb;
@@ -401,6 +402,9 @@ impl ModulateEngine {
       }
       "FDNReverb" => {
         self.modules.insert(id, FDNReverb::new());
+      }
+      "Chorus" => {
+        self.modules.insert(id, Chorus::new());
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }

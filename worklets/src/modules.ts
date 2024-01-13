@@ -263,6 +263,14 @@ export const FDNReverb = {
 } as const
 export type FDNReverb = ModuleTypeOf<typeof FDNReverb>
 
+export const Chorus = {
+  name: 'Chorus',
+  inputs: ['input'],
+  parameters: ['dryWet', 'rate', 'depth', 'stereoPhase', 'feedback'],
+  outputs: ['outputLeft', 'outputRight'],
+} as const
+export type Chorus = ModuleTypeOf<typeof Chorus>
+
 export const modules = {
   AudioOut,
   Oscillator,
@@ -284,6 +292,7 @@ export const modules = {
   PianoRoll,
   Oscilloscope,
   FDNReverb,
+  Chorus,
 } as const
 
 export type Module =
@@ -307,6 +316,7 @@ export type Module =
   | PianoRoll
   | Oscilloscope
   | FDNReverb
+  | Chorus
 
 export type ModuleName = Module['name']
 

@@ -166,7 +166,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
         outputChannelCount: [2],
       }
     )
-    engineOutputNode.connect(engine.globalGain, 0, 0)
+    engineOutputNode.connect(engine.globalGain)
 
     engineOutputNode.port.postMessage({
       memory,

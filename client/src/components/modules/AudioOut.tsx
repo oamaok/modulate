@@ -24,6 +24,8 @@ class AudioOutNode extends Component<Props> {
           type="percentage"
           param={0}
           label="VOL"
+          hideLabel
+          size="m"
           initial={0.75}
         />
         <ModuleInputs>
