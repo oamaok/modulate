@@ -1,10 +1,7 @@
 import { useEffect, useRef } from 'kaiku'
 import * as styles from './ContextMenu.css'
-import state, { addModule } from '../../state'
-import moduleConfig, { Config, categoryLabel } from '../../module-config'
+import state from '../../state'
 import testAttributes from '../../test-attributes'
-import { groupBy } from '@modulate/common/util'
-import { ModuleName } from '@modulate/worklets/src/modules'
 
 type Props = {}
 
@@ -13,37 +10,7 @@ const CONTEXT_MENU_DISABLE_DISTANCE = 50 // px
 const ContextMenu = ({}: Props) => {
   const menuRef = useRef<HTMLDivElement>()
 
-  const onModuleClick = (moduleName: ModuleName) => {
-    state.activeModule = addModule(moduleName, {
-      x: state.contextMenu.position.x - state.viewOffset.x,
-      y: state.contextMenu.position.y - state.viewOffset.y,
-    })
-
-    state.contextMenu.open = false
-  }
-
-  useEffect(() => {
-    const menuElement = menuRef.current
-    if (state.contextMenu.open && menuElement) {
-      const { height, width } = menuElement.getBoundingClientRect()
-      const isCursorTooFarHorizontally =
-        state.cursor.x <
-          state.contextMenu.position.x - CONTEXT_MENU_DISABLE_DISTANCE ||
-        state.cursor.x >
-          state.contextMenu.position.x + width + CONTEXT_MENU_DISABLE_DISTANCE
-      const isCursorTooFarVertically =
-        state.cursor.y <
-          state.contextMenu.position.y - CONTEXT_MENU_DISABLE_DISTANCE ||
-        state.cursor.y >
-          state.contextMenu.position.y + height + CONTEXT_MENU_DISABLE_DISTANCE
-
-      if (isCursorTooFarHorizontally || isCursorTooFarVertically) {
-        state.contextMenu.open = false
-      }
-    }
-  })
-
-  const getContextMenuTransform = () => {
+  const getMenuRect = () => {
     const rect = menuRef.current?.getBoundingClientRect()
     const width = rect?.width ?? 0
     const height = rect?.height ?? 0
@@ -54,13 +21,32 @@ const ContextMenu = ({}: Props) => {
       window.innerHeight - height
     )
 
-    return `translate(${x}px, ${y}px)`
+    return { x, y, width, height }
   }
 
-  const moduleCategories = groupBy(
-    Object.entries(moduleConfig) as [ModuleName, Config[ModuleName]][],
-    ([, config]) => config.category
-  )
+  useEffect(() => {
+    const menuElement = menuRef.current
+    if (state.contextMenu.open && menuElement) {
+      const { x, y, height, width } = getMenuRect()
+
+      const isCursorTooFarHorizontally =
+        state.cursor.x < x - CONTEXT_MENU_DISABLE_DISTANCE ||
+        state.cursor.x > x + width + CONTEXT_MENU_DISABLE_DISTANCE
+      const isCursorTooFarVertically =
+        state.cursor.y < y - CONTEXT_MENU_DISABLE_DISTANCE ||
+        state.cursor.y > y + height + CONTEXT_MENU_DISABLE_DISTANCE
+
+      if (isCursorTooFarHorizontally || isCursorTooFarVertically) {
+        state.contextMenu.open = false
+      }
+    }
+  })
+
+  const getContextMenuTransform = () => {
+    const { x, y } = getMenuRect()
+
+    return `translate(${x}px, ${y}px)`
+  }
 
   return (
     <div
@@ -72,12 +58,87 @@ const ContextMenu = ({}: Props) => {
       ]}
       style={{
         transform: getContextMenuTransform,
+        width: state.contextMenu.options?.width + 'px',
       }}
     >
-      <div className={styles.group}>Add a module</div>
+      <div className={styles.title}>{state.contextMenu.options?.title}</div>
       <div className={styles.items}>
+        {state.contextMenu.options?.items.map((item) => {
+          switch (item.type) {
+            case 'button-group': {
+              return (
+                <div className={styles.buttonGroup}>
+                  <div className={styles.label}>{item.name}</div>
+                  {item.items.map((subItem) => (
+                    <button
+                      {...testAttributes({
+                        id: 'context-menu-item',
+                        'context-menu-item-name': item.name,
+                      })}
+                      className={styles.item}
+                      onClick={() => {
+                        state.contextMenu.open = false
+                        subItem.action(state.contextMenu.position)
+                      }}
+                    >
+                      {subItem.name}
+                    </button>
+                  ))}
+                </div>
+              )
+            }
+
+            case 'group': {
+              return (
+                <div className={styles.group}>
+                  <div className={styles.label}>{item.name}</div>
+                  {item.items.map((subItem) => (
+                    <button
+                      {...testAttributes({
+                        id: 'context-menu-item',
+                        'context-menu-item-name': subItem.name,
+                      })}
+                      className={styles.item}
+                      onClick={() => {
+                        state.contextMenu.open = false
+                        subItem.action(state.contextMenu.position)
+                      }}
+                    >
+                      {subItem.name}
+                    </button>
+                  ))}
+                </div>
+              )
+            }
+
+            case 'item': {
+              return (
+                <button
+                  {...testAttributes({
+                    id: 'context-menu-item',
+                    'context-menu-item-name': item.name,
+                  })}
+                  className={styles.item}
+                  onClick={() => {
+                    state.contextMenu.open = false
+                    item.action(state.contextMenu.position)
+                  }}
+                >
+                  {item.name}
+                </button>
+              )
+            }
+          }
+        })}
+      </div>
+    </div>
+  )
+}
+
+/*
+
         {moduleCategories.map(([category, modules]) => (
-          <div className={styles.category}>
+          <div className={styles.group}>
             <div className={styles.label}>{categoryLabel[category]}</div>
             {modules.map(([moduleName]) => (
               <button
@@ -93,9 +154,6 @@ const ContextMenu = ({}: Props) => {
             ))}
           </div>
         ))}
-      </div>
-    </div>
-  )
-}
+        */
 
 export default ContextMenu

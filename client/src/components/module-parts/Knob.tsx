@@ -21,7 +21,6 @@ const getValue = <M extends Module, P extends M['parameters'][number]>(
   props: Props<M, P>
 ): number => {
   const knobValue = getKnobValue<M, P>(props.moduleId, props.param)
-
   switch (props.type) {
     case 'percentage': {
       return clamp(knobValue ?? props.initial, 0, 1)
@@ -51,8 +50,8 @@ const Knob = <M extends Module, P extends M['parameters'][number]>(
     engine.setParameterValue(props.moduleId, props.param, getValue(props))
   })
 
-  const value = getValue(props)
   useEffect(() => {
+    const value = getValue(props)
     // `getValue` is used outside the effect to only trigger it once
     setKnobValue<M, P>(props.moduleId, props.param, value)
   })
@@ -61,7 +60,7 @@ const Knob = <M extends Module, P extends M['parameters'][number]>(
     <ControlledKnob
       size={props.size ?? 's'}
       {...props}
-      value={value}
+      value={getValue(props)}
       onChange={(value) =>
         setKnobValue<M, P>(props.moduleId, props.param, value)
       }

@@ -1,11 +1,18 @@
 import { FC, useRef } from 'kaiku'
-import state, { getModulePosition } from '../../state'
+import state, {
+  cloneModule,
+  deleteModule,
+  getModulePosition,
+  openContextMenu,
+  resetModuleKnobs,
+} from '../../state'
 import { Id } from '@modulate/common/types'
 import * as styles from './Module.css'
 import testAttributes from '../../test-attributes'
 import { ModuleName } from '@modulate/worklets/src/modules'
 import moduleConfig from '../../module-config'
 import useDrag from '../../hooks/useDrag'
+import useTouchEvents from '../../hooks/useTouchEvents'
 
 type Props = {
   id: Id
@@ -16,6 +23,30 @@ type Props = {
 const Module: FC<Props> = ({ id, type, name, children }) => {
   const headerRef = useRef<HTMLDivElement>()
 
+  const openModuleContextMenu = () => {
+    openContextMenu(state.cursor, {
+      title: `Module - ${name ?? type}`,
+      width: 180,
+      items: [
+        {
+          type: 'item',
+          name: 'Reset knobs',
+          action: () => resetModuleKnobs(id),
+        },
+        {
+          type: 'item',
+          name: 'Clone',
+          action: () => cloneModule(id),
+        },
+        {
+          type: 'item',
+          name: 'Delete',
+          action: () => deleteModule(id),
+        },
+      ],
+    })
+  }
+
   useDrag({
     ref: headerRef,
     relativeToViewOffset: true,
@@ -23,6 +54,11 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
       modulePosition.x -= deltaX
       modulePosition.y -= deltaY
     },
+  })
+
+  useTouchEvents({
+    ref: headerRef,
+    onLongPress: openModuleContextMenu,
   })
 
   const modulePosition = getModulePosition(id)
@@ -59,6 +95,7 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
         style={{
           background: config.colors.primary,
         }}
+        onContextMenu={openModuleContextMenu}
         ref={headerRef}
         {...testAttributes({ id: 'module-header' })}
       >

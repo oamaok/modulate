@@ -1,5 +1,5 @@
-import { createState } from 'kaiku'
-import { Overlay, State } from './types'
+import { createState, immutable } from 'kaiku'
+import { ContextMenuOptions, Overlay, State } from './types'
 import {
   Cable,
   Socket,
@@ -14,7 +14,7 @@ import {
 import * as engine from './engine'
 import { parseRoute } from './routes'
 import assert from './assert'
-import { origin } from '@modulate/common/util'
+import { cloneObject, origin } from '@modulate/common/util'
 import { Module, ModuleName } from '@modulate/worklets/src/modules'
 
 const state = createState<State>({
@@ -57,6 +57,7 @@ const state = createState<State>({
 
   contextMenu: {
     open: false,
+    options: null,
     position: origin(),
   },
 })
@@ -165,6 +166,17 @@ export const openOverlay = (overlay: Overlay) => {
   state.overlay = overlay
 }
 
+export const openContextMenu = (position: Vec2, option: ContextMenuOptions) => {
+  state.contextMenu.open = true
+  state.contextMenu.options = immutable(option)
+  state.contextMenu.position.x = position.x
+  state.contextMenu.position.y = position.y
+}
+
+export const closeContextMenu = () => {
+  state.contextMenu.open = false
+}
+
 export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   const { modules, cables } = savedPatch
   state.patchMetadata = metadata
@@ -211,6 +223,32 @@ export const addModule = (
     state: null,
   }
   return id
+}
+
+export const cloneModule = (moduleId: string) => {
+  const module = patch.modules[moduleId]
+
+  assert(module)
+
+  const id = nextId()
+  patch.modules[id] = {
+    name: module.name,
+    position: {
+      x: module.position.x + 40,
+      y: module.position.y + 40,
+    },
+    knobs: [...module.knobs],
+    state: module.state ? cloneObject(module.state) : null,
+  }
+  state.activeModule = id
+
+  return id
+}
+
+export const resetModuleKnobs = (moduleId: string) => {
+  const module = patch.modules[moduleId]
+  assert(module)
+  module.knobs = []
 }
 
 export const isOwnPatch = () => {

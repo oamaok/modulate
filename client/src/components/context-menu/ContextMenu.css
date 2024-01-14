@@ -18,21 +18,33 @@
   pointer-events: all;
 }
 
-.group {
+.title {
   width: 100%;
   padding: 4px 8px;
   background-color: var(--secondary);
   color: #fff;
-  margin-bottom: 4px;
   font-size: 12px;
   text-transform: uppercase;
 }
 
-.items {
-  padding: 4px 8px;
+.items > .item {
+  width: 100%;
+  color: var(--background);
+  text-align: left;
+  padding: 8px 16px;
+  text-shadow: none;
+  font-weight: bold;
 }
 
-.category {
+.items > .item:hover {
+  background: #a7a7a7;
+}
+
+.buttonGroup {
+  padding: 2px 8px;
+}
+
+.group {
   margin-bottom: 4px;
 }
 
@@ -44,7 +56,7 @@
   text-transform: uppercase;
 }
 
-.item {
+.buttonGroup .item {
   background-color: var(--secondary-variant);
   color: var(--background);
   text-shadow: none;
@@ -57,7 +69,7 @@
   font-weight: bold;
 }
 
-.item:hover {
+.buttonGroup .item:hover {
   color: var(--on-background);
   background-color: var(--primary);
   font-weight: bold;

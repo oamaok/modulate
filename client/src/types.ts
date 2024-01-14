@@ -41,6 +41,30 @@ export type Overlay =
   | 'patch-browser'
   | 'patch-settings'
 
+type ContextMenuItem = {
+  type: 'item'
+  name: string
+  action: (position: Vec2) => void
+}
+
+type ContextMenuGroup = {
+  type: 'group'
+  name: string
+  items: ContextMenuItem[]
+}
+
+type ContextMenuButtonGroup = {
+  type: 'button-group'
+  name: string
+  items: ContextMenuItem[]
+}
+
+export type ContextMenuOptions = {
+  width: number
+  title: string
+  items: (ContextMenuItem | ContextMenuGroup | ContextMenuButtonGroup)[]
+}
+
 export type State = {
   initialized: boolean
   room: Room | null
@@ -78,6 +102,7 @@ export type State = {
   contextMenu: {
     open: boolean
     position: Vec2
+    options: ContextMenuOptions | null
   }
 }
 

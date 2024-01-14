@@ -296,10 +296,7 @@ class PianoRollEditor extends Component<Props, State> {
     useMouseDrag({
       ref: this.canvasRef,
       onDragStart: ({ button, ctrlKey, shiftKey, relativeX, relativeY }) => {
-        const { pos, snappedPos, pitch } = this.getPitchAndPosition(
-          relativeX,
-          relativeY
-        )
+        const { pos, pitch } = this.getPitchAndPosition(relativeX, relativeY)
 
         if (button === LEFT_CLICK) {
           if (ctrlKey) {
@@ -417,7 +414,7 @@ class PianoRollEditor extends Component<Props, State> {
         }
       },
       onDrag: ({ relativeX, relativeY, deltaX, deltaY, tapType }) => {
-        const { pos, snappedPos, pitch } = this.getPitchAndPosition(
+        const { snappedPos, pitch } = this.getPitchAndPosition(
           relativeX,
           relativeY
         )
