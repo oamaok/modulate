@@ -144,8 +144,14 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     [...pointers.workers].map((pointer) => {
       const worker = new Worker(toDataUrl(threadWorkerScript))
       worker.postMessage([wasm, memory, pointer])
-      return new Promise<Worker>((resolve) => {
-        worker.onmessage = () => resolve(worker)
+      return new Promise<Worker>((resolve, reject) => {
+        worker.onmessage = ({ data: error }) => {
+          if (error) {
+            reject(error)
+          } else {
+            resolve(worker)
+          }
+        }
       })
     })
   )

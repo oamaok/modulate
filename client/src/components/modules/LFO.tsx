@@ -42,9 +42,18 @@ class LFONode extends Component<Props> {
         <Knob<LFO, 'amount'>
           moduleId={id}
           param={2}
-          label="AMOUNT"
+          label="LVL"
           type="percentage"
           initial={1.0}
+        />
+        <Knob<LFO, 'offset'>
+          moduleId={id}
+          param={3}
+          label="OFFSET"
+          type="linear"
+          initial={0.0}
+          min={-2}
+          max={2}
         />
 
         <ModuleInputs>

@@ -7,7 +7,7 @@ const Performance = () => {
   const canvasRef = useRef<HTMLCanvasElement>()
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const loop = () => {
       const canvas = canvasRef.current
 
       if (!canvas) return
@@ -31,9 +31,13 @@ const Performance = () => {
       context.putImageData(imageData, -1, 0)
       context.fillStyle = `hsl(${120 - total * 120}deg 80% 50%)`
       context.fillRect(width - 1, (1 - total) * height, 1, total * height)
-    }, 50)
 
-    return () => clearInterval(interval)
+      interval = requestAnimationFrame(loop)
+    }
+
+    let interval = requestAnimationFrame(loop)
+
+    return () => cancelAnimationFrame(interval)
   })
 
   return (

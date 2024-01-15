@@ -502,12 +502,12 @@ impl ADSRCurve {
       self.release_level = self.level;
     }
 
-    self.level = 'l: {
+    self.level = 'level: {
       if edge.is_high() {
         let attack_time = self.attack_time * SAMPLE_RATE_F32;
 
         if self.time < attack_time {
-          break 'l tension_interp(
+          break 'level tension_interp(
             self.release_level,
             1.0,
             self.attack_tension,
@@ -518,7 +518,7 @@ impl ADSRCurve {
         let decay_time = self.decay_time * SAMPLE_RATE_F32;
 
         if self.time - attack_time < decay_time {
-          break 'l tension_interp(
+          break 'level tension_interp(
             1.0,
             self.sustain_level,
             self.decay_tension,
@@ -531,7 +531,7 @@ impl ADSRCurve {
         let release_time = self.release_time * SAMPLE_RATE_F32;
 
         if self.time < release_time {
-          break 'l tension_interp(
+          break 'level tension_interp(
             self.release_level,
             0.0,
             self.release_tension,

@@ -116,7 +116,7 @@ export default createConfig({
   },
   LFO: {
     category: ModuleCategory.GENERATOR,
-    width: 200,
+    width: 240,
     height: 100,
   },
   Limiter: {

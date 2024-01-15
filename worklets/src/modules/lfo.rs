@@ -18,6 +18,7 @@ pub struct LFO {
   cv_param: AudioParam,
   pw_param: AudioParam,
   amount_param: AudioParam,
+  dc_offset: AudioParam,
 
   phase: f32,
 }
@@ -34,13 +35,14 @@ impl Module for LFO {
       let cv = self.cv_param.at(sample);
       let pw = self.pw_param.at(sample);
       let amount = self.amount_param.at(sample);
+      let dc_offset = self.dc_offset.at(sample);
 
       let freq = 13.75 * f32::powf(2.0, cv - 12.0);
 
-      self.sin_output[sample] = self.sin() * amount;
-      self.tri_output[sample] = self.tri() * amount;
-      self.saw_output[sample] = self.saw() * amount;
-      self.sqr_output[sample] = self.sqr(pw) * amount;
+      self.sin_output[sample] = self.sin() * amount + dc_offset;
+      self.tri_output[sample] = self.tri() * amount + dc_offset;
+      self.saw_output[sample] = self.saw() * amount + dc_offset;
+      self.sqr_output[sample] = self.sqr(pw) * amount + dc_offset;
 
       self.phase += freq / SAMPLE_RATE as f32;
       if self.phase > 1.0 {
@@ -58,6 +60,7 @@ impl Module for LFO {
       &mut self.cv_param,
       &mut self.pw_param,
       &mut self.amount_param,
+      &mut self.dc_offset,
     ]
   }
 

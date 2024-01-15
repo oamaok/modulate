@@ -24,7 +24,7 @@ export type Oscillator = ModuleTypeOf<typeof Oscillator>
 export const LFO = {
   name: 'LFO',
   inputs: ['sync'],
-  parameters: ['cv', 'pw', 'amount'],
+  parameters: ['cv', 'pw', 'amount', 'offset'],
   outputs: ['sin', 'tri', 'saw', 'sqr'],
 } as const
 export type LFO = ModuleTypeOf<typeof LFO>
