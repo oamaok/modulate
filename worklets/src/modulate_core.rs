@@ -254,110 +254,172 @@ pub fn exp_curve(x: f32) -> f32 {
   (3.0 + x * (-13.0 + 5.0 * x)) / (3.0 + 2.0 * x)
 }
 
+pub struct VariableDelayLineInterpolated {
+  size: usize,
+  buffer: Vec<f32>,
+  write_pos: usize,
+  read_pos: usize,
+  read_pos_fract: f32,
+  feedback: f32,
+}
+
+impl VariableDelayLineInterpolated {
+  pub fn new(size: usize, delay: f32) -> VariableDelayLineInterpolated {
+    VariableDelayLineInterpolated {
+      size,
+      buffer: vec![0.0; size],
+      write_pos: delay as usize,
+      read_pos: 0,
+      read_pos_fract: 1.0 - delay.fract(),
+      feedback: 0.0,
+    }
+  }
+
+  pub fn set_delay(&mut self, delay: f32) {
+    assert!(delay < self.size as f32);
+
+    self.read_pos_fract = 1.0 - delay.fract();
+    let delay_int = delay as i32;
+
+    let mut read_pos = self.write_pos as i32 - delay_int as i32;
+    if read_pos < 0 {
+      read_pos += self.size as i32;
+    }
+    self.read_pos = read_pos as usize;
+  }
+
+  pub fn set_feedback(&mut self, feedback: f32) {
+    self.feedback = feedback;
+  }
+
+  pub fn step(&mut self, input: f32) -> f32 {
+    let curr = self.buffer[self.read_pos];
+    let next = {
+      if self.read_pos == self.size - 1 {
+        self.buffer[0]
+      } else {
+        self.buffer[self.read_pos + 1]
+      }
+    };
+
+    let delayed = lerp(curr, next, self.read_pos_fract);
+
+    self.buffer[self.write_pos] = input + delayed * self.feedback;
+
+    self.write_pos += 1;
+    self.read_pos += 1;
+
+    if self.write_pos >= self.size {
+      self.write_pos = 0;
+    }
+
+    if self.read_pos >= self.size {
+      self.read_pos = 0;
+    }
+
+    return delayed;
+  }
+}
+
+pub struct VariableDelayLine {
+  size: usize,
+  buffer: Vec<f32>,
+  write_pos: usize,
+  read_pos: usize,
+  feedback: f32,
+}
+
+impl VariableDelayLine {
+  pub fn new(size: usize, delay: usize) -> VariableDelayLine {
+    assert!(delay < size);
+    VariableDelayLine {
+      size,
+      buffer: vec![0.0; size],
+      write_pos: delay,
+      read_pos: 0,
+      feedback: 0.0,
+    }
+  }
+
+  pub fn set_delay(&mut self, delay: usize) {
+    assert!(delay < self.size);
+
+    let mut read_pos = self.write_pos as i32 - delay as i32;
+    if read_pos < 0 {
+      read_pos += self.size as i32;
+    }
+    self.read_pos = read_pos as usize;
+  }
+
+  pub fn set_feedback(&mut self, feedback: f32) {
+    self.feedback = feedback;
+  }
+
+  pub fn step(&mut self, input: f32) -> f32 {
+    let delayed = self.buffer[self.read_pos];
+
+    self.buffer[self.write_pos] = input + delayed * self.feedback;
+
+    self.write_pos += 1;
+    self.read_pos += 1;
+
+    if self.write_pos >= self.size {
+      self.write_pos = 0;
+    }
+
+    if self.read_pos >= self.size {
+      self.read_pos = 0;
+    }
+
+    return delayed;
+  }
+}
+
 pub struct RingBuffer {
-  buffers: [Vec<f32>; 2],
-  current: usize,
-  length: usize,
-  pos: usize,
+  buffer: Vec<f32>,
+  position: usize,
 }
 
 impl RingBuffer {
-  pub fn new(length: usize) -> RingBuffer {
+  pub fn new(size: usize) -> RingBuffer {
     RingBuffer {
-      buffers: [vec![0.0; SAMPLE_RATE * 16], vec![0.0; SAMPLE_RATE * 16]],
-      current: 0,
-      length,
-      pos: 0,
+      buffer: vec![0.0; size],
+      position: 0,
     }
-  }
-
-  pub fn rms(&self) -> f32 {
-    let mut value = 0.0;
-
-    for i in 0..self.length {
-      value += self.buffers[self.current][i] * self.buffers[self.current][i];
-    }
-
-    value /= self.length as f32;
-    value = f32::sqrt(value);
-
-    value
-  }
-
-  pub fn resize(&mut self, mut len: usize) {
-    if len == 0 {
-      len = 1
-    }
-    if self.length == len {
-      return;
-    }
-
-    let ratio = self.length as f32 / len as f32;
-
-    let dst = if self.current == 0 {
-      self.buffers[1].as_mut_ptr()
-    } else {
-      self.buffers[0].as_mut_ptr()
-    };
-
-    let mut pos = 0.0;
-    for sample in 0..len {
-      let ipos = pos as u32;
-      let src_index = ipos as usize;
-      let t = pos - ipos as f32;
-
-      let a = self.at_usize(src_index + self.pos);
-      let b = self.at_usize(src_index + 1 + self.pos);
-
-      unsafe {
-        *dst.add(sample) = lerp(a, b, t);
-      }
-
-      pos += ratio;
-    }
-
-    self.current = if self.current == 0 { 1 } else { 0 };
-
-    self.pos = 0;
-    self.length = len;
-  }
-
-  pub fn at_usize(&self, mut index: usize) -> f32 {
-    index %= self.length;
-    self.buffers[self.current][index as usize]
-  }
-
-  pub fn head(&self) -> f32 {
-    self.buffers[self.current][self.pos]
   }
 
   pub fn write(&mut self, value: f32) {
-    self.buffers[self.current][self.pos] = value;
-    self.pos = (self.pos + 1) % self.length;
+    self.buffer[self.position] = value;
+    self.position += 1;
+    if self.position >= self.buffer.len() {
+      self.position = 0;
+    }
+  }
+
+  pub fn head(&self) -> f32 {
+    self.buffer[self.position]
   }
 }
 
 pub struct FeedbackCombFilter {
-  buffer: RingBuffer,
+  delay: VariableDelayLine,
   pub gain: f32,
 }
 
 impl FeedbackCombFilter {
-  pub fn new(len: usize, gain: f32) -> FeedbackCombFilter {
+  pub fn new(delay: usize, gain: f32) -> FeedbackCombFilter {
     FeedbackCombFilter {
-      buffer: RingBuffer::new(len),
+      delay: VariableDelayLine::new(SAMPLE_RATE, delay),
       gain,
     }
   }
 
   pub fn set_delay(&mut self, length: usize) {
-    self.buffer.resize(length)
+    self.delay.set_delay(length);
   }
 
   pub fn step(&mut self, input: f32) -> f32 {
-    let value = self.buffer.head() * self.gain + input;
-    self.buffer.write(value);
-    value
+    self.delay.step(input) * self.gain + input
   }
 }
 

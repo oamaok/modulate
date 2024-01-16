@@ -16,7 +16,8 @@ pub struct Limiter {
 impl Module for Limiter {
   fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
-      let rms = self.buffer.rms();
+      // FIXME: Implement new RMS/Peak calculation for limiter
+      let rms = 0.5;
       let threshold = self.threshold.at(sample);
       let ratio = if rms > threshold {
         threshold / rms

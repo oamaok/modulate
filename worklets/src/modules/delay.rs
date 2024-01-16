@@ -1,5 +1,7 @@
 use crate::{
-  modulate_core::{AudioInput, AudioOutput, AudioParam, RingBuffer, QUANTUM_SIZE, SAMPLE_RATE},
+  modulate_core::{
+    AudioInput, AudioOutput, AudioParam, VariableDelayLineInterpolated, QUANTUM_SIZE, SAMPLE_RATE,
+  },
   module::Module,
 };
 
@@ -12,19 +14,19 @@ pub struct Delay {
   wet: AudioParam,
   dry: AudioParam,
 
-  buffer: RingBuffer,
+  delay: VariableDelayLineInterpolated,
 }
 
 impl Module for Delay {
   fn process(&mut self, _quantum: u64) {
-    self
-      .buffer
-      .resize((self.time.at(0) * SAMPLE_RATE as f32) as usize);
-
     for sample in 0..QUANTUM_SIZE {
+      self
+        .delay
+        .set_delay(self.time.at(sample) * SAMPLE_RATE as f32);
+      self.delay.set_feedback(self.feedback.at(sample));
+
       let input = self.input.at(sample);
-      let wet = self.buffer.head();
-      self.buffer.write(input + wet * self.feedback.at(sample));
+      let wet = self.delay.step(input);
       self.output[sample] = wet * self.wet.at(sample) + input * self.dry.at(sample);
     }
   }
@@ -58,7 +60,7 @@ impl Delay {
       wet: AudioParam::default(),
       dry: AudioParam::default(),
 
-      buffer: RingBuffer::new(10000),
+      delay: VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, 10000.0),
     })
   }
 }

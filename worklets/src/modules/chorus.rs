@@ -1,9 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::{
-  modulate_core::{
-    lerp, AudioInput, AudioOutput, AudioParam, QUANTUM_SIZE, SAMPLE_RATE,
-  },
+  modulate_core::{lerp, AudioInput, AudioOutput, AudioParam, QUANTUM_SIZE, SAMPLE_RATE},
   module::Module,
 };
 
