@@ -1,6 +1,7 @@
 use crate::{
   modulate_core::{
     AudioInput, AudioOutput, AudioParam, VariableDelayLineInterpolated, QUANTUM_SIZE, SAMPLE_RATE,
+    SAMPLE_RATE_F32,
   },
   module::Module,
 };
@@ -20,9 +21,7 @@ pub struct Delay {
 impl Module for Delay {
   fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
-      self
-        .delay
-        .set_delay(self.time.at(sample) * SAMPLE_RATE as f32);
+      self.delay.set_delay(self.time.at(sample) * SAMPLE_RATE_F32);
       self.delay.set_feedback(self.feedback.at(sample));
 
       let input = self.input.at(sample);
