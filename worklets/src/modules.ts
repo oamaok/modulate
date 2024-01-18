@@ -258,7 +258,7 @@ export type Oscilloscope = ModuleTypeOf<
 export const FDNReverb = {
   name: 'FDNReverb',
   inputs: ['input'],
-  parameters: ['dryWet', 'modAmount', 'modSpeed', 'decay'],
+  parameters: ['dryWet', 'modAmount', 'modSpeed', 'decay', 'size'],
   outputs: ['output'],
 } as const
 export type FDNReverb = ModuleTypeOf<typeof FDNReverb>

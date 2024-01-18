@@ -53,9 +53,18 @@ class FDNReverbNode extends Component<Props> {
             param={3}
             label="DECAY"
             type="linear"
-            min={0.3}
-            max={0.495}
-            initial={0.48}
+            min={0}
+            max={1}
+            initial={0.5}
+          />
+          <Knob<FDNReverb, 'size'>
+            moduleId={id}
+            param={4}
+            label="SIZE"
+            type="linear"
+            min={0}
+            max={1}
+            initial={0.5}
           />
         </div>
         <ModuleInputs>

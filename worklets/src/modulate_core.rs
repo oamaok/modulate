@@ -258,10 +258,9 @@ pub struct VariableDelayLineInterpolated {
   size: usize,
   buffer: Vec<f32>,
   write_pos: usize,
-  read_pos: f32,
+  current_delay: f32,
   read_speed: f32,
   delay: f32,
-  feedback: f32,
 }
 
 impl VariableDelayLineInterpolated {
@@ -271,36 +270,40 @@ impl VariableDelayLineInterpolated {
       size,
       buffer: vec![0.0; size],
       write_pos: delay as usize,
-      read_pos: 0.0,
-      read_speed: 1.0,
+      current_delay: delay,
+      read_speed: 0.0,
       delay,
-      feedback: 0.0,
     }
   }
 
   pub fn set_delay(&mut self, delay: f32) {
     assert!(delay < self.size as f32);
+    let delay = delay.max(1.0);
 
-    if (delay - self.delay).abs() < f32::EPSILON  { return }
-
-    let write_pos = self.write_pos as f32;
-    let current_delay = if self.read_pos < write_pos {
-      write_pos - self.read_pos
-    } else {
-      self.size as f32 - self.read_pos + write_pos
-    };
+    if (delay - self.delay).abs() < f32::EPSILON {
+      return;
+    }
 
     self.delay = delay;
-    self.read_speed = current_delay / delay;
+    self.read_speed = 1.0 - self.current_delay / delay;
   }
 
-  pub fn set_feedback(&mut self, feedback: f32) {
-    self.feedback = feedback;
-  }
+  pub fn read(&self) -> f32 {
+    let mut read_pos = self.write_pos as f32 - self.current_delay;
+    if read_pos < 0.0 {
+      read_pos += self.size as f32;
 
-  pub fn step(&mut self, input: f32) -> f32 {
-    let read_pos_int = self.read_pos as usize;
-    let read_pos_fract = self.read_pos.fract();
+      // Due to floating point precision this _is_ a possible case
+      if read_pos >= self.size as f32 {
+        read_pos = 0.0;
+      }
+    }
+
+    assert!(read_pos >= 0.0, "read_pos >= 0.0");
+    assert!(read_pos < self.size as f32, "read_pos < self.size as f32");
+
+    let read_pos_int = read_pos as usize;
+    let read_pos_fract = read_pos.fract();
 
     let curr = self.buffer[read_pos_int];
     let next = {
@@ -311,37 +314,25 @@ impl VariableDelayLineInterpolated {
       }
     };
 
-    let delayed = lerp(curr, next, read_pos_fract);
+    lerp(curr, next, read_pos_fract)
+  }
 
-    self.buffer[self.write_pos] = input + delayed * self.feedback;
+  pub fn write(&mut self, input: f32) {
+    self.buffer[self.write_pos] = input;
 
-
-    let write_pos = self.write_pos as f32;
-    let current_delay = if self.read_pos < write_pos {
-      write_pos - self.read_pos
-    } else {
-      self.size as f32 - self.read_pos + write_pos
-    };
-
-    if (self.read_speed < 1.0 && current_delay < self.delay)
-      || (self.read_speed > 1.0 && current_delay > self.delay)
+    if (self.read_speed > 0.0 && self.current_delay < self.delay)
+      || (self.read_speed < 0.0 && self.current_delay > self.delay)
     {
-      self.read_pos += self.read_speed;
-    } else {
-      self.read_pos += 1.0;
+      self.current_delay += self.read_speed;
     }
+
+    assert!(self.current_delay >= 0.0);
 
     self.write_pos += 1;
 
     if self.write_pos >= self.size {
       self.write_pos = 0;
     }
-
-    if self.read_pos >= self.size as f32 {
-      self.read_pos = 0.0;
-    }
-
-    return delayed;
   }
 }
 

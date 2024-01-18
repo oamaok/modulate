@@ -22,10 +22,10 @@ impl Module for Delay {
   fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
       self.delay.set_delay(self.time.at(sample) * SAMPLE_RATE_F32);
-      self.delay.set_feedback(self.feedback.at(sample));
 
       let input = self.input.at(sample);
-      let wet = self.delay.step(input);
+      let wet = self.delay.read();
+      self.delay.write(input + wet * self.feedback.at(sample));
       self.output[sample] = wet * self.wet.at(sample) + input * self.dry.at(sample);
     }
   }

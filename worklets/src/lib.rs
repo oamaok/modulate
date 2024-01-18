@@ -597,7 +597,6 @@ pub struct ModulateEngineWrapper {
 impl ModulateEngineWrapper {
   #[wasm_bindgen(constructor)]
   pub fn new(num_threads: usize) -> ModulateEngineWrapper {
-    #[cfg(debug_assertions)]
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     ModulateEngineWrapper {

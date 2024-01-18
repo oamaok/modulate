@@ -1,7 +1,9 @@
-use std::arch::wasm32::{f32x4, f32x4_add, f32x4_mul, f32x4_splat, v128, v128_store};
+use std::arch::wasm32::{f32x4, f32x4_add, f32x4_mul, f32x4_splat, f32x4_sub, v128, v128_store};
 
 use crate::{
-  modulate_core::{lerp, AudioInput, AudioOutput, AudioParam, QUANTUM_SIZE},
+  modulate_core::{
+    AudioInput, AudioOutput, AudioParam, VariableDelayLineInterpolated, QUANTUM_SIZE, SAMPLE_RATE,
+  },
   module::Module,
 };
 
@@ -12,24 +14,29 @@ pub struct FDNReverb {
   mod_amount: AudioParam,
   mod_speed: AudioParam,
   decay: AudioParam,
+  size: AudioParam,
 
-  delay_buffers: [[f32; 16384]; 4],
-  delay_lengths: [usize; 4],
-  delay_positions: [usize; 4],
+  delays: [VariableDelayLineInterpolated; 8],
 
   modulation: f32,
 }
 
-type Vec4 = [f32; 4];
+const PRIMES: [f32; 8] = [
+  1013.0, 1019.0, 1021.0, 1031.0, 1033.0, 1039.0, 1049.0, 1051.0,
+];
+
+type Vec8 = [f32; 8];
 
 impl Module for FDNReverb {
   fn process(&mut self, _quantum: u64) {
-    // Hadamard matrix by column
+    // 4th order Hadamard matrix by column
     // Reference: https://www.dsprelated.com/freebooks/pasp/FDN_Reverberation.html
-    let mat_col0 = f32x4(1.0, -1.0, -1.0, 1.0);
-    let mat_col1 = f32x4(1.0, 1.0, -1.0, -1.0);
-    let mat_col2 = f32x4(1.0, -1.0, 1.0, -1.0);
-    let mat_col3 = f32x4(1.0, 1.0, 1.0, 1.0);
+    let hadamard = [
+      f32x4(1.0, -1.0, -1.0, 1.0),
+      f32x4(1.0, 1.0, -1.0, -1.0),
+      f32x4(1.0, -1.0, 1.0, -1.0),
+      f32x4(1.0, 1.0, 1.0, 1.0),
+    ];
 
     for sample in 0..QUANTUM_SIZE {
       let input = self.input.at(sample);
@@ -37,58 +44,53 @@ impl Module for FDNReverb {
       let mod_speed = self.mod_speed.at(sample);
       let decay = self.decay.at(sample);
 
-      let mut vec: Vec4 = [0.0, 0.0, 0.0, 0.0];
-      let mut sum = 0.0;
+      let vec: Vec8 = [
+        self.delays[0].read(),
+        self.delays[1].read(),
+        self.delays[2].read(),
+        self.delays[3].read(),
+        self.delays[4].read(),
+        self.delays[5].read(),
+        self.delays[6].read(),
+        self.delays[7].read(),
+      ];
 
-      for i in 0..4 {
-        let phase_offset = 1.5708 * i as f32;
-
-        vec[i] = {
-          let modulation = ((self.modulation + phase_offset).sin() + 1.0) * mod_amount * 10.0;
-          let mod_frac = modulation.fract();
-          let mod_int = modulation as usize;
-
-          let pos = &self.delay_positions[i];
-          let len = &self.delay_lengths[i];
-          let buf = &self.delay_buffers[i];
-
-          let modulated = lerp(
-            buf[(pos + mod_int) % len],
-            buf[(pos + 1 + mod_int) % len],
-            mod_frac,
-          );
-
-          (modulated + buf[*pos]) * 0.5
-        };
-
-        sum += vec[i];
+      let size = self.size.at(sample);
+      for i in 0..8 {
+        self.delays[i].set_delay(
+          PRIMES[i] * ((i + 1) as f32 / 4.0) * size * 10.0
+            + self.modulation.sin() * 20.0 * mod_amount,
+        );
       }
 
-      // Mat4x4 x Vec4 multiplication
-      let mut mul_res = f32x4_mul(mat_col0, f32x4_splat(vec[0]));
-      mul_res = f32x4_add(mul_res, f32x4_mul(mat_col1, f32x4_splat(vec[1])));
-      mul_res = f32x4_add(mul_res, f32x4_mul(mat_col2, f32x4_splat(vec[2])));
-      mul_res = f32x4_add(mul_res, f32x4_mul(mat_col3, f32x4_splat(vec[3])));
+      // 8th order Hadamard x Vec8 multiplication
+      let mut first_half = f32x4_mul(hadamard[0], f32x4_splat(vec[0]));
+      first_half = f32x4_add(first_half, f32x4_mul(hadamard[1], f32x4_splat(vec[1])));
+      first_half = f32x4_add(first_half, f32x4_mul(hadamard[2], f32x4_splat(vec[2])));
+      first_half = f32x4_add(first_half, f32x4_mul(hadamard[3], f32x4_splat(vec[3])));
 
-      let mut feedback: Vec4 = [0.0; 4];
+      let mut last_half = f32x4_mul(hadamard[0], f32x4_splat(vec[4]));
+      last_half = f32x4_add(last_half, f32x4_mul(hadamard[1], f32x4_splat(vec[5])));
+      last_half = f32x4_add(last_half, f32x4_mul(hadamard[2], f32x4_splat(vec[6])));
+      last_half = f32x4_add(last_half, f32x4_mul(hadamard[3], f32x4_splat(vec[7])));
+
+      let vec0_3 = f32x4_add(first_half, last_half);
+      let vec4_7 = f32x4_sub(first_half, last_half);
+
+      let mut feedback: Vec8 = [0.0; 8];
       unsafe {
-        v128_store(feedback.as_mut_ptr() as *mut v128, mul_res);
+        v128_store(feedback.as_mut_ptr() as *mut v128, vec4_7);
+        v128_store(feedback.as_mut_ptr().offset(4) as *mut v128, vec0_3);
       }
 
-      for i in 0..4 {
-        self.delay_buffers[i][self.delay_positions[i]] = input + feedback[i] * decay;
-        self.delay_positions[i] += 1;
-
-        if self.delay_positions[i] > self.delay_lengths[i] {
-          self.delay_positions[i] = 0;
-        }
+      for i in 0..8 {
+        self.delays[i].write(input + feedback[i] * decay * 0.35355339059327373);
       }
 
       self.modulation += mod_speed * 0.001;
 
       let dry_wet = self.dry_wet.at(sample);
-
-      self.output[sample] = (input * dry_wet) + sum * (1.0 - dry_wet);
+      self.output[sample] = (input * dry_wet) + vec.iter().sum::<f32>() * (1.0 - dry_wet);
     }
   }
 
@@ -102,6 +104,7 @@ impl Module for FDNReverb {
       &mut self.mod_amount,
       &mut self.mod_speed,
       &mut self.decay,
+      &mut self.size,
     ]
   }
 
@@ -119,12 +122,20 @@ impl FDNReverb {
       mod_amount: AudioParam::default(),
       mod_speed: AudioParam::default(),
       decay: AudioParam::default(),
+      size: AudioParam::default(),
 
       modulation: 0.0,
 
-      delay_buffers: [[0.0; 16384]; 4],
-      delay_lengths: [2087, 1531, 1997, 1193],
-      delay_positions: [0; 4],
+      delays: [
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[0] * 1.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[1] * 2.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[2] * 3.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[3] * 4.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[4] * 5.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[5] * 6.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[6] * 7.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[7] * 8.0),
+      ],
     })
   }
 }
