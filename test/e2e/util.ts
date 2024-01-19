@@ -15,7 +15,7 @@ export const testLocator = (attributes: Record<string, string | number>) => {
 export const init = async (page: Page, path = '/') => {
   await page.goto(path)
   await getByTestId(page, 'initialize').click()
-  await page.waitForSelector('[data-test-initialized="true"]')
+  await expect(page.locator('[data-test-initialized="true"]')).toHaveCount(1)
 
   page.on('console', (message) => {
     if (message.type() === 'error') {
@@ -244,5 +244,5 @@ export const loginAsUser = async (
   await page.locator('[data-test-id="password"]').fill(password)
   await page.locator('[data-test-id="login-button"]').click()
 
-  await page.waitForSelector(`[data-test-id="logout"]`)
+  await expect(page.locator(`[data-test-id="logout"]`)).toHaveCount(1)
 }
