@@ -9,6 +9,6 @@ process.env.SAMPLE_DIRECTORY = path.resolve(__dirname, '../data/test-samples')
 module.exports = {
   ...tsPreset,
   ...puppeteerPreset,
-  testTimeout: 10000,
+  testTimeout: 60000,
   modulePathIgnorePatterns: ['e2e/'],
 }

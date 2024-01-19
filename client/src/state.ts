@@ -183,7 +183,11 @@ export const loadPatch = async (metadata: PatchMetadata, savedPatch: Patch) => {
   patch.modules = modules
   patch.cables = cables
 
-  await new Promise(requestAnimationFrame)
+  for (const moduleId in modules) {
+    const module = modules[moduleId]
+    assert(module)
+    engine.createModule(moduleId, module.name as ModuleName)
+  }
 
   for (const cable of cables) {
     await engine.connectCable(cable)
@@ -216,6 +220,7 @@ export const addModule = (
   }
 ) => {
   const id = nextId()
+  engine.createModule(id, name)
   patch.modules[id] = {
     name,
     position: pos,

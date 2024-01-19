@@ -73,7 +73,7 @@ const ContextMenu = ({}: Props) => {
                     <button
                       {...testAttributes({
                         id: 'context-menu-item',
-                        'context-menu-item-name': item.name,
+                        'context-menu-item-name': subItem.name,
                       })}
                       className={styles.item}
                       onClick={() => {
@@ -134,26 +134,5 @@ const ContextMenu = ({}: Props) => {
     </div>
   )
 }
-
-/*
-
-        {moduleCategories.map(([category, modules]) => (
-          <div className={styles.group}>
-            <div className={styles.label}>{categoryLabel[category]}</div>
-            {modules.map(([moduleName]) => (
-              <button
-                {...testAttributes({
-                  id: 'add-module',
-                  'module-name': moduleName,
-                })}
-                className={styles.item}
-                onClick={() => onModuleClick(moduleName)}
-              >
-                {moduleName}
-              </button>
-            ))}
-          </div>
-        ))}
-        */
 
 export default ContextMenu

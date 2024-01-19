@@ -100,7 +100,7 @@ impl Default for AudioParam {
   }
 }
 
-const INV_PARAMETER_SMOOTHING_TIME: f32 = 1.0 / (SAMPLE_RATE_F32 * 0.1/* samples */);
+const INV_PARAMETER_SMOOTHING_TIME: f32 = 1.0 / (SAMPLE_RATE_F32 * 0.01/* samples */);
 
 impl AudioParam {
   pub fn new(modulation_type: AudioParamModulationType) -> AudioParam {
@@ -299,8 +299,8 @@ impl VariableDelayLineInterpolated {
       }
     }
 
-    assert!(read_pos >= 0.0, "read_pos >= 0.0");
-    assert!(read_pos < self.size as f32, "read_pos < self.size as f32");
+    assert!(read_pos >= 0.0);
+    assert!(read_pos < self.size as f32);
 
     let read_pos_int = read_pos as usize;
     let read_pos_fract = read_pos.fract();
@@ -413,28 +413,6 @@ impl RingBuffer {
 
   pub fn head(&self) -> f32 {
     self.buffer[self.position]
-  }
-}
-
-pub struct FeedbackCombFilter {
-  delay: VariableDelayLine,
-  pub gain: f32,
-}
-
-impl FeedbackCombFilter {
-  pub fn new(delay: usize, gain: f32) -> FeedbackCombFilter {
-    FeedbackCombFilter {
-      delay: VariableDelayLine::new(SAMPLE_RATE, delay),
-      gain,
-    }
-  }
-
-  pub fn set_delay(&mut self, length: usize) {
-    self.delay.set_delay(length);
-  }
-
-  pub fn step(&mut self, input: f32) -> f32 {
-    self.delay.step(input) * self.gain + input
   }
 }
 

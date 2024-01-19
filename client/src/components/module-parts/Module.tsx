@@ -51,6 +51,8 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
     ref: headerRef,
     relativeToViewOffset: true,
     onDrag({ deltaX, deltaY }) {
+      const modulePosition = getModulePosition(id)
+
       modulePosition.x -= deltaX
       modulePosition.y -= deltaY
     },
@@ -61,7 +63,6 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
     onLongPress: openModuleContextMenu,
   })
 
-  const modulePosition = getModulePosition(id)
   const config = moduleConfig[type]
 
   return (
@@ -84,10 +85,12 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
         zIndex: () => (state.activeModule === id ? 10 : 1),
         width: config.width + 'px',
         height: config.height + 'px',
-        transform: () =>
-          `translate(${Math.round(modulePosition.x)}px, ${Math.round(
+        transform: () => {
+          const modulePosition = getModulePosition(id)
+          return `translate(${Math.round(modulePosition.x)}px, ${Math.round(
             modulePosition.y
-          )}px)`,
+          )}px)`
+        },
       }}
     >
       <div

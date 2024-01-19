@@ -22,7 +22,6 @@ class BouncyBoiNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
 
-    engine.createModule(props.id, 'BouncyBoi')
     engine.onModuleEvent<BouncyBoi>(props.id, (message) => {
       switch (message.type) {
         case 'BouncyBoiUpdate': {

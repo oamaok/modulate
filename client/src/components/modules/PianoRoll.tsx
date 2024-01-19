@@ -45,8 +45,6 @@ class PianoRollModule extends Component<Props, State> {
       })
     }
 
-    engine.createModule(props.id, 'PianoRoll')
-
     engine.onModuleEvent<PianoRoll>(props.id, ({ type, position }) => {
       if (type !== 'PianoRollPointers') {
         throw new Error(`PianoRoll: invalid message type ${type}`)

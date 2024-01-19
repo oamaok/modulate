@@ -149,11 +149,6 @@ export default createConfig({
     width: 400,
     height: 260,
   },
-  Reverb: {
-    category: ModuleCategory.DELAY_REVERB,
-    width: 250,
-    height: 120,
-  },
   Sequencer: {
     category: ModuleCategory.SEQUENCER,
     width: 340,

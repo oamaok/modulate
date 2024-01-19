@@ -13,24 +13,27 @@ class MIDINode extends Component<Props> {
   constructor(props: Props) {
     super(props)
 
-    engine.createModule(props.id, 'MIDI')
+    navigator.requestMIDIAccess().then(
+      (midiAccess) => {
+        midiAccess.inputs.forEach((entry) => {
+          entry.onmidimessage = (msg) => {
+            const midiEvent = msg as WebMidi.MIDIMessageEvent
+            let data = 0
+            for (let i = 0; i < midiEvent.data.length; i++) {
+              data |= midiEvent.data[i]! << (i * 8)
+            }
 
-    navigator.requestMIDIAccess().then((midiAccess) => {
-      midiAccess.inputs.forEach((entry) => {
-        entry.onmidimessage = (msg) => {
-          const midiEvent = msg as WebMidi.MIDIMessageEvent
-          let data = 0
-          for (let i = 0; i < midiEvent.data.length; i++) {
-            data |= midiEvent.data[i]! << (i * 8)
+            engine.sendMessageToModule<MIDI>(props.id, {
+              type: 'MidiMessage',
+              message: data,
+            })
           }
-
-          engine.sendMessageToModule<MIDI>(props.id, {
-            type: 'MidiMessage',
-            message: data,
-          })
-        }
-      })
-    }, console.error)
+        })
+      },
+      () => {
+        // TODO: Handle gracefully
+      }
+    )
   }
 
   render({ id }: Props) {

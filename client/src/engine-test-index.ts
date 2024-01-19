@@ -25,7 +25,7 @@ window.getBuffer = async (pos: number) => {
   const pointers = engine.getContextPointers()
   const buffer = new Float32Array(
     engine.getMemory().buffer,
-    pointers.outputBuffers + pos * 128 * 4,
+    pointers.outputLeft + pos * 128 * 4,
     128
   )
   return [...buffer]

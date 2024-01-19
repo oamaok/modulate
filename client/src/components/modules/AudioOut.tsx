@@ -1,5 +1,3 @@
-import { Component } from 'kaiku'
-import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 
@@ -10,41 +8,34 @@ type Props = {
   id: string
 }
 
-class AudioOutNode extends Component<Props> {
-  constructor(props: Props) {
-    super(props)
-    engine.createModule(props.id, 'AudioOut')
-  }
-
-  render({ id }: Props) {
-    return (
-      <Module id={id} type="AudioOut" name="Audio Out">
-        <Knob<AudioOut, 'volume'>
+const AudioOutNode = ({ id }: Props) => {
+  return (
+    <Module id={id} type="AudioOut" name="Audio Out">
+      <Knob<AudioOut, 'volume'>
+        moduleId={id}
+        type="percentage"
+        param={0}
+        label="VOL"
+        hideLabel
+        size="m"
+        initial={0.75}
+      />
+      <ModuleInputs>
+        <Socket<AudioOut, 'input', 'inputLeft'>
           moduleId={id}
-          type="percentage"
-          param={0}
-          label="VOL"
-          hideLabel
-          size="m"
-          initial={0.75}
+          type="input"
+          label="L"
+          index={0}
         />
-        <ModuleInputs>
-          <Socket<AudioOut, 'input', 'inputLeft'>
-            moduleId={id}
-            type="input"
-            label="L"
-            index={0}
-          />
-          <Socket<AudioOut, 'input', 'inputRight'>
-            moduleId={id}
-            type="input"
-            label="R"
-            index={1}
-          />
-        </ModuleInputs>
-      </Module>
-    )
-  }
+        <Socket<AudioOut, 'input', 'inputRight'>
+          moduleId={id}
+          type="input"
+          label="R"
+          index={1}
+        />
+      </ModuleInputs>
+    </Module>
+  )
 }
 
 export default AudioOutNode

@@ -7,6 +7,7 @@ import state, { loadPatch, resetPatch } from './state'
 import assert from './assert'
 import { PatchEvent } from '@modulate/common/types'
 import * as engine from './engine'
+import { ModuleName } from '@modulate/worklets/src/modules'
 
 let previousPatch: Patch = {
   modules: {},
@@ -84,6 +85,10 @@ export const joinRoom = (roomId: string) => {
           // Additional event handlers
 
           switch (event.type) {
+            case 'create-module': {
+              engine.createModule(event.moduleId, event.name as ModuleName)
+              break
+            }
             case 'delete-module': {
               const cablesToDisconnect = state.patch.cables.filter(
                 (cable) =>
@@ -121,7 +126,10 @@ export const joinRoom = (roomId: string) => {
                 patch.modules[event.moduleId] = {
                   name: event.name,
                   knobs: [],
-                  position: event.position,
+                  position: {
+                    x: event.position.x,
+                    y: event.position.y,
+                  },
                   state: null,
                 }
 
@@ -152,15 +160,17 @@ export const joinRoom = (roomId: string) => {
                   if (!valid) {
                     connection!.close()
                     throw new Error(
-                      `create-module event:\n${errors.join('\n')}`
+                      `delete-module event:\n${errors.join('\n')}`
                     )
                   }
                 }
                 break
               }
               case 'change-module-position': {
-                patch.modules[event.moduleId]!.position.x = event.position.x
-                patch.modules[event.moduleId]!.position.y = event.position.y
+                const module = patch.modules[event.moduleId]
+                assert(module)
+                module.position.x = event.position.x
+                module.position.y = event.position.y
 
                 if (__DEBUG__) {
                   const { valid, errors } = validatePatch(patch)
@@ -174,9 +184,9 @@ export const joinRoom = (roomId: string) => {
                 break
               }
               case 'change-module-state': {
-                patch.modules[event.moduleId]!.state = util.cloneObject(
-                  event.state
-                )
+                const module = patch.modules[event.moduleId]
+                assert(module)
+                module.state = util.cloneObject(event.state)
 
                 if (__DEBUG__) {
                   const { valid, errors } = validatePatch(patch)
@@ -191,7 +201,9 @@ export const joinRoom = (roomId: string) => {
               }
 
               case 'tweak-knob': {
-                patch.modules[event.moduleId]!.knobs[event.knob] = event.value
+                const module = patch.modules[event.moduleId]
+                assert(module)
+                module.knobs[event.knob] = event.value
 
                 if (__DEBUG__) {
                   const { valid, errors } = validatePatch(patch)

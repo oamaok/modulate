@@ -47,8 +47,6 @@ const Slider = <M extends Module, P extends M['parameters'][number]>({
     isDragging: false,
   })
 
-  const getHintText = (value: number) => `${label}: ${value.toFixed(2)}`
-
   if (!sliderState.isDragging) {
     const sliderValue = getKnobValue<M, P>(moduleId, param) ?? initial
     const externallyUpdatedPosition = (sliderValue - min) / (max - min)

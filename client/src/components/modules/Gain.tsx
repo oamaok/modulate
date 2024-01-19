@@ -1,5 +1,3 @@
-import { Component } from 'kaiku'
-import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
@@ -10,49 +8,42 @@ type Props = {
   id: string
 }
 
-class GainNode extends Component<Props> {
-  constructor(props: Props) {
-    super(props)
-    engine.createModule(props.id, 'Gain')
-  }
-
-  render({ id }: Props) {
-    return (
-      <Module id={id} type="Gain">
-        <Knob<Gain, 'gain'>
+const GainNode = ({ id }: Props) => {
+  return (
+    <Module id={id} type="Gain">
+      <Knob<Gain, 'gain'>
+        moduleId={id}
+        param={0}
+        label="Gain"
+        type="linear"
+        min={0}
+        max={2}
+        initial={0.4}
+      />
+      <ModuleInputs>
+        <Socket<Gain, 'parameter', 'gain'>
           moduleId={id}
-          param={0}
-          label="Gain"
-          type="linear"
-          min={0}
-          max={2}
-          initial={0.4}
+          type="parameter"
+          index={0}
+          label="GAIN"
         />
-        <ModuleInputs>
-          <Socket<Gain, 'parameter', 'gain'>
-            moduleId={id}
-            type="parameter"
-            index={0}
-            label="GAIN"
-          />
-          <Socket<Gain, 'input', 'input'>
-            moduleId={id}
-            type="input"
-            index={0}
-            label="IN"
-          />
-        </ModuleInputs>
-        <ModuleOutputs>
-          <Socket<Gain, 'output', 'output'>
-            moduleId={id}
-            type="output"
-            index={0}
-            label="OUT"
-          />
-        </ModuleOutputs>
-      </Module>
-    )
-  }
+        <Socket<Gain, 'input', 'input'>
+          moduleId={id}
+          type="input"
+          index={0}
+          label="IN"
+        />
+      </ModuleInputs>
+      <ModuleOutputs>
+        <Socket<Gain, 'output', 'output'>
+          moduleId={id}
+          type="output"
+          index={0}
+          label="OUT"
+        />
+      </ModuleOutputs>
+    </Module>
+  )
 }
 
 export default GainNode

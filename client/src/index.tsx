@@ -1,5 +1,5 @@
 import { render, useEffect } from 'kaiku'
-import state, { deleteModule } from './state'
+import state from './state'
 import * as api from './api'
 import * as auth from './auth'
 

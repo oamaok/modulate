@@ -1,5 +1,4 @@
 import { Component, useEffect, useRef } from 'kaiku'
-import * as engine from '../../engine'
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
@@ -41,8 +40,6 @@ class ADSRNode extends Component<Props> {
 
   constructor(props: Props) {
     super(props)
-
-    engine.createModule(props.id, 'ADSR')
 
     useEffect(() => {
       const attack = getKnobValue<ADSR, 'attack'>(props.id, 0) ?? 0

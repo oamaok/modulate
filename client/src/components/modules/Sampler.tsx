@@ -27,7 +27,6 @@ class SamplerNode extends Component<Props> {
 
   constructor(props: Props) {
     super(props)
-    engine.createModule(props.id, 'Sampler')
 
     this.drawSettingsAndPlayhead()
 

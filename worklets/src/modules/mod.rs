@@ -15,7 +15,6 @@ pub mod oscillator;
 pub mod oscilloscope;
 pub mod piano_roll;
 pub mod pow_shaper;
-pub mod reverb;
 pub mod sampler;
 pub mod sequencer;
 pub mod virtual_controller;

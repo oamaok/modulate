@@ -17,7 +17,6 @@ use modules::oscillator::Oscillator;
 use modules::oscilloscope::Oscilloscope;
 use modules::piano_roll::PianoRoll;
 use modules::pow_shaper::PowShaper;
-use modules::reverb::Reverb;
 use modules::sampler::Sampler;
 use modules::sequencer::Sequencer;
 use modules::virtual_controller::VirtualController;
@@ -358,9 +357,6 @@ impl ModulateEngine {
       }
       "ADSR" => {
         self.modules.insert(id, ADSR::new());
-      }
-      "Reverb" => {
-        self.modules.insert(id, Reverb::new());
       }
       "Delay" => {
         self.modules.insert(id, Delay::new());

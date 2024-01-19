@@ -49,8 +49,6 @@ class ClockNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
 
-    engine.createModule(props.id, 'Clock')
-
     if (!getModuleState<ClockState>(props.id)) {
       setModuleState(props.id, {
         isRunning: false,

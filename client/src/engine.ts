@@ -59,10 +59,8 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
   }: MessageEvent<EngineResponse<EngineMessageType> | EngineEvent>) => {
     if (msg.type === 'moduleEvent') {
       const callback = eventSubscriptions.get(msg.moduleHandle)
-      if (!callback) {
-        console.error('unhandled module message, ', msg)
-        return
-      }
+      assert(callback, `unhandled module message: ${JSON.stringify(msg)}`)
+
       callback(msg.message)
       return
     }
@@ -245,7 +243,7 @@ export const getModuleHandle = async (
   return handle
 }
 
-export const createModule = async (moduleId: string, name: ModuleName) => {
+export const createModule = (moduleId: string, name: ModuleName) => {
   assert(engine)
   assert(
     !moduleHandles.has(moduleId),

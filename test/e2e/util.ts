@@ -16,6 +16,16 @@ export const init = async (page: Page, path = '/') => {
   await page.goto(path)
   await getByTestId(page, 'initialize').click()
   await page.waitForSelector('[data-test-initialized="true"]')
+
+  page.on('console', (message) => {
+    if (message.type() === 'error') {
+      if (message.text().includes('Failed to load resource')) {
+        return
+      }
+
+      throw new Error(message.text())
+    }
+  })
 }
 
 export const resetDatabase = async (request: APIRequestContext) => {
@@ -44,8 +54,8 @@ export const spawnModule = async (
 ) => {
   await page.mouse.move(position.x, position.y)
   await getByTestId(page, 'cables').click({ button: 'right', position })
-  await getByTestId(page, 'add-module')
-    .and(page.locator(`[data-test-module-name="${name}"]`))
+  await getByTestId(page, 'context-menu-item')
+    .and(page.locator(`[data-test-context-menu-item-name="${name}"]`))
     .click()
 
   const moduleId = await getByTestId(page, 'module')
@@ -215,8 +225,11 @@ export const connectSockets = async (
 }
 
 export const deleteModule = async (page: Page, module: Locator) => {
-  await module.locator('[data-test-id=module-header]').click()
+  await module
+    .locator('[data-test-id=module-header]')
+    .click({ position: { x: 10, y: 10 } })
   await page.keyboard.press('Delete')
+  await expect(module).toHaveCount(0)
 }
 
 export const loginAsUser = async (

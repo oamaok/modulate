@@ -131,14 +131,6 @@ export const Delay = {
 } as const
 export type Delay = ModuleTypeOf<typeof Delay>
 
-export const Reverb = {
-  name: 'Reverb',
-  inputs: ['input'],
-  parameters: ['delay', 'decay', 'diffuse', 'wet', 'dry'],
-  outputs: ['output'],
-} as const
-export type Reverb = ModuleTypeOf<typeof Reverb>
-
 export const Clock = {
   name: 'Clock',
   inputs: [],
@@ -282,7 +274,6 @@ export const modules = {
   Sequencer,
   ADSR,
   Delay,
-  Reverb,
   Clock,
   MIDI,
   BouncyBoi,
@@ -306,7 +297,6 @@ export type Module =
   | Sequencer
   | ADSR
   | Delay
-  | Reverb
   | Clock
   | MIDI
   | BouncyBoi
@@ -324,3 +314,28 @@ export type EventTypes<
   M extends Extract<Module, { events: any }>,
   T extends M['events']['type'],
 > = Extract<M['events'], { type: T }>
+
+export const MODULE_PARAMETER_COUNT: {
+  [x in ModuleName]: Extract<Module, { name: x }>['parameters']['length']
+} = {
+  PianoRoll: 2,
+  Oscilloscope: 0,
+  FDNReverb: 5,
+  Chorus: 5,
+  AudioOut: 1,
+  Oscillator: 5,
+  BiquadFilter: 6,
+  Mixer: 8,
+  Gain: 1,
+  Limiter: 1,
+  PowShaper: 3,
+  Sequencer: 2,
+  ADSR: 8,
+  Delay: 4,
+  Clock: 10,
+  MIDI: 0,
+  BouncyBoi: 2,
+  LFO: 4,
+  Sampler: 4,
+  VirtualController: 4,
+}

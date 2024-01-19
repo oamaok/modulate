@@ -36,7 +36,6 @@ class SequencerNode extends Component<
 
   constructor(props: Props) {
     super(props)
-    engine.createModule(props.id, 'Sequencer')
 
     engine.onModuleEvent<Sequencer>(props.id, ({ position }) => {
       this.state.currentStep = position

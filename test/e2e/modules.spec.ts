@@ -104,7 +104,7 @@ test('can connect/disconnect any module output to/from any module input/paramete
     }
 
     const fromModule = await spawnModule(page, fromModuleName, {
-      x: 100,
+      x: 10,
       y: 100,
     })
 
@@ -120,7 +120,7 @@ test('can connect/disconnect any module output to/from any module input/paramete
       }
 
       const toModule = await spawnModule(page, toModuleName, {
-        x: 150 + fromModuleBounds!.width,
+        x: 60 + fromModuleBounds!.width,
         y: 100,
       })
 

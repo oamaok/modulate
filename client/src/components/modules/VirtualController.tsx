@@ -21,7 +21,6 @@ class VirtualControllerModule extends Component<Props> {
   constructor(props: Props) {
     super(props)
 
-    engine.createModule(props.id, 'VirtualController')
     engine.onModuleEvent<VirtualController>(
       props.id,
       ({ type, pressed_keys, pads }) => {

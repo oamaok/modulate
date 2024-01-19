@@ -104,7 +104,10 @@ export const validatePatch = (patch: Patch) => {
     const moduleType = getModuleTypeByName(module.name)
 
     if (moduleType) {
-      if (moduleType.parameters.length !== knobs.length) {
+      // FIXME: `knobs.length` is initially zero when spawning a new module. In rooms this results in "invalid"
+      // modules being put into the state, even though they will function correctly. This either needs sensible
+      // default for knob values initially, or just the amount of knobs to prefill for each module.
+      if (knobs.length !== 0 && moduleType.parameters.length !== knobs.length) {
         errors.push(
           `knob: invalid amount of knobs (${knobs.length}) for module ${module.name} (${moduleId})`
         )

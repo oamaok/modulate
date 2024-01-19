@@ -25,7 +25,6 @@ class OscilloscopeNode extends Component<Props> {
 
   constructor(props: Props) {
     super(props)
-    engine.createModule(props.id, 'Oscilloscope')
 
     engine.onModuleEvent<Oscilloscope>(props.id, ({ type, x_ptr, y_ptr }) => {
       if (type !== 'OscilloscopePointers') {

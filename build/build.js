@@ -305,7 +305,7 @@ const buildWorklets = async () => {
     )
 
   chokidar
-    .watch('./client/src/**/*', {
+    .watch(['./client/src/**/*', './common/**/*'], {
       persistent: true,
       ignoreInitial: true,
       ignored: /\.d\.ts/,
