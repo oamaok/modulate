@@ -21,7 +21,7 @@ const USERS = ['alice', 'bob', 'carlos'] as const
 const SAMPLE_PATCH_ID = '9982d3c7-8ffd-43a7-8431-53d6a31de913'
 const OSCILLATOR_ID = '2wluI1S8LrgHAvzw'
 
-test.only('rooms should stay synced over different changes', async ({
+test('rooms should stay synced over different changes', async ({
   browser,
   browserName,
   request,
