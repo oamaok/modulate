@@ -1,4 +1,4 @@
-import init, { workerEntry } from '../pkg/worklets'
+import init, { workerEntry } from '../pkg/modulate'
 
 self.onmessage = async (
   event: MessageEvent<[WebAssembly.Module, WebAssembly.Memory, number]>

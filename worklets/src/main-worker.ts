@@ -5,7 +5,7 @@ import {
   EngineEvent,
   ModuleEvent,
 } from '@modulate/common/types'
-import init, { ModulateEngineWrapper } from '../pkg/worklets'
+import init, { ModulateEngineWrapper } from '../pkg/modulate'
 import { Module } from './modules'
 
 let engine: ModulateEngineWrapper | null = null

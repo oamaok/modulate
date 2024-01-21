@@ -244,8 +244,8 @@ const buildWorklets = async () => {
   }
 
   await fs.copyFile(
-    path.join(__dirname, '../worklets/pkg/worklets_bg.wasm'),
-    path.join(__dirname, '../dist/client/assets/worklets.wasm')
+    path.join(__dirname, '../worklets/pkg/modulate_bg.wasm'),
+    path.join(__dirname, '../dist/client/assets/modulate.wasm')
   )
 
   console.timeEnd('Build worklets')
