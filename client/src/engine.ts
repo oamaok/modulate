@@ -31,7 +31,7 @@ const toDataUrl = (script: string) =>
   `data:application/javascript;base64,${btoa(script)}`
 
 const prefetchedContent = Promise.all([
-  fetch('/assets/worklets.wasm').then((res) => res.arrayBuffer()),
+  fetch('/assets/modulate.wasm').then((res) => res.arrayBuffer()),
   fetch('/assets/thread-worker.js').then((res) => res.text()),
   fetch('/assets/audio-worklet.js').then((res) => res.text()),
 ])
