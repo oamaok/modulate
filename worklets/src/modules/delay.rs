@@ -24,7 +24,7 @@ impl Module for Delay {
       self.delay.set_delay(self.time.at(sample) * SAMPLE_RATE_F32);
 
       let input = self.input.at(sample);
-      let wet = self.delay.read();
+      let wet = self.delay.read_sinc();
       self.delay.write(input + wet * self.feedback.at(sample));
       self.output[sample] = wet * self.wet.at(sample) + input * self.dry.at(sample);
     }

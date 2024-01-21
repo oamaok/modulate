@@ -6,6 +6,8 @@ use std::ops::{Index, IndexMut};
 use std::ptr::eq;
 use wasm_bindgen::prelude::*;
 
+use crate::windowed_sinc::windowed_sinc_sample;
+
 pub const SAMPLE_RATE: usize = 44100;
 pub const SAMPLE_RATE_F32: f32 = SAMPLE_RATE as f32;
 pub const QUANTUM_SIZE: usize = 128;
@@ -288,7 +290,7 @@ impl VariableDelayLineInterpolated {
     self.read_speed = 1.0 - self.current_delay / delay;
   }
 
-  pub fn read(&self) -> f32 {
+  fn read_pos(&self) -> f32 {
     let mut read_pos = self.write_pos as f32 - self.current_delay;
     if read_pos < 0.0 {
       read_pos += self.size as f32;
@@ -301,6 +303,16 @@ impl VariableDelayLineInterpolated {
 
     assert!(read_pos >= 0.0);
     assert!(read_pos < self.size as f32);
+
+    read_pos
+  }
+
+  pub fn read_sinc(&self) -> f32 {
+    windowed_sinc_sample(self.read_pos(), self.buffer.as_slice())
+  }
+
+  pub fn read_lerp(&self) -> f32 {
+    let read_pos = self.read_pos();
 
     let read_pos_int = read_pos as usize;
     let read_pos_fract = read_pos.fract();

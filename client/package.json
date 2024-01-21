@@ -11,6 +11,6 @@
   "dependencies": {
     "@material-design-icons/svg": "^0.14.13",
     "@types/webmidi": "^2.0.7",
-    "kaiku": "^1.23.0"
+    "kaiku": "^1.24.2"
   }
 }

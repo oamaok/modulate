@@ -45,14 +45,14 @@ impl Module for FDNReverb {
       let decay = self.decay.at(sample);
 
       let vec: Vec8 = [
-        self.delays[0].read(),
-        self.delays[1].read(),
-        self.delays[2].read(),
-        self.delays[3].read(),
-        self.delays[4].read(),
-        self.delays[5].read(),
-        self.delays[6].read(),
-        self.delays[7].read(),
+        self.delays[0].read_lerp(),
+        self.delays[1].read_lerp(),
+        self.delays[2].read_lerp(),
+        self.delays[3].read_lerp(),
+        self.delays[4].read_lerp(),
+        self.delays[5].read_lerp(),
+        self.delays[6].read_lerp(),
+        self.delays[7].read_lerp(),
       ];
 
       let size = self.size.at(sample);

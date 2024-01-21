@@ -9,7 +9,7 @@ type Props = {
   selected: null | string
 }
 
-const SampleBrowser = ({ onSelect, selected }: Props) => {
+const SampleBrowser = (props: Props) => {
   const fileInputRef = useRef<HTMLInputElement>()
   const browserState = useState<{
     samples: {
@@ -50,7 +50,7 @@ const SampleBrowser = ({ onSelect, selected }: Props) => {
       }
 
       const { id } = await api.saveSample(file.name, buffer)
-      onSelect(id)
+      props.onSelect(id)
       fetchSamples()
     }
   }
@@ -73,8 +73,10 @@ const SampleBrowser = ({ onSelect, selected }: Props) => {
       <div className={styles.samples}>
         {browserState.samples.map((sample) => (
           <button
-            onClick={() => onSelect(sample.id)}
-            className={{ [styles.selected]: selected === sample.id }}
+            onClick={() => props.onSelect(sample.id)}
+            className={() => ({
+              [styles.selected]: props.selected === sample.id,
+            })}
           >
             {sample.name}
           </button>

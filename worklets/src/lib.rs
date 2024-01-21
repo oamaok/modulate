@@ -33,6 +33,7 @@ pub mod module;
 pub mod modules;
 pub mod rw_lock;
 pub mod vec;
+pub mod windowed_sinc;
 
 #[wasm_bindgen(inline_js = "export function now() { return performance.now() }")]
 extern "C" {
