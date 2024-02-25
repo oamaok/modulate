@@ -67,7 +67,7 @@ const EQ3Node = ({ id }: Props) => {
     let filters = [lowshelf, peaking, highshelf]
 
     for (let i = 0; i < CANVAS_WIDTH; i++) {
-      const x = (i / CANVAS_WIDTH) ** 2 * Math.PI
+      const x = (i / CANVAS_WIDTH) ** 4 * Math.PI
       const z = complex.c(Math.cos(x), Math.sin(x))
 
       const z1 = complex.div(complex.real(1), z)
@@ -140,19 +140,19 @@ const EQ3Node = ({ id }: Props) => {
     const hsFreq = voltageToFreq(getKnobValue<EQ3, 'highshelfFreq'>(id, 3) ?? 0)
     const pkFreq = voltageToFreq(getKnobValue<EQ3, 'peakingFreq'>(id, 6) ?? 0)
     context.fillRect(
-      Math.sqrt(hsFreq / 22050) * CANVAS_WIDTH,
+      (hsFreq / 22050) ** 0.25 * CANVAS_WIDTH,
       0,
       1,
       CANVAS_HEIGHT
     )
     context.fillRect(
-      Math.sqrt(lsFreq / 22050) * CANVAS_WIDTH,
+      (lsFreq / 22050) ** 0.25 * CANVAS_WIDTH,
       0,
       1,
       CANVAS_HEIGHT
     )
     context.fillRect(
-      Math.sqrt(pkFreq / 22050) * CANVAS_WIDTH,
+      (pkFreq / 22050) ** 0.25 * CANVAS_WIDTH,
       0,
       1,
       CANVAS_HEIGHT
