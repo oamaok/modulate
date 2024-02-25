@@ -2,10 +2,7 @@ use crate::audio_input::AudioInput;
 use crate::audio_output::AudioOutput;
 use crate::audio_param::AudioParam;
 use crate::filters::biquad_filter;
-use crate::{
-  modulate_core::QUANTUM_SIZE,
-  module::Module,
-};
+use crate::{modulate_core::QUANTUM_SIZE, module::Module};
 
 #[derive(Default)]
 pub struct BiquadFilter {
@@ -29,8 +26,12 @@ pub struct BiquadFilter {
 impl Module for BiquadFilter {
   fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
-      self.lowpass.set_lowpass(self.frequency.at(sample), self.q.at(sample));
-      self.highpass.set_lowpass(self.frequency.at(sample), self.q.at(sample));
+      self
+        .lowpass
+        .set_lowpass(self.frequency.at(sample), self.q.at(sample));
+      self
+        .highpass
+        .set_lowpass(self.frequency.at(sample), self.q.at(sample));
 
       let input = self.input.at(sample);
       self.lowpass_output[sample] = self.lowpass.step(input) * self.lowpass_level.at(sample);
