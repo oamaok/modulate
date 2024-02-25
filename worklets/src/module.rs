@@ -1,6 +1,9 @@
-use super::modulate_core;
-use super::vec;
 use serde::{Deserialize, Serialize};
+
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::AudioParam;
+use crate::vec;
 
 pub type ModuleId = u32;
 pub type ConnectionId = u32;
@@ -64,13 +67,13 @@ pub enum ModuleMessage {
 
 pub trait Module {
   fn process(&mut self, _quantum: u64);
-  fn get_outputs(&mut self) -> Vec<&mut modulate_core::AudioOutput> {
+  fn get_outputs(&mut self) -> Vec<&mut AudioOutput> {
     vec![]
   }
-  fn get_inputs(&mut self) -> Vec<&mut modulate_core::AudioInput> {
+  fn get_inputs(&mut self) -> Vec<&mut AudioInput> {
     vec![]
   }
-  fn get_parameters(&mut self) -> Vec<&mut modulate_core::AudioParam> {
+  fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
     vec![]
   }
   fn get_input_count(&mut self) -> usize {
@@ -84,20 +87,16 @@ pub trait Module {
       buffer.swap();
     }
   }
-  fn get_output_buffer_ptr(&mut self, output: OutputId) -> *const modulate_core::AudioOutput {
+  fn get_output_buffer_ptr(&mut self, output: OutputId) -> *const AudioOutput {
     let ptr = self
       .get_outputs()
       .get(output)
-      .map(|x| *x as *const modulate_core::AudioOutput)
+      .map(|x| *x as *const AudioOutput)
       .unwrap();
     ptr
   }
 
-  fn set_input_buffer_ptr(
-    &mut self,
-    input: InputId,
-    buffer_ptr: *const modulate_core::AudioOutput,
-  ) {
+  fn set_input_buffer_ptr(&mut self, input: InputId, buffer_ptr: *const AudioOutput) {
     let mut inputs = self.get_inputs();
     let buffer = inputs.get_mut(input).unwrap();
     buffer.set_ptr(buffer_ptr);
@@ -109,11 +108,7 @@ pub trait Module {
     buffer.reset_ptr();
   }
 
-  fn set_parameter_buffer_ptr(
-    &mut self,
-    param: ParameterId,
-    buffer_ptr: *const modulate_core::AudioOutput,
-  ) {
+  fn set_parameter_buffer_ptr(&mut self, param: ParameterId, buffer_ptr: *const AudioOutput) {
     let mut params = self.get_parameters();
     let buffer = params.get_mut(param).unwrap();
     buffer.modulation.set_ptr(buffer_ptr);

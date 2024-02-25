@@ -263,6 +263,24 @@ export const Chorus = {
 } as const
 export type Chorus = ModuleTypeOf<typeof Chorus>
 
+export const EQ3 = {
+  name: 'EQ3',
+  inputs: ['input'],
+  parameters: [
+    'lowshelfFreq',
+    'lowshelfSlope',
+    'lowshelfGain',
+    'highshelfFreq',
+    'highshelfSlope',
+    'highshelfGain',
+    'peakingFreq',
+    'peakingSlope',
+    'peakingGain',
+  ],
+  outputs: ['output'],
+} as const
+export type EQ3 = ModuleTypeOf<typeof EQ3>
+
 export const modules = {
   AudioOut,
   Oscillator,
@@ -284,6 +302,7 @@ export const modules = {
   Oscilloscope,
   FDNReverb,
   Chorus,
+  EQ3,
 } as const
 
 export type Module =
@@ -307,6 +326,7 @@ export type Module =
   | Oscilloscope
   | FDNReverb
   | Chorus
+  | EQ3
 
 export type ModuleName = Module['name']
 
@@ -338,4 +358,5 @@ export const MODULE_PARAMETER_COUNT: {
   LFO: 4,
   Sampler: 4,
   VirtualController: 4,
+  EQ3: 9,
 }

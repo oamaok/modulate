@@ -1,8 +1,11 @@
-use crate::modulate_core::{
-  lerp, AudioInput, AudioOutput, AudioParam, Edge, EdgeDetector, QUANTUM_SIZE,
-};
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::AudioParam;
+use crate::edge_detector::EdgeDetector;
+use crate::modulate_core::QUANTUM_SIZE;
 
 use crate::module::{Module, ModuleEvent, ModuleMessage};
+use crate::util::lerp;
 
 pub struct Sampler {
   gate_input: AudioInput,
@@ -32,7 +35,7 @@ impl Module for Sampler {
       let len_param = self.length.at(sample);
       let start_param = self.start.at(sample);
 
-      if self.edge_detector.step(self.gate_input.at(sample)) == Edge::Rose {
+      if self.edge_detector.step(self.gate_input.at(sample)).rose() {
         self.pos = start_param as f64 * sample_len as f64;
       }
 

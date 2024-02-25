@@ -114,6 +114,9 @@ Low frequency noise.
 ## Piano roll
 
 - [x] Initial implementation
+- [ ] External clock support
+- [ ] MIDI file import
+- [ ] Multiple voices
 
 # Testing
 

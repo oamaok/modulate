@@ -1,4 +1,4 @@
-workspace = { members = ["src/modulate-macros"] }
+workspace = { members = ["src/macros"] }
 [package]
 name = "modulate"
 version = "0.0.0"
@@ -18,7 +18,7 @@ js-sys = "0.3.67"
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.6.3"
 console_error_panic_hook = "0.1.7"
-modulate-macros = { path = "src/modulate-macros" }
+modulate-macros = { path = "src/macros" }
 
 [package.metadata.wasm-pack.profile.dev]
 wasm-opt = false

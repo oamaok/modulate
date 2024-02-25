@@ -1,8 +1,11 @@
 use crate::{
-  modulate_core::{
-    lerp, AudioInput, AudioOutput, AudioParam, Edge, EdgeDetector, QUANTUM_SIZE, SAMPLE_RATE,
-  },
+  audio_input::AudioInput,
+  audio_output::AudioOutput,
+  audio_param::AudioParam,
+  edge_detector::EdgeDetector,
+  modulate_core::{QUANTUM_SIZE, SAMPLE_RATE},
   module::{Module, ModuleEvent, ModuleMessage},
+  util::lerp,
 };
 
 #[derive(Clone, Copy)]
@@ -76,21 +79,18 @@ impl Module for Sequencer {
         note.voltage
       };
 
-      match edge {
-        Edge::Rose => {
-          self.current_step += 1;
-          self.time = 0;
-          self.previous_voltage = voltage;
+      if edge.rose() {
+        self.current_step += 1;
+        self.time = 0;
+        self.previous_voltage = voltage;
 
-          if self.current_step >= self.sequence_length.at(sample) as usize {
-            self.current_step = 0;
-          }
-
-          self.events.push(ModuleEvent::SequencerAdvance {
-            position: self.current_step,
-          });
+        if self.current_step >= self.sequence_length.at(sample) as usize {
+          self.current_step = 0;
         }
-        _ => {}
+
+        self.events.push(ModuleEvent::SequencerAdvance {
+          position: self.current_step,
+        });
       }
 
       self.cv_output[sample] = voltage;

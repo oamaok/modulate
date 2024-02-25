@@ -1,7 +1,11 @@
 use std::cmp::Ordering;
 
 use crate::{
-  modulate_core::{AudioInput, AudioOutput, AudioParam, INV_SAMPLE_RATE, QUANTUM_SIZE},
+  audio_input::AudioInput,
+  audio_output::AudioOutput,
+  audio_param::AudioParam,
+  edge_detector::EdgeDetector,
+  modulate_core::{INV_SAMPLE_RATE, QUANTUM_SIZE},
   module::{Module, ModuleEvent, ModuleMessage, PianoRollNote},
 };
 
@@ -14,10 +18,14 @@ pub struct PianoRoll {
 
   length: AudioParam,
   speed: AudioParam,
+  external_clock_: AudioParam,
   external_clock: AudioInput,
+
+  edge_detector: EdgeDetector,
 
   last_cv: f32,
   position: f32,
+  ext_position: f32,
   notes: Vec<PianoRollNote>,
 
   events: Vec<ModuleEvent>,
@@ -38,9 +46,20 @@ impl Module for PianoRoll {
       self.cv_output[sample] = self.last_cv;
       self.gate_output[sample] = gate;
 
-      self.position += self.speed.at(sample) * (BAR_LENGTH / 4.0 * INV_SAMPLE_RATE);
+      if self.external_clock.is_connected() {
+        let edge = self.edge_detector.step(self.external_clock.at(sample));
+
+        if edge.rose() {
+          self.ext_position += 1.0;
+          self.position = self.ext_position * BAR_LENGTH / 32.0;
+        }
+      } else {
+        self.ext_position = 0.0;
+        self.position += self.speed.at(sample) * (BAR_LENGTH / 4.0 * INV_SAMPLE_RATE);
+      }
+
       let length = self.length.at(sample) * BAR_LENGTH / 4.0;
-      if self.position > length {
+      if self.position >= length {
         self.position -= length;
       }
     }
@@ -77,17 +96,13 @@ impl Module for PianoRoll {
 }
 
 impl PianoRoll {
-  pub fn init(&mut self) {
-    self.events.push({
-      ModuleEvent::PianoRollPointers {
-        position: &mut self.position as *mut f32 as usize,
-      }
-    });
-  }
-
   pub fn new() -> Box<PianoRoll> {
     let mut module = Box::new(PianoRoll::default());
-    module.init();
+    module.events.push({
+      ModuleEvent::PianoRollPointers {
+        position: &mut module.position as *mut f32 as usize,
+      }
+    });
     module
   }
 }

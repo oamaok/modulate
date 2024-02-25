@@ -1,4 +1,5 @@
 #![feature(stdsimd)]
+use audio_buffer::AudioBuffer;
 use core::arch::wasm32::memory_atomic_wait64;
 use modules::adsr::ADSR;
 use modules::audio_out::AudioOut;
@@ -7,6 +8,7 @@ use modules::bouncy_boi::BouncyBoi;
 use modules::chorus::Chorus;
 use modules::clock::Clock;
 use modules::delay::Delay;
+use modules::eq3::EQ3;
 use modules::fdn_reverb::FDNReverb;
 use modules::gain::Gain;
 use modules::lfo::LFO;
@@ -27,11 +29,21 @@ use std::ops::{Index, IndexMut};
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use wasm_bindgen::prelude::*;
 
+pub mod adsr_curve;
+pub mod audio_buffer;
+pub mod audio_input;
+pub mod audio_output;
+pub mod audio_param;
 pub mod barrier;
+pub mod delay_line;
+pub mod edge_detector;
+pub mod filters;
 pub mod modulate_core;
 pub mod module;
 pub mod modules;
+pub mod ring_buffer;
 pub mod rw_lock;
+pub mod util;
 pub mod vec;
 pub mod windowed_sinc;
 
@@ -142,8 +154,8 @@ struct WorkerContext {
   worker_position: u64,
 
   audio_outputs: HashSet<module::ModuleId>,
-  output_buffers_left: [modulate_core::AudioBuffer; NUM_OUTPUT_BUFFERS],
-  output_buffers_right: [modulate_core::AudioBuffer; NUM_OUTPUT_BUFFERS],
+  output_buffers_left: [AudioBuffer; NUM_OUTPUT_BUFFERS],
+  output_buffers_right: [AudioBuffer; NUM_OUTPUT_BUFFERS],
 
   performance: Vec<f32>,
 }
@@ -280,8 +292,8 @@ impl ModulateEngine {
         audio_worklet_position: AtomicU64::new(0),
 
         audio_outputs: HashSet::new(),
-        output_buffers_left: [modulate_core::AudioBuffer::default(); NUM_OUTPUT_BUFFERS],
-        output_buffers_right: [modulate_core::AudioBuffer::default(); NUM_OUTPUT_BUFFERS],
+        output_buffers_left: [AudioBuffer::default(); NUM_OUTPUT_BUFFERS],
+        output_buffers_right: [AudioBuffer::default(); NUM_OUTPUT_BUFFERS],
 
         performance: vec![0.0; num_threads],
       },
@@ -391,6 +403,9 @@ impl ModulateEngine {
       }
       "Chorus" => {
         self.modules.insert(id, Chorus::new());
+      }
+      "EQ3" => {
+        self.modules.insert(id, EQ3::new());
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }

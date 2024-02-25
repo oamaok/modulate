@@ -1,5 +1,6 @@
+use crate::audio_output::AudioOutput;
 use crate::{
-  modulate_core::{AudioOutput, QUANTUM_SIZE},
+  modulate_core::QUANTUM_SIZE,
   module::{Module, ModuleMessage},
 };
 

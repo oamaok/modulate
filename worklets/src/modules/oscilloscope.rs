@@ -1,5 +1,9 @@
+use crate::audio_buffer::AudioBuffer;
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::AudioParam;
 use crate::{
-  modulate_core::{AudioBuffer, AudioInput, AudioOutput, AudioParam, QUANTUM_SIZE},
+  modulate_core::QUANTUM_SIZE,
   module::{Module, ModuleEvent},
   NUM_OUTPUT_BUFFERS,
 };

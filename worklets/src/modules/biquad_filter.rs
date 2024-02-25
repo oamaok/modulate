@@ -1,5 +1,9 @@
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::AudioParam;
+use crate::filters::biquad_filter;
 use crate::{
-  modulate_core::{AudioInput, AudioOutput, AudioParam, INV_SAMPLE_RATE, QUANTUM_SIZE},
+  modulate_core::QUANTUM_SIZE,
   module::Module,
 };
 
@@ -18,64 +22,19 @@ pub struct BiquadFilter {
   lowpass_output: AudioOutput,
   highpass_output: AudioOutput,
 
-  input_buffer: [f32; 2],
-  lowpass_buffer: [f32; 2],
-  highpass_buffer: [f32; 2],
+  lowpass: biquad_filter::BiquadFilter,
+  highpass: biquad_filter::BiquadFilter,
 }
 
 impl Module for BiquadFilter {
   fn process(&mut self, _quantum: u64) {
     for sample in 0..QUANTUM_SIZE {
-      let voltage = 5.0 + self.frequency.at(sample);
-      let freq = 13.75 * f32::powf(2.0, voltage);
+      self.lowpass.set_lowpass(self.frequency.at(sample), self.q.at(sample));
+      self.highpass.set_lowpass(self.frequency.at(sample), self.q.at(sample));
 
-      let omega = std::f32::consts::PI * 2.0 * freq * INV_SAMPLE_RATE;
-      let (sin_omega, cos_omega) = f32::sin_cos(omega);
-      let alpha = sin_omega / 2.0 / f32::max(f32::EPSILON, self.q.at(sample));
       let input = self.input.at(sample);
-
-      let a0 = 1.0 + alpha;
-      let a1 = -2.0 * cos_omega;
-      let a2 = 1.0 - alpha;
-
-      let rcp_a0 = 1.0 / f32::max(f32::EPSILON, a0);
-
-      {
-        let b0 = (1.0 - cos_omega) / 2.0;
-        let b1 = 1.0 - cos_omega;
-        let b2 = b0;
-
-        let output = ((b0 * rcp_a0) * input
-          + (b1 * rcp_a0) * self.input_buffer[0]
-          + (b2 * rcp_a0) * self.input_buffer[1]
-          - (a1 * rcp_a0) * self.lowpass_buffer[0]
-          - (a2 * rcp_a0) * self.lowpass_buffer[1])
-          .clamp(-1000., 1000.);
-
-        self.lowpass_buffer[1] = self.lowpass_buffer[0];
-        self.lowpass_buffer[0] = output;
-        self.lowpass_output[sample] = output * self.lowpass_level.at(sample);
-      }
-
-      {
-        let b0 = (1.0 + cos_omega) / 2.0;
-        let b1 = -(1.0 + cos_omega);
-        let b2 = b0;
-
-        let output = ((b0 * rcp_a0) * input
-          + (b1 * rcp_a0) * self.input_buffer[0]
-          + (b2 * rcp_a0) * self.input_buffer[1]
-          - (a1 * rcp_a0) * self.highpass_buffer[0]
-          - (a2 * rcp_a0) * self.highpass_buffer[1])
-          .clamp(-1000., 1000.);
-
-        self.highpass_buffer[1] = self.highpass_buffer[0];
-        self.highpass_buffer[0] = output;
-        self.highpass_output[sample] = output * self.highpass_level.at(sample);
-      }
-
-      self.input_buffer[1] = self.input_buffer[0];
-      self.input_buffer[0] = input;
+      self.lowpass_output[sample] = self.lowpass.step(input) * self.lowpass_level.at(sample);
+      self.highpass_output[sample] = self.highpass.step(input) * self.highpass_level.at(sample);
     }
   }
 

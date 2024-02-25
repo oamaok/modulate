@@ -1,9 +1,9 @@
 use std::arch::wasm32::{f32x4, f32x4_add, f32x4_mul, v128, v128_load, v128_store};
 
-use crate::{
-  modulate_core::{AudioInput, AudioOutput, AudioParam, QUANTUM_SIZE},
-  module::Module,
-};
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::AudioParam;
+use crate::{modulate_core::QUANTUM_SIZE, module::Module};
 
 const CHANNELS: usize = 8;
 

@@ -1,9 +1,11 @@
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::{AudioParam, AudioParamModulationType};
 use crate::{
-  modulate_core::{
-    exp_curve, AudioInput, AudioOutput, AudioParam, AudioParamModulationType, Edge, EdgeDetector,
-    QUANTUM_SIZE, SAMPLE_RATE,
-  },
+  edge_detector::EdgeDetector,
+  modulate_core::{QUANTUM_SIZE, SAMPLE_RATE},
   module::Module,
+  util::exp_curve,
 };
 
 pub struct Oscillator {
@@ -31,7 +33,7 @@ impl Module for Oscillator {
     for sample in 0..QUANTUM_SIZE {
       let edge = self.sync_edge_detector.step(self.sync_input.at(sample));
 
-      if edge == Edge::Rose {
+      if edge.rose() {
         self.phase = 0.5;
       }
 

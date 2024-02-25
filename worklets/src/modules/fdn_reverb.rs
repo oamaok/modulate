@@ -1,11 +1,42 @@
-use std::arch::wasm32::{f32x4, f32x4_add, f32x4_mul, f32x4_splat, f32x4_sub, v128, v128_store};
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::AudioParam;
+
+use crate::filters::allpass_filter::AllpassFilter;
 
 use crate::{
-  modulate_core::{
-    AudioInput, AudioOutput, AudioParam, VariableDelayLineInterpolated, QUANTUM_SIZE, SAMPLE_RATE,
-  },
+  delay_line::VariableDelayLineInterpolated,
+  modulate_core::{QUANTUM_SIZE, SAMPLE_RATE},
   module::Module,
 };
+use std::arch::wasm32::{f32x4, f32x4_add, f32x4_mul, f32x4_splat, f32x4_sub, v128, v128_store};
+
+struct Diffuser {
+  allpasses: [AllpassFilter; 4],
+}
+
+impl Diffuser {
+  fn default() -> Diffuser {
+    Diffuser {
+      allpasses: [
+        AllpassFilter::new(1409, 0.7),
+        AllpassFilter::new(1543, 0.7),
+        AllpassFilter::new(1669, 0.7),
+        AllpassFilter::new(1847, 0.7),
+      ],
+    }
+  }
+
+  fn step(&mut self, input: f32) -> f32 {
+    let mut output = input;
+
+    for i in 0..4 {
+      output = self.allpasses[i].step(output);
+    }
+
+    output
+  }
+}
 
 pub struct FDNReverb {
   input: AudioInput,
@@ -17,6 +48,7 @@ pub struct FDNReverb {
   size: AudioParam,
 
   delays: [VariableDelayLineInterpolated; 8],
+  diffuser: Diffuser,
 
   modulation: f32,
 }
@@ -83,8 +115,10 @@ impl Module for FDNReverb {
         v128_store(feedback.as_mut_ptr().offset(4) as *mut v128, vec0_3);
       }
 
+      let diffused_input = self.diffuser.step(input);
+
       for i in 0..8 {
-        self.delays[i].write(input + feedback[i] * decay * 0.35355339059327373);
+        self.delays[i].write(diffused_input + feedback[i] * decay * 0.35355339059327373);
       }
 
       self.modulation += mod_speed * 0.001;
@@ -123,6 +157,7 @@ impl FDNReverb {
       mod_speed: AudioParam::default(),
       decay: AudioParam::default(),
       size: AudioParam::default(),
+      diffuser: Diffuser::default(),
 
       modulation: 0.0,
 

@@ -1,7 +1,7 @@
-use crate::{
-  modulate_core::{ADSRCurve, AudioInput, AudioOutput, AudioParam, QUANTUM_SIZE},
-  module::Module,
-};
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::AudioParam;
+use crate::{adsr_curve::ADSRCurve, modulate_core::QUANTUM_SIZE, module::Module};
 
 #[derive(Default)]
 pub struct ADSR {

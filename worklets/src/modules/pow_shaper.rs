@@ -1,7 +1,7 @@
-use crate::{
-  modulate_core::{AudioInput, AudioOutput, AudioParam, AudioParamModulationType, QUANTUM_SIZE},
-  module::Module,
-};
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::{AudioParam, AudioParamModulationType};
+use crate::{modulate_core::QUANTUM_SIZE, module::Module};
 
 pub struct PowShaper {
   input: AudioInput,

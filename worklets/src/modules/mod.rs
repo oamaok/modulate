@@ -5,6 +5,7 @@ pub mod bouncy_boi;
 pub mod chorus;
 pub mod clock;
 pub mod delay;
+pub mod eq3;
 pub mod fdn_reverb;
 pub mod gain;
 pub mod lfo;

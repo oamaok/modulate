@@ -172,14 +172,12 @@ class PianoRollModule extends Component<Props, State> {
           </div>
         </div>
         <ModuleInputs>
-          {/*
           <Socket<PianoRoll, 'input', 'externalClock'>
-              moduleId={id}
-              type="input"
-              index={0}
-              label="EXT CLOCK"
-            />
-        */}
+            moduleId={id}
+            type="input"
+            index={0}
+            label="EXT CLOCK"
+          />
           <Socket<PianoRoll, 'parameter', 'length'>
             moduleId={id}
             type="parameter"

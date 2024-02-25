@@ -88,6 +88,7 @@ const buildClient = async () => {
       entryPoints: [entry],
       bundle: true,
       outdir: buildDir,
+      metafile: true,
       minify: isProduction,
       define: {
         __DEBUG__: isProduction ? 'false' : 'true',

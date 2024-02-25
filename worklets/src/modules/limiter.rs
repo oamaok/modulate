@@ -1,9 +1,7 @@
-use crate::{
-  modulate_core::{
-    AudioInput, AudioOutput, AudioParam, AudioParamModulationType, RingBuffer, QUANTUM_SIZE,
-  },
-  module::Module,
-};
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::{AudioParam, AudioParamModulationType};
+use crate::{modulate_core::QUANTUM_SIZE, module::Module, ring_buffer::RingBuffer};
 
 pub struct Limiter {
   input: AudioInput,
@@ -24,7 +22,7 @@ impl Module for Limiter {
       } else {
         1.0
       };
-      self.output[sample] = self.buffer.head() * ratio;
+      self.output[sample] = self.buffer.read() * ratio;
       self.buffer.write(self.input.at(sample));
     }
   }

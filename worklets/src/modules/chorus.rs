@@ -1,8 +1,12 @@
+use crate::audio_input::AudioInput;
+use crate::audio_output::AudioOutput;
+use crate::audio_param::AudioParam;
 use std::f32::consts::PI;
 
 use crate::{
-  modulate_core::{lerp, AudioInput, AudioOutput, AudioParam, QUANTUM_SIZE, SAMPLE_RATE},
+  modulate_core::{QUANTUM_SIZE, SAMPLE_RATE},
   module::Module,
+  util::lerp,
 };
 
 const CHORUS_BUFFER_LENGTH: usize = SAMPLE_RATE / 20;
