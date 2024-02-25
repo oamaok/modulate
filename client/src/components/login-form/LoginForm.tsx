@@ -37,9 +37,9 @@ const LoginForm = () => {
 
   return (
     <>
-      <div className={styles.header}>Login</div>
+      <div class={styles.header}>Login</div>
       <form
-        className={styles.form}
+        class={styles.form}
         onSubmit={(evt: SubmitEvent) => {
           evt.preventDefault()
           onLogin()
@@ -140,9 +140,9 @@ const CreateAccountForm = () => {
 
   return (
     <>
-      <div className={styles.header}>Create an account</div>
+      <div class={styles.header}>Create an account</div>
       <form
-        className={styles.form}
+        class={styles.form}
         onSubmit={(evt: SubmitEvent) => {
           evt.preventDefault()
           onCreateAccount()
@@ -198,7 +198,7 @@ const Form = () => {
   return (
     <Overlay className={styles.loginForm}>
       {state.form === 'login' ? <LoginForm /> : <CreateAccountForm />}
-      <div className={styles.altActions}>
+      <div class={styles.altActions}>
         <button
           {...testAttributes({ id: state.form + '-link' })}
           onClick={() => {

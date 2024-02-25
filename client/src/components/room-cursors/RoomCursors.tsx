@@ -6,10 +6,10 @@ const RoomCursors = () => {
   const room = state.room
   assert(room)
   return (
-    <div className={styles.roomCursors}>
+    <div class={styles.roomCursors}>
       {Object.values(room.users).map(({ cursor }) => (
         <div
-          className={styles.cursor}
+          class={styles.cursor}
           style={{
             transform: () =>
               `translate(${cursor.x - 20}px, ${cursor.y - 20}px)`,

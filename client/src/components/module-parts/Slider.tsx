@@ -75,9 +75,9 @@ const Slider = <M extends Module, P extends M['parameters'][number]>({
   })
 
   return (
-    <div ref={sliderRef} className={styles.sliderTrack}>
+    <div ref={sliderRef} class={styles.sliderTrack}>
       <div
-        className={styles.slider}
+        class={styles.slider}
         style={{ transform: `translateX(${sliderState.position * 100}px)` }}
       ></div>
     </div>

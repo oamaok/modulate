@@ -12,7 +12,7 @@ type Props = {
 const MixerNode = ({ id }: Props) => {
   return (
     <Module id={id} type="Mixer">
-      <div className={styles.mixer}>
+      <div class={styles.mixer}>
         <Slider<Mixer, 'level0'>
           moduleId={id}
           param={0}

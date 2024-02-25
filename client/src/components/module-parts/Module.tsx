@@ -75,7 +75,7 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
       data-id="module"
       onMouseDown={() => (state.activeModule = id)}
       onTouchStart={() => (state.activeModule = id)}
-      className={() => [
+      class={() => [
         styles.module,
         {
           [styles.active]: state.activeModule === id,
@@ -94,7 +94,7 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
       }}
     >
       <div
-        className={styles.moduleName}
+        class={styles.moduleName}
         style={{
           background: config.colors.primary,
         }}
@@ -104,7 +104,7 @@ const Module: FC<Props> = ({ id, type, name, children }) => {
       >
         {name ?? type}
       </div>
-      <div className={styles.moduleBody}>{children}</div>
+      <div class={styles.moduleBody}>{children}</div>
     </div>
   )
 }

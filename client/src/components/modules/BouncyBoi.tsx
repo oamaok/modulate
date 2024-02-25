@@ -88,8 +88,8 @@ class BouncyBoiNode extends Component<Props> {
   render({ id }: Props) {
     return (
       <Module id={id} type="BouncyBoi" name="Bouncy Boi">
-        <div className={styles.bouncyBoi}>
-          <div className={styles.controls}>
+        <div class={styles.bouncyBoi}>
+          <div class={styles.controls}>
             <Knob<BouncyBoi, 'speed'>
               moduleId={id}
               param={0}

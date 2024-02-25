@@ -11,7 +11,7 @@ const Background = () => {
 
   return (
     <div
-      className={styles.background}
+      class={styles.background}
       style={{
         width: width + 'px',
         height: height + 'px',

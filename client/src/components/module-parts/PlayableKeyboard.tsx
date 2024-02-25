@@ -96,7 +96,7 @@ class PlayableKeyboard extends Component<Props> {
     return (
       <div
         ref={this.ref}
-        className={styles.keyboard}
+        class={styles.keyboard}
         onTouchStart={this.onTouchStart}
         onTouchMove={this.onTouchMove}
         onTouchEnd={this.onTouchEnd}
@@ -104,7 +104,7 @@ class PlayableKeyboard extends Component<Props> {
         {WHITE_KEYS.map((key, i) => (
           <button
             data-key={key}
-            className={styles.whiteKey}
+            class={styles.whiteKey}
             style={{ left: i * 48 + 'px' }}
           ></button>
         ))}
@@ -113,7 +113,7 @@ class PlayableKeyboard extends Component<Props> {
             key && (
               <button
                 data-key={key}
-                className={styles.blackKey}
+                class={styles.blackKey}
                 style={{ left: i * 48 + 24 + 'px' }}
               ></button>
             )

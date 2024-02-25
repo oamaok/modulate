@@ -10,14 +10,11 @@ type Props = {
 
 const Keyboard = (props: Props) => {
   return (
-    <div className={styles.keyboard}>
+    <div class={styles.keyboard}>
       {WHITE_KEYS.map((key, i) => (
         <button
           onClick={() => props.onChange(key)}
-          className={() => [
-            styles.whiteKey,
-            { [styles.on]: key === props.note },
-          ]}
+          class={() => [styles.whiteKey, { [styles.on]: key === props.note }]}
           style={{ left: i * 22 + 'px' }}
         ></button>
       ))}
@@ -26,7 +23,7 @@ const Keyboard = (props: Props) => {
           key && (
             <button
               onClick={() => props.onChange(key)}
-              className={() => [
+              class={() => [
                 styles.blackKey,
                 { [styles.on]: key === props.note },
               ]}

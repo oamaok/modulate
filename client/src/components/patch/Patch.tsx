@@ -8,7 +8,7 @@ import RoomCursors from '../room-cursors/RoomCursors'
 
 const Patch = () => {
   return (
-    <div className={styles.patch}>
+    <div class={styles.patch}>
       <Cables />
       <div
         style={{

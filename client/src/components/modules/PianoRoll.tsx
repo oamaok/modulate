@@ -140,8 +140,8 @@ class PianoRollModule extends Component<Props, State> {
             />
           </PianoRollEditorPortal.Entry>
         ) : null}
-        <div className={styles.pianoRoll}>
-          <div className={styles.knobs}>
+        <div class={styles.pianoRoll}>
+          <div class={styles.knobs}>
             <Knob<PianoRoll, 'speed'>
               moduleId={id}
               param={1}
@@ -163,7 +163,7 @@ class PianoRollModule extends Component<Props, State> {
             />
           </div>
           <div
-            className={styles.preview}
+            class={styles.preview}
             onClick={() => {
               this.state.editorOpen = true
             }}

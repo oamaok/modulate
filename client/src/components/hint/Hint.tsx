@@ -4,7 +4,7 @@ import * as styles from './Hint.css'
 const Hint = () => {
   return (
     <div
-      className={[
+      class={[
         styles.hint,
         {
           [styles.visible]: state.hint.visible,

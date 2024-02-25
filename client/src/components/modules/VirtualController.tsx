@@ -70,8 +70,8 @@ class VirtualControllerModule extends Component<Props> {
   render({ id }: Props) {
     return (
       <Module id={id} type="VirtualController" name="Virtual Controller">
-        <div className={styles.virtualController}>
-          <div className={styles.knobs}>
+        <div class={styles.virtualController}>
+          <div class={styles.knobs}>
             <Knob<VirtualController, 'knobA'>
               size="l"
               moduleId={id}
@@ -105,12 +105,12 @@ class VirtualControllerModule extends Component<Props> {
               initial={0.0}
             />
           </div>
-          <div className={styles.pads}>
+          <div class={styles.pads}>
             {[0, 1, 2, 3].map((pad) => (
               <button
                 key={pad}
                 type="button"
-                className={styles.pad}
+                class={styles.pad}
                 onTouchStart={(evt: TouchEvent) => {
                   evt.preventDefault()
                   this.onPadPress(pad)

@@ -102,7 +102,7 @@ class OscilloscopeNode extends Component<Props> {
   render({ id }: Props) {
     return (
       <Module id={id} type="Oscilloscope">
-        <div className={styles.oscilloscope}>
+        <div class={styles.oscilloscope}>
           <canvas
             ref={this.canvasRef}
             width={SCOPE_WIDTH}

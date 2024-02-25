@@ -68,7 +68,7 @@ class ClockNode extends Component<Props> {
     const moduleState = getModuleState<ClockState>(id)
     return (
       <Module id={id} type="Clock">
-        <div className={styles.controls}>
+        <div class={styles.controls}>
           <Toggle
             active={moduleState.isRunning}
             onChange={() => {
@@ -95,7 +95,7 @@ class ClockNode extends Component<Props> {
           max={500}
           initial={128}
         />
-        <div className={styles.row}>
+        <div class={styles.row}>
           <Knob<Clock, 'ratio0'>
             moduleId={id}
             param={1}
@@ -104,7 +104,7 @@ class ClockNode extends Component<Props> {
             options={RATIO_OPTIONS}
             initial={1}
           />
-          <div className={styles.connector} />
+          <div class={styles.connector} />
           <Knob<Clock, 'swing0'>
             moduleId={id}
             param={7}
@@ -112,7 +112,7 @@ class ClockNode extends Component<Props> {
             type="percentage"
             initial={0.5}
           />
-          <div className={styles.connector} />
+          <div class={styles.connector} />
           <Knob<Clock, 'pw0'>
             moduleId={id}
             param={4}
@@ -121,7 +121,7 @@ class ClockNode extends Component<Props> {
             initial={0.5}
           />
         </div>
-        <div className={styles.row}>
+        <div class={styles.row}>
           <Knob<Clock, 'ratio1'>
             moduleId={id}
             param={2}
@@ -130,7 +130,7 @@ class ClockNode extends Component<Props> {
             options={RATIO_OPTIONS}
             initial={1}
           />
-          <div className={styles.connector} />
+          <div class={styles.connector} />
           <Knob<Clock, 'swing1'>
             moduleId={id}
             param={8}
@@ -138,7 +138,7 @@ class ClockNode extends Component<Props> {
             type="percentage"
             initial={0.5}
           />
-          <div className={styles.connector} />
+          <div class={styles.connector} />
           <Knob<Clock, 'pw1'>
             moduleId={id}
             param={5}
@@ -147,7 +147,7 @@ class ClockNode extends Component<Props> {
             initial={0.5}
           />
         </div>
-        <div className={styles.row}>
+        <div class={styles.row}>
           <Knob<Clock, 'ratio2'>
             moduleId={id}
             param={3}
@@ -156,7 +156,7 @@ class ClockNode extends Component<Props> {
             options={RATIO_OPTIONS}
             initial={1}
           />
-          <div className={styles.connector} />
+          <div class={styles.connector} />
           <Knob<Clock, 'swing2'>
             moduleId={id}
             param={9}
@@ -164,7 +164,7 @@ class ClockNode extends Component<Props> {
             type="percentage"
             initial={0.5}
           />
-          <div className={styles.connector} />
+          <div class={styles.connector} />
           <Knob<Clock, 'pw2'>
             moduleId={id}
             param={6}

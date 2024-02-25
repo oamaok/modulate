@@ -737,14 +737,14 @@ class PianoRollEditor extends Component<Props, State> {
 
   render() {
     return (
-      <div className={styles.wrapper}>
-        <div className={styles.pianoRollEditor}>
-          <div className={styles.actions}>
+      <div class={styles.wrapper}>
+        <div class={styles.pianoRollEditor}>
+          <div class={styles.actions}>
             <button onClick={() => this.deleteNotes(this.state.selectedNotes)}>
               <Icon size={16} name={icons.delete} />
               delete selected
             </button>
-            <div className={styles.snapping}>
+            <div class={styles.snapping}>
               <label>Snapping</label>
               <select
                 onChange={(evt: InputEvent) => {
@@ -766,7 +766,7 @@ class PianoRollEditor extends Component<Props, State> {
               close
             </button>
           </div>
-          <div className={styles.editor} onWheel={this.handleWheel}>
+          <div class={styles.editor} onWheel={this.handleWheel}>
             <canvas ref={this.canvasRef} />
           </div>
         </div>

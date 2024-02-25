@@ -233,17 +233,17 @@ class ADSRNode extends Component<Props> {
   render({ id }: Props) {
     return (
       <Module id={id} type="ADSR">
-        <div className={styles.adsr}>
-          <div className={styles.curve}>
+        <div class={styles.adsr}>
+          <div class={styles.curve}>
             <canvas
               width={CURVE_WIDTH + CURVE_PADDING * 2}
               height={CURVE_HEIGHT + CURVE_PADDING * 2}
               ref={this.canvasRef}
             ></canvas>
           </div>
-          <div className={styles.knobs}>
-            <div className={styles.knobGroup}>
-              <div className={styles.label}>ATT</div>
+          <div class={styles.knobs}>
+            <div class={styles.knobGroup}>
+              <div class={styles.label}>ATT</div>
               <Knob<ADSR, 'attack'>
                 moduleId={id}
                 type="exponential"
@@ -268,9 +268,9 @@ class ADSRNode extends Component<Props> {
                 initial={0}
               />
             </div>
-            <div className={styles.separator} />
-            <div className={styles.knobGroup}>
-              <div className={styles.label}>DCY</div>
+            <div class={styles.separator} />
+            <div class={styles.knobGroup}>
+              <div class={styles.label}>DCY</div>
               <Knob<ADSR, 'decay'>
                 moduleId={id}
                 type="exponential"
@@ -295,9 +295,9 @@ class ADSRNode extends Component<Props> {
                 initial={0}
               />
             </div>
-            <div className={styles.separator} />
-            <div className={styles.knobGroup}>
-              <div className={styles.label}>SUS</div>
+            <div class={styles.separator} />
+            <div class={styles.knobGroup}>
+              <div class={styles.label}>SUS</div>
               <Knob<ADSR, 'sustain'>
                 moduleId={id}
                 type="linear"
@@ -310,9 +310,9 @@ class ADSRNode extends Component<Props> {
                 initial={0.5}
               />
             </div>
-            <div className={styles.separator} />
-            <div className={styles.knobGroup}>
-              <div className={styles.label}>REL</div>
+            <div class={styles.separator} />
+            <div class={styles.knobGroup}>
+              <div class={styles.label}>REL</div>
               <Knob<ADSR, 'release'>
                 moduleId={id}
                 type="exponential"
@@ -337,9 +337,9 @@ class ADSRNode extends Component<Props> {
                 initial={0}
               />
             </div>
-            <div className={styles.separator} />
-            <div className={styles.knobGroup}>
-              <div className={styles.label}>AMT</div>
+            <div class={styles.separator} />
+            <div class={styles.knobGroup}>
+              <div class={styles.label}>AMT</div>
               <Knob<ADSR, 'amount'>
                 moduleId={id}
                 type="linear"

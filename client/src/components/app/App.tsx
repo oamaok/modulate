@@ -139,7 +139,7 @@ const App = () => {
         initialized: state.initialized.toString(),
         'is-room': (state.room !== null).toString(),
       })}
-      className={styles.app}
+      class={styles.app}
     >
       <Background />
       <Header />

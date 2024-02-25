@@ -19,7 +19,7 @@ const MenuBar: FC<Props> = ({
 }) => {
   return (
     <div
-      className={[styles.menuBar, className]}
+      class={[styles.menuBar, className]}
       style={{
         left: left && '10px',
         right: right && '10px',
@@ -32,6 +32,6 @@ const MenuBar: FC<Props> = ({
   )
 }
 
-export const VerticalDivider = () => <div className={styles.verticalDivider} />
+export const VerticalDivider = () => <div class={styles.verticalDivider} />
 
 export default MenuBar

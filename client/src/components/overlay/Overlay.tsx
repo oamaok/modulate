@@ -15,11 +15,11 @@ const Overlay: FC<OverlayProps> = ({
   children,
 }) => {
   return (
-    <div className={styles.overlay} {...testAttributes({ id: 'overlay' })}>
-      <div className={[styles.modal, className]}>
+    <div class={styles.overlay} {...testAttributes({ id: 'overlay' })}>
+      <div class={[styles.modal, className]}>
         {showCloseButton ? (
           <button
-            className={styles.closeButton}
+            class={styles.closeButton}
             onClick={closeOverlay}
             {...testAttributes({ id: 'close-modal' })}
           >

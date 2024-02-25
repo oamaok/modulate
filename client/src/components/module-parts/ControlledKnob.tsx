@@ -244,9 +244,9 @@ const ControlledKnob = (props: ControlledKnobProps) => {
   })
 
   return (
-    <div className={[styles.wrapper, getClassNameForSize(props.size)]}>
+    <div class={[styles.wrapper, getClassNameForSize(props.size)]}>
       <div
-        className={styles.knob}
+        class={styles.knob}
         ref={knobRef}
         style={{
           transform: `rotate(${knobState.position * 300 - 60}deg)`,
@@ -259,7 +259,7 @@ const ControlledKnob = (props: ControlledKnobProps) => {
         })}
       ></div>
       {props.label && !hideLabel ? (
-        <div className={styles.name}>{props.label}</div>
+        <div class={styles.name}>{props.label}</div>
       ) : null}
     </div>
   )

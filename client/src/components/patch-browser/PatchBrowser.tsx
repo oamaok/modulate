@@ -55,7 +55,7 @@ const YourPatches = () => {
   const groupedPatches = groupBy(state.patches, (patch) => patch.id)
 
   return (
-    <div className={styles.ownPatches}>
+    <div class={styles.ownPatches}>
       {groupedPatches.map(([patchId, patches]) => {
         const isExpanded = state.expandedPatches.includes(patchId)
         const [firstPatch, ...rest] = patches
@@ -63,21 +63,19 @@ const YourPatches = () => {
 
         return (
           <div>
-            <div className={styles.patch}>
+            <div class={styles.patch}>
               {rest.length !== 0 ? (
                 <button onClick={() => togglePatchExpansion(patchId)}>
                   <Icon name={isExpanded ? 'expand_more' : 'chevron_right'} />
                 </button>
               ) : null}
-              <div className={styles.name}>{firstPatch.name}</div>
-              <div className={styles.version}>
-                Version #{firstPatch.version}
-              </div>
-              <div className={styles.date}>
+              <div class={styles.name}>{firstPatch.name}</div>
+              <div class={styles.version}>Version #{firstPatch.version}</div>
+              <div class={styles.date}>
                 {formatPatchDate(firstPatch.createdAt)}
               </div>
               <button
-                className={styles.load}
+                class={styles.load}
                 onClick={() => fetchAndLoadPatch(patchId)}
               >
                 <span>Load</span>
@@ -86,16 +84,14 @@ const YourPatches = () => {
             </div>
             {isExpanded
               ? rest.map((patch) => (
-                  <div className={[styles.patch, styles.version]}>
-                    <div className={styles.name}>{patch.name}</div>
-                    <div className={styles.version}>
-                      Version #{patch.version}
-                    </div>
-                    <div className={styles.date}>
+                  <div class={[styles.patch, styles.version]}>
+                    <div class={styles.name}>{patch.name}</div>
+                    <div class={styles.version}>Version #{patch.version}</div>
+                    <div class={styles.date}>
                       {formatPatchDate(patch.createdAt)}
                     </div>
                     <button
-                      className={styles.load}
+                      class={styles.load}
                       onClick={() => fetchAndLoadPatch(patchId)}
                     >
                       <span>Load</span>
@@ -131,10 +127,10 @@ const PublicPatches = () => {
   })
 
   return (
-    <div className={styles.patches}>
+    <div class={styles.patches}>
       {state.patches.map((patch) => (
         <button
-          className={styles.patch}
+          class={styles.patch}
           onClick={() => fetchAndLoadPatch(patch.id)}
         >
           <div>{patch.name}</div>
@@ -159,18 +155,15 @@ const PatchBrowser = () => {
 
   return (
     <Overlay className={styles.patchBrowser}>
-      <div className={styles.tabs}>
+      <div class={styles.tabs}>
         <button
-          className={[
-            styles.tab,
-            { [styles.selected]: state.tab === 'public' },
-          ]}
+          class={[styles.tab, { [styles.selected]: state.tab === 'public' }]}
           onClick={() => (state.tab = 'public')}
         >
           Public Patches
         </button>
         <button
-          className={[styles.tab, { [styles.selected]: state.tab === 'yours' }]}
+          class={[styles.tab, { [styles.selected]: state.tab === 'yours' }]}
           onClick={() => (state.tab = 'yours')}
         >
           Your Patches

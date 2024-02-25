@@ -80,7 +80,7 @@ const Cables = () => {
   })
 
   return (
-    <div className={styles.cables}>
+    <div class={styles.cables}>
       <svg
         {...testAttributes({ id: 'cables' })}
         viewBox={`0 0 ${viewport.width} ${viewport.height}`}

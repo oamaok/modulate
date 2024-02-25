@@ -23,7 +23,7 @@ const Input = ({
   ...rest
 }: Props) => {
   return (
-    <div className={styles.input}>
+    <div class={styles.input}>
       <label>{label}</label>
       <input
         type={type}
@@ -32,10 +32,8 @@ const Input = ({
         maxlength={maxLength}
         {...rest}
       />
-      {error ? <div className={styles.error}>{error}</div> : null}
-      {description ? (
-        <div className={styles.description}>{description}</div>
-      ) : null}
+      {error ? <div class={styles.error}>{error}</div> : null}
+      {description ? <div class={styles.description}>{description}</div> : null}
     </div>
   )
 }

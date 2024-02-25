@@ -174,8 +174,8 @@ class SamplerNode extends Component<Props> {
 
     return (
       <Module id={id} type="Sampler">
-        <div className={styles.sampler}>
-          <div className={styles.canvases}>
+        <div class={styles.sampler}>
+          <div class={styles.canvases}>
             <canvas ref={this.waveformCanvasRef} width="300" height="100" />
             <canvas ref={this.settingsCanvasRef} width="300" height="100" />
           </div>
@@ -189,7 +189,7 @@ class SamplerNode extends Component<Props> {
               selected={samplerState?.sampleId ?? null}
             />
           </div>
-          <div className={styles.knobGroup}>
+          <div class={styles.knobGroup}>
             <Knob<Sampler, 'speed'>
               moduleId={id}
               param={0}

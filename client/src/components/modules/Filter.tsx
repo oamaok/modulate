@@ -12,8 +12,8 @@ type Props = {
 const BiquadFilterNode = ({ id }: Props) => {
   return (
     <Module id={id} type="BiquadFilter" name="Filter">
-      <div className={styles.knobs}>
-        <div className={styles.knobGroup}>
+      <div class={styles.knobs}>
+        <div class={styles.knobGroup}>
           <Knob<BiquadFilter, 'frequency'>
             moduleId={id}
             param={0}
@@ -33,8 +33,8 @@ const BiquadFilterNode = ({ id }: Props) => {
             initial={1}
           />
         </div>
-        <div className={styles.separator} />
-        <div className={styles.knobGroup}>
+        <div class={styles.separator} />
+        <div class={styles.knobGroup}>
           <Knob<BiquadFilter, 'resonance'>
             moduleId={id}
             param={1}
@@ -54,8 +54,8 @@ const BiquadFilterNode = ({ id }: Props) => {
             initial={1}
           />
         </div>
-        <div className={styles.separator} />
-        <div className={styles.knobGroup}>
+        <div class={styles.separator} />
+        <div class={styles.knobGroup}>
           <Knob<BiquadFilter, 'lowpassLevel'>
             moduleId={id}
             param={2}

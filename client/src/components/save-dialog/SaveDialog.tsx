@@ -57,14 +57,14 @@ const SaveDialog: SaveDialog = () => {
       <h2>You have unsaved changes</h2>
       <hr />
       <div>Do you wish to save before continuing?</div>
-      <div className={styles.options}>
-        <button className={styles.discard} onClick={onDiscardChanges}>
+      <div class={styles.options}>
+        <button class={styles.discard} onClick={onDiscardChanges}>
           Discard changes
         </button>
-        <button className={styles.cancel} onClick={onCancel}>
+        <button class={styles.cancel} onClick={onCancel}>
           Cancel
         </button>
-        <button className={styles.save} onSave={onSave}>
+        <button class={styles.save} onSave={onSave}>
           Save
         </button>
       </div>

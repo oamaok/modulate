@@ -42,7 +42,7 @@ const Performance = () => {
 
   return (
     <canvas
-      className={styles.performance}
+      class={styles.performance}
       ref={canvasRef}
       width="200"
       height="100"

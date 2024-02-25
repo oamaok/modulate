@@ -94,7 +94,7 @@ const Socket = <
 
   return (
     <div
-      className={[styles.socketWrapper, getClassNameForSocketType(type)]}
+      class={[styles.socketWrapper, getClassNameForSocketType(type)]}
       {...testAttributes({
         id: 'socket-wrapper',
         'module-id': moduleId,
@@ -104,13 +104,13 @@ const Socket = <
       })}
     >
       <div
-        className={styles.dragStartArea}
+        class={styles.dragStartArea}
         onMouseDown={startCable}
         onTouchStart={startCable}
         {...testAttributes({ id: 'socket' })}
       />
-      <div ref={ref} className={styles.socket} />
-      <div className={styles.socketName}>{label}</div>
+      <div ref={ref} class={styles.socket} />
+      <div class={styles.socketName}>{label}</div>
     </div>
   )
 }

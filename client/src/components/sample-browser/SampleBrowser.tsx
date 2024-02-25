@@ -62,19 +62,19 @@ const SampleBrowser = (props: Props) => {
   }
 
   return (
-    <div className={styles.sampleBrowser}>
+    <div class={styles.sampleBrowser}>
       <input
         type="file"
         accept=".wav,.ogg,.mp3"
-        className={styles.fileInput}
+        class={styles.fileInput}
         ref={fileInputRef}
         onChange={onFileChange}
       />
-      <div className={styles.samples}>
+      <div class={styles.samples}>
         {browserState.samples.map((sample) => (
           <button
             onClick={() => props.onSelect(sample.id)}
-            className={() => ({
+            class={() => ({
               [styles.selected]: props.selected === sample.id,
             })}
           >
@@ -82,7 +82,7 @@ const SampleBrowser = (props: Props) => {
           </button>
         ))}
       </div>
-      <div className={styles.controls}>
+      <div class={styles.controls}>
         {state.user ? (
           <button onClick={addSample}>add</button>
         ) : (

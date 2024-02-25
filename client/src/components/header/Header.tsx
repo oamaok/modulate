@@ -27,11 +27,11 @@ const noop = () => {}
 const MenuIcon = ({ id, icon, label, onClick, enabled }: MenuIconProps) => (
   <button
     {...testAttributes({ id: 'menu-item', 'item-id': id, icon, label })}
-    className={[styles.menuIcon, { [styles.enabled]: enabled }]}
+    class={[styles.menuIcon, { [styles.enabled]: enabled }]}
     onClick={enabled ? onClick : noop}
   >
     <Icon name={icon} />
-    <div className={styles.label}>{label}</div>
+    <div class={styles.label}>{label}</div>
   </button>
 )
 
@@ -105,14 +105,14 @@ const Header = () => {
 
   return (
     <MenuBar top left>
-      <h2 className={styles.brand}>modulate</h2>
-      <div className={styles.patchName}>
+      <h2 class={styles.brand}>modulate</h2>
+      <div class={styles.patchName}>
         <span>
           <b>{state.patchMetadata.name}</b> by <b>{patchAuthor}</b>
         </span>
       </div>
-      <div className={styles.actions}>
-        <div className={styles.separator} />
+      <div class={styles.actions}>
+        <div class={styles.separator} />
         {intersperse(
           menuItems.map((item) => (
             <MenuIcon
@@ -123,7 +123,7 @@ const Header = () => {
               onClick={item.action}
             />
           )),
-          <div className={styles.separator} />
+          <div class={styles.separator} />
         )}
       </div>
     </MenuBar>

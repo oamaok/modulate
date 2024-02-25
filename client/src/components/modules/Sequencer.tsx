@@ -72,15 +72,15 @@ class SequencerNode extends Component<
 
     return (
       <Module id={id} type="Sequencer">
-        <div className={styles.sequencer}>
-          <div className={styles.steps}>
+        <div class={styles.sequencer}>
+          <div class={styles.steps}>
             {groupedNotes.map((groups) => (
-              <div className={styles.row}>
+              <div class={styles.row}>
                 {groups.map((group) => (
-                  <div className={styles.group}>
+                  <div class={styles.group}>
                     {group.map((note) => (
                       <button
-                        className={[
+                        class={[
                           styles.indicator,
                           {
                             [styles.on]: note.index === this.state.editing,
@@ -99,14 +99,14 @@ class SequencerNode extends Component<
               </div>
             ))}
           </div>
-          <div className={styles.middle}>
-            <div className={styles.octaves}>
+          <div class={styles.middle}>
+            <div class={styles.octaves}>
               {OCTAVES.map((oct) => (
                 <button
                   onClick={() => {
                     notes[this.state.editing]!.octave = oct
                   }}
-                  className={[
+                  class={[
                     styles.indicator,
                     {
                       [styles.on]: notes[this.state.editing]!.octave === oct,
@@ -142,10 +142,10 @@ class SequencerNode extends Component<
               label="GLIDE"
             />
           </div>
-          <div className={styles.noteControls}>
+          <div class={styles.noteControls}>
             Gate
             <button
-              className={[
+              class={[
                 styles.indicator,
                 {
                   [styles.on]: notes[this.state.editing]!.gate,
@@ -158,7 +158,7 @@ class SequencerNode extends Component<
             />
             Glide
             <button
-              className={[
+              class={[
                 styles.indicator,
                 {
                   [styles.on]: notes[this.state.editing]!.glide,

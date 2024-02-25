@@ -52,7 +52,7 @@ const ContextMenu = ({}: Props) => {
     <div
       ref={menuRef}
       {...testAttributes({ id: 'context-menu' })}
-      className={() => [
+      class={() => [
         styles.contextMenu,
         { [styles.open]: state.contextMenu.open },
       ]}
@@ -61,21 +61,21 @@ const ContextMenu = ({}: Props) => {
         width: state.contextMenu.options?.width + 'px',
       }}
     >
-      <div className={styles.title}>{state.contextMenu.options?.title}</div>
-      <div className={styles.items}>
+      <div class={styles.title}>{state.contextMenu.options?.title}</div>
+      <div class={styles.items}>
         {state.contextMenu.options?.items.map((item) => {
           switch (item.type) {
             case 'button-group': {
               return (
-                <div className={styles.buttonGroup}>
-                  <div className={styles.label}>{item.name}</div>
+                <div class={styles.buttonGroup}>
+                  <div class={styles.label}>{item.name}</div>
                   {item.items.map((subItem) => (
                     <button
                       {...testAttributes({
                         id: 'context-menu-item',
                         'context-menu-item-name': subItem.name,
                       })}
-                      className={styles.item}
+                      class={styles.item}
                       onClick={() => {
                         state.contextMenu.open = false
                         subItem.action(state.contextMenu.position)
@@ -90,15 +90,15 @@ const ContextMenu = ({}: Props) => {
 
             case 'group': {
               return (
-                <div className={styles.group}>
-                  <div className={styles.label}>{item.name}</div>
+                <div class={styles.group}>
+                  <div class={styles.label}>{item.name}</div>
                   {item.items.map((subItem) => (
                     <button
                       {...testAttributes({
                         id: 'context-menu-item',
                         'context-menu-item-name': subItem.name,
                       })}
-                      className={styles.item}
+                      class={styles.item}
                       onClick={() => {
                         state.contextMenu.open = false
                         subItem.action(state.contextMenu.position)
@@ -118,7 +118,7 @@ const ContextMenu = ({}: Props) => {
                     id: 'context-menu-item',
                     'context-menu-item-name': item.name,
                   })}
-                  className={styles.item}
+                  class={styles.item}
                   onClick={() => {
                     state.contextMenu.open = false
                     item.action(state.contextMenu.position)

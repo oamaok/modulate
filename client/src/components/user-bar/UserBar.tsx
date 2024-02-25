@@ -32,7 +32,7 @@ const GlobalVolume = () => {
   })
 
   return (
-    <div className={styles.globalVolume}>
+    <div class={styles.globalVolume}>
       <Icon name={getVolumeIcon(volumeState.level)} />
       <ControlledKnob
         size="s"
@@ -61,7 +61,7 @@ const UserBar = () => {
           <button
             {...testAttributes({ id: 'logout' })}
             type="button"
-            className={styles.loginButton}
+            class={styles.loginButton}
             onClick={auth.reset}
           >
             Logout
@@ -71,7 +71,7 @@ const UserBar = () => {
         <button
           {...testAttributes({ id: 'login' })}
           type="button"
-          className={styles.loginButton}
+          class={styles.loginButton}
           onClick={() => {
             openOverlay('login')
           }}

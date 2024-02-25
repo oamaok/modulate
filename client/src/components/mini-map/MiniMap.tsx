@@ -184,7 +184,7 @@ const MiniMap = () => {
 
   return (
     <canvas
-      className={styles.minimap}
+      class={styles.minimap}
       ref={canvasRef}
       width={MINIMAP_WIDTH}
       height={MINIMAP_HEIGHT}

@@ -8,10 +8,10 @@ type Props = {
 
 const Toggle = ({ label, active, onChange }: Props) => {
   return (
-    <div className={styles.wrapper}>
+    <div class={styles.wrapper}>
       {label}
       <button
-        className={[
+        class={[
           styles.toggle,
           {
             [styles.active]: active,
