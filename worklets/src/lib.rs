@@ -1,9 +1,10 @@
 #![feature(stdsimd)]
 use audio_buffer::AudioBuffer;
 use core::arch::wasm32::memory_atomic_wait64;
+use filters::biquad_filter::BiquadFilter;
+use modulate_core::log;
 use modules::adsr::ADSR;
 use modules::audio_out::AudioOut;
-use modules::biquad_filter::BiquadFilter;
 use modules::bouncy_boi::BouncyBoi;
 use modules::chorus::Chorus;
 use modules::clock::Clock;
@@ -351,7 +352,9 @@ impl ModulateEngine {
         self.modules.insert(id, LFO::new());
       }
       "BiquadFilter" => {
-        self.modules.insert(id, BiquadFilter::new());
+        self
+          .modules
+          .insert(id, modules::biquad_filter::BiquadFilter::new());
       }
       "Mixer" => {
         self.modules.insert(id, Mixer::new());
@@ -729,4 +732,21 @@ pub fn worker_entry(ptr: usize) {
     let worker = &mut *(ptr as *mut Worker);
     worker.run();
   }
+}
+
+#[wasm_bindgen(js_name = getFilterCoefficients)]
+pub fn get_filter_coefficients(filter_type: &str, freq: f32, q: f32, gain: f32) -> Vec<f32> {
+  let mut biquad_filter = BiquadFilter::new();
+
+  match filter_type {
+    "highpass" => biquad_filter.set_highpass(freq, q),
+    "lowpass" => biquad_filter.set_lowpass(freq, q),
+    "bandpass" => biquad_filter.set_bandpass(freq, q),
+    "highshelf" => biquad_filter.set_highshelf(freq, q, gain),
+    "lowshelf" => biquad_filter.set_lowshelf(freq, q, gain),
+    "peaking" => biquad_filter.set_peaking(freq, q, gain),
+    _ => panic!("Unknown filter type!"),
+  }
+
+  biquad_filter.get_coefficients()
 }

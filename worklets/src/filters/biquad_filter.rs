@@ -27,7 +27,7 @@ fn get_q_params(freq: f32, q: f32) -> (f32, f32) {
 }
 
 fn get_slope_params(freq: f32, db_gain: f32, slope: f32) -> (f32, f32, f32) {
-  let amp = 10.0f32.powf(db_gain / 40.0);
+  let amp = 10.0f32.powf(db_gain / 30.0);
   let omega = std::f32::consts::PI * 2.0 * freq * INV_SAMPLE_RATE;
   let (sin_omega, cos_omega) = f32::sin_cos(omega);
   let alpha = sin_omega / 2.0
@@ -158,6 +158,10 @@ impl BiquadFilter {
     self.a0 = amp_inc - amp_dec * cos_omega + double_sqrt_amp_alpha;
     self.a1 = 2.0 * (amp_dec - amp_inc * cos_omega);
     self.a2 = amp_inc - amp_dec * cos_omega - double_sqrt_amp_alpha;
+  }
+
+  pub fn get_coefficients(&self) -> Vec<f32> {
+    vec![self.a0, self.a1, self.a2, self.b0, self.b1, self.b2]
   }
 
   pub fn step(&mut self, input: f32) -> f32 {

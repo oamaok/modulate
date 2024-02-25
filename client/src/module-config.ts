@@ -182,6 +182,6 @@ export default createConfig({
   EQ3: {
     category: ModuleCategory.FILTER,
     width: 400,
-    height: 200,
+    height: 160,
   },
 })

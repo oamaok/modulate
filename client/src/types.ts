@@ -106,6 +106,14 @@ export type State = {
   }
 }
 
+export type FilterType =
+  | 'lowpass'
+  | 'highpass'
+  | 'bandpass'
+  | 'highshelf'
+  | 'lowshelf'
+  | 'peaking'
+
 export type Engine = {
   [K in EngineMessageType]: (
     req: Omit<EngineRequest<K>, 'type' | 'id'>
@@ -116,4 +124,13 @@ export type Engine = {
   audioContext: AudioContext
   globalGain: GainNode
   analyser: AnalyserNode
+
+  util: {
+    getFilterCoefficients: (
+      type: FilterType,
+      freq: number,
+      q: number,
+      gain: number
+    ) => Float32Array
+  }
 }

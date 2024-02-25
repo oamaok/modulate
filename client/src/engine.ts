@@ -9,8 +9,11 @@ import {
 } from '@modulate/common/types'
 import * as util from '@modulate/common/util'
 import assert from './assert'
-import { Engine } from './types'
+import { Engine, FilterType } from './types'
 import { Module, ModuleName } from '@modulate/worklets/src/modules'
+import init, {
+  getFilterCoefficients as getFilterCoefficientsWasm,
+} from '@modulate/worklets/pkg/modulate'
 
 type InitOptions = {
   spawnAudioWorklet: boolean
@@ -116,6 +119,8 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     wasm,
   })
 
+  await init(wasm, memory)
+
   engine = {
     init: createEngineMethod('init'),
     createModule: createEngineMethod('createModule'),
@@ -130,6 +135,11 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     audioContext,
     globalGain: audioContext.createGain(),
     analyser: audioContext.createAnalyser(),
+
+    util: {
+      getFilterCoefficients:
+        getFilterCoefficientsWasm as Engine['util']['getFilterCoefficients'],
+    },
   }
 
   engine.analyser.fftSize = 1 << 15
@@ -361,4 +371,28 @@ export const setGlobalVolume = (value: number) => {
 export const getMemorySlice = (address: number, length: number) => {
   assert(engine)
   return new Float32Array(engine.memory.buffer, address, length)
+}
+
+export const getFilterCoefficients = (
+  type: FilterType,
+  freq: number,
+  q: number,
+  gain: number = 0
+): [a0: number, a1: number, a2: number, b0: number, b1: number, b2: number] => {
+  assert(engine)
+  const [a0, a1, a2, b0, b1, b2] = engine.util.getFilterCoefficients(
+    type,
+    freq,
+    q,
+    gain
+  )
+
+  assert(a0 !== undefined)
+  assert(a1 !== undefined)
+  assert(a2 !== undefined)
+  assert(b0 !== undefined)
+  assert(b1 !== undefined)
+  assert(b2 !== undefined)
+
+  return [a0, a1, a2, b0, b1, b2]
 }
