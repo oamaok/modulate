@@ -77,6 +77,17 @@ const replaceWithoutSpecialReplacements = (string, pattern, replacement) => {
 const buildClient = async () => {
   console.time('Build client')
 
+  // NASTY HACK: Remove assignment to `__wbg_init` member which is never used.
+  // This assignment prevents tree shaking and bloats the minified build.
+  const wasmWrapperFile = path.join(__dirname, '../worklets/pkg/modulate.js')
+  const wasmWrapper = await fs.readFile(wasmWrapperFile)
+  await fs.writeFile(
+    wasmWrapperFile,
+    wasmWrapper
+      .toString('utf-8')
+      .replace('__wbg_init.__wbindgen_wasm_module = module;', '')
+  )
+
   const entry = isEngineTest
     ? path.join(__dirname, '../client/src/engine-test-index.ts')
     : path.join(__dirname, '../client/src/index.tsx')
@@ -89,6 +100,7 @@ const buildClient = async () => {
       bundle: true,
       outdir: buildDir,
       metafile: true,
+      treeShaking: true,
       minify: isProduction,
       define: {
         __DEBUG__: isProduction ? 'false' : 'true',

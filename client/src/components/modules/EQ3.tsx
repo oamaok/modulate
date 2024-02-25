@@ -221,7 +221,7 @@ const EQ3Node = ({ id }: Props) => {
               param={7}
               label="SLOPE"
               type="linear"
-              min={0}
+              min={0.2}
               max={1.92}
               initial={0.5}
               hideLabel

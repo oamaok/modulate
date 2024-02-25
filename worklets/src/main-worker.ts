@@ -5,7 +5,7 @@ import {
   EngineEvent,
   ModuleEvent,
 } from '@modulate/common/types'
-import init, { ModulateEngineWrapper } from '../pkg/modulate'
+import { initSync, ModulateEngineWrapper } from '../pkg/modulate'
 import { Module } from './modules'
 
 let engine: ModulateEngineWrapper | null = null
@@ -17,7 +17,7 @@ const requestHandlers: {
     | Promise<Omit<EngineResponse<K>, 'type' | 'id'>>
 } = {
   init: async ({ threads, wasm, memory }) => {
-    await init(wasm, memory)
+    initSync(wasm, memory)
     engine = new ModulateEngineWrapper(threads)
     // TODO: Report error if WASM init failed
     const workerPointers = await engine.initWorkers()
