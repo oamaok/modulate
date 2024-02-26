@@ -80,7 +80,7 @@ class SequencerNode extends Component<
                   <div class={styles.group}>
                     {group.map((note) => (
                       <button
-                        class={[
+                        class={() => [
                           styles.indicator,
                           {
                             [styles.on]: note.index === this.state.editing,

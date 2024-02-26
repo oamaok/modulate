@@ -90,7 +90,7 @@ test('can connect two modules starting from input', async ({ page }) => {
   await expect(cable).toHaveCount(1)
 })
 
-test.skip('can connect/disconnect any module output to/from any module input/parameter', async ({
+test('can connect/disconnect any module output to/from any module input/parameter', async ({
   page,
 }) => {
   test.setTimeout(1000 * 60 * 10)
@@ -137,7 +137,7 @@ test.skip('can connect/disconnect any module output to/from any module input/par
           const outputName = modules[fromModuleName].outputs[outputIndex]
           const inputName = modules[toModuleName].inputs[inputIndex]
 
-          test.step(`Connecting ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`, async () => {
+          await test.step(`Connecting ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`, async () => {
             const fromSocket = await getModuleSocket(
               fromModule,
               'output',
@@ -197,7 +197,7 @@ test.skip('can connect/disconnect any module output to/from any module input/par
           const outputName = modules[fromModuleName].outputs[outputIndex]
           const paramName = modules[toModuleName].parameters[paramIndex]
 
-          test.step(`Connecting ${fromModuleName}:${outputName} to param ${toModuleName}:${paramName}`, async () => {
+          await test.step(`Connecting ${fromModuleName}:${outputName} to param ${toModuleName}:${paramName}`, async () => {
             const fromSocket = await getModuleSocket(
               fromModule,
               'output',
