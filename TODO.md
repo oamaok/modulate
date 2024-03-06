@@ -77,6 +77,10 @@ Takes an input voltage and snaps it to the closest appropriate voltage selected 
 
 - [ ] Initial implementation
 
+## CV arpeggiator
+
+- [ ] Initial implementation
+
 ## Sample&Hold
 
 Input, Hold and internal clock.
@@ -91,6 +95,14 @@ Low frequency noise.
 - [ ] Initial implementation
 
 ## Noise
+
+- [ ] Initial implementation
+
+## Amplitude follower
+
+- [ ] Initial implementation
+
+## Erosion copy
 
 - [ ] Initial implementation
 
