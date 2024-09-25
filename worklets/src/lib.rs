@@ -20,6 +20,7 @@ use modules::oscillator::Oscillator;
 use modules::oscilloscope::Oscilloscope;
 use modules::piano_roll::PianoRoll;
 use modules::pow_shaper::PowShaper;
+use modules::ring_mod::RingMod;
 use modules::sampler::Sampler;
 use modules::sequencer::Sequencer;
 use modules::virtual_controller::VirtualController;
@@ -409,6 +410,9 @@ impl ModulateEngine {
       }
       "EQ3" => {
         self.modules.insert(id, EQ3::new());
+      }
+      "RingMod" => {
+        self.modules.insert(id, RingMod::new());
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }

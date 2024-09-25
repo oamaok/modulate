@@ -111,7 +111,7 @@ export default createConfig({
   },
   Gain: {
     category: ModuleCategory.DYNAMICS,
-    width: 200,
+    width: 140,
     height: 100,
   },
   LFO: {
@@ -183,5 +183,10 @@ export default createConfig({
     category: ModuleCategory.FILTER,
     width: 400,
     height: 160,
+  },
+  RingMod: {
+    category: ModuleCategory.UTILITY,
+    width: 140,
+    height: 100,
   },
 })

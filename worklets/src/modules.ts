@@ -281,6 +281,14 @@ export const EQ3 = {
 } as const
 export type EQ3 = ModuleTypeOf<typeof EQ3>
 
+export const RingMod = {
+  name: 'RingMod',
+  inputs: ['inputA', 'inputB'],
+  parameters: ['gain'],
+  outputs: ['output'],
+} as const
+export type RingMod = ModuleTypeOf<typeof RingMod>
+
 export const modules = {
   AudioOut,
   Oscillator,
@@ -303,6 +311,7 @@ export const modules = {
   FDNReverb,
   Chorus,
   EQ3,
+  RingMod,
 } as const
 
 export type Module =
@@ -327,6 +336,7 @@ export type Module =
   | FDNReverb
   | Chorus
   | EQ3
+  | RingMod
 
 export type ModuleName = Module['name']
 
@@ -359,4 +369,5 @@ export const MODULE_PARAMETER_COUNT: {
   Sampler: 4,
   VirtualController: 4,
   EQ3: 9,
+  RingMod: 1,
 }
