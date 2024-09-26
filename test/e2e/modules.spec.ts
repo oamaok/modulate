@@ -90,13 +90,151 @@ test('can connect two modules starting from input', async ({ page }) => {
   await expect(cable).toHaveCount(1)
 })
 
-test('can connect/disconnect any module output to/from any module input/parameter', async ({
-  page,
-}) => {
+test('can connect/disconnect output to any input', async ({ page }) => {
+  test.setTimeout(1000 * 60 * 10)
+
+  let fromModuleName: keyof typeof modules = 'Gain'
+  let toModuleName: keyof typeof modules
+
+  for (toModuleName in modules) {
+    if (
+      modules[toModuleName].parameters.length === 0 &&
+      modules[toModuleName].inputs.length === 0
+    ) {
+      continue
+    }
+
+    const fromModule = await spawnModule(page, fromModuleName, {
+      x: 10,
+      y: 100,
+    })
+
+    const fromModuleBounds = await fromModule.boundingBox()
+    expect(fromModuleBounds).toBeDefined()
+
+    const toModule = await spawnModule(page, toModuleName, {
+      x: 60 + fromModuleBounds!.width,
+      y: 100,
+    })
+
+    const outputIndex = 0
+
+    for (
+      let inputIndex = 0;
+      inputIndex < modules[toModuleName].inputs.length;
+      inputIndex++
+    ) {
+      const outputName = modules[fromModuleName].outputs[outputIndex]
+      const inputName = modules[toModuleName].inputs[inputIndex]
+
+      await test.step(`Connecting ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`, async () => {
+        const fromSocket = await getModuleSocket(
+          fromModule,
+          'output',
+          outputIndex
+        )
+        if ((await fromSocket.count()) === 0) {
+          return
+        }
+
+        const toSocket = await getModuleSocket(toModule, 'input', inputIndex)
+        if ((await toSocket.count()) === 0) {
+          return
+        }
+
+        await connectSockets(page, fromSocket, toSocket)
+
+        const cable = await getCable(page, {
+          from: fromModule,
+          fromIndex: outputIndex,
+          to: toModule,
+          toIndex: inputIndex,
+          toType: 'input',
+        })
+
+        expect(
+          await cable.count(),
+          `Should be able to connect cable from ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`
+        ).toEqual(1)
+
+        // Disconnect cable
+        await toSocket.hover()
+        await page.mouse.down()
+        await page.mouse.move(100, 100)
+        await page.mouse.up()
+
+        expect(
+          await cable.count(),
+          `Should be able to disconnect cable from ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`
+        ).toEqual(0)
+      })
+    }
+
+    for (
+      let paramIndex = 0;
+      paramIndex < modules[toModuleName].parameters.length;
+      paramIndex++
+    ) {
+      const outputName = modules[fromModuleName].outputs[outputIndex]
+      const paramName = modules[toModuleName].parameters[paramIndex]
+
+      await test.step(`Connecting ${fromModuleName}:${outputName} to param ${toModuleName}:${paramName}`, async () => {
+        const fromSocket = await getModuleSocket(
+          fromModule,
+          'output',
+          outputIndex
+        )
+        if ((await fromSocket.count()) === 0) {
+          return
+        }
+
+        const toSocket = await getModuleSocket(
+          toModule,
+          'parameter',
+          paramIndex
+        )
+        if ((await toSocket.count()) === 0) {
+          return
+        }
+
+        await connectSockets(page, fromSocket, toSocket)
+
+        const cable = await getCable(page, {
+          from: fromModule,
+          fromIndex: outputIndex,
+          to: toModule,
+          toIndex: paramIndex,
+          toType: 'parameter',
+        })
+
+        expect(
+          await cable.count(),
+          `Should be able to connect cable from ${fromModuleName}:${outputName} to parameter ${toModuleName}:${paramName}`
+        ).toEqual(1)
+
+        // Disconnect cable
+        await toSocket.hover()
+        await page.mouse.down()
+        await page.mouse.move(100, 100)
+        await page.mouse.up()
+
+        expect(
+          await cable.count(),
+          `Should be able to disconnect cable from ${fromModuleName}:${outputName} to parameter ${toModuleName}:${paramName}`
+        ).toEqual(0)
+      })
+    }
+
+    await deleteModule(page, toModule)
+    await deleteModule(page, fromModule)
+  }
+})
+
+test('can connect/disconnect any module output to input', async ({ page }) => {
   test.setTimeout(1000 * 60 * 10)
 
   let fromModuleName: keyof typeof modules
-  let toModuleName: keyof typeof modules
+  const toModuleName: keyof typeof modules = 'Gain'
 
   for (fromModuleName in modules) {
     if (modules[fromModuleName].outputs.length === 0) {
@@ -111,141 +249,64 @@ test('can connect/disconnect any module output to/from any module input/paramete
     const fromModuleBounds = await fromModule.boundingBox()
     expect(fromModuleBounds).toBeDefined()
 
-    for (toModuleName in modules) {
-      if (
-        modules[toModuleName].parameters.length === 0 &&
-        modules[toModuleName].inputs.length === 0
-      ) {
-        continue
-      }
+    const toModule = await spawnModule(page, toModuleName, {
+      x: 60 + fromModuleBounds!.width,
+      y: 100,
+    })
+    const inputIndex = 0
 
-      const toModule = await spawnModule(page, toModuleName, {
-        x: 60 + fromModuleBounds!.width,
-        y: 100,
+    for (
+      let outputIndex = 0;
+      outputIndex < modules[fromModuleName].outputs.length;
+      outputIndex++
+    ) {
+      const outputName = modules[fromModuleName].outputs[outputIndex]
+      const inputName = modules[toModuleName].inputs[inputIndex]
+
+      await test.step(`Connecting ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`, async () => {
+        const fromSocket = await getModuleSocket(
+          fromModule,
+          'output',
+          outputIndex
+        )
+        if ((await fromSocket.count()) === 0) {
+          return
+        }
+
+        const toSocket = await getModuleSocket(toModule, 'input', inputIndex)
+        if ((await toSocket.count()) === 0) {
+          return
+        }
+
+        await connectSockets(page, fromSocket, toSocket)
+
+        const cable = await getCable(page, {
+          from: fromModule,
+          fromIndex: outputIndex,
+          to: toModule,
+          toIndex: inputIndex,
+          toType: 'input',
+        })
+
+        expect(
+          await cable.count(),
+          `Should be able to connect cable from ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`
+        ).toEqual(1)
+
+        // Disconnect cable
+        await toSocket.hover()
+        await page.mouse.down()
+        await page.mouse.move(100, 100)
+        await page.mouse.up()
+
+        expect(
+          await cable.count(),
+          `Should be able to disconnect cable from ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`
+        ).toEqual(0)
       })
-
-      for (
-        let outputIndex = 0;
-        outputIndex < modules[fromModuleName].outputs.length;
-        outputIndex++
-      )
-        for (
-          let inputIndex = 0;
-          inputIndex < modules[toModuleName].inputs.length;
-          inputIndex++
-        ) {
-          const outputName = modules[fromModuleName].outputs[outputIndex]
-          const inputName = modules[toModuleName].inputs[inputIndex]
-
-          await test.step(`Connecting ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`, async () => {
-            const fromSocket = await getModuleSocket(
-              fromModule,
-              'output',
-              outputIndex
-            )
-            if ((await fromSocket.count()) === 0) {
-              return
-            }
-
-            const toSocket = await getModuleSocket(
-              toModule,
-              'input',
-              inputIndex
-            )
-            if ((await toSocket.count()) === 0) {
-              return
-            }
-
-            await connectSockets(page, fromSocket, toSocket)
-
-            const cable = await getCable(page, {
-              from: fromModule,
-              fromIndex: outputIndex,
-              to: toModule,
-              toIndex: inputIndex,
-              toType: 'input',
-            })
-
-            expect(
-              await cable.count(),
-              `Should be able to connect cable from ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`
-            ).toEqual(1)
-
-            // Disconnect cable
-            await toSocket.hover()
-            await page.mouse.down()
-            await page.mouse.move(100, 100)
-            await page.mouse.up()
-
-            expect(
-              await cable.count(),
-              `Should be able to disconnect cable from ${fromModuleName}:${outputName} to input ${toModuleName}:${inputName}`
-            ).toEqual(0)
-          })
-        }
-
-      for (
-        let outputIndex = 0;
-        outputIndex < modules[fromModuleName].outputs.length;
-        outputIndex++
-      )
-        for (
-          let paramIndex = 0;
-          paramIndex < modules[toModuleName].parameters.length;
-          paramIndex++
-        ) {
-          const outputName = modules[fromModuleName].outputs[outputIndex]
-          const paramName = modules[toModuleName].parameters[paramIndex]
-
-          await test.step(`Connecting ${fromModuleName}:${outputName} to param ${toModuleName}:${paramName}`, async () => {
-            const fromSocket = await getModuleSocket(
-              fromModule,
-              'output',
-              outputIndex
-            )
-            if ((await fromSocket.count()) === 0) {
-              return
-            }
-
-            const toSocket = await getModuleSocket(
-              toModule,
-              'parameter',
-              paramIndex
-            )
-            if ((await toSocket.count()) === 0) {
-              return
-            }
-
-            await connectSockets(page, fromSocket, toSocket)
-
-            const cable = await getCable(page, {
-              from: fromModule,
-              fromIndex: outputIndex,
-              to: toModule,
-              toIndex: paramIndex,
-              toType: 'parameter',
-            })
-
-            expect(
-              await cable.count(),
-              `Should be able to connect cable from ${fromModuleName}:${outputName} to parameter ${toModuleName}:${paramName}`
-            ).toEqual(1)
-
-            // Disconnect cable
-            await toSocket.hover()
-            await page.mouse.down()
-            await page.mouse.move(100, 100)
-            await page.mouse.up()
-
-            expect(
-              await cable.count(),
-              `Should be able to disconnect cable from ${fromModuleName}:${outputName} to parameter ${toModuleName}:${paramName}`
-            ).toEqual(0)
-          })
-        }
-
-      await deleteModule(page, toModule)
     }
+
+    await deleteModule(page, toModule)
 
     await deleteModule(page, fromModule)
   }

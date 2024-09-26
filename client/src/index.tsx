@@ -33,4 +33,4 @@ useEffect(() => {
   document.documentElement.style.height = `${state.viewport.height}px`
 })
 
-render(<App />, document.body, state)
+render(<App />, document.body)
