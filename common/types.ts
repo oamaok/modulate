@@ -23,8 +23,8 @@ export type IndexOf<
 > = Arr[0] extends Elem
   ? Acc['length']
   : Arr extends [any, ...infer Rest] | readonly [any, ...infer Rest]
-  ? IndexOf<Rest, Elem, [...Acc, 0]>
-  : never
+    ? IndexOf<Rest, Elem, [...Acc, 0]>
+    : never
 
 export type Id = string
 export type UserRegistration = t.TypeOf<typeof UserRegistration>

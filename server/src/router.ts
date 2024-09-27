@@ -30,9 +30,10 @@ type RouteParamNames<Route extends string> =
     ? ParamOf<Segment> | RouteParamNames<Rest>
     : ParamOf<Route>
 
-type RouteParams<Route extends string> = RouteParamNames<Route> extends string
-  ? { [x in RouteParamNames<Route>]: string }
-  : {}
+type RouteParams<Route extends string> =
+  RouteParamNames<Route> extends string
+    ? { [x in RouteParamNames<Route>]: string }
+    : {}
 
 type BaseRequest<Route extends string> = {
   url: URL
@@ -104,7 +105,7 @@ export const serverStatic = <Route extends string>(
     const ext = path.split('.').pop()
 
     const mimeType = ext
-      ? mimeTypes[ext] ?? 'application/octet-stream'
+      ? (mimeTypes[ext] ?? 'application/octet-stream')
       : 'application/octet-stream'
 
     res.header('Cross-Origin-Opener-Policy', 'same-origin')

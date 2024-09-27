@@ -184,9 +184,9 @@ const getHintText = (props: ControlledKnobProps): string => {
     }
 
     case 'option': {
-      return `${props.label}: ${props.options.find(
-        ({ value }) => knobValue == value
-      )?.label}`
+      return `${props.label}: ${
+        props.options.find(({ value }) => knobValue == value)?.label
+      }`
     }
   }
 }
