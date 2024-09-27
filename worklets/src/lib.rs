@@ -2,7 +2,6 @@
 use audio_buffer::AudioBuffer;
 use core::arch::wasm32::memory_atomic_wait64;
 use filters::biquad_filter::BiquadFilter;
-use modulate_core::log;
 use modules::adsr::ADSR;
 use modules::audio_out::AudioOut;
 use modules::bouncy_boi::BouncyBoi;
@@ -48,11 +47,6 @@ pub mod rw_lock;
 pub mod util;
 pub mod vec;
 pub mod windowed_sinc;
-
-#[wasm_bindgen(inline_js = "export function now() { return performance.now() }")]
-extern "C" {
-  fn now() -> f64;
-}
 
 #[wasm_bindgen]
 extern "C" {
@@ -180,6 +174,10 @@ impl Worker {
       )
     };
 
+    let performance = js_sys::Reflect::get(&js_sys::global(), &"performance".into())
+      .expect("failed to get performance from global object")
+      .unchecked_into::<web_sys::Performance>();
+
     loop {
       if context.worker_position >= NUM_OUTPUT_BUFFERS as u64 {
         // `audio_worklet_position` is atomically incremented by one from the AudioWorklet each time
@@ -201,8 +199,7 @@ impl Worker {
           continue;
         }
       }
-
-      let start_time = now() as f32;
+      let start_time = performance.now();
 
       modules.rw_lock.lock_read();
 
@@ -259,7 +256,7 @@ impl Worker {
         modules.rw_lock.unlock_read();
       });
 
-      self.performance_samples[context.worker_position as usize % 64] = (now() as f32) - start_time;
+      self.performance_samples[context.worker_position as usize % 64] = (performance.now()  - start_time) as f32;
       context.performance[self.id] = 0.0;
       for i in 0..64 {
         context.performance[self.id] += self.performance_samples[i] / 64.0;

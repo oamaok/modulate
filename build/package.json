@@ -8,7 +8,7 @@
   },
   "author": "Teemu Pääkkönen",
   "license": "UNLICENSED",
-  "devDependencies": {
+  "dependencies": {
     "chokidar": "^3.5.2",
     "cssnano": "^5.0.8",
     "esbuild": "^0.18.20",

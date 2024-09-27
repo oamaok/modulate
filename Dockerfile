@@ -1,4 +1,4 @@
-FROM node:20.9.0-alpine3.17
+FROM node:20.16.0-alpine3.20
 
 ENV RUST_TOOLCHAIN nightly-2024-01-01-x86_64-unknown-linux-musl
 
@@ -14,7 +14,7 @@ WORKDIR /modulate
 
 COPY . .
 
-RUN npm install
+RUN npm install --omit=dev
 RUN npm run build
 
 CMD ["npm", "run", "start"]
