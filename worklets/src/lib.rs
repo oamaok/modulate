@@ -256,7 +256,8 @@ impl Worker {
         modules.rw_lock.unlock_read();
       });
 
-      self.performance_samples[context.worker_position as usize % 64] = (performance.now()  - start_time) as f32;
+      self.performance_samples[context.worker_position as usize % 64] =
+        (performance.now() - start_time) as f32;
       context.performance[self.id] = 0.0;
       for i in 0..64 {
         context.performance[self.id] += self.performance_samples[i] / 64.0;
