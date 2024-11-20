@@ -1,4 +1,4 @@
-import { unwrap, useEffect, useRef } from 'kaiku'
+import { useEffect, useRef } from 'kaiku'
 import assert from '../assert'
 import state from '../state'
 
@@ -159,12 +159,12 @@ document.addEventListener('contextmenu', (evt) => {
 const useMouseDrag = (handlers: TargetHandlers) => {
   useEffect(() => {
     if (handlers.ref.current) {
-      const target = unwrap(handlers.ref.current as any)
+      const target = handlers.ref.current as any
       let existingHandlers = targetHandlers.get(target) ?? []
       existingHandlers.push(handlers)
       targetHandlers.set(target, existingHandlers)
       return () => {
-        targetHandlers.delete(unwrap(target as any))
+        targetHandlers.delete(target as any)
       }
     }
   })

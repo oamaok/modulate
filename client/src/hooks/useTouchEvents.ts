@@ -1,4 +1,4 @@
-import { unwrap, useEffect, useRef } from 'kaiku'
+import { useEffect, useRef } from 'kaiku'
 import assert from '../assert'
 import state from '../state'
 import { Vec2 } from '@modulate/common/types'
@@ -283,7 +283,7 @@ document.addEventListener('touchcancel', onTouchEnd, { passive: false })
 const useTouchEvents = (handler: TargetHandler) => {
   useEffect(() => {
     if (handler.ref.current) {
-      const target = unwrap(handler.ref.current as any)
+      const target = handler.ref.current as any
       let existingHandlers = targetHandlers.get(target) ?? []
       if (existingHandlers.length === 0) {
         targetHandlers.set(target, existingHandlers)
