@@ -19,4 +19,5 @@ pub mod pow_shaper;
 pub mod ring_mod;
 pub mod sampler;
 pub mod sequencer;
+pub mod sideq;
 pub mod virtual_controller;

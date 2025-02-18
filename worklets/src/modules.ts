@@ -190,8 +190,7 @@ export const Sampler = {
 export type Sampler = ModuleTypeOf<
   typeof Sampler,
   { type: 'SamplerAllocate'; size: number },
-  | { type: 'SamplerAllocateSuccess'; ptr: number }
-  | { type: 'SamplerPlayheadPtr'; ptr: number }
+  { type: 'SamplerAllocateSuccess'; ptr: number }
 >
 
 export const VirtualController = {
@@ -214,11 +213,7 @@ export const VirtualController = {
   ],
 } as const
 
-export type VirtualController = ModuleTypeOf<
-  typeof VirtualController,
-  never,
-  { type: 'VirtualControllerPointers'; pressed_keys: number; pads: number }
->
+export type VirtualController = ModuleTypeOf<typeof VirtualController, never>
 
 export const PianoRoll = {
   name: 'PianoRoll',
@@ -231,8 +226,7 @@ export type PianoRoll = ModuleTypeOf<
   {
     type: 'PianoRollSetNotes'
     notes: { pitch: number; start: number; length: number }[]
-  },
-  { type: 'PianoRollPointers'; position: number }
+  }
 >
 
 export const Oscilloscope = {
@@ -241,11 +235,7 @@ export const Oscilloscope = {
   parameters: [],
   outputs: [],
 } as const
-export type Oscilloscope = ModuleTypeOf<
-  typeof Oscilloscope,
-  never,
-  { type: 'OscilloscopePointers'; x_ptr: number; y_ptr: number }
->
+export type Oscilloscope = ModuleTypeOf<typeof Oscilloscope, never>
 
 export const FDNReverb = {
   name: 'FDNReverb',
@@ -289,6 +279,14 @@ export const RingMod = {
 } as const
 export type RingMod = ModuleTypeOf<typeof RingMod>
 
+export const Sideq = {
+  name: 'Sideq',
+  inputs: ['input'],
+  parameters: [],
+  outputs: ['output'],
+} as const
+export type Sideq = ModuleTypeOf<typeof Sideq>
+
 export const modules = {
   AudioOut,
   Oscillator,
@@ -312,6 +310,7 @@ export const modules = {
   Chorus,
   EQ3,
   RingMod,
+  Sideq,
 } as const
 
 export type Module =
@@ -337,6 +336,7 @@ export type Module =
   | Chorus
   | EQ3
   | RingMod
+  | Sideq
 
 export type ModuleName = Module['name']
 
@@ -370,4 +370,5 @@ export const MODULE_PARAMETER_COUNT: {
   VirtualController: 4,
   EQ3: 9,
   RingMod: 1,
+  Sideq: 0,
 }

@@ -131,6 +131,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     connectToParameter: createEngineMethod('connectToParameter'),
     removeConnection: createEngineMethod('removeConnection'),
     sendMessageToModule: createEngineMethod('sendMessageToModule'),
+    getModulePointers: createEngineMethod('getModulePointers'),
     memory,
     pointers,
     audioContext,
@@ -274,6 +275,14 @@ export const deleteModule = async (moduleId: string) => {
   await engine.deleteModule({ moduleHandle })
   eventSubscriptions.delete(moduleHandle)
   moduleHandles.delete(moduleId)
+}
+
+export const getModulePointers = async (moduleId: string) => {
+  const moduleHandle = await moduleHandles.get(moduleId)
+  assert(typeof moduleHandle !== 'undefined')
+  assert(engine)
+  const { pointers } = await engine.getModulePointers({ moduleHandle })
+  return pointers
 }
 
 export const connectCable = async (cable: Cable) => {

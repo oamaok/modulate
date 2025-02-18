@@ -22,6 +22,7 @@ use modules::pow_shaper::PowShaper;
 use modules::ring_mod::RingMod;
 use modules::sampler::Sampler;
 use modules::sequencer::Sequencer;
+use modules::sideq::Sideq;
 use modules::virtual_controller::VirtualController;
 use rw_lock::RwLock;
 use serde::Serialize;
@@ -412,6 +413,9 @@ impl ModulateEngine {
       "RingMod" => {
         self.modules.insert(id, RingMod::new());
       }
+      "Sideq" => {
+        self.modules.insert(id, Sideq::new());
+      }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }
 
@@ -582,6 +586,18 @@ impl ModulateEngine {
     self.modules.rw_lock.unlock_write();
   }
 
+  pub fn get_module_pointers(&mut self, module_id: module::ModuleId) -> Vec<usize> {
+    self.modules.rw_lock.lock_write();
+
+    let module = self.modules.get_mut(&module_id).unwrap();
+
+    let pointers = module.get_pointers();
+
+    self.modules.rw_lock.unlock_write();
+
+    pointers
+  }
+
   pub fn collect_module_events(&mut self) -> Vec<module::ModuleEventWithId> {
     // NOTE: This need not be atomic or `lock_write`ed, as the only place where other modifying
     // operations can be called is this thread (main worker)
@@ -720,6 +736,11 @@ impl ModulateEngineWrapper {
   #[wasm_bindgen(js_name = sendMessageToModule)]
   pub fn send_message_to_module(&mut self, module_id: module::ModuleId, message: JsValue) {
     self.engine.send_message_to_module(module_id, message);
+  }
+
+  #[wasm_bindgen(js_name = getModulePointers)]
+  pub fn get_module_pointers(&mut self, module_id: module::ModuleId) -> Vec<usize> {
+    self.engine.get_module_pointers(module_id)
   }
 
   #[wasm_bindgen(js_name = collectModuleEvents)]

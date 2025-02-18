@@ -154,6 +154,11 @@ export type EngineMessage =
       res: {}
     }
   | {
+      type: 'getModulePointers'
+      req: { moduleHandle: number }
+      res: { pointers: Uint32Array }
+    }
+  | {
       type: 'connectToInput'
       req: {
         from: [moduleHandle: number, outputId: number]

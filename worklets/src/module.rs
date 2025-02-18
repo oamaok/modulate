@@ -23,10 +23,6 @@ pub enum ModuleEvent {
   SequencerAdvance { position: usize },
   BouncyBoiUpdate { balls: [Ball; 3], phase: f32 },
   SamplerAllocateSuccess { ptr: usize },
-  SamplerPlayheadPtr { ptr: usize },
-  VirtualControllerPointers { pressed_keys: usize, pads: usize },
-  PianoRollPointers { position: usize },
-  OscilloscopePointers { x_ptr: usize, y_ptr: usize },
 }
 
 #[derive(Serialize)]
@@ -74,6 +70,9 @@ pub trait Module {
     vec![]
   }
   fn get_parameters(&mut self) -> Vec<&mut AudioParam> {
+    vec![]
+  }
+  fn get_pointers(&mut self) -> Vec<usize> {
     vec![]
   }
   fn get_input_count(&mut self) -> usize {

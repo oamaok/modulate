@@ -26,13 +26,9 @@ class OscilloscopeNode extends Component<Props> {
   constructor(props: Props) {
     super(props)
 
-    engine.onModuleEvent<Oscilloscope>(props.id, ({ type, x_ptr, y_ptr }) => {
-      if (type !== 'OscilloscopePointers') {
-        throw new Error(`Oscilloscope: invalid message type ${type}`)
-      }
-
-      this.xBuffer = engine.getMemorySlice(x_ptr, HISTORY_LENGTH)
-      this.yBuffer = engine.getMemorySlice(y_ptr, HISTORY_LENGTH)
+    engine.getModulePointers(props.id).then((pointers) => {
+      this.xBuffer = engine.getMemorySlice(pointers[0]!, HISTORY_LENGTH)
+      this.yBuffer = engine.getMemorySlice(pointers[1]!, HISTORY_LENGTH)
     })
 
     useEffect(() => {

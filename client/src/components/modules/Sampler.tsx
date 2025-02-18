@@ -30,6 +30,14 @@ class SamplerNode extends Component<Props> {
 
     this.drawSettingsAndPlayhead()
 
+    engine.getModulePointers(props.id).then((pointers) => {
+      this.playheadPosition = new Float64Array(
+        engine.getMemory().buffer,
+        pointers[0],
+        1
+      )
+    })
+
     engine.onModuleEvent(props.id, (evt) => {
       switch (evt.type) {
         case 'SamplerAllocateSuccess': {
@@ -41,15 +49,6 @@ class SamplerNode extends Component<Props> {
             this.audioBuffer.length
           )
           memory.set(this.audioBuffer)
-          break
-        }
-
-        case 'SamplerPlayheadPtr': {
-          this.playheadPosition = new Float64Array(
-            engine.getMemory().buffer,
-            evt.ptr,
-            1
-          )
           break
         }
       }

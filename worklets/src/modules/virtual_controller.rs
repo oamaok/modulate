@@ -81,23 +81,21 @@ impl Module for VirtualController {
     ]
   }
 
+  fn get_pointers(&mut self) -> Vec<usize> {
+    vec![
+      self.pressed_keys.as_ptr() as usize,
+      self.pads.as_ptr() as usize,
+    ]
+  }
+
   fn pop_event(&mut self) -> Option<ModuleEvent> {
     self.events.pop()
   }
 }
 
 impl VirtualController {
-  pub fn init(&mut self) {
-    self.events.push({
-      ModuleEvent::VirtualControllerPointers {
-        pressed_keys: self.pressed_keys.as_ptr() as usize,
-        pads: self.pads.as_ptr() as usize,
-      }
-    });
-  }
-
   pub fn new() -> Box<VirtualController> {
-    let mut module = Box::new(VirtualController {
+    Box::new(VirtualController {
       pressed_keys: [(0.0, 0.0); 2],
       pads: [0.0; NUM_PADS],
       knob_a_param: AudioParam::default(),
@@ -117,10 +115,6 @@ impl VirtualController {
       knob_c_output: AudioOutput::default(),
       knob_d_output: AudioOutput::default(),
       events: vec![],
-    });
-
-    module.init();
-
-    module
+    })
   }
 }
