@@ -17,7 +17,6 @@ pub struct Sampler {
   output: AudioOutput,
   pos: f64,
   sample: Option<Box<[f32]>>,
-
   events: Vec<ModuleEvent>,
 }
 
@@ -82,22 +81,19 @@ impl Module for Sampler {
   fn on_message(&mut self, message: ModuleMessage) {
     match message {
       ModuleMessage::SamplerAllocate { size } => {
-        {
-          let zeros = vec![0.0; size];
-          self.sample = Some(zeros.into_boxed_slice());
-          let ptr = self.sample.as_ref().unwrap().as_ptr() as usize;
-          self
-            .events
-            .push(ModuleEvent::SamplerAllocateSuccess { ptr })
-        }
-
-        {
-          let ptr = &self.pos as *const f64 as usize;
-          self.events.push(ModuleEvent::SamplerPlayheadPtr { ptr });
-        }
+        let zeros = vec![0.0; size];
+        self.sample = Some(zeros.into_boxed_slice());
+        let ptr = self.sample.as_ref().unwrap().as_ptr() as usize;
+        self
+          .events
+          .push(ModuleEvent::SamplerAllocateSuccess { ptr })
       }
       _ => panic!("sampler: received unhandled message"),
     }
+  }
+
+  fn get_pointers(&mut self) -> Vec<usize> {
+    vec![&self.pos as *const f64 as usize]
   }
 }
 

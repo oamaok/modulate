@@ -2,11 +2,7 @@ use crate::audio_buffer::AudioBuffer;
 use crate::audio_input::AudioInput;
 use crate::audio_output::AudioOutput;
 use crate::audio_param::AudioParam;
-use crate::{
-  modulate_core::QUANTUM_SIZE,
-  module::{Module, ModuleEvent},
-  NUM_OUTPUT_BUFFERS,
-};
+use crate::{modulate_core::QUANTUM_SIZE, module::Module, NUM_OUTPUT_BUFFERS};
 
 const HISTORY_LENGTH: usize = NUM_OUTPUT_BUFFERS * 16;
 
@@ -17,7 +13,6 @@ pub struct Oscilloscope {
   y_history: [AudioBuffer; HISTORY_LENGTH],
 
   current_buf: usize,
-  events: Vec<ModuleEvent>,
 }
 
 impl Module for Oscilloscope {
@@ -46,33 +41,22 @@ impl Module for Oscilloscope {
     vec![]
   }
 
-  fn pop_event(&mut self) -> Option<ModuleEvent> {
-    self.events.pop()
+  fn get_pointers(&mut self) -> Vec<usize> {
+    vec![
+      &mut self.x_history[0].0 as *mut f32 as usize,
+      &mut self.y_history[0].0 as *mut f32 as usize,
+    ]
   }
 }
 
 impl Oscilloscope {
   pub fn new(start_pos: usize) -> Box<Oscilloscope> {
-    let mut module = Box::new(Oscilloscope {
+    Box::new(Oscilloscope {
       x_input: AudioInput::default(),
       y_input: AudioInput::default(),
       x_history: [AudioBuffer::default(); HISTORY_LENGTH],
       y_history: [AudioBuffer::default(); HISTORY_LENGTH],
       current_buf: start_pos,
-      events: vec![],
-    });
-
-    module.init();
-
-    module
-  }
-
-  pub fn init(&mut self) {
-    self.events.push({
-      ModuleEvent::OscilloscopePointers {
-        x_ptr: &mut self.x_history[0].0 as *mut f32 as usize,
-        y_ptr: &mut self.y_history[0].0 as *mut f32 as usize,
-      }
-    });
+    })
   }
 }

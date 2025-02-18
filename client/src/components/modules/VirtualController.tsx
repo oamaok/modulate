@@ -21,17 +21,10 @@ class VirtualControllerModule extends Component<Props> {
   constructor(props: Props) {
     super(props)
 
-    engine.onModuleEvent<VirtualController>(
-      props.id,
-      ({ type, pressed_keys, pads }) => {
-        if (type !== 'VirtualControllerPointers') {
-          throw new Error(`VirtualController: invalid message type ${type}`)
-        }
-
-        this.pressedKeys = engine.getMemorySlice(pressed_keys, 2 * 2)
-        this.pads = engine.getMemorySlice(pads, 4)
-      }
-    )
+    engine.getModulePointers(props.id).then((pointers) => {
+      this.pressedKeys = engine.getMemorySlice(pointers[0]!, 2 * 2)
+      this.pads = engine.getMemorySlice(pointers[1]!, 4)
+    })
   }
 
   onKeysChange = (keys: number[]) => {

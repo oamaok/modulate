@@ -43,6 +43,10 @@ const requestHandlers: {
     const moduleHandle = engine!.createModule(name)
     return { moduleHandle }
   },
+  getModulePointers: ({ moduleHandle }) => {
+    const pointers = engine!.getModulePointers(moduleHandle)
+    return { pointers }
+  },
   deleteModule: ({ moduleHandle }) => {
     engine!.deleteModule(moduleHandle)
     return {}

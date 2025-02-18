@@ -31,7 +31,7 @@ impl Module for BiquadFilter {
         .set_lowpass(self.frequency.at(sample), self.q.at(sample));
       self
         .highpass
-        .set_lowpass(self.frequency.at(sample), self.q.at(sample));
+        .set_highpass(self.frequency.at(sample), self.q.at(sample));
 
       let input = self.input.at(sample);
       self.lowpass_output[sample] = self.lowpass.step(input) * self.lowpass_level.at(sample);

@@ -1,4 +1,4 @@
-use crate::modulate_core::INV_SAMPLE_RATE;
+use crate::modulate_core::{INV_SAMPLE_RATE, SAMPLE_RATE_F32};
 
 #[derive(Default)]
 pub struct BiquadFilter {
@@ -15,7 +15,7 @@ pub struct BiquadFilter {
 }
 
 fn voltage_to_freq(voltage: f32) -> f32 {
-  13.75 * f32::powf(2.0, voltage + 5.0)
+  f32::min(13.75 * f32::powf(2.0, voltage + 5.0), SAMPLE_RATE_F32 / 2.0)
 }
 
 fn get_q_params(freq: f32, q: f32) -> (f32, f32) {
@@ -76,7 +76,7 @@ impl BiquadFilter {
     let (alpha, cos_omega) = get_q_params(freq, q_voltage);
 
     self.b0 = (1.0 + cos_omega) / 2.0;
-    self.b1 = -(1.0 - cos_omega);
+    self.b1 = -(1.0 + cos_omega);
     self.b2 = self.b0;
 
     self.a0 = 1.0 + alpha;

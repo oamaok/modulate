@@ -6,7 +6,7 @@ use crate::{
   audio_param::AudioParam,
   edge_detector::EdgeDetector,
   modulate_core::{INV_SAMPLE_RATE, QUANTUM_SIZE},
-  module::{Module, ModuleEvent, ModuleMessage, PianoRollNote},
+  module::{Module, ModuleMessage, PianoRollNote},
 };
 
 const BAR_LENGTH: f32 = 64.0 * 3.0 * 5.0 * 7.0;
@@ -27,8 +27,6 @@ pub struct PianoRoll {
   position: f32,
   ext_position: f32,
   notes: Vec<PianoRollNote>,
-
-  events: Vec<ModuleEvent>,
 }
 
 impl Module for PianoRoll {
@@ -89,20 +87,13 @@ impl Module for PianoRoll {
       _ => panic!("PianoRoll: invalid message"),
     }
   }
-
-  fn pop_event(&mut self) -> Option<ModuleEvent> {
-    self.events.pop()
+  fn get_pointers(&mut self) -> Vec<usize> {
+    vec![&mut self.position as *mut f32 as usize]
   }
 }
 
 impl PianoRoll {
   pub fn new() -> Box<PianoRoll> {
-    let mut module = Box::new(PianoRoll::default());
-    module.events.push({
-      ModuleEvent::PianoRollPointers {
-        position: &mut module.position as *mut f32 as usize,
-      }
-    });
-    module
+    Box::new(PianoRoll::default())
   }
 }

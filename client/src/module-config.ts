@@ -189,4 +189,9 @@ export default createConfig({
     width: 140,
     height: 100,
   },
+  Sideq: {
+    category: ModuleCategory.FILTER,
+    width: 400,
+    height: 140,
+  },
 })
