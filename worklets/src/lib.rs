@@ -259,12 +259,12 @@ impl Worker {
         modules.rw_lock.unlock_read();
       });
 
-      self.performance_samples[context.worker_position as usize % 64] =
-        (performance.now() - start_time) as f32;
-      context.performance[self.id] = 0.0;
-      for i in 0..64 {
-        context.performance[self.id] += self.performance_samples[i] / 64.0;
-      }
+      let current_pos = context.worker_position as usize % 64;
+      let last_pos = (context.worker_position + 1) as usize % 64;
+      self.performance_samples[current_pos] = (performance.now() - start_time) as f32;
+
+      context.performance[self.id] += self.performance_samples[current_pos] / 64.0;
+      context.performance[self.id] -= self.performance_samples[last_pos] / 64.0;
     }
   }
 }
