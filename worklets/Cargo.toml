@@ -21,6 +21,7 @@ serde-wasm-bindgen = "0.6.3"
 console_error_panic_hook = "0.1.7"
 modulate-macros = { path = "src/macros" }
 rustfft = { version = "6.2.0", features = ["wasm_simd"] }
+lazy_static = "1.5.0"
 
 [package.metadata.wasm-pack.profile.dev]
 wasm-opt = false

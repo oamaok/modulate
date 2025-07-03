@@ -3,6 +3,7 @@
 use audio_buffer::AudioBuffer;
 use core::arch::wasm32::memory_atomic_wait64;
 use filters::biquad_filter::BiquadFilter;
+use lazy_static::lazy_static;
 use modules::adsr::ADSR;
 use modules::audio_out::AudioOut;
 use modules::bouncy_boi::BouncyBoi;
@@ -268,6 +269,45 @@ impl Worker {
   }
 }
 
+lazy_static! {
+  static ref MODULE_MAP: HashMap<&'static str, fn(worker_context: &WorkerContext) -> Box<dyn module::Module>> = {
+    let mut module_map: HashMap<
+      &'static str,
+      fn(worker_context: &WorkerContext) -> Box<dyn module::Module>,
+    > = HashMap::new();
+
+    module_map.insert("ADSR", |_| ADSR::new());
+    module_map.insert("AudioOut", |_| AudioOut::new());
+    module_map.insert("BiquadFilter", |_| {
+      modules::biquad_filter::BiquadFilter::new()
+    });
+    module_map.insert("BouncyBoi", |_| BouncyBoi::new());
+    module_map.insert("Chorus", |_| Chorus::new());
+    module_map.insert("Clock", |_| Clock::new());
+    module_map.insert("Delay", |_| Delay::new());
+    module_map.insert("EQ3", |_| EQ3::new());
+    module_map.insert("FDNReverb", |_| FDNReverb::new());
+    module_map.insert("Gain", |_| Gain::new());
+    module_map.insert("LFO", |_| LFO::new());
+    module_map.insert("Limiter", |_| Limiter::new());
+    module_map.insert("MIDI", |_| MIDI::new());
+    module_map.insert("Mixer", |_| Mixer::new());
+    module_map.insert("Oscillator", |_| Oscillator::new());
+    module_map.insert("Oscilloscope", |ctx| {
+      Oscilloscope::new(ctx.worker_position as usize)
+    });
+    module_map.insert("PianoRoll", |_| PianoRoll::new());
+    module_map.insert("PowShaper", |_| PowShaper::new());
+    module_map.insert("RingMod", |_| RingMod::new());
+    module_map.insert("Sampler", |_| Sampler::new());
+    module_map.insert("Sequencer", |_| Sequencer::new());
+    module_map.insert("Sideq", |_| Sideq::new());
+    module_map.insert("VirtualController", |_| VirtualController::new());
+
+    module_map
+  };
+}
+
 struct ModulateEngine {
   next_id: u32,
   modules: ModuleStore,
@@ -341,83 +381,11 @@ impl ModulateEngine {
     let id = self.get_next_id() as module::ModuleId;
     self.modules.rw_lock.lock_write();
 
-    match module_name {
-      "AudioOut" => {
-        self.modules.insert(id, AudioOut::new());
-        self.worker_context.audio_outputs.insert(id);
-      }
-      "Oscillator" => {
-        self.modules.insert(id, Oscillator::new());
-      }
-      "LFO" => {
-        self.modules.insert(id, LFO::new());
-      }
-      "BiquadFilter" => {
-        self
-          .modules
-          .insert(id, modules::biquad_filter::BiquadFilter::new());
-      }
-      "Mixer" => {
-        self.modules.insert(id, Mixer::new());
-      }
-      "Gain" => {
-        self.modules.insert(id, Gain::new());
-      }
-      "Limiter" => {
-        self.modules.insert(id, Limiter::new());
-      }
-      "PowShaper" => {
-        self.modules.insert(id, PowShaper::new());
-      }
-      "Sequencer" => {
-        self.modules.insert(id, Sequencer::new());
-      }
-      "ADSR" => {
-        self.modules.insert(id, ADSR::new());
-      }
-      "Delay" => {
-        self.modules.insert(id, Delay::new());
-      }
-      "Clock" => {
-        self.modules.insert(id, Clock::new());
-      }
-      "MIDI" => {
-        self.modules.insert(id, MIDI::new());
-      }
-      "BouncyBoi" => {
-        self.modules.insert(id, BouncyBoi::new());
-      }
-      "Sampler" => {
-        self.modules.insert(id, Sampler::new());
-      }
-      "VirtualController" => {
-        self.modules.insert(id, VirtualController::new());
-      }
-      "PianoRoll" => {
-        self.modules.insert(id, PianoRoll::new());
-      }
-      "Oscilloscope" => {
-        self.modules.insert(
-          id,
-          Oscilloscope::new(self.worker_context.worker_position as usize),
-        );
-      }
-      "FDNReverb" => {
-        self.modules.insert(id, FDNReverb::new());
-      }
-      "Chorus" => {
-        self.modules.insert(id, Chorus::new());
-      }
-      "EQ3" => {
-        self.modules.insert(id, EQ3::new());
-      }
-      "RingMod" => {
-        self.modules.insert(id, RingMod::new());
-      }
-      "Sideq" => {
-        self.modules.insert(id, Sideq::new());
-      }
-      _ => panic!("create_module: unimplemented module '{}'", module_name),
+    let constructor = MODULE_MAP.get(module_name).expect("module not found");
+    self.modules.insert(id, constructor(&self.worker_context));
+
+    if module_name == "AudioOut" {
+      self.worker_context.audio_outputs.insert(id);
     }
 
     self.modules.rw_lock.unlock_write();
