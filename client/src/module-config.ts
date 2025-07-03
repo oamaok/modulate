@@ -194,4 +194,9 @@ export default createConfig({
     width: 400,
     height: 140,
   },
+  Distortion: {
+    category: ModuleCategory.DYNAMICS,
+    width: 400,
+    height: 140,
+  },
 })

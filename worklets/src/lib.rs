@@ -1,5 +1,6 @@
 #![feature(stdsimd)]
 use audio_buffer::AudioBuffer;
+use modules::distortion::Distortion;
 use core::arch::wasm32::memory_atomic_wait64;
 use filters::biquad_filter::BiquadFilter;
 use modules::adsr::ADSR;
@@ -415,6 +416,9 @@ impl ModulateEngine {
       }
       "Sideq" => {
         self.modules.insert(id, Sideq::new());
+      }
+      "Distortion" => {
+        self.modules.insert(id, Distortion::new());
       }
       _ => panic!("create_module: unimplemented module '{}'", module_name),
     }

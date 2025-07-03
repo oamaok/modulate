@@ -287,6 +287,14 @@ export const Sideq = {
 } as const
 export type Sideq = ModuleTypeOf<typeof Sideq>
 
+export const Distortion = {
+  name: 'Distortion',
+  inputs: ['input'],
+  parameters: ['mix', 'tone'],
+  outputs: ['output'],
+} as const
+export type Distortion = ModuleTypeOf<typeof Distortion>
+
 export const modules = {
   AudioOut,
   Oscillator,
@@ -311,6 +319,7 @@ export const modules = {
   EQ3,
   RingMod,
   Sideq,
+  Distortion,
 } as const
 
 export type Module =
@@ -337,6 +346,7 @@ export type Module =
   | EQ3
   | RingMod
   | Sideq
+  | Distortion
 
 export type ModuleName = Module['name']
 
@@ -371,4 +381,5 @@ export const MODULE_PARAMETER_COUNT: {
   EQ3: 9,
   RingMod: 1,
   Sideq: 0,
+  Distortion: 2,
 }

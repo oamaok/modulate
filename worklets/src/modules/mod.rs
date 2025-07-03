@@ -21,3 +21,4 @@ pub mod sampler;
 pub mod sequencer;
 pub mod sideq;
 pub mod virtual_controller;
+pub mod distortion;
