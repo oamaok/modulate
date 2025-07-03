@@ -1,4 +1,5 @@
-#![feature(stdsimd)]
+#![feature(stdarch_wasm_atomic_wait)]
+
 use audio_buffer::AudioBuffer;
 use core::arch::wasm32::memory_atomic_wait64;
 use filters::biquad_filter::BiquadFilter;

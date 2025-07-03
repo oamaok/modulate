@@ -1,9 +1,10 @@
 import Socket from '../module-parts/Socket'
 import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
-
+import ModuleControls from '../module-parts/ModuleControls'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { Oscillator } from '@modulate/worklets/src/modules'
+
 type Props = {
   id: string
 }
@@ -11,49 +12,51 @@ type Props = {
 const OscillatorNode = ({ id }: Props) => {
   return (
     <Module id={id} type="Oscillator">
-      <Knob<Oscillator, 'cv'>
-        moduleId={id}
-        param={0}
-        label="CV"
-        type="linear"
-        min={-5}
-        max={5}
-        initial={0}
-      />
-      <Knob<Oscillator, 'fm'>
-        moduleId={id}
-        param={1}
-        label="FM"
-        type="linear"
-        min={-1}
-        max={1}
-        initial={0}
-      />
-      <Knob<Oscillator, 'fine'>
-        moduleId={id}
-        param={3}
-        label="FINE"
-        type="linear"
-        min={-1}
-        max={1}
-        initial={0}
-      />
-      <Knob<Oscillator, 'pw'>
-        moduleId={id}
-        param={2}
-        label="PW"
-        type="percentage"
-        initial={0.5}
-      />
-      <Knob<Oscillator, 'level'>
-        moduleId={id}
-        param={4}
-        label="LVL"
-        type="linear"
-        min={-2}
-        max={2}
-        initial={1}
-      />
+      <ModuleControls>
+        <Knob<Oscillator, 'cv'>
+          moduleId={id}
+          param={0}
+          label="CV"
+          type="linear"
+          min={-5}
+          max={5}
+          initial={0}
+        />
+        <Knob<Oscillator, 'fm'>
+          moduleId={id}
+          param={1}
+          label="FM"
+          type="linear"
+          min={-1}
+          max={1}
+          initial={0}
+        />
+        <Knob<Oscillator, 'fine'>
+          moduleId={id}
+          param={3}
+          label="FINE"
+          type="linear"
+          min={-1}
+          max={1}
+          initial={0}
+        />
+        <Knob<Oscillator, 'pw'>
+          moduleId={id}
+          param={2}
+          label="PW"
+          type="percentage"
+          initial={0.5}
+        />
+        <Knob<Oscillator, 'level'>
+          moduleId={id}
+          param={4}
+          label="LVL"
+          type="linear"
+          min={-2}
+          max={2}
+          initial={1}
+        />
+      </ModuleControls>
 
       <ModuleInputs>
         <Socket<Oscillator, 'parameter', 'cv'>

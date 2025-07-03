@@ -4,6 +4,7 @@ import Knob from '../module-parts/Knob'
 
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { Delay } from '@modulate/worklets/src/modules'
+import ModuleControls from '../module-parts/ModuleControls'
 type Props = {
   id: string
 }
@@ -11,38 +12,40 @@ type Props = {
 const DelayNode = ({ id }: Props) => {
   return (
     <Module id={id} type="Delay">
-      <Knob<Delay, 'time'>
-        moduleId={id}
-        param={0}
-        label="TIME"
-        type="exponential"
-        exponent={2}
-        unit="s"
-        min={0.001}
-        max={2}
-        initial={0.5}
-      />
-      <Knob<Delay, 'feedback'>
-        moduleId={id}
-        param={1}
-        label="FDBK"
-        type="percentage"
-        initial={0.2}
-      />
-      <Knob<Delay, 'wet'>
-        moduleId={id}
-        param={2}
-        label="WET"
-        type="percentage"
-        initial={0.5}
-      />
-      <Knob<Delay, 'dry'>
-        moduleId={id}
-        param={3}
-        label="DRY"
-        type="percentage"
-        initial={1}
-      />
+      <ModuleControls>
+        <Knob<Delay, 'time'>
+          moduleId={id}
+          param={0}
+          label="TIME"
+          type="exponential"
+          exponent={2}
+          unit="s"
+          min={0.001}
+          max={2}
+          initial={0.5}
+        />
+        <Knob<Delay, 'feedback'>
+          moduleId={id}
+          param={1}
+          label="FDBK"
+          type="percentage"
+          initial={0.2}
+        />
+        <Knob<Delay, 'wet'>
+          moduleId={id}
+          param={2}
+          label="WET"
+          type="percentage"
+          initial={0.5}
+        />
+        <Knob<Delay, 'dry'>
+          moduleId={id}
+          param={3}
+          label="DRY"
+          type="percentage"
+          initial={1}
+        />
+      </ModuleControls>
       <ModuleInputs>
         <Socket<Delay, 'parameter', 'feedback'>
           moduleId={id}

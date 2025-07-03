@@ -1,12 +1,14 @@
 .bouncy-boi {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  margin-right: 24px;
 }
 
 .controls {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: space-evenly;
+  margin-right: 8px;
 }
 
 .bouncy-boi canvas {

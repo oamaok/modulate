@@ -46,6 +46,19 @@ const voltageToFreq = (voltage: number): number => {
   return 13.75 * 2 ** (voltage + 5)
 }
 
+const FREQ_MIN = 10
+const FREQ_MAX = 22050
+
+const FREQ_MIN_LN = Math.log(FREQ_MIN)
+const FREQ_MAX_LN = Math.log(FREQ_MAX)
+
+const freqToXPos = (freq: number): number => {
+  return (
+    ((Math.log(freq) - FREQ_MIN_LN) / (FREQ_MAX_LN - FREQ_MIN_LN)) *
+    CANVAS_WIDTH
+  )
+}
+
 const EQ3Node = ({ id }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>()
 
@@ -55,6 +68,7 @@ const EQ3Node = ({ id }: Props) => {
 
     const context = canvas.getContext('2d')
     assert(context)
+    context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
     const lowshelf = getLowshelfCoefficients(id)
     const peaking = getPeakingCoefficients(id)
@@ -64,10 +78,32 @@ const EQ3Node = ({ id }: Props) => {
       .fill(null)
       .map(() => []) as number[][]
 
-    let filters = [lowshelf, peaking, highshelf]
+    context.font = 'normal 8px "Gemunu Libre"'
+    context.strokeStyle = moduleConfig.EQ3.colors.lighter
+    context.lineWidth = 1
+    for (const f of [30, 60, 120, 240, 500, 1000, 2000, 4000, 8000, 16000]) {
+      const x = Math.floor(freqToXPos(f)) + 0.5
 
+      context.setLineDash([1, 2])
+      context.beginPath()
+      context.moveTo(x, 12)
+      context.lineTo(x, CANVAS_HEIGHT)
+      context.stroke()
+      context.closePath()
+      context.setLineDash([])
+
+      const text = f > 1000 ? f / 1000 + 'k' : f.toString()
+
+      const measure = context.measureText(text)
+      context.strokeText(text, x - measure.width / 2, 9)
+    }
+
+    const filters = [lowshelf, peaking, highshelf]
     for (let i = 0; i < CANVAS_WIDTH; i++) {
-      const x = (i / CANVAS_WIDTH) ** 4 * Math.PI
+      const freq =
+        FREQ_MIN * Math.exp((i / CANVAS_WIDTH) * Math.log(FREQ_MAX / FREQ_MIN))
+
+      const x = (freq / (FREQ_MAX - FREQ_MIN)) * Math.PI
       const z = complex.c(Math.cos(x), Math.sin(x))
 
       const z1 = complex.div(complex.real(1), z)
@@ -104,13 +140,11 @@ const EQ3Node = ({ id }: Props) => {
     for (let i = 0; i < CANVAS_WIDTH; i++) {
       freqResponse[i] = 1.0
       for (let fi = 0; fi < 3; fi++) {
-        freqResponse[i] *= freqResponses[fi]![i]!
+        freqResponse[i]! *= freqResponses[fi]![i]!
       }
 
       freqResponse[i] = Math.log(freqResponse[i]!) * 0.1 + 0.5
     }
-
-    context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
     context.beginPath()
     context.moveTo(0, CANVAS_HEIGHT - CANVAS_HEIGHT * freqResponse[0]!)
@@ -132,44 +166,28 @@ const EQ3Node = ({ id }: Props) => {
     context.lineWidth = 2
     context.stroke()
 
+    context.lineWidth = 1
     context.fillStyle = '#ffffff7f'
-    context.fillRect(0, CANVAS_HEIGHT * 0.5 - 1, CANVAS_WIDTH, 2)
+    context.fillRect(0, CANVAS_HEIGHT * 0.5 - 0.5, CANVAS_WIDTH, 1.5)
 
     context.fillStyle = '#ffffff40'
     const lsFreq = voltageToFreq(getKnobValue<EQ3, 'lowshelfFreq'>(id, 0) ?? 0)
     const hsFreq = voltageToFreq(getKnobValue<EQ3, 'highshelfFreq'>(id, 3) ?? 0)
     const pkFreq = voltageToFreq(getKnobValue<EQ3, 'peakingFreq'>(id, 6) ?? 0)
-    context.fillRect(
-      (hsFreq / 22050) ** 0.25 * CANVAS_WIDTH,
-      0,
-      1,
-      CANVAS_HEIGHT
-    )
-    context.fillRect(
-      (lsFreq / 22050) ** 0.25 * CANVAS_WIDTH,
-      0,
-      1,
-      CANVAS_HEIGHT
-    )
-    context.fillRect(
-      (pkFreq / 22050) ** 0.25 * CANVAS_WIDTH,
-      0,
-      1,
-      CANVAS_HEIGHT
-    )
+    context.fillRect(freqToXPos(hsFreq), 0, 1, CANVAS_HEIGHT)
+    context.fillRect(freqToXPos(lsFreq), 0, 1, CANVAS_HEIGHT)
+    context.fillRect(freqToXPos(pkFreq), 0, 1, CANVAS_HEIGHT)
   })
 
   return (
     <Module id={id} type="EQ3">
       <div class={styles.eq3}>
-        <div class={styles.canvas}>
-          <canvas
-            ref={canvasRef}
-            width={CANVAS_WIDTH}
-            height={CANVAS_HEIGHT}
-          ></canvas>
-        </div>
         <div class={styles.knobs}>
+          <div class={styles.knobFunctions}>
+            <div class={styles.label}>FREQ</div>
+            <div class={styles.label}>GAIN</div>
+            <div class={styles.label}>SLOPE</div>
+          </div>
           <div class={styles.knobGroup}>
             <div class={styles.label}>LOW</div>
             <Knob<EQ3, 'lowshelfFreq'>
@@ -182,16 +200,6 @@ const EQ3Node = ({ id }: Props) => {
               initial={-4}
               hideLabel
             />
-            <Knob<EQ3, 'lowshelfSlope'>
-              moduleId={id}
-              param={1}
-              label="SLOPE"
-              type="linear"
-              min={0.5}
-              max={2}
-              initial={0.5}
-              hideLabel
-            />
             <Knob<EQ3, 'lowshelfGain'>
               moduleId={id}
               param={2}
@@ -202,8 +210,18 @@ const EQ3Node = ({ id }: Props) => {
               initial={0}
               hideLabel
             />
+            <Knob<EQ3, 'lowshelfSlope'>
+              moduleId={id}
+              param={1}
+              label="SLOPE"
+              type="linear"
+              min={0.5}
+              max={2}
+              initial={0.5}
+              hideLabel
+            />
           </div>
-          <div class={styles.separator} />
+          <div class={styles.verticalSeparator} />
           <div class={styles.knobGroup}>
             <div class={styles.label}>MID</div>
             <Knob<EQ3, 'peakingFreq'>
@@ -213,6 +231,16 @@ const EQ3Node = ({ id }: Props) => {
               type="linear"
               min={-5}
               max={5.5}
+              initial={0}
+              hideLabel
+            />
+            <Knob<EQ3, 'peakingGain'>
+              moduleId={id}
+              param={8}
+              label="GAIN"
+              type="linear"
+              min={-20}
+              max={17}
               initial={0}
               hideLabel
             />
@@ -226,18 +254,8 @@ const EQ3Node = ({ id }: Props) => {
               initial={0.5}
               hideLabel
             />
-            <Knob<EQ3, 'peakingGain'>
-              moduleId={id}
-              param={8}
-              label="GAIN"
-              type="linear"
-              min={-20}
-              max={17}
-              initial={0}
-              hideLabel
-            />
           </div>
-          <div class={styles.separator} />
+          <div class={styles.verticalSeparator} />
           <div class={styles.knobGroup}>
             <div class={styles.label}>HIGH</div>
             <Knob<EQ3, 'highshelfFreq'>
@@ -250,16 +268,6 @@ const EQ3Node = ({ id }: Props) => {
               initial={4}
               hideLabel
             />
-            <Knob<EQ3, 'highshelfSlope'>
-              moduleId={id}
-              param={4}
-              label="SLOPE"
-              type="linear"
-              min={0.5}
-              max={2}
-              initial={0.5}
-              hideLabel
-            />
             <Knob<EQ3, 'highshelfGain'>
               moduleId={id}
               param={5}
@@ -270,7 +278,24 @@ const EQ3Node = ({ id }: Props) => {
               initial={0}
               hideLabel
             />
+            <Knob<EQ3, 'highshelfSlope'>
+              moduleId={id}
+              param={4}
+              label="SLOPE"
+              type="linear"
+              min={0.5}
+              max={2}
+              initial={0.5}
+              hideLabel
+            />
           </div>
+        </div>
+        <div class={styles.canvas}>
+          <canvas
+            ref={canvasRef}
+            width={CANVAS_WIDTH}
+            height={CANVAS_HEIGHT}
+          ></canvas>
         </div>
       </div>
       <ModuleInputs>
@@ -278,7 +303,7 @@ const EQ3Node = ({ id }: Props) => {
           moduleId={id}
           type="input"
           index={0}
-          label="IN"
+          label=""
         />
       </ModuleInputs>
       <ModuleOutputs>
@@ -286,7 +311,7 @@ const EQ3Node = ({ id }: Props) => {
           moduleId={id}
           type="output"
           index={0}
-          label="OUT"
+          label=""
         />
       </ModuleOutputs>
     </Module>

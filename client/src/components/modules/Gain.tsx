@@ -14,7 +14,7 @@ const GainNode = ({ id }: Props) => {
       <Knob<Gain, 'gain'>
         moduleId={id}
         param={0}
-        label="Gain"
+        label="GAIN"
         type="linear"
         min={0}
         max={2}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useShallowState } from 'kaiku'
+import { useEffect, useRef } from 'kaiku'
 import * as engine from '../engine'
 
 const useModulePointers = (moduleId: string) => {

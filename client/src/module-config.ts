@@ -96,8 +96,8 @@ export default createConfig({
   },
   BouncyBoi: {
     category: ModuleCategory.PULSE_GENERATOR,
-    width: 260,
-    height: 240,
+    width: 230,
+    height: 200,
   },
   Clock: {
     category: ModuleCategory.PULSE_GENERATOR,
@@ -181,7 +181,7 @@ export default createConfig({
   },
   EQ3: {
     category: ModuleCategory.FILTER,
-    width: 400,
+    width: 386,
     height: 160,
   },
   RingMod: {

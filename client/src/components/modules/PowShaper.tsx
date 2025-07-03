@@ -3,6 +3,7 @@ import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { PowShaper } from '@modulate/worklets/src/modules'
+import ModuleControls from '../module-parts/ModuleControls'
 
 type Props = {
   id: string
@@ -11,33 +12,35 @@ type Props = {
 const PowShaperNode = ({ id }: Props) => {
   return (
     <Module id={id} type="PowShaper" name="Pow Shaper">
-      <Knob<PowShaper, 'exponent'>
-        moduleId={id}
-        param={0}
-        label="EXP"
-        type="linear"
-        min={0.01}
-        max={2}
-        initial={1}
-      />
-      <Knob<PowShaper, 'preGain'>
-        moduleId={id}
-        param={2}
-        label="PRE-GAIN"
-        type="linear"
-        min={0}
-        max={2}
-        initial={1}
-      />
-      <Knob<PowShaper, 'gain'>
-        moduleId={id}
-        param={1}
-        label="GAIN"
-        type="linear"
-        min={0}
-        max={2}
-        initial={1}
-      />
+      <ModuleControls>
+        <Knob<PowShaper, 'exponent'>
+          moduleId={id}
+          param={0}
+          label="EXP"
+          type="linear"
+          min={0.01}
+          max={2}
+          initial={1}
+        />
+        <Knob<PowShaper, 'preGain'>
+          moduleId={id}
+          param={2}
+          label="PRE-GAIN"
+          type="linear"
+          min={0}
+          max={2}
+          initial={1}
+        />
+        <Knob<PowShaper, 'gain'>
+          moduleId={id}
+          param={1}
+          label="GAIN"
+          type="linear"
+          min={0}
+          max={2}
+          initial={1}
+        />
+      </ModuleControls>
       <ModuleInputs>
         <Socket<PowShaper, 'input', 'input'>
           moduleId={id}

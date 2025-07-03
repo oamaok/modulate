@@ -120,7 +120,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     wasm,
   })
 
-  initSync(wasm, memory)
+  initSync({ module: wasm, memory })
 
   engine = {
     init: createEngineMethod('init'),

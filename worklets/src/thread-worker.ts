@@ -4,7 +4,7 @@ self.onmessage = async (
   event: MessageEvent<[WebAssembly.Module, WebAssembly.Memory, number]>
 ) => {
   try {
-    initSync(event.data[0], event.data[1])
+    initSync({ module: event.data[0], memory: event.data[1] })
     self.postMessage(null)
     workerEntry(event.data[2])
   } catch (err) {

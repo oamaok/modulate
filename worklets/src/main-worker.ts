@@ -17,7 +17,7 @@ const requestHandlers: {
     | Promise<Omit<EngineResponse<K>, 'type' | 'id'>>
 } = {
   init: async ({ threads, wasm, memory }) => {
-    initSync(wasm, memory)
+    initSync({ module: wasm, memory })
     engine = new ModulateEngineWrapper(threads)
     // TODO: Report error if WASM init failed
     const workerPointers = await engine.initWorkers()

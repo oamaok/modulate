@@ -3,6 +3,7 @@ import Module from '../module-parts/Module'
 import Knob from '../module-parts/Knob'
 import { ModuleInputs, ModuleOutputs } from '../module-parts/ModuleSockets'
 import { LFO } from '@modulate/worklets/src/modules'
+import ModuleControls from '../module-parts/ModuleControls'
 
 type Props = {
   id: string
@@ -11,40 +12,42 @@ type Props = {
 const LFONode = ({ id }: Props) => {
   return (
     <Module id={id} type="LFO">
-      <Knob<LFO, 'cv'>
-        moduleId={id}
-        param={0}
-        label="FREQ"
-        type="linear"
-        min={0}
-        max={10}
-        initial={1}
-      />
-      <Knob<LFO, 'pw'>
-        moduleId={id}
-        param={1}
-        label="PW"
-        type="linear"
-        min={0}
-        max={1}
-        initial={0.5}
-      />
-      <Knob<LFO, 'amount'>
-        moduleId={id}
-        param={2}
-        label="LVL"
-        type="percentage"
-        initial={1.0}
-      />
-      <Knob<LFO, 'offset'>
-        moduleId={id}
-        param={3}
-        label="OFFSET"
-        type="linear"
-        initial={0.0}
-        min={-2}
-        max={2}
-      />
+      <ModuleControls>
+        <Knob<LFO, 'cv'>
+          moduleId={id}
+          param={0}
+          label="FREQ"
+          type="linear"
+          min={0}
+          max={10}
+          initial={1}
+        />
+        <Knob<LFO, 'pw'>
+          moduleId={id}
+          param={1}
+          label="PW"
+          type="linear"
+          min={0}
+          max={1}
+          initial={0.5}
+        />
+        <Knob<LFO, 'amount'>
+          moduleId={id}
+          param={2}
+          label="LVL"
+          type="percentage"
+          initial={1.0}
+        />
+        <Knob<LFO, 'offset'>
+          moduleId={id}
+          param={3}
+          label="OFFSET"
+          type="linear"
+          initial={0.0}
+          min={-2}
+          max={2}
+        />
+      </ModuleControls>
 
       <ModuleInputs>
         <Socket<LFO, 'parameter', 'cv'>

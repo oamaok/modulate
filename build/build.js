@@ -77,16 +77,47 @@ const replaceWithoutSpecialReplacements = (string, pattern, replacement) => {
 const buildClient = async () => {
   console.time('Build client')
 
-  // NASTY HACK: Remove assignment to `__wbg_init` member which is never used.
-  // This assignment prevents tree shaking and bloats the minified build.
-  const wasmWrapperFile = path.join(__dirname, '../worklets/pkg/modulate.js')
-  const wasmWrapper = await fs.readFile(wasmWrapperFile)
-  await fs.writeFile(
-    wasmWrapperFile,
-    wasmWrapper
-      .toString('utf-8')
-      .replace('__wbg_init.__wbindgen_wasm_module = module;', '')
-  )
+  if (isProduction) {
+    // NASTY HACKS: Manual optimizations of the generated JS wrapper.
+
+    const wasmWrapperFile = path.join(__dirname, '../worklets/pkg/modulate.js')
+    let wasmWrapper = (await fs.readFile(wasmWrapperFile)).toString('utf-8')
+
+    // Remove assignment to `__wbg_init` member which is never used.
+    // This assignment prevents tree shaking and bloats the minified build.
+    wasmWrapper = wasmWrapper.replace(
+      '__wbg_init.__wbindgen_wasm_module = module;',
+      ''
+    )
+
+    // Replace custom debug print function usage with JSON.stringify
+    wasmWrapper = wasmWrapper.replace(
+      'const ret = debugString',
+      'const ret = JSON.stringify'
+    )
+
+    // Optimized initialisation function
+    wasmWrapper = wasmWrapper
+      .replace('function initSync', 'function initSync_old')
+      .replace('export { initSync };', '')
+
+    wasmWrapper += `
+      export function initSync({ module, memory }) {
+        const imports = __wbg_get_imports()
+        imports.wbg.memory = memory
+        const instance = new WebAssembly.Instance(
+          new WebAssembly.Module(module),
+          imports
+        )
+        
+        wasm = instance.exports
+        wasm.__wbindgen_start()
+        return wasm
+      }
+    `
+
+    await fs.writeFile(wasmWrapperFile, wasmWrapper)
+  }
 
   const entry = isEngineTest
     ? path.join(__dirname, '../client/src/engine-test-index.ts')

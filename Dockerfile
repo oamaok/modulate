@@ -1,6 +1,6 @@
 FROM node:20.16.0-alpine3.20
 
-ENV RUST_TOOLCHAIN nightly-2024-01-01-x86_64-unknown-linux-musl
+ENV RUST_TOOLCHAIN nightly-2025-01-01-x86_64-unknown-linux-musl
 
 RUN apk add --no-cache curl build-base
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
