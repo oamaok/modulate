@@ -16,7 +16,7 @@ const FFT_SIZE = 8192 / 2
 const SAMPLE_RATE = 44100
 const log = (num: number, base: number) => Math.log(num) / Math.log(base)
 
-const WIDTH = 600
+const WIDTH = 200
 
 const SideqNode = ({ id }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>()

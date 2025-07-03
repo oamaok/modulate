@@ -46,6 +46,7 @@ export type Config = {
     }
     width: number
     height: number
+    hidden?: boolean
   }
 }
 
@@ -54,6 +55,7 @@ const createConfig = (config: {
     category: ModuleCategory
     width: number
     height: number
+    hidden?: boolean
   }
 }) => {
   const ret: Config = {} as Config
@@ -193,5 +195,6 @@ export default createConfig({
     category: ModuleCategory.FILTER,
     width: 400,
     height: 140,
+    hidden: true,
   },
 })
