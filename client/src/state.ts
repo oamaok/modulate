@@ -240,6 +240,7 @@ export const cloneModule = (moduleId: string) => {
   assert(module)
 
   const id = nextId()
+  engine.createModule(id, module.name as ModuleName)
   patch.modules[id] = {
     name: module.name,
     position: {
