@@ -90,13 +90,17 @@ document.documentElement.addEventListener('mousemove', (evt) => {
   cursorAnimationFrame = requestAnimationFrame(updateCursor)
 })
 
-document.documentElement.addEventListener('touchmove', (evt) => {
-  evt.preventDefault()
-  latestCursorPos.x = evt.touches[0]!.pageX
-  latestCursorPos.y = evt.touches[0]!.pageY
-  cancelAnimationFrame(cursorAnimationFrame)
-  cursorAnimationFrame = requestAnimationFrame(updateCursor)
-})
+document.documentElement.addEventListener(
+  'touchmove',
+  (evt) => {
+    evt.preventDefault()
+    latestCursorPos.x = evt.touches[0]!.pageX
+    latestCursorPos.y = evt.touches[0]!.pageY
+    cancelAnimationFrame(cursorAnimationFrame)
+    cursorAnimationFrame = requestAnimationFrame(updateCursor)
+  },
+  { passive: false }
+)
 
 document.addEventListener('keydown', (evt) => {
   switch (evt.key) {

@@ -1,8 +1,14 @@
 import { useRef, useState } from 'kaiku'
-import state, { displayHint, hideHint, setHintContent } from '../../state'
+import state, {
+  displayHint,
+  hideHint,
+  openContextMenu,
+  setHintContent,
+} from '../../state'
 import * as styles from './Knob.css'
 import assert from '../../assert'
 import testAttributes from '../../test-attributes'
+import useTouchEvents from '../../hooks/useTouchEvents'
 import useDrag from '../../hooks/useDrag'
 
 type PercentageKnob = {
@@ -171,22 +177,22 @@ const getHintText = (props: ControlledKnobProps): string => {
 
   switch (props.type) {
     case 'percentage': {
-      return `${props.label}: ${(knobValue * 100).toFixed(1)}%`
+      return `${props.label}: ${(knobValue * 100).toFixed(1)}%`.toUpperCase()
     }
 
     case 'stepped': {
-      return `${props.label}: ${knobValue}${props.unit ?? ''}`
+      return `${props.label}: ${knobValue}${props.unit ?? ''}`.toUpperCase()
     }
 
     case 'exponential':
     case 'linear': {
-      return `${props.label}: ${knobValue.toFixed(3)}${props.unit ?? ''}`
+      return `${props.label}: ${knobValue.toFixed(3)}${props.unit ?? ''}`.toUpperCase()
     }
 
     case 'option': {
       return `${props.label}: ${
         props.options.find(({ value }) => knobValue == value)?.label
-      }`
+      }`.toUpperCase()
     }
   }
 }
@@ -220,6 +226,23 @@ const ControlledKnob = (props: ControlledKnobProps) => {
     knobState.position = externallyUpdatedPosition
   }
 
+  const openKnobContextMenu = () => {
+    openContextMenu(state.cursor, {
+      title: `Knob - ${props.label}`,
+      width: 160,
+      items: [
+        {
+          type: 'item',
+          name: 'Reset',
+          action: () => {
+            knobState.position = props.initial
+            props.onChange(props.initial)
+          },
+        },
+      ],
+    })
+  }
+
   useDrag({
     ref: knobRef,
     onDragStart(pos) {
@@ -241,10 +264,18 @@ const ControlledKnob = (props: ControlledKnobProps) => {
       knobState.isDragging = false
       hideHint()
     },
+
+    onLongPress: openKnobContextMenu,
   })
 
   return (
-    <div class={[styles.wrapper, getClassNameForSize(props.size)]}>
+    <div
+      class={[styles.wrapper, getClassNameForSize(props.size)]}
+      onContextMenu={(evt: any) => {
+        evt.preventDefault()
+        openKnobContextMenu()
+      }}
+    >
       <div
         class={styles.knob}
         ref={knobRef}

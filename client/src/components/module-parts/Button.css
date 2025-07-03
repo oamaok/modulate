@@ -1,0 +1,5 @@
+.button {
+  box-shadow: var(--box-shadow);
+  background: var(--on-primary);
+  border-radius: 4px;
+}

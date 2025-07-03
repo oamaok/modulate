@@ -10,6 +10,7 @@ import { getModuleState, setModuleState } from '../../state'
 import * as styles from './Clock.css'
 import Toggle from '../module-parts/Toggle'
 import { Clock } from '@modulate/worklets/src/modules'
+import Button from '../module-parts/Button'
 
 type Props = {
   id: string
@@ -76,7 +77,7 @@ class ClockNode extends Component<Props> {
             }}
             label="Running"
           />
-          <button
+          <Button
             onClick={() => {
               engine.sendMessageToModule<Clock>(id, {
                 type: 'ClockReset',
@@ -84,7 +85,7 @@ class ClockNode extends Component<Props> {
             }}
           >
             Reset
-          </button>
+          </Button>
         </div>
         <Knob<Clock, 'tempo'>
           moduleId={id}
