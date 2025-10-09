@@ -29,18 +29,16 @@ const MODULE_CONTEXT_MENU_OPTIONS: ContextMenuOptions = {
   items: MODULE_CATEGORIES.map(([category, modules]) => ({
     type: 'button-group',
     name: categoryLabel[category],
-    items: modules
-      .filter(([moduleName]) => !moduleConfig[moduleName].hidden)
-      .map(([moduleName]) => ({
-        type: 'item',
-        name: moduleName,
-        action: (pos) => {
-          state.activeModule = addModule(moduleName, {
-            x: pos.x - state.viewOffset.x,
-            y: pos.y - state.viewOffset.y,
-          })
-        },
-      })),
+    items: modules.map(([moduleName]) => ({
+      type: 'item',
+      name: moduleName,
+      action: (pos) => {
+        state.activeModule = addModule(moduleName, {
+          x: pos.x - state.viewOffset.x,
+          y: pos.y - state.viewOffset.y,
+        })
+      },
+    })),
   })),
 }
 

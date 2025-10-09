@@ -310,7 +310,7 @@ export const modules = {
   Chorus,
   EQ3,
   RingMod,
-  Sideq,
+  //  Sideq,
 } as const
 
 export type Module =
@@ -336,7 +336,7 @@ export type Module =
   | Chorus
   | EQ3
   | RingMod
-  | Sideq
+// | Sideq
 
 export type ModuleName = Module['name']
 
@@ -370,5 +370,5 @@ export const MODULE_PARAMETER_COUNT: {
   VirtualController: 4,
   EQ3: 9,
   RingMod: 1,
-  Sideq: 0,
+  // Sideq: 0,
 }
