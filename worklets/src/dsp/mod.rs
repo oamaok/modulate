@@ -1,5 +1,6 @@
 pub mod allpass_filter;
 pub mod biquad_filter;
 pub mod comb_filter;
-pub mod edge_detector;
+pub mod dc_blocker;
 pub mod delay_line;
+pub mod edge_detector;

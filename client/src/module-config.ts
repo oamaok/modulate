@@ -171,8 +171,8 @@ export default createConfig({
   },
   FDNReverb: {
     category: ModuleCategory.DELAY_REVERB,
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 100,
   },
   Chorus: {
     category: ModuleCategory.DELAY_REVERB,

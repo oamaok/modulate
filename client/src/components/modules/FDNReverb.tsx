@@ -11,7 +11,7 @@ type Props = {
 
 const FDNReverbNode = ({ id }: Props) => {
   return (
-    <Module id={id} type="FDNReverb">
+    <Module id={id} type="FDNReverb" name="Reverb">
       <div class={styles.reverb}>
         <Knob<FDNReverb, 'dryWet'>
           moduleId={id}

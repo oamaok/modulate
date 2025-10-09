@@ -1,6 +1,7 @@
 use crate::audio_input::AudioInput;
 use crate::audio_output::AudioOutput;
 use crate::audio_param::AudioParam;
+use crate::dsp::dc_blocker::DcBlocker;
 use crate::dsp::delay_line::VariableDelayLineInterpolated;
 use crate::{
   modulate_core::{QUANTUM_SIZE, SAMPLE_RATE, SAMPLE_RATE_F32},
@@ -16,6 +17,7 @@ pub struct Delay {
   wet: AudioParam,
   dry: AudioParam,
 
+  dc_blocker: DcBlocker,
   delay: VariableDelayLineInterpolated,
 }
 
@@ -25,7 +27,7 @@ impl Module for Delay {
       self.delay.set_delay(self.time.at(sample) * SAMPLE_RATE_F32);
 
       let input = self.input.at(sample);
-      let wet = self.delay.read_sinc();
+      let wet = self.dc_blocker.step(self.delay.read_lerp());
       self.delay.write(input + wet * self.feedback.at(sample));
       self.output[sample] = wet * self.wet.at(sample) + input * self.dry.at(sample);
     }
@@ -60,6 +62,7 @@ impl Delay {
       wet: AudioParam::default(),
       dry: AudioParam::default(),
 
+      dc_blocker: DcBlocker::default(),
       delay: VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, 10000.0),
     })
   }

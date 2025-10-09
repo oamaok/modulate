@@ -1,5 +1,5 @@
-use crate::{modulate_core::SAMPLE_RATE_F32, util::tension_interp};
 use crate::dsp::edge_detector::EdgeDetector;
+use crate::{modulate_core::SAMPLE_RATE_F32, util::tension_interp};
 
 pub struct ADSRCurve {
   edge_detector: EdgeDetector,

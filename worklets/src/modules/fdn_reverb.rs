@@ -4,6 +4,7 @@ use crate::audio_param::AudioParam;
 
 use crate::dsp::allpass_filter::AllpassFilter;
 
+use crate::dsp::dc_blocker::DcBlocker;
 use crate::{
   dsp::delay_line::VariableDelayLineInterpolated,
   modulate_core::{QUANTUM_SIZE, SAMPLE_RATE},
@@ -19,10 +20,10 @@ impl Diffuser {
   fn default() -> Diffuser {
     Diffuser {
       allpasses: [
-        AllpassFilter::new(1409, 0.7),
         AllpassFilter::new(1543, 0.7),
-        AllpassFilter::new(1669, 0.7),
-        AllpassFilter::new(1847, 0.7),
+        AllpassFilter::new(1051, 0.7),
+        AllpassFilter::new(337, 0.7),
+        AllpassFilter::new(113, 0.7),
       ],
     }
   }
@@ -47,6 +48,7 @@ pub struct FDNReverb {
   decay: AudioParam,
   size: AudioParam,
 
+  dc_blockers: [DcBlocker; 8],
   delays: [VariableDelayLineInterpolated; 8],
   diffuser: Diffuser,
 
@@ -63,12 +65,14 @@ impl Module for FDNReverb {
   fn process(&mut self, _quantum: u64) {
     // 4th order Hadamard matrix by column
     // Reference: https://www.dsprelated.com/freebooks/pasp/FDN_Reverberation.html
-    let hadamard = [
-      f32x4(1.0, -1.0, -1.0, 1.0),
-      f32x4(1.0, 1.0, -1.0, -1.0),
-      f32x4(1.0, -1.0, 1.0, -1.0),
-      f32x4(1.0, 1.0, 1.0, 1.0),
-    ];
+    let hadamard = unsafe {
+      [
+        f32x4(1.0, -1.0, -1.0, 1.0),
+        f32x4(1.0, 1.0, -1.0, -1.0),
+        f32x4(1.0, -1.0, 1.0, -1.0),
+        f32x4(1.0, 1.0, 1.0, 1.0),
+      ]
+    };
 
     for sample in 0..QUANTUM_SIZE {
       let input = self.input.at(sample);
@@ -95,22 +99,22 @@ impl Module for FDNReverb {
         );
       }
 
-      // 8th order Hadamard x Vec8 multiplication
-      let mut first_half = f32x4_mul(hadamard[0], f32x4_splat(vec[0]));
-      first_half = f32x4_add(first_half, f32x4_mul(hadamard[1], f32x4_splat(vec[1])));
-      first_half = f32x4_add(first_half, f32x4_mul(hadamard[2], f32x4_splat(vec[2])));
-      first_half = f32x4_add(first_half, f32x4_mul(hadamard[3], f32x4_splat(vec[3])));
-
-      let mut last_half = f32x4_mul(hadamard[0], f32x4_splat(vec[4]));
-      last_half = f32x4_add(last_half, f32x4_mul(hadamard[1], f32x4_splat(vec[5])));
-      last_half = f32x4_add(last_half, f32x4_mul(hadamard[2], f32x4_splat(vec[6])));
-      last_half = f32x4_add(last_half, f32x4_mul(hadamard[3], f32x4_splat(vec[7])));
-
-      let vec0_3 = f32x4_add(first_half, last_half);
-      let vec4_7 = f32x4_sub(first_half, last_half);
-
       let mut feedback: Vec8 = [0.0; 8];
       unsafe {
+        // 8th order Hadamard x Vec8 multiplication
+        let mut first_half = f32x4_mul(hadamard[0], f32x4_splat(vec[0]));
+        first_half = f32x4_add(first_half, f32x4_mul(hadamard[1], f32x4_splat(vec[1])));
+        first_half = f32x4_add(first_half, f32x4_mul(hadamard[2], f32x4_splat(vec[2])));
+        first_half = f32x4_add(first_half, f32x4_mul(hadamard[3], f32x4_splat(vec[3])));
+
+        let mut last_half = f32x4_mul(hadamard[0], f32x4_splat(vec[4]));
+        last_half = f32x4_add(last_half, f32x4_mul(hadamard[1], f32x4_splat(vec[5])));
+        last_half = f32x4_add(last_half, f32x4_mul(hadamard[2], f32x4_splat(vec[6])));
+        last_half = f32x4_add(last_half, f32x4_mul(hadamard[3], f32x4_splat(vec[7])));
+
+        let vec0_3 = f32x4_add(first_half, last_half);
+        let vec4_7 = f32x4_sub(first_half, last_half);
+
         v128_store(feedback.as_mut_ptr() as *mut v128, vec4_7);
         v128_store(feedback.as_mut_ptr().offset(4) as *mut v128, vec0_3);
       }
@@ -118,7 +122,9 @@ impl Module for FDNReverb {
       let diffused_input = self.diffuser.step(input);
 
       for i in 0..8 {
-        self.delays[i].write(diffused_input + feedback[i] * decay * 0.35355339059327373);
+        self.delays[i].write(
+          self.dc_blockers[i].step(diffused_input + feedback[i] * decay * 0.35355339059327373),
+        );
       }
 
       self.modulation += mod_speed * 0.001;
@@ -161,15 +167,17 @@ impl FDNReverb {
 
       modulation: 0.0,
 
+      dc_blockers: [DcBlocker::default(); 8],
+
       delays: [
         VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[0] * 1.0),
         VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[1] * 2.0),
         VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[2] * 3.0),
-        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[3] * 4.0),
-        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[4] * 5.0),
-        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[5] * 6.0),
-        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[6] * 7.0),
-        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[7] * 8.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[3] * 5.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[4] * 7.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[5] * 9.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[6] * 11.0),
+        VariableDelayLineInterpolated::new(SAMPLE_RATE * 10, PRIMES[7] * 13.0),
       ],
     })
   }
