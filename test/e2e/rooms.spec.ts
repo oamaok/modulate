@@ -23,11 +23,8 @@ const OSCILLATOR_ID = '2wluI1S8LrgHAvzw'
 
 test('rooms should stay synced over different changes', async ({
   browser,
-  browserName,
   request,
 }) => {
-  test.skip(browserName === 'firefox', 'FIXME')
-
   test.setTimeout(1000 * 60)
   await resetDatabase(request)
 
