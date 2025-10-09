@@ -1,8 +1,8 @@
 use crate::audio_input::AudioInput;
 use crate::audio_output::AudioOutput;
 use crate::audio_param::AudioParam;
+use crate::dsp::delay_line::VariableDelayLineInterpolated;
 use crate::{
-  delay_line::VariableDelayLineInterpolated,
   modulate_core::{QUANTUM_SIZE, SAMPLE_RATE, SAMPLE_RATE_F32},
   module::Module,
 };

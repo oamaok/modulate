@@ -1,7 +1,7 @@
 use crate::audio_input::AudioInput;
 use crate::audio_output::AudioOutput;
 use crate::audio_param::AudioParam;
-use crate::filters::biquad_filter::BiquadFilter;
+use crate::dsp::biquad_filter::BiquadFilter;
 use crate::{modulate_core::QUANTUM_SIZE, module::Module};
 
 pub struct EQ3 {

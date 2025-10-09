@@ -2,10 +2,10 @@ use crate::audio_input::AudioInput;
 use crate::audio_output::AudioOutput;
 use crate::audio_param::AudioParam;
 
-use crate::filters::allpass_filter::AllpassFilter;
+use crate::dsp::allpass_filter::AllpassFilter;
 
 use crate::{
-  delay_line::VariableDelayLineInterpolated,
+  dsp::delay_line::VariableDelayLineInterpolated,
   modulate_core::{QUANTUM_SIZE, SAMPLE_RATE},
   module::Module,
 };

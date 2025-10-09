@@ -1,7 +1,7 @@
 use crate::audio_input::AudioInput;
 use crate::audio_output::AudioOutput;
 use crate::audio_param::AudioParam;
-use crate::edge_detector::EdgeDetector;
+use crate::dsp::edge_detector::EdgeDetector;
 use crate::modulate_core::QUANTUM_SIZE;
 
 use crate::module::{Module, ModuleEvent, ModuleMessage};

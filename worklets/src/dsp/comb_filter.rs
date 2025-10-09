@@ -1,4 +1,4 @@
-use crate::delay_line::VariableDelayLine;
+use crate::dsp::delay_line::VariableDelayLine;
 
 pub struct CombFilter {
   delay: VariableDelayLine,

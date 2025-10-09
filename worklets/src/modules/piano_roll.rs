@@ -4,7 +4,7 @@ use crate::{
   audio_input::AudioInput,
   audio_output::AudioOutput,
   audio_param::AudioParam,
-  edge_detector::EdgeDetector,
+  dsp::edge_detector::EdgeDetector,
   modulate_core::{INV_SAMPLE_RATE, QUANTUM_SIZE},
   module::{Module, ModuleMessage, PianoRollNote},
 };

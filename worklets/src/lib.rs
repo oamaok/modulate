@@ -2,7 +2,7 @@
 
 use audio_buffer::AudioBuffer;
 use core::arch::wasm32::memory_atomic_wait64;
-use filters::biquad_filter::BiquadFilter;
+use dsp::biquad_filter::BiquadFilter;
 use lazy_static::lazy_static;
 use modules::adsr::ADSR;
 use modules::audio_out::AudioOut;
@@ -39,9 +39,7 @@ pub mod audio_input;
 pub mod audio_output;
 pub mod audio_param;
 pub mod barrier;
-pub mod delay_line;
-pub mod edge_detector;
-pub mod filters;
+pub mod dsp;
 pub mod modulate_core;
 pub mod module;
 pub mod modules;

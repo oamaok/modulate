@@ -2,7 +2,7 @@ use crate::{
   audio_input::AudioInput,
   audio_output::AudioOutput,
   audio_param::AudioParam,
-  edge_detector::EdgeDetector,
+  dsp::edge_detector::EdgeDetector,
   modulate_core::{QUANTUM_SIZE, SAMPLE_RATE},
   module::{Module, ModuleEvent, ModuleMessage},
   util::lerp,
