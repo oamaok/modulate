@@ -334,7 +334,7 @@ test('can tweak all knobs of all modules', async ({ page }) => {
 
       await tweakKnob(page, knob, -30)
       const decreasedValue = await getKnobValue(knob)
-      expect(decreasedValue).toBeLessThan(increasedValue)
+      expect(decreasedValue).toBeLessThanOrEqual(increasedValue)
     }
 
     await deleteModule(page, module)

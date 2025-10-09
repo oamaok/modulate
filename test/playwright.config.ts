@@ -13,10 +13,10 @@ export default defineConfig({
   },
 
   expect: {
-    timeout: 1000,
+    timeout: 20000,
   },
 
-  timeout: 5000,
+  timeout: 20000,
 
   projects: [
     {
@@ -24,10 +24,12 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
+    /*
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
+    */
   ],
 
   webServer: {

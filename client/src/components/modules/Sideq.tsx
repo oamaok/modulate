@@ -64,6 +64,8 @@ const SideqNode = ({ id }: Props) => {
     return () => cancelAnimationFrame(animationFrame)
   })
 
+  return null
+  /*
   return (
     <Module id={id} type="Sideq">
       <canvas ref={canvasRef} width={WIDTH} height="100"></canvas>
@@ -85,6 +87,7 @@ const SideqNode = ({ id }: Props) => {
       </ModuleOutputs>
     </Module>
   )
+  */
 }
 
 export default SideqNode
