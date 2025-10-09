@@ -11,7 +11,7 @@ import * as util from '@modulate/common/util'
 import assert from './assert'
 import { Engine, FilterType } from './types'
 import { Module, ModuleName } from '@modulate/worklets/src/modules'
-import {
+import init, {
   getFilterCoefficients as getFilterCoefficientsWasm,
   initSync,
 } from '@modulate/worklets/pkg/modulate'
@@ -120,7 +120,7 @@ export const initializeEngine = async (opts: Partial<InitOptions> = {}) => {
     wasm,
   })
 
-  initSync({ module: wasm, memory })
+  await init(wasm, memory)
 
   engine = {
     init: createEngineMethod('init'),
